@@ -1,0 +1,867 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>dynamic programming 2</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./puzzles/1>&lt; dynamic programming 1</a></div> <div style=text-align:end><a href=/./puzzles/3>randomized algorithms 1 &gt;</a></div>
+</nav>
+<h2 id=question-1>Question 1</h2>
+<p>
+A subsequence is palindromic if it is the same whether read left to right or right to left. For instance, the sequence $$ \begin{align} A, C, G, T, G, T, C, A, A, A, A, T, C, G \end{align} $$ has many palindromic subsequences, including $A, C, G, C, A$ and $A, A, A, A$ (on the other hand, the subsequence $A, C, T$ is not palindromic).
+<br>
+<br>
+Devise an algorithm that takes a sequence $x[1...n]$ and returns the (length of the) longest contiguous palindromic subsequence. Its running time should be $O(n^2)$. I've changed this to be contiguous subsequence because I misread the question.
+<br>
+<br>
+So first we define the function $f(i, j)$ which determines if the sequence $x[i..j-1]$ is a palindrome. Because this is non inclusive, $f(i, i)$ has length 0 and is a palindrome. We can also say $f(i, i + 1)$ is a palindrome since it is length 1 to save us from calculating it (also because if we recurse, we end up getting $f(i, i - 1)$ which we didn't fill out). We can express it in terms of itself like so: $$ \begin{align} f(i, i) &= true \\ f(i, i + 1) &= true \\ f(i, j) &= f(i + 1, j - 1) \text { and } x[i] = x[j - 1] \\ \end{align} $$
+<br>
+<br>
+Why does $f(i, j)$ not calculate the length of a palindrome for $x[i..j-1]$? Because it is $j - i$ if it is a palindrome and inapplicable if it isn't. However, we can't just put 0 because palindromes can be length 0. If you wanted, you could end up using lengths and an negative number to keep track of things, however we would have modify the equation. $$ \begin{align} f(i, i) &= 0 \\ f(i, i + 1) &= 1 \\ f(i, j) &= \begin{cases} f(i + 1, j - 1) + 2 & x[i] = x[j - 1], f(i + 1, j - 1) \neq -1 \\ -1 & \text{otherwise} \end{cases} \end{align} $$ We won't do this for simplicities sake.
+<br>
+<br>
+We can try this on the example, start out by filling $f(i, i)$ and then the rest of the diagnoals. Here's a good amount of the table. I believe the rest of the empty spaces to the top right are false.
+</p>
+<table>
+<thead>
+<tr>
+<th>i\j</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>11</th>
+<th>12</th>
+<th>13</th>
+<th>14</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1</td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>11</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>12</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+</tr>
+<tr>
+<td>13</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>T</td>
+</tr>
+<tr>
+<td>14</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+</tr>
+</tbody>
+</table>
+<p>
+One example of how we are able to take advantage for dynamic programming is $f(7, 11)$ or the sequence $A, A, A, A$. We already previously determine there was a palindrome at $f(8, 10)$ so we can use this. To get the length of the longest one, we just go through the finished table and find an entry that is true that maxmizes $j - 1$ which seems to be $i = 7$ and $j = 11$.
+<br>
+<br>
+Actually, after solving this, I do not see a real difference in performance from a normal approach - the palindrome must be centered at a position $i...j$, and there is would be no repeat work done since all the pairs that would be compared are unique to that center. Well, this explains why this wasn't the actual question.
+</p>
+<h2 id=question-2>Question 2</h2>
+<p>
+Devise an algorithm that takes a sequence $x[1...n]$ and returns the (length of the) longest palindromic subsequence. Its running time should be $O(n^2)$.
+<br>
+<br>
+I think solving the previous question gives good insight for solving this one. We use the same formula as above, but instead we can modify it to calculate the actual lengths, along with a new case. $$ \begin{align} f(i, i) &= 0 \\ f(i, i + 1) &= 1 \\ f(i, j) &= \begin{cases} f(i + 1, j - 1) + 2 & x[i] = x[j - 1] \\ \max(f(i + 1, j), f(i, j - 1)) & \text{otherwise} \end{cases} \end{align} $$ I would beware overthinking, because when I was thinking of how it would look from the bottom up, I was wondering how this approach considered matching 1 letter added to one that wasn't necessarily at the start of the string. For example: $$ \begin{align} x[i...j] &= A, B, C, C, D &\text{ longest } &= C, C \\ x[i...j + 1] &= A, B, C, C, D, B &\text{ longest } &= B, C, C, B \\ \end{align} $$ Don't we need to somehow keep track that $B$ was in $x[i...j]$? The answer is no, because $f(i + 1, j + 1)$ which is for $B, C, C, D, B$ would also be calculated, and then $f(i, j + 1)$ would be $max(f(i + 1, j + 1), f(i + 1, j))$ which would show that the longest is $B, C, C, B$.
+<br>
+<br>
+Ok, here's part of the table:
+</p>
+<table>
+<thead>
+<tr>
+<th>i\j</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>11</th>
+<th>12</th>
+<th>13</th>
+<th>14</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1</td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>10</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>11</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>12</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>13</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>14</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>
+And let's see how some things work. $f(0, 6)$ which is $A, C, G, T, G, T$. The first and last letters don't match, so we go with the second case. $$ \begin{align} f(0, 6) = max(f(0, 5), f(1, 6)) = 3 \end{align} $$ $f(1, 7)$ which is $C, G, T, G, T, C$. The first and last letters match, so we go with the first case. $$ \begin{align} f(1, 7) = f(2, 6) + 2 = 3 + 2 = 5 \end{align} $$ In terms of how to determine what the actual sequence is, we just need to keep track of which case we used at each cell, and the letter that was compared if so. Let's do some backtracking to figure out what the actual sequence for $f(1, 7)$ is.
+<br>
+<br>
+Note that we noticed $C$ matched itself. This means the first and last letters of the sequence are $C$ and we used $f(2, 6)$. When we calculated $f(2, 6)$, we had a pair of non-matching letters because the sequence was $G, T, G, T$ so we used the max of $f(2, 5)$ and $f(3, 6)$. Either one really worked as they are both 3, but let's go with $f(3, 6)$ - $T, G, T$. The first letters match here so they $T$ is also in our palindrome. We end with $f(4, 5)$ which is a length 1, which means $G$ is in the center, so our sequence is $C, T, G, T, C$. Alternatively, if we had used $f(2, 5)$ we could say the sequence is $C, G, T, G, C$.
+<br>
+<br>
+One thing to note is that we ended on $f(i, i + 1)$ which signifies a single letter. If we ended on $f(i, i)$, then we would have to double the previous letter. An example would be $f(8, 10)$ which is $A, A$. The first and last letters match, so we have $A$ and end with $f(9, 9)$. This means the palindrome has an even amount of letters, so the middle needs to be duplicated to $A, A$ rather than just $A$.
+</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./puzzles/1>&lt; dynamic programming 1</a></div> <div style=text-align:end><a href=/./puzzles/3>randomized algorithms 1 &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-12-06 - add exercises 2</summary>
+<pre class=code-block><input id=code-block-d903f6140732cbdd2abf13a3d737169e2d8fc420-1 type=checkbox><label for=code-block-d903f6140732cbdd2abf13a3d737169e2d8fc420-1></label><code><span class=hljs-meta>@@ -0,0 +1,185 @@</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD041 --&gt;</span>
+<span class=hljs-addition>+## Question 1</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+A subsequence is palindromic if it is the same whether read left to right or right</span>
+<span class=hljs-addition>+to left. For instance, the sequence</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+A, C, G, T, G, T, C, A, A, A, A, T, C, G</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+has many palindromic subsequences, including $A, C, G, C, A$ and $A, A, A, A$ (on</span>
+<span class=hljs-addition>+the other hand, the subsequence $A, C, T$ is not palindromic).</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+Devise an algorithm that takes a sequence $x[1...n]$ and returns the (length of</span>
+<span class=hljs-addition>+the) longest contiguous palindromic subsequence. Its running time should be $O(n^2)$.</span>
+<span class=hljs-addition>+I&#x27;ve changed this to be contiguous subsequence because I misread the question.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+So first we define the function $f(i, j)$ which determines if the sequence $x[i..j-1]$</span>
+<span class=hljs-addition>+is a palindrome. Because this is non inclusive, $f(i, i)$ has length 0 and is a palindrome.</span>
+<span class=hljs-addition>+We can also say $f(i, i + 1)$ is a palindrome since it is length 1 to save us from</span>
+<span class=hljs-addition>+calculating it (also because if we recurse, we end up getting $f(i, i - 1)$ which</span>
+<span class=hljs-addition>+we didn&#x27;t fill out). We can express it in terms of itself like so:</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+    f(i, i) &amp;amp;= true \\</span>
+<span class=hljs-addition>+    f(i, i + 1) &amp;amp;= true \\</span>
+<span class=hljs-addition>+    f(i, j) &amp;amp;= f(i + 1, j - 1) \text { and } x[i] = x[j - 1] \\</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+Why does $f(i, j)$ not calculate the length of a palindrome for $x[i..j-1]$? Because</span>
+<span class=hljs-addition>+it is $j - i$ if it is a palindrome and inapplicable if it isn&#x27;t. However, we can&#x27;t</span>
+<span class=hljs-addition>+just put 0 because palindromes can be length 0. If you wanted, you could end up</span>
+<span class=hljs-addition>+using lengths and an negative number to keep track of things, however we would have</span>
+<span class=hljs-addition>+modify the equation.</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+    f(i, i) &amp;amp;= 0 \\</span>
+<span class=hljs-addition>+    f(i, i + 1) &amp;amp;= 1 \\</span>
+<span class=hljs-addition>+    f(i, j) &amp;amp;=</span>
+<span class=hljs-addition>+        \begin{cases}</span>
+<span class=hljs-addition>+            f(i + 1, j - 1) + 2 &amp;amp; x[i] = x[j - 1], f(i + 1, j - 1) \neq -1 \\</span>
+<span class=hljs-addition>+            -1 &amp;amp; \text{otherwise}</span>
+<span class=hljs-addition>+        \end{cases}</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+We won&#x27;t do this for simplicities sake.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+We can try this on the example, start out by filling $f(i, i)$ and then the rest</span>
+<span class=hljs-addition>+of the diagnoals. Here&#x27;s a good amount of the table. I believe the rest of the empty</span>
+<span class=hljs-addition>+spaces to the top right are false.</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD013 --&gt;</span>
+<span class=hljs-addition>+|  i\j  | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  | 13  | 14  |</span>
+<span class=hljs-addition>+| :---: | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |</span>
+<span class=hljs-addition>+|   0   | T   | T   | F   | F   | F   | F   |     |     |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   1   |     | T   | T   | F   | F   | F   | F   |     |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   2   |     |     | T   | T   | F   | T   | F   | F   |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   3   |     |     |     | T   | T   | F   | T   | F   |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   4   |     |     |     |     | T   | T   | F   | F   | F   |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   5   |     |     |     |     |     | T   | T   | F   | F   | F   |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   6   |     |     |     |     |     |     | T   | T   | F   | F   | F   |     |     |     |     |</span>
+<span class=hljs-addition>+|   7   |     |     |     |     |     |     |     | T   | T   | T   | T   | T   |     |     |     |</span>
+<span class=hljs-addition>+|   8   |     |     |     |     |     |     |     |     | T   | T   | T   | T   | F   |     |     |</span>
+<span class=hljs-addition>+|   9   |     |     |     |     |     |     |     |     |     | T   | T   | T   | F   | F   |     |</span>
+<span class=hljs-addition>+|  10   |     |     |     |     |     |     |     |     |     |     | T   | T   | F   | F   | F   |</span>
+<span class=hljs-addition>+|  11   |     |     |     |     |     |     |     |     |     |     |     | T   | T   | F   | F   |</span>
+<span class=hljs-addition>+|  12   |     |     |     |     |     |     |     |     |     |     |     |     | T   | T   | F   |</span>
+<span class=hljs-addition>+|  13   |     |     |     |     |     |     |     |     |     |     |     |     |     | T   | T   |</span>
+<span class=hljs-addition>+|  14   |     |     |     |     |     |     |     |     |     |     |     |     |     |     | T   |</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD013 --&gt;</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+One example of how we are able to take advantage for dynamic programming is $f(7,</span>
+<span class=hljs-addition>+11)$ or the sequence $A, A, A, A$. We already previously determine there was a palindrome</span>
+<span class=hljs-addition>+at $f(8, 10)$ so we can use this. To get the length of the longest one, we just</span>
+<span class=hljs-addition>+go through the finished table and find an entry that is true that maxmizes $j - 1$</span>
+<span class=hljs-addition>+which seems to be $i = 7$ and $j = 11$.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+Actually, after solving this, I do not see a real difference in performance from</span>
+<span class=hljs-addition>+a normal approach - the palindrome must be centered at a position $i...j$, and there</span>
+<span class=hljs-addition>+is would be no repeat work done since all the pairs that would be compared are unique</span>
+<span class=hljs-addition>+to that center. Well, this explains why this wasn&#x27;t the actual question.</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Question 2</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+Devise an algorithm that takes a sequence $x[1...n]$ and returns the (length of</span>
+<span class=hljs-addition>+the) longest palindromic subsequence. Its running time should be $O(n^2)$.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+I think solving the previous question gives good insight for solving this one. We</span>
+<span class=hljs-addition>+use the same formula as above, but instead we can modify it to calculate the actual</span>
+<span class=hljs-addition>+lengths, along with a new case.</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+    f(i, i) &amp;amp;= 0 \\</span>
+<span class=hljs-addition>+    f(i, i + 1) &amp;amp;= 1 \\</span>
+<span class=hljs-addition>+    f(i, j) &amp;amp;=</span>
+<span class=hljs-addition>+        \begin{cases}</span>
+<span class=hljs-addition>+            f(i + 1, j - 1) + 2 &amp;amp;  x[i] = x[j - 1] \\</span>
+<span class=hljs-addition>+            \max(f(i + 1, j), f(i, j - 1)) &amp;amp; \text{otherwise}</span>
+<span class=hljs-addition>+        \end{cases}</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+I would beware overthinking, because when I was thinking of how it would look from</span>
+<span class=hljs-addition>+the bottom up, I was wondering how this approach considered matching 1 letter added</span>
+<span class=hljs-addition>+to one that wasn&#x27;t necessarily at the start of the string. For example:</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+    x[i...j] &amp;amp;= A, B, C, C, D &amp;amp;\text{ longest } &amp;amp;= C, C \\</span>
+<span class=hljs-addition>+    x[i...j + 1] &amp;amp;= A, B, C, C, D, B &amp;amp;\text{ longest } &amp;amp;= B, C, C, B \\</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+Don&#x27;t we need to somehow keep track that $B$ was in $x[i...j]$? The answer is no,</span>
+<span class=hljs-addition>+because $f(i + 1, j + 1)$ which is for $B, C, C, D, B$ would also be calculated,</span>
+<span class=hljs-addition>+and then $f(i, j + 1)$ would be $max(f(i + 1, j + 1), f(i + 1, j))$ which would show</span>
+<span class=hljs-addition>+that the longest is $B, C, C, B$.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+Ok, here&#x27;s part of the table:</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD013 --&gt;</span>
+<span class=hljs-addition>+|  i\j  | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  | 13  | 14  |</span>
+<span class=hljs-addition>+| :---: | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |</span>
+<span class=hljs-addition>+|   0   | 0   | 1   | 1   | 1   | 1   | 3   |     |     |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   1   |     | 0   | 1   | 1   | 1   | 3   | 3   |     |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   2   |     |     | 0   | 1   | 1   | 3   | 3   | 3   |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   3   |     |     |     | 0   | 1   | 1   | 3   | 3   | 3   |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   4   |     |     |     |     | 0   | 1   | 1   | 1   | 1   | 2   |     |     |     |     |     |</span>
+<span class=hljs-addition>+|   5   |     |     |     |     |     | 0   | 1   | 1   | 1   | 2   | 3   |     |     |     |     |</span>
+<span class=hljs-addition>+|   6   |     |     |     |     |     |     | 0   | 1   | 1   | 2   | 3   | 4   |     |     |     |</span>
+<span class=hljs-addition>+|   7   |     |     |     |     |     |     |     | 0   | 1   | 2   | 3   | 4   | 4   |     |     |</span>
+<span class=hljs-addition>+|   8   |     |     |     |     |     |     |     |     | 0   | 1   | 2   | 3   | 3   | 3   |     |</span>
+<span class=hljs-addition>+|   9   |     |     |     |     |     |     |     |     |     | 0   | 1   | 2   | 2   | 2   | 2   |</span>
+<span class=hljs-addition>+|  10   |     |     |     |     |     |     |     |     |     |     | 0   | 1   | 1   | 1   | 1   |</span>
+<span class=hljs-addition>+|  11   |     |     |     |     |     |     |     |     |     |     |     | 0   | 1   | 1   | 1   |</span>
+<span class=hljs-addition>+|  12   |     |     |     |     |     |     |     |     |     |     |     |     | 0   | 1   | 1   |</span>
+<span class=hljs-addition>+|  13   |     |     |     |     |     |     |     |     |     |     |     |     |     | 0   | 1   |</span>
+<span class=hljs-addition>+|  14   |     |     |     |     |     |     |     |     |     |     |     |     |     |     | 0   |</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD013 --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+And let&#x27;s see how some things work. $f(0, 6)$ which is $A, C, G, T, G, T$. The</span>
+<span class=hljs-addition>+first and last letters don&#x27;t match, so we go with the second case.</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+    f(0, 6) = max(f(0, 5), f(1, 6)) = 3</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+$f(1, 7)$ which is $C, G, T, G, T, C$. The first and last letters match, so we go</span>
+<span class=hljs-addition>+with the first case.</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+    f(1, 7) = f(2, 6) + 2 = 3 + 2 = 5</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+In terms of how to determine what the actual sequence is, we just need to keep track</span>
+<span class=hljs-addition>+of which case we used at each cell, and the letter that was compared if so. Let&#x27;s</span>
+<span class=hljs-addition>+do some backtracking to figure out what the actual sequence for $f(1, 7)$ is.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+Note that we noticed $C$ matched itself. This means the first and last letters of</span>
+<span class=hljs-addition>+the sequence are $C$ and we used $f(2, 6)$. When we calculated $f(2, 6)$, we had</span>
+<span class=hljs-addition>+a pair of non-matching letters because the sequence was $G, T, G, T$ so we used the</span>
+<span class=hljs-addition>+max of $f(2, 5)$ and $f(3, 6)$. Either one really worked as they are both 3, but</span>
+<span class=hljs-addition>+let&#x27;s go with $f(3, 6)$ - $T, G, T$. The first letters match here so they $T$ is</span>
+<span class=hljs-addition>+also in our palindrome. We end with $f(4, 5)$ which is a length 1, which means $G$</span>
+<span class=hljs-addition>+is in the center, so our sequence is $C, T, G, T, C$. Alternatively, if we had used</span>
+<span class=hljs-addition>+$f(2, 5)$ we could say the sequence is $C, G, T, G, C$.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+One thing to note is that we ended on $f(i, i + 1)$ which signifies a single letter.</span>
+<span class=hljs-addition>+If we ended on $f(i, i)$, then we would have to double the previous letter. An example</span>
+<span class=hljs-addition>+would be $f(8, 10)$ which is $A, A$. The first and last letters match, so we have</span>
+<span class=hljs-addition>+$A$ and end with $f(9, 9)$. This means the palindrome has an even amount of letters,</span>
+<span class=hljs-addition>+so the middle needs to be duplicated to $A, A$ rather than just $A$.</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

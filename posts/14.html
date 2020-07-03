@@ -1,0 +1,809 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>compression - rambling</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/13>&lt; compression - huffman coding</a></div> <div style=text-align:end><a href=/./posts/15>first time aws user here &gt;</a></div>
+</nav>
+<h1 id=compression---rambling>compression - rambling</h1>
+<p>Warning.</p>
+<h2 id=is-this-a-valid-idea>is this a valid idea</h2>
+<p>So my understanding is that data is more easily compressed the less random it is. However, there is overhead for storing the decompression data, in the Huffman case, the tree (well also the decompression script counts towards overhead, too I guess).</p>
+<p>However, it stands to reason that it's possible to make the data less random by splitting it up.</p>
+<h2 id=lets-try-it>let's try it</h2>
+<p>Consider the string <code>5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</code> - it looks quite random doesn't it? And compressing it using Huffman coding ends up giving values like this:</p>
+<pre class=code-block><input id=code-block-14-1 type=checkbox><label for=code-block-14-1></label><code>Unencoded Length: <span class=hljs-number>256</span>
+Unencoded: 0011010101100100001100100110101100110110011000110011001101110001001100010110010001110111001101010111100000110010011110010011100101110011011110010011001101111010001101000011101001110110011011100110100001111000001101100111001000111001001101100111010000111000
+Encoded Length: <span class=hljs-number>371</span>
+Encoded: <span class=hljs-number>11110011110100001100101000110011000110101110001110010011001001001111000001111001111100011000100011010010001110000001110101100110001100110100010011010110011011101110011100010011100101001110011001110100110011101100011101110001101100011010100011011011111010000101100010000010111101001101100001011101001101001110010000010001100111110010111101010110111111001010011111101110010</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+</code></pre>
+<p>We can see that trying to compress it has actually increased the size from 256 to 371 bytes. But let's try modifying our script from the last part to chunk the data to various sizes and get the chunk size that gives us the smallest compressed data size; something quick like this:</p>
+<pre class=code-block><input id=code-block-14-2 type=checkbox><label for=code-block-14-2></label><code>best_chunk_size = <span class=hljs-built_in>len</span>(data)
+best_encoded_size = <span class=hljs-number>371</span>
+<span class=hljs-keyword>for</span> i <span class=hljs-keyword>in</span> <span class=hljs-built_in>range</span>(<span class=hljs-number>2</span>, <span class=hljs-built_in>len</span>(data)):
+    total_encoded_size = <span class=hljs-number>0</span>
+    chunks = [data[x:x + i] <span class=hljs-keyword>for</span> x <span class=hljs-keyword>in</span> <span class=hljs-built_in>range</span>(<span class=hljs-number>0</span>, <span class=hljs-built_in>len</span>(data), i)]
+    <span class=hljs-keyword>for</span> chunk <span class=hljs-keyword>in</span> chunks
+        <span class=hljs-comment># normal processing logic</span>
+        total_encoded_size = total_encoded_size + <span class=hljs-built_in>len</span>(encoded)
+    <span class=hljs-keyword>if</span> total_encoded_size &lt; best_encoded_size:
+        best_chunk_size = i
+        best_encoded_size = total_encoded_size
+</code></pre>
+<p>It turns out that breaking it out into chunks of 2 is actually a lot more efficient.</p>
+<pre class=code-block><input id=code-block-14-3 type=checkbox><label for=code-block-14-3></label><code>Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011010101100100
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011010100110010001</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 5d
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011001001101011
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011001000110101101</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 2k
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011011001100011
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011011000110001101</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 6c
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011001101110001
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011001100111000101</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 3q
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011000101100100
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011000100110010001</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 1d
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0111011100110101
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011010100111011110</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: w5
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0111100000110010
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011001000111100010</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: x2
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0111100100111001
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011100100111100110</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: y9
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0111001101111001
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100111001100111100101</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: sy
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011001101111010
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011001100111101001</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 3z
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011010000111010
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011010000011101001</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: <span class=hljs-number>4</span>:
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0111011001101110
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100110111000111011010</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: vn
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0110100001111000
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100110100000111100001</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: hx
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011011001110010
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011011000111001001</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: 6r
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0011100100110110
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011011000011100110</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: <span class=hljs-number>96</span>
+
+Unencoded Length: <span class=hljs-number>16</span>
+Unencoded: 0111010000111000
+Encoded Length: <span class=hljs-number>21</span>
+Encoded: <span class=hljs-number>100011100000111010010</span>
+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+Decoded: t8
+</code></pre>
+<p>We were able to cut the data down to 336 bits, compared to the original 371, but it was still worse than the original unencoded length of 256. Also this is when I realized there seemed to be a missing case for encoding when there was only 1 symbol. But that's not important considering what I'm about to explain.</p>
+<p>First, let's determine the size of the encoding of the binary tree relative to the number of symbols. We know that there will be $1:1$ relationship between the number of nodes and the number of 1 and 0 bits in the encoding. We also know that there will be $8*len(symbols)$ of bits to encode the symbol data for the tree (assuming we're using chars which are 1 byte long). We also know that we will always have a full binary tree because we build from the leaves up, so let's find a relationship between number of nodes in a full binary tree and number of leaves. Examples are good to look at.</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child{ node{} }
+      child{ node {} };
+   \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child{ node{} }
+      child{ node {} };
+   \end{tikzpicture}
+</script>
+<p><br></p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child{ node{} }
+      child{ node {}
+        child{ node{} }
+        child{ node{} } };
+   \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child{ node{} }
+      child{ node {}
+        child{ node{} }
+        child{ node{} } };
+   \end{tikzpicture}
+</script>
+<p><br></p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+    level 1/.style={sibling distance=30mm},
+    level 2/.style={sibling distance=15mm}]
+    \node{}
+      child { node {}
+        child { node {} }
+        child { node {} }
+      }
+      child { node{}
+        child{ node{} }
+        child{ node {} }
+      };
+   \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+    level 1/.style={sibling distance=30mm},
+    level 2/.style={sibling distance=15mm}]
+    \node{}
+      child { node {}
+        child { node {} }
+        child { node {} }
+      }
+      child { node{}
+        child{ node{} }
+        child{ node {} }
+      };
+   \end{tikzpicture}
+</script>
+<p><br></p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+    level 1/.style={sibling distance=30mm},
+    level 2/.style={sibling distance=15mm}]
+    \node{}
+      child { node {}
+        child { node {} }
+        child { node {} }
+      }
+      child { node{}
+        child{ node{} }
+        child{ node {}
+          child{ node{} }
+          child{ node{} }
+        }
+      };
+   \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+    level 1/.style={sibling distance=30mm},
+    level 2/.style={sibling distance=15mm}]
+    \node{}
+      child { node {}
+        child { node {} }
+        child { node {} }
+      }
+      child { node{}
+        child{ node{} }
+        child{ node {}
+          child{ node{} }
+          child{ node{} }
+        }
+      };
+   \end{tikzpicture}
+</script>
+<p><br></p>
+<table>
+<thead>
+<tr>
+<th>Leaves</th>
+<th>total nodes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>5</td>
+</tr>
+<tr>
+<td>4</td>
+<td>7</td>
+</tr>
+<tr>
+<td>5</td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+<p>And we should be able to see that we the pattern is $n = 2l - 1$. And remember, the number of leaves is equal to the number of symbols.</p>
+<p>
+Let $s$ be the number of distinct symbols in the data <br>
+$$ \begin{align} 8 * len(symbols) + 2 * len(symbols) - 1 = 10 * len(symbols) - 1 \end{align} $$
+</p>
+<p>So it takes $10 * s - 1$ bits to encode the binary tree (double check that…). Now we need to think about how the data is actually encoded.</p>
+<p>There is one obvious point where the encoding is no longer worth it, and that is when the encoding for a node ends up being <em>at least</em> 8 bits long - or in other words the depth the leaf nodes of the tree are all at least 8.</p>
+<p>This definitely requires a lot more thought and analysis than my ramble is calling for, but the idea is that there should be some ratio between the occurrence of shorter encoded symbols and longer encoded symbols that, once surpassed, can show Huffman coding to be inefficient. The idea is that a tree like the following:</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child { node {A} }
+      child { node{}
+        child{ node{} }
+        child{ node {}
+          child{ node{} }
+          child{ node{}
+            child { node {} }
+            child { node {} }
+          }
+        }
+      };
+   \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child { node {A} }
+      child { node{}
+        child{ node{} }
+        child{ node {}
+          child{ node{} }
+          child{ node{}
+            child { node {} }
+            child { node {} }
+          }
+        }
+      };
+   \end{tikzpicture}
+</script>
+<p>But extended far and deep to the right. We can see that $A$ only takes one bit to encode but the symbols much lower down will - possibly - a lot more than 8 bits to encode, so for Huffman coding to be efficient, there needs to be a certain amount of more $A$s compared to the ones down there - intuition says the ratio is also related to the difference in bit encoding lengths.</p>
+<p>I think the ramble has gone on for some time, so I'd like to just end with one example where chunking beats the unencoded while chunking doesn't - when the data is $ABCABCDEFDEFGHIGHI$.</p>
+<p>Just by looking at it, you can already guess that a good chunk size is going to be 6, and it turns out that is what is best. If we go with encoding the entire thing, we get</p>
+<pre class=code-block><input id=code-block-14-4 type=checkbox><label for=code-block-14-4></label><code>Unencoded Length: <span class=hljs-number>144</span>
+Unencoded: <span class=hljs-number>0</span>10000010100001001000011010000010100001001000011010001000100010101000110010001000100010101000110010001110100100001001001010001110100100001001001
+Encoded Length: <span class=hljs-number>147</span>
+Encoded: <span class=hljs-number>111001000011001000100100100010100100011011001000111001001000100100100110010000010010000101110111100011101111000001010011001010011100101110100101110</span>
+Data: ABCABCDEFDEFGHIGHI
+Decoded: ABCABCDEFDEFGHIGHI
+</code></pre>
+<p>3 more bits! But chunking it down to chunks of 6, we get</p>
+<pre class=code-block><input id=code-block-14-5 type=checkbox><label for=code-block-14-5></label><code>Unencoded Length: <span class=hljs-number>48</span>
+Unencoded: <span class=hljs-number>0</span>10000010100001001000011010000010100001001000011
+Encoded Length: <span class=hljs-number>39</span>
+Encoded: <span class=hljs-number>100100001110010000010010000101011010110</span>
+Data: ABCABCDEFDEFGHIGHI
+Decoded: ABCABC
+
+Unencoded Length: <span class=hljs-number>48</span>
+Unencoded: <span class=hljs-number>0</span>10001000100010101000110010001000100010101000110
+Encoded Length: <span class=hljs-number>39</span>
+Encoded: <span class=hljs-number>100100011010010001000010001011011010110</span>
+Data: ABCABCDEFDEFGHIGHI
+Decoded: DEFDEF
+
+Unencoded Length: <span class=hljs-number>48</span>
+Unencoded: <span class=hljs-number>0</span>10001110100100001001001010001110100100001001001
+Encoded Length: <span class=hljs-number>39</span>
+Encoded: <span class=hljs-number>100100100110010001110010010001011010110</span>
+Data: ABCABCDEFDEFGHIGHI
+Decoded: GHIGHI
+</code></pre>
+<p>117 bits! An improvement of 27 bits!</p>
+<h2 id=further-reading>further reading</h2>
+<p>Looking at the
+<a href=https://en.wikipedia.org/wiki/Huffman_coding>wikipedia page for Huffman coding</a>, there are two other algorithms mentioned:
+<a href=https://en.wikipedia.org/wiki/Arithmetic_coding>arithmetic coding</a> and
+<a href=https://en.wikipedia.org/wiki/Asymmetric_numeral_systems>asymmetric numeral systems</a>. Pretty interesting stuff.</p>
+<p>Also this <a href=http://fastcompression.blogspot.com/ >blog</a> is very informative of other related topics.</p>
+<p>Ramble over.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/13>&lt; compression - huffman coding</a></div> <div style=text-align:end><a href=/./posts/15>first time aws user here &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-11-18 - rename some posts</summary>
+<pre class=code-block><input id=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1 type=checkbox><label for=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-# compression - pt 2 - rambling</span>
+<span class=hljs-addition>+# compression - rambling</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-08-06 - aws</summary>
+<pre class=code-block><input id=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-1 type=checkbox><label for=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-1></label><code><span class=hljs-meta>@@ -15,3 +15,3 @@</span> splitting it up.
+
+<span class=hljs-deletion>-Consider the string $5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8$ - it looks quite random doesn&#x27;t</span>
+<span class=hljs-addition>+Consider the string `5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8` - it looks quite random doesn&#x27;t</span>
+ it? And compressing it using Huffman coding ends up giving values like this:
+</code></pre>
+<pre class=code-block><input id=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-2 type=checkbox><label for=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-2></label><code><span class=hljs-meta>@@ -183,3 +183,3 @@</span> good to look at.
+ &lt;/script&gt;
+<span class=hljs-deletion>-</span>
+<span class=hljs-addition>+&lt;br&gt;</span>
+ &lt;script type=&quot;text/tikz&quot;&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-3 type=checkbox><label for=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-3></label><code><span class=hljs-meta>@@ -193,3 +193,3 @@</span> good to look at.
+ &lt;/script&gt;
+<span class=hljs-deletion>-</span>
+<span class=hljs-addition>+&lt;br&gt;</span>
+ &lt;script type=&quot;text/tikz&quot;&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-4 type=checkbox><label for=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-4></label><code><span class=hljs-meta>@@ -209,3 +209,3 @@</span> good to look at.
+ &lt;/script&gt;
+<span class=hljs-deletion>-</span>
+<span class=hljs-addition>+&lt;br&gt;</span>
+ &lt;script type=&quot;text/tikz&quot;&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-5 type=checkbox><label for=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-5></label><code><span class=hljs-meta>@@ -228,2 +228,3 @@</span> good to look at.
+ &lt;/script&gt;
+<span class=hljs-addition>+&lt;br&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-6 type=checkbox><label for=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-6></label><code><span class=hljs-meta>@@ -245,3 +246,3 @@</span> $$
+ \begin{align}
+<span class=hljs-deletion>-8 * s + 2 * s - 1 = 10 * s - 1</span>
+<span class=hljs-addition>+8 * len(symbols) + 2 * len(symbols) - 1 = 10 * len(symbols) - 1</span>
+ \end{align}
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - add some content</summary>
+<pre class=code-block><input id=code-block-2083d8a95cf4f9309739ef74c6839afcc5abfbf6-1 type=checkbox><label for=code-block-2083d8a95cf4f9309739ef74c6839afcc5abfbf6-1></label><code><span class=hljs-meta>@@ -336,2 +336,5 @@</span> Pretty interesting stuff.
+
+<span class=hljs-addition>+Also this [blog](http://fastcompression.blogspot.com/) is very informative of other</span>
+<span class=hljs-addition>+related topics.</span>
+<span class=hljs-addition>+</span>
+ Ramble over.
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - fix some spacing</summary>
+<pre class=code-block><input id=code-block-37c86106fb16d6c9a0ff050a0bce0f2402a4526a-1 type=checkbox><label for=code-block-37c86106fb16d6c9a0ff050a0bce0f2402a4526a-1></label><code><span class=hljs-meta>@@ -19,8 +19,8 @@</span> it? And compressing it using Huffman coding ends up giving values like this:
+</code></pre>
+<p>python</p>
+<ul>
+<li>Unencoded Length: 256</li>
+<li>Unencoded: 0011010101100100001100100110101100110110011000110011001101110001001100010110010001110111001101010111100000110010011110010011100101110011011110010011001101111010001101000011101001110110011011100110100001111000001101100111001000111001001101100111010000111000</li>
+<li>Encoded Length: 371</li>
+<li>Encoded: 11110011110100001100101000110011000110101110001110010011001001001111000001111001111100011000100011010010001110000001110101100110001100110100010011010110011011101110011100010011100101001110011001110100110011101100011101110001101100011010100011011011111010000101100010000010111101001101100001011101001101001110010000010001100111110010111101010110111111001010011111101110010</li>
+<li>Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</li>
+<li>Decoded: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8 +Unencoded Length: 256 +Unencoded: 0011010101100100001100100110101100110110011000110011001101110001001100010110010001110111001101010111100000110010011110010011100101110011011110010011001101111010001101000011101001110110011011100110100001111000001101100111001000111001001101100111010000111000 +Encoded Length: 371 +Encoded: 11110011110100001100101000110011000110101110001110010011001001001111000001111001111100011000100011010010001110000001110101100110001100110100010011010110011011101110011100010011100101001110011001110100110011101100011101110001101100011010100011011011111010000101100010000010111101001101100001011101001101001110010000010001100111110010111101010110111111001010011111101110010 +Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8 +Decoded: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8
+<code>
+</code></li>
+</ul>
+</details>
+<details>
+<summary>2020-07-28 - compression pt 2</summary>
+<pre class=code-block><input id=code-block-0ae0ebbcd008f5dd4a246e6cbff8612df63fd38f-1 type=checkbox><label for=code-block-0ae0ebbcd008f5dd4a246e6cbff8612df63fd38f-1></label><code><span class=hljs-meta>@@ -0,0 +1,337 @@</span>
+<span class=hljs-addition>+# compression - pt 2 - rambling</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Warning.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## is this a valid idea</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So my understanding is that data is more easily compressed the less random it is.</span>
+<span class=hljs-addition>+However, there is overhead for storing the decompression data, in the Huffman case,</span>
+<span class=hljs-addition>+the tree (well also the decompression script counts towards overhead, too I guess).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, it stands to reason that it&#x27;s possible to make the data less random by</span>
+<span class=hljs-addition>+splitting it up.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## let&#x27;s try it</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Consider the string $5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8$ - it looks quite random doesn&#x27;t</span>
+<span class=hljs-addition>+it? And compressing it using Huffman coding ends up giving values like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+    Unencoded Length: 256</span>
+<span class=hljs-addition>+    Unencoded: 0011010101100100001100100110101100110110011000110011001101110001001100010110010001110111001101010111100000110010011110010011100101110011011110010011001101111010001101000011101001110110011011100110100001111000001101100111001000111001001101100111010000111000</span>
+<span class=hljs-addition>+    Encoded Length: 371</span>
+<span class=hljs-addition>+    Encoded: 11110011110100001100101000110011000110101110001110010011001001001111000001111001111100011000100011010010001110000001110101100110001100110100010011010110011011101110011100010011100101001110011001110100110011101100011101110001101100011010100011011011111010000101100010000010111101001101100001011101001101001110010000010001100111110010111101010110111111001010011111101110010</span>
+<span class=hljs-addition>+    Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+    Decoded: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can see that trying to compress it has actually increased the size from 256 to</span>
+<span class=hljs-addition>+371 bytes. But let&#x27;s try modifying our script from the last part to chunk the data</span>
+<span class=hljs-addition>+to various sizes and get the chunk size that gives us the smallest compressed data</span>
+<span class=hljs-addition>+size; something quick like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+best_chunk_size = len(data)</span>
+<span class=hljs-addition>+best_encoded_size = 371</span>
+<span class=hljs-addition>+for i in range(2, len(data)):</span>
+<span class=hljs-addition>+    total_encoded_size = 0</span>
+<span class=hljs-addition>+    chunks = [data[x:x + i] for x in range(0, len(data), i)]</span>
+<span class=hljs-addition>+    for chunk in chunks</span>
+<span class=hljs-addition>+        # normal processing logic</span>
+<span class=hljs-addition>+        total_encoded_size = total_encoded_size + len(encoded)</span>
+<span class=hljs-addition>+    if total_encoded_size &lt; best_encoded_size:</span>
+<span class=hljs-addition>+        best_chunk_size = i</span>
+<span class=hljs-addition>+        best_encoded_size = total_encoded_size</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It turns out that breaking it out into chunks of 2 is actually a lot more efficient.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011010101100100</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011010100110010001</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 5d</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011001001101011</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011001000110101101</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 2k</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011011001100011</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011011000110001101</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 6c</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011001101110001</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011001100111000101</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 3q</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011000101100100</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011000100110010001</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 1d</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0111011100110101</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011010100111011110</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: w5</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0111100000110010</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011001000111100010</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: x2</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0111100100111001</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011100100111100110</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: y9</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0111001101111001</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100111001100111100101</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: sy</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011001101111010</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011001100111101001</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 3z</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011010000111010</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011010000011101001</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 4:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0111011001101110</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100110111000111011010</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: vn</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0110100001111000</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100110100000111100001</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: hx</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011011001110010</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011011000111001001</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 6r</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0011100100110110</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011011000011100110</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: 96</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 16</span>
+<span class=hljs-addition>+Unencoded: 0111010000111000</span>
+<span class=hljs-addition>+Encoded Length: 21</span>
+<span class=hljs-addition>+Encoded: 100011100000111010010</span>
+<span class=hljs-addition>+Data: 5d2k6c3q1dw5x2y9sy3z4:vnhx6r96t8</span>
+<span class=hljs-addition>+Decoded: t8</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We were able to cut the data down to 336 bits, compared to the original 371,</span>
+<span class=hljs-addition>+but it was still worse than the original unencoded length of 256. Also this is when</span>
+<span class=hljs-addition>+I realized there seemed to be a missing case for encoding when there was only 1</span>
+<span class=hljs-addition>+symbol. But that&#x27;s not important considering what I&#x27;m about to explain.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First, let&#x27;s determine the size of the encoding of the binary tree relative to</span>
+<span class=hljs-addition>+the number of symbols. We know that there will be $1:1$ relationship between the</span>
+<span class=hljs-addition>+number of nodes and the number of 1 and 0 bits in the encoding. We also know that</span>
+<span class=hljs-addition>+there will be $8*len(symbols)$ of bits to encode the symbol data for the tree</span>
+<span class=hljs-addition>+(assuming we&#x27;re using chars which are 1 byte long). We also know that we will always</span>
+<span class=hljs-addition>+have a full binary tree because we build from the leaves up, so let&#x27;s find a relationship</span>
+<span class=hljs-addition>+between number of nodes in a full binary tree and number of leaves. Examples are</span>
+<span class=hljs-addition>+good to look at.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+    \node{}</span>
+<span class=hljs-addition>+      child{ node{} }</span>
+<span class=hljs-addition>+      child{ node {} };</span>
+<span class=hljs-addition>+   \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+    \node{}</span>
+<span class=hljs-addition>+      child{ node{} }</span>
+<span class=hljs-addition>+      child{ node {}</span>
+<span class=hljs-addition>+        child{ node{} }</span>
+<span class=hljs-addition>+        child{ node{} } };</span>
+<span class=hljs-addition>+   \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-addition>+    level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-addition>+    level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-addition>+    \node{}</span>
+<span class=hljs-addition>+      child { node {}</span>
+<span class=hljs-addition>+        child { node {} }</span>
+<span class=hljs-addition>+        child { node {} }</span>
+<span class=hljs-addition>+      }</span>
+<span class=hljs-addition>+      child { node{}</span>
+<span class=hljs-addition>+        child{ node{} }</span>
+<span class=hljs-addition>+        child{ node {} }</span>
+<span class=hljs-addition>+      };</span>
+<span class=hljs-addition>+   \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-addition>+    level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-addition>+    level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-addition>+    \node{}</span>
+<span class=hljs-addition>+      child { node {}</span>
+<span class=hljs-addition>+        child { node {} }</span>
+<span class=hljs-addition>+        child { node {} }</span>
+<span class=hljs-addition>+      }</span>
+<span class=hljs-addition>+      child { node{}</span>
+<span class=hljs-addition>+        child{ node{} }</span>
+<span class=hljs-addition>+        child{ node {}</span>
+<span class=hljs-addition>+          child{ node{} }</span>
+<span class=hljs-addition>+          child{ node{} }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+      };</span>
+<span class=hljs-addition>+   \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Leaves | total nodes |</span>
+<span class=hljs-addition>+| ------ | ----------- |</span>
+<span class=hljs-addition>+| 1      | 1           |</span>
+<span class=hljs-addition>+| 2      | 3           |</span>
+<span class=hljs-addition>+| 3      | 5           |</span>
+<span class=hljs-addition>+| 4      | 7           |</span>
+<span class=hljs-addition>+| 5      | 9           |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And we should be able to see that we the pattern is $n = 2l - 1$. And remember,</span>
+<span class=hljs-addition>+the number of leaves is equal to the number of symbols.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+Let $s$ be the number of distinct symbols in the data &lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;!--markdownlint-disable no-space-in-emphasis--&gt;</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+8 * s + 2 * s - 1 = 10 * s - 1</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+&lt;!--markdownlint-enable no-space-in-emphasis--&gt;</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So it takes $10 * s - 1$ bits to encode the binary tree (double check that...).</span>
+<span class=hljs-addition>+Now we need to think about how the data is actually encoded.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is one obvious point where the encoding is no longer worth it, and that is</span>
+<span class=hljs-addition>+when the encoding for a node ends up being *at least* 8 bits long - or in other words</span>
+<span class=hljs-addition>+the depth the leaf nodes of the tree are all at least 8.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This definitely requires a lot more thought and analysis than my ramble is calling</span>
+<span class=hljs-addition>+for, but the idea is that there should be some ratio between the occurrence of shorter</span>
+<span class=hljs-addition>+encoded symbols and longer encoded symbols that, once surpassed, can show Huffman</span>
+<span class=hljs-addition>+coding to be inefficient. The idea is that a tree like the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+    \node{}</span>
+<span class=hljs-addition>+      child { node {A} }</span>
+<span class=hljs-addition>+      child { node{}</span>
+<span class=hljs-addition>+        child{ node{} }</span>
+<span class=hljs-addition>+        child{ node {}</span>
+<span class=hljs-addition>+          child{ node{} }</span>
+<span class=hljs-addition>+          child{ node{}</span>
+<span class=hljs-addition>+            child { node {} }</span>
+<span class=hljs-addition>+            child { node {} }</span>
+<span class=hljs-addition>+          }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+      };</span>
+<span class=hljs-addition>+   \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But extended far and deep to the right. We can see that $A$ only takes one bit to</span>
+<span class=hljs-addition>+encode but the symbols much lower down will - possibly - a lot more than 8 bits to</span>
+<span class=hljs-addition>+encode, so for Huffman coding to be efficient, there needs to be a certain amount</span>
+<span class=hljs-addition>+of more $A$s compared to the ones down there - intuition says the ratio is also related</span>
+<span class=hljs-addition>+to the difference in bit encoding lengths.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think the ramble has gone on for some time, so I&#x27;d like to just end with one example</span>
+<span class=hljs-addition>+where chunking beats the unencoded while chunking doesn&#x27;t - when the data is $ABCABCDEFDEFGHIGHI$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Just by looking at it, you can already guess that a good chunk size is going to</span>
+<span class=hljs-addition>+be 6, and it turns out that is what is best. If we go with encoding the entire thing,</span>
+<span class=hljs-addition>+we get</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+Unencoded Length: 144</span>
+<span class=hljs-addition>+Unencoded: 010000010100001001000011010000010100001001000011010001000100010101000110010001000100010101000110010001110100100001001001010001110100100001001001</span>
+<span class=hljs-addition>+Encoded Length: 147</span>
+<span class=hljs-addition>+Encoded: 111001000011001000100100100010100100011011001000111001001000100100100110010000010010000101110111100011101111000001010011001010011100101110100101110</span>
+<span class=hljs-addition>+Data: ABCABCDEFDEFGHIGHI</span>
+<span class=hljs-addition>+Decoded: ABCABCDEFDEFGHIGHI</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+3 more bits! But chunking it down to chunks of 6, we get</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+Unencoded Length: 48</span>
+<span class=hljs-addition>+Unencoded: 010000010100001001000011010000010100001001000011</span>
+<span class=hljs-addition>+Encoded Length: 39</span>
+<span class=hljs-addition>+Encoded: 100100001110010000010010000101011010110</span>
+<span class=hljs-addition>+Data: ABCABCDEFDEFGHIGHI</span>
+<span class=hljs-addition>+Decoded: ABCABC</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 48</span>
+<span class=hljs-addition>+Unencoded: 010001000100010101000110010001000100010101000110</span>
+<span class=hljs-addition>+Encoded Length: 39</span>
+<span class=hljs-addition>+Encoded: 100100011010010001000010001011011010110</span>
+<span class=hljs-addition>+Data: ABCABCDEFDEFGHIGHI</span>
+<span class=hljs-addition>+Decoded: DEFDEF</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unencoded Length: 48</span>
+<span class=hljs-addition>+Unencoded: 010001110100100001001001010001110100100001001001</span>
+<span class=hljs-addition>+Encoded Length: 39</span>
+<span class=hljs-addition>+Encoded: 100100100110010001110010010001011010110</span>
+<span class=hljs-addition>+Data: ABCABCDEFDEFGHIGHI</span>
+<span class=hljs-addition>+Decoded: GHIGHI</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+117 bits! An improvement of 27 bits!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## further reading</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Looking at the [wikipedia page for Huffman coding](https://en.wikipedia.org/wiki/Huffman_coding),</span>
+<span class=hljs-addition>+there are two other algorithms mentioned: [arithmetic coding](https://en.wikipedia.org/wiki/Arithmetic_coding)</span>
+<span class=hljs-addition>+and [asymmetric numeral systems](https://en.wikipedia.org/wiki/Asymmetric_numeral_systems).</span>
+<span class=hljs-addition>+Pretty interesting stuff.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ramble over.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>technical skills</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/48>&lt; some sql optimization thoughts</a></div> <div style=text-align:end><a href=/./posts/50>what is social media good for &gt;</a></div>
+</nav>
+<h1 id=technical-skills>technical skills</h1>
+<p>I've been thinking about how my skills as a hobbyist software engineer and a professional software engineer have compared to each other. In general, I think skills can be classified into two categories: creating and understanding. These two things can fall under the larger category of problem solving.</p>
+<p>When I started programming, I took random snippets of code and hacked them together. One could argue that this requires skill in both creation and understanding, as I was creating a new program by understanding existing code and gluing pieces together. In reality, I don't think I really understood what I the code was doing outside of the high level picture and was only creating the code that somehow combined various copy pasted lines. In other words, I knew a function's inputs and outputs but didn't know the internal workings or why it worked that way (a lot of this was around direct memory access/modification, so I was extra clueless).</p>
+<p>Later on, I got to a point where I couldn't find code for things I wanted, and I had to figure out how to do things myself. I had to go back and actually understand what the code I had copied was doing and why it was doing it that way. This understanding also helped me to create my own features rather than having to find and copy code from elsewhere. Note that this specifically means I was able to write original code to perform a task - I had no thoughts of things like performance of efficiency, but these things would come to my attention through attending higher education.</p>
+<p>I also have insight into other hobbyist programmers as someone who helps people write code online. There seems to be heavy emphasis on creating over understanding as the main ask people have is for code to solve their problems. The issue with this is that they rely on others to supply code and always come back because they are unable to solve their own problems. Honestly it sucks for everyone involved because the helper is not really helping and the helper is just going to come back for more code since they haven't learned anything. It's like the saying</p>
+<blockquote>
+<p>Give a man a fish, and you feed him for a day. Teach a man to fish, and you feed him for a lifetime.</p>
+</blockquote>
+<p>Now, when it comes to professional software engineering, chances are that there is already a ton of code in place and you'll have to understand it effectively before you start doing anything else. Unfortunately due to business needs, there is high emphasis on creating (feature work) so a lot of things are implemented without proper understanding (and architecture). This is why a lot of codebases look like patchwork, because there are a ton of random blobs applied without much thought to the rest of the system. I think engineers should take the time to consider the overall structure of their changes.</p>
+<p>In fact, unless you are starting an entirely new tech at your company, you should be obligated to look at design choices of other projects and understand why they were made. However, these are not focuses that will be rewarded from a business perspective as there is no immediate benefit. Overall, there is more emphasis on creating than understanding which is of great detriment to future maintainers of your code. This gets especially poor when you realize that software engineers hop jobs very frequently, leaving behind a potential mess for the next person, and interviews hardly test for these skills.</p>
+<p>The interesting thing is that this "working on existing code that isn't yours" skill really isn't emphasized at all when trying to land a job. Instead, there is higher focus on making your own pet projects and showing those off, which is more about creating rather than understanding. The main way to work on existing code before starting professionally will most likely be through open source contributions. Furthermore every time you start a new project, you spend time on scaffolding and other setup skills, which happen to be one of the rarest things you'll do at your job. Part of my work deals with Java and I have no idea how the tens of configuration files work together to build the project, but I also do not need to know how they work (I could ask around or figure it out if I needed to though). On the other hand, I have a ton of node projects and can create things from scratch but never needed to do that ever.</p>
+<p>In conclusion, a successful engineer can throw out features, but a high quality engineer also pays attention to the design and structure of code of those features. Creating a million pet projects to showcase your ability to code is good, but spending time understanding other people's code is much better. But in the end, arguably, only a small set of software engineers care much for maintainability and proper design, and an even smaller set of non-software engineers care due to no immediate economic benefits.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/48>&lt; some sql optimization thoughts</a></div> <div style=text-align:end><a href=/./posts/50>what is social media good for &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-03-23 - add post 49</summary>
+<pre class=code-block><input id=code-block-c123b5eb491357c45151d44580243313b735ecd7-1 type=checkbox><label for=code-block-c123b5eb491357c45151d44580243313b735ecd7-1></label><code><span class=hljs-meta>@@ -0,0 +1,74 @@</span>
+<span class=hljs-addition>+# technical skills</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve been thinking about how my skills as a hobbyist software engineer and a professional</span>
+<span class=hljs-addition>+software engineer have compared to each other. In general, I think skills can be</span>
+<span class=hljs-addition>+classified into two categories: creating and understanding. These two things can</span>
+<span class=hljs-addition>+fall under the larger category of problem solving.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When I started programming, I took random snippets of code and hacked them together.</span>
+<span class=hljs-addition>+One could argue that this requires skill in both creation and understanding, as</span>
+<span class=hljs-addition>+I was creating a new program by understanding existing code and gluing pieces</span>
+<span class=hljs-addition>+together. In reality, I don&#x27;t think I really understood what I the code was doing</span>
+<span class=hljs-addition>+outside of the high level picture and was only creating the code that somehow combined</span>
+<span class=hljs-addition>+various copy pasted lines. In other words, I knew a function&#x27;s inputs and outputs</span>
+<span class=hljs-addition>+but didn&#x27;t know the internal workings or why it worked that way (a lot of this was</span>
+<span class=hljs-addition>+around direct memory access/modification, so I was extra clueless).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Later on, I got to a point where I could&#x27;t find code for things I wanted, and I</span>
+<span class=hljs-addition>+had to figure out how to do things myself. I had to go back and actually understand</span>
+<span class=hljs-addition>+what the code I had copied was doing and why it was doing it that way. This understanding</span>
+<span class=hljs-addition>+also helped me to create my own features rather than having to find and copy code</span>
+<span class=hljs-addition>+from elsewhere. Note that this specifically means I was able to write original code</span>
+<span class=hljs-addition>+to perform a task - I had no thoughts of things like performance of efficiency,</span>
+<span class=hljs-addition>+but these things would come to my attention through attending higher education.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I also have insight into other hobbyist programmers as someone who helps people</span>
+<span class=hljs-addition>+write code online. There seems to be heavy emphasis on creating over understanding</span>
+<span class=hljs-addition>+as the main ask people have is for code to solve their problems. The issue with</span>
+<span class=hljs-addition>+this is that they rely on others to supply code and always come back because they</span>
+<span class=hljs-addition>+are unable to solve their own problems. Honestly it sucks for everyone invovled</span>
+<span class=hljs-addition>+because the helper is not really helping and the helpee is just going to come back</span>
+<span class=hljs-addition>+for more code since they haven&#x27;t learned anything. It&#x27;s like the saying</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Give a man a fish, and you feed him for a day. Teach a man to fish, and you feed</span>
+<span class=hljs-addition>+&gt; him for a lifetime.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now, when it comes to professional software engineering, chances are that there</span>
+<span class=hljs-addition>+is already a ton of code in place and you&#x27;ll have to understand it effectively</span>
+<span class=hljs-addition>+before you start doing anything else. Unfortunately due to business needs, there</span>
+<span class=hljs-addition>+is high emphasis on creating (feature work) so a lot of things are implemented without</span>
+<span class=hljs-addition>+proper understanding (and architecture). This is why a lot of codebases look like</span>
+<span class=hljs-addition>+patchwork, because there are a ton of random blobs applied without much thought</span>
+<span class=hljs-addition>+to the rest of the system. I think engineers should take the time to consider the</span>
+<span class=hljs-addition>+overall structure of their changes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In fact, unless you are starting an entirely new tech at your company, you should</span>
+<span class=hljs-addition>+be obligated to look at design choices of other projects and understand why they</span>
+<span class=hljs-addition>+were made. However, these are not focuses that will be rewarded from a business</span>
+<span class=hljs-addition>+perspective as there is no immediate benefit. Overall, there is more emphasis on</span>
+<span class=hljs-addition>+creating than understanding which is of great detriment to future maintainers of</span>
+<span class=hljs-addition>+your code. This gets especially poor when you realize that software engineers hop</span>
+<span class=hljs-addition>+jobs very frequently, leaving behind a potential mess for the next person, and interviews</span>
+<span class=hljs-addition>+hardly test for these skills.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The interesting thing is that this &quot;working on existing code that isn&#x27;t yours&quot; skill</span>
+<span class=hljs-addition>+really isn&#x27;t emphasized at all when trying to land a job. Instead, there is higher</span>
+<span class=hljs-addition>+focus on making your own pet projects and showing those off, which is more about</span>
+<span class=hljs-addition>+creating rather than understanding. The main way to work on existing code before</span>
+<span class=hljs-addition>+starting professionally will most likely be through open source contributions. Furthermore</span>
+<span class=hljs-addition>+everytime you start a new project, you spend time on scaffolding and other setup</span>
+<span class=hljs-addition>+skills, which happen to be one of the rarest things you&#x27;ll do at your job. Part</span>
+<span class=hljs-addition>+of my work deals with Java and I have no idea how the tens of configuration files</span>
+<span class=hljs-addition>+work together to build the project, but I also do not need to know how they work</span>
+<span class=hljs-addition>+(I could ask around or figure it out if I needed to though). On the other hand,</span>
+<span class=hljs-addition>+I have a ton of node projects and can create things from scratch but never needed</span>
+<span class=hljs-addition>+to do that ever.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In conclusion, a successful engineer can throw out features, but a high quality engineer</span>
+<span class=hljs-addition>+also pays attention to the design and structure of code of those features. Creating</span>
+<span class=hljs-addition>+a million pet projects to showcase your ability to code is good, but spending time</span>
+<span class=hljs-addition>+understanding other people&#x27;s code is much better. But in the end, arguably, only</span>
+<span class=hljs-addition>+a small set of software engineers care much for maintainability and proper design,</span>
+<span class=hljs-addition>+and an even smaller set of non-software engineers care due to no immediate economic</span>
+<span class=hljs-addition>+benefits.</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

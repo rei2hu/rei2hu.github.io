@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>what is an acceptable amount of tech debt</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/2>&lt; inefficient business logic</a></div> <div style=text-align:end><a href=/./posts/4>learning haskell &gt;</a></div>
+</nav>
+<h1 id=what-is-an-acceptable-amount-of-tech-debt>what is an acceptable amount of tech debt</h1>
+<p>This is a thought that has been crossing my mind a lot recently. Supposedly the project I'm working on is slated as the company's next big thing but there just seems to be so much technical debt on the project that if we keep our focus on features and not remediation, then the entire thing will just fall apart - this is a case that I've voiced again and again.</p>
+<h2 id=existences>existences</h2>
+<h3 id=a-lack-of-documentation>a lack of documentation</h3>
+<p>The thing is with this project is that it was actually acquired from another company, and since then, most of the original developers and even a few product managers have moved on.</p>
+<p>There are so many parts that no one has any knowledge about and looking at the code is painful (that's for another section). When bugs show up in these areas of the product, it takes a massive amount of manpower to get it resolved.</p>
+<p>Recently, I discovered one of the documents that was provided for the acquisition was a test plan which is what QA used to put together test cases. But even then, certain cases most likely never worked after looking at the code.</p>
+<p>It really makes me wonder if having someone look at the code is actually part of the acquisition process, or the company just valued the actual product so highly it didn't matter.</p>
+<h3 id=a-lack-of-code-quality>a lack of code quality</h3>
+<p>This could just be me being overconfident or an ass, but the code quality is just so poor. This probably has to do with the fact that it used to be a startup so the previous developers just went all out in getting features out the door and securing clients with no thought to code quality.</p>
+<p>Well also this compounded because after the handoff, the easy paths were taken in fixing and implementing features which leads to more debt.</p>
+<p>And the largest issue which requires some explanation:</p>
+<ol>
+<li>The code used to be es5 (javascript) for compatibility reasons</li>
+<li>Around a year ago, there was an initiative to do a rewrite to typescript</li>
+<li>This was not a real rewrite, but actually ended up being an automatic translation from one javascript to typescript using stuff like acorn.</li>
+<li>This resulted in working typescript code, but the quality is just down the drain.</li>
+<li>Also there are bugs in the translation that pop up every now and then.</li>
+</ol>
+<h3 id=almost-no-standards>almost no standards</h3>
+<p>Honestly, the developers here are more concerned about stuff like variable casing and naming conventions instead of things like the actual logical flow and structure of the code.</p>
+<p>People will suggest factoring out a simple condition into its own method during code reviews. Stuff like this</p>
+<pre class=code-block><input id=code-block-3-1 type=checkbox><label for=code-block-3-1></label><code><span class=hljs-keyword>function</span> <span class="function_ hljs-title">isPerson</span>(<span class=hljs-params>thing</span>) {
+    <span class=hljs-keyword>return</span> thing === <span class=hljs-string>&#x27;person&#x27;</span>;
+}
+<span class=hljs-keyword>if</span> (<span class="function_ hljs-title">isPerson</span>(a))
+</code></pre>
+<p>I mean this does make sense sometimes but the conditions where this irked me were the simplest ones and they're not even typeguards or anything.</p>
+<p>Meanwhile there is a glaring logical error in another place that everyone overlooks. Haha, actually one recent pr I had tackled the bug where the crux of the problem fell on one variable like this</p>
+<pre class=code-block><input id=code-block-3-2 type=checkbox><label for=code-block-3-2></label><code><span class=hljs-keyword>const</span> working = <span class=hljs-literal>false</span>; <span class=hljs-comment>// should be true</span>
+</code></pre>
+<p>And no one even noticed. Well fortunately I tested it one last time before deploying and we have QA who would've caught it.</p>
+<h3 id=a-lack-of-technical-expertise>a lack of technical expertise</h3>
+<p>This is something that really gets me. I had brought up passing functions which then get stringified, passed to another process, and evaled on that process as a possible hack to get around something we wanted to do.</p>
+<p>And then this guy asks if passing functions is a thing - despite the fact that he has used callbacks a ton of times. Like what do you think you are doing there all of those times? Also the fact that a lot of the callbacks aren't done with lambdas when they aren't used anywhere else.</p>
+<pre class=code-block><input id=code-block-3-3 type=checkbox><label for=code-block-3-3></label><code><span class=hljs-keyword>function</span> <span class="function_ hljs-title">callback</span>(<span class=hljs-params></span>) {}
+<span class="function_ hljs-title">request</span>(url, callback); <span class=hljs-comment>// compared to request(url, () =&gt; { })</span>
+</code></pre>
+<p>Note that this is different from knowing more up to date language features. For example I was fine when someone thought this would do <code>xargs([1, 2, 3]);</code></p>
+<pre class=code-block><input id=code-block-3-4 type=checkbox><label for=code-block-3-4></label><code><span class=hljs-keyword>const</span> args = [<span class=hljs-number>1</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>];
+<span class="function_ hljs-title">xargs</span>(...args);
+</code></pre>
+<p>Sure spread/rest is kind of newer but passing functions? No.</p>
+<h3 id=barriers-to-parallel-development>barriers to parallel development</h3>
+<p>A non-insubstantial part of the project is set up, not through code, but rather through various configuration options. The main problem with this is that there is we currently do not have a proper way to resolve conflicts, similar to what vcs systems might do - we either take a or b and cannot pick some intermediary between the two versions.</p>
+<p>This has led to certain fixes or features inadvertently getting overwritten by people who aren't paying attention. Actually, this also happens with code, too… the general idea is that you upload your diff to a server and commit the changes and face the a or b resolution.</p>
+<p>The only way to get the intermediary version is to create a new diff based on the code in the main branch. Of course, this is only going to happen after your code is merged, and as pointed out previously, this will only apply to code and not configuration.</p>
+<p>Yes, we do have something in the backlog for setting this stuff up but who knows if it will make it into a sprint.</p>
+<h3 id=constantly-evolving-definitions-of-new-features>constantly evolving definitions of new features</h3>
+<p>The last feature for this project was literally being defined as development was being done. There were days where I would run into an ambiguous case and would have to wait for the product manager to talk to the client and get back.</p>
+<p>Also the funny thing is that this project was on a tight deadline.</p>
+<h2 id=closing>closing</h2>
+<p>Honestly just wanted to vent.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/2>&lt; inefficient business logic</a></div> <div style=text-align:end><a href=/./posts/4>learning haskell &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-14 - small edit</summary>
+<pre class=code-block><input id=code-block-03a7e2db6ae31d4fe82d4686e6d6c9c29d16b965-1 type=checkbox><label for=code-block-03a7e2db6ae31d4fe82d4686e6d6c9c29d16b965-1></label><code><span class=hljs-meta>@@ -64,3 +64,3 @@</span> if (isPerson(a))
+ I mean this does make sense sometimes but the conditions where this irked me were
+<span class=hljs-deletion>-the simplest ones.</span>
+<span class=hljs-addition>+the simplest ones and they&#x27;re not even typeguards or anything.</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-07-14 - make a new post</summary>
+<pre class=code-block><input id=code-block-e208ce9668888b3f564f44abcb408714830c40ba-1 type=checkbox><label for=code-block-e208ce9668888b3f564f44abcb408714830c40ba-1></label><code><span class=hljs-meta>@@ -0,0 +1,134 @@</span>
+<span class=hljs-addition>+# what is an acceptable amount of tech debt</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is a thought that has been crossing my mind a lot recently. Supposedly the project</span>
+<span class=hljs-addition>+I&#x27;m working on is slated as the company&#x27;s next big thing but there just seems to</span>
+<span class=hljs-addition>+be so much technical debt on the project that if we keep our focus on features</span>
+<span class=hljs-addition>+and not remediation, then the entire thing will just fall apart - this is a case</span>
+<span class=hljs-addition>+that I&#x27;ve voiced again and again.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## existences</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### a lack of documentation</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The thing is with this project is that it was actually acquired from another company,</span>
+<span class=hljs-addition>+and since then, most of the original developers and even a few product managers have</span>
+<span class=hljs-addition>+moved on.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There are so many parts that no one has any knowledge about and looking at the code</span>
+<span class=hljs-addition>+is painful (that&#x27;s for another section). When bugs show up in these areas of the</span>
+<span class=hljs-addition>+product, it takes a massive amount of manpower to get it resolved.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I discovered one of the documents that was provided for the acquisition</span>
+<span class=hljs-addition>+was a test plan which is what QA used to put together test cases. But even then,</span>
+<span class=hljs-addition>+certain cases most likely never worked after looking at the code.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It really makes me wonder if having someone look at the code is actually part of</span>
+<span class=hljs-addition>+the acquisition process, or the company just valued the actual product so highly</span>
+<span class=hljs-addition>+it didn&#x27;t matter.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### a lack of code quality</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This could just be me being overconfident or an ass, but the code quality is just</span>
+<span class=hljs-addition>+so poor. This probably has to do with the fact that it used to be a startup so</span>
+<span class=hljs-addition>+the previous developers just went all out in getting features out the door and securing</span>
+<span class=hljs-addition>+clients with no thought to code quality.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well also this compounded because after the handoff, the easy paths were taken in</span>
+<span class=hljs-addition>+fixing and implementing features which leads to more debt.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And the largest issue which requires some explanation:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. The code used to be es5 (javascript) for compatibility reasons</span>
+<span class=hljs-addition>+2. Around a year ago, there was an initiative to do a rewrite to typescript</span>
+<span class=hljs-addition>+3. This was not a real rewrite, but actually ended up being an automatic translation</span>
+<span class=hljs-addition>+   from one javascript to typescript using stuff like acorn.</span>
+<span class=hljs-addition>+4. This resulted in working typescript code, but the quality is just down the drain.</span>
+<span class=hljs-addition>+5. Also there are bugs in the translation that pop up every now and then.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### almost no standards</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Honestly, the developers here are more concerned about stuff like variable casing</span>
+<span class=hljs-addition>+and naming conventions instead of things like the actual logical flow and structure</span>
+<span class=hljs-addition>+of the code.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+People will suggest factoring out a simple condition into its own method during</span>
+<span class=hljs-addition>+code reviews. Stuff like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```javascript</span>
+<span class=hljs-addition>+function isPerson(thing) {</span>
+<span class=hljs-addition>+    return thing === &#x27;person&#x27;;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+if (isPerson(a))</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I mean this does make sense sometimes but the conditions where this irked me were</span>
+<span class=hljs-addition>+the simplest ones.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Meanwhile there is a glaring logical error in another place that everyone overlooks.</span>
+<span class=hljs-addition>+Haha, actually one recent pr I had tackled the bug where the crux of the problem</span>
+<span class=hljs-addition>+fell on one variable like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```javascript</span>
+<span class=hljs-addition>+const working = false; // should be true</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And no one even noticed. Well fortunately I tested it one last time before deploying</span>
+<span class=hljs-addition>+and we have QA who would&#x27;ve caught it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### a lack of technical expertise</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is something that really gets me. I had brought up passing functions which</span>
+<span class=hljs-addition>+then get stringified, passed to another process, and evaled on that process as a</span>
+<span class=hljs-addition>+possible hack to get around something we wanted to do.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then this guy asks if passing functions is a thing - despite the fact that</span>
+<span class=hljs-addition>+he has used callbacks a ton of times. Like what do you think you are doing there</span>
+<span class=hljs-addition>+all of those times? Also the fact that a lot of the callbacks aren&#x27;t done with</span>
+<span class=hljs-addition>+lambdas when they aren&#x27;t used anywhere else.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```javascript</span>
+<span class=hljs-addition>+function callback() { }</span>
+<span class=hljs-addition>+request(url, callback); // compared to request(url, () =&gt; { })</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Note that this is different from knowing more up to date language features. For example</span>
+<span class=hljs-addition>+I was fine when someone thought this would do `xargs([1, 2, 3]);`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```javascript</span>
+<span class=hljs-addition>+const args = [1, 2, 3];</span>
+<span class=hljs-addition>+xargs(...args);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Sure spread/rest is kind of newer but passing functions? No.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### barriers to parallel development</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A non-insubstantial part of the project is set up, not through code, but rather through</span>
+<span class=hljs-addition>+various configuration options. The main problem with this is that there is we currently</span>
+<span class=hljs-addition>+do not have a proper way to resolve conflicts, similar to what vcs systems might</span>
+<span class=hljs-addition>+do - we either take a or b and cannot pick some intermediary between the two versions.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This has led to certain fixes or features inadvertently getting overwritten by people</span>
+<span class=hljs-addition>+who aren&#x27;t paying attention. Actually, this also happens with code, too... the</span>
+<span class=hljs-addition>+general idea is that you upload your diff to a server and commit the changes and</span>
+<span class=hljs-addition>+face the a or b resolution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The only way to get the intermediary version is to create a new diff based on the</span>
+<span class=hljs-addition>+code in the main branch. Of course, this is only going to happen after your code</span>
+<span class=hljs-addition>+is merged, and as pointed out previously, this will only apply to code and not</span>
+<span class=hljs-addition>+configuration.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Yes, we do have something in the backlog for setting this stuff up but who knows</span>
+<span class=hljs-addition>+if it will make it into a sprint.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### constantly evolving definitions of new features</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The last feature for this project was literally being defined as development was</span>
+<span class=hljs-addition>+being done. There were days where I would run into an ambiguous case and would have</span>
+<span class=hljs-addition>+to wait for the product manager to talk to the client and get back.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also the funny thing is that this project was on a tight deadline.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## closing</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Honestly just wanted to vent.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

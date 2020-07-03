@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>some sql optimization thoughts</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/47>&lt; use of type fields</a></div> <div style=text-align:end><a href=/./posts/49>technical skills &gt;</a></div>
+</nav>
+<h1 id=some-sql-optimization-thoughts>some sql optimization thoughts</h1>
+<p>I was strictly in the "if you can do it in one query then do it in one query" camp for a while, but when I couldn't get a pretty complex query with several joins and aggregate functions to perform, I started doubting that saying.</p>
+<p>After asking for some thoughts and reading some texts, my opinion has now turned into the classic "it depends".</p>
+<p>Also another thing I've learned is that you can improve aggregate functions by being more specific sometimes. <code>count(table.primary_field)</code> vs <code>count(*)</code> can greatly improve performance when joins are involved because it could lower table widths. I think I remember hearing about being more specific in aggregate functions in university but forgot about it.</p>
+<h2 id=kind-of-an-update>kind of an update</h2>
+<p>I came across some articles mentioning that <code>count(*)</code> is as fast as or even faster than its equivalents as it's a special case. I remembered that I wrote something contradicting and looked back here to check. I wish I had recorded more details about the specific queries I was looking at. My guess is that everyone is talking about the actual execution of count, while I'm trying to discuss how the <code>x</code> in <code>count(x)</code> can change the width of the rows in the returned tables after a join, resulting in less memory io and a faster query?</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/47>&lt; use of type fields</a></div> <div style=text-align:end><a href=/./posts/49>technical skills &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-09-05 - update post 48</summary>
+<pre class=code-block><input id=code-block-e4b172769b8c8a38787159bc8636cc0370ad0b7c-1 type=checkbox><label for=code-block-e4b172769b8c8a38787159bc8636cc0370ad0b7c-1></label><code>@@ -14 +14,11 @@ widths. I think I remember hearing about being more specific in aggregate
+ functions in university but forgot about it.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## kind of an update</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I came across some articles mentioning that `count(*)` is as fast as or even</span>
+<span class=hljs-addition>+faster than its equivalents as it&#x27;s a special case. I remembered that I wrote</span>
+<span class=hljs-addition>+something contradicting and looked back here to check. I wish I had recorded</span>
+<span class=hljs-addition>+more details about the specific queries I was looking at. My guess is that</span>
+<span class=hljs-addition>+everyone is talking about the actual execution of count, while I&#x27;m trying to</span>
+<span class=hljs-addition>+discuss how the `x` in `count(x)` can change the width of the rows in the</span>
+<span class=hljs-addition>+returned tables after a join, resulting in less memory io and a faster query?</span>
+</code></pre>
+</details>
+<details>
+<summary>2022-03-12 - add post 48</summary>
+<pre class=code-block><input id=code-block-cc57ff8420cf4b305f79e261e933e6342d72c977-1 type=checkbox><label for=code-block-cc57ff8420cf4b305f79e261e933e6342d72c977-1></label><code><span class=hljs-meta>@@ -0,0 +1,15 @@</span>
+<span class=hljs-addition>+# some sql optimization thoughts</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was strictly in the &quot;if you can do it in one query then do it in one query&quot; camp</span>
+<span class=hljs-addition>+for a while, but when I couldn&#x27;t get a pretty complex query with several joins</span>
+<span class=hljs-addition>+and aggregate functions to perform, I started doubting that saying.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+After asking for some thoughts and reading some texts, my opinion has now turned</span>
+<span class=hljs-addition>+into the classic &quot;it depends&quot;.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also another thing I&#x27;ve learned is that you can improve aggregate functions by being</span>
+<span class=hljs-addition>+more specific sometimes. `count(table.primary_field)` vs `count(*)` can greatly</span>
+<span class=hljs-addition>+improve performance when joins are involved because it could lower table widths.</span>
+<span class=hljs-addition>+I think I remember hearing about being more specific in aggregate functions in university</span>
+<span class=hljs-addition>+but forgot about it.</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

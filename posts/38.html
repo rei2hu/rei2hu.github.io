@@ -1,0 +1,722 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>native modules with electron</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/37>&lt; figured out I have a facebook</a></div> <div style=text-align:end><a href=/./posts/39>yet another life introspective &gt;</a></div>
+</nav>
+<h1 id=native-modules-with-electron>native modules with electron</h1>
+<p>So, as mentioned a few posts ago, I was trying my hand at writing an Electron app that pulled some data and ran some math with the Windows api via native modules. Unfortunately I ended up dropping it because I felt it would be a mess I couldn't be proud of (and I am proud of some real messes I've made so that says something) but at least I can write something technical for once.</p>
+<p>Step 1 is to install various packages for working with electron, and typescript because I find types extremely valuable.</p>
+<pre class=code-block><input id=code-block-38-1 type=checkbox><label for=code-block-38-1></label><code>&gt; npm i -D electron typescript
+</code></pre>
+<p>And then we can install a few modules for working with native modules:</p>
+<pre class=code-block><input id=code-block-38-2 type=checkbox><label for=code-block-38-2></label><code>&gt; npm i -D node-gyp \ <span class=hljs-comment># for building</span>
+    node-addon-api <span class=hljs-comment># probably best option for compatibility</span>
+&gt; npm i bindings <span class=hljs-comment># makes requiring a lot simpler</span>
+</code></pre>
+<p>I wanted to have a separate folder for my native modules so I created the following directory layout</p>
+<pre class=code-block><input id=code-block-38-3 type=checkbox><label for=code-block-38-3></label><code>├───node_modules
+├───package.json
+├───package-lock.json
+└───src
+    └───native_module
+            thing.cc
+</code></pre>
+<p>Then in the project root, I created a <code>binding.gyp</code> file with the contents</p>
+<pre class=code-block><input id=code-block-38-4 type=checkbox><label for=code-block-38-4></label><code><span class=hljs-punctuation>{</span>
+    <span class=hljs-attr>&quot;targets&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span>
+        <span class=hljs-punctuation>{</span>
+            <span class=hljs-attr>&quot;target_name&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-string>&quot;build&quot;</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;type&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-string>&quot;none&quot;</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;dependencies&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span><span class=hljs-string>&quot;src/native_module/binding.gyp:*&quot;</span><span class=hljs-punctuation>]</span>
+        <span class=hljs-punctuation>}</span>
+    <span class=hljs-punctuation>]</span>
+<span class=hljs-punctuation>}</span>
+</code></pre>
+<p>This means that whenever I run <code>node-gyp rebuild</code>, it would also run the
+<code>binding.gyp</code> file in that <code>native_module</code> directory so let's make that too.</p>
+<pre class=code-block><input id=code-block-38-5 type=checkbox><label for=code-block-38-5></label><code><span class=hljs-punctuation>{</span>
+    <span class=hljs-attr>&quot;targets&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span>
+        <span class=hljs-punctuation>{</span>
+            <span class=hljs-attr>&quot;target_name&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-string>&quot;thing&quot;</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;sources&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span><span class=hljs-string>&quot;thing.cc&quot;</span><span class=hljs-punctuation>]</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;cflags&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span><span class=hljs-string>&quot;-fno-exceptions&quot;</span><span class=hljs-punctuation>]</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;cflags_cc&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span><span class=hljs-string>&quot;-fno-exceptions&quot;</span><span class=hljs-punctuation>]</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;include_dirs&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span>
+                <span class=hljs-string>&quot;&lt;!@(node -p \&quot;require(&#x27;node-addon-api&#x27;).include\&quot;)&quot;</span>
+            <span class=hljs-punctuation>]</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;defines&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span><span class=hljs-string>&quot;NAPI_DISABLE_CPP_EXCEPTIONS&quot;</span><span class=hljs-punctuation>]</span>
+        <span class=hljs-punctuation>}</span>
+    <span class=hljs-punctuation>]</span>
+<span class=hljs-punctuation>}</span>
+</code></pre>
+<p>The main thing to pay attention to is the <code>target_name</code> (unless you want to modify compiler options or something) because that's what is <code>required</code> from the js code. Now with both <code>binding.gyp</code> files set up, you should be able to run
+<code>npx node-gyp rebuild</code> from the project root.</p>
+<pre class=code-block><input id=code-block-38-6 type=checkbox><label for=code-block-38-6></label><code>&gt; npx node-gyp rebuild
+<span class=hljs-comment># ...</span>
+Building the projects <span class=hljs-keyword>in</span> this solution one at a time. To <span class=hljs-built_in>enable</span> parallel build, please add the <span class=hljs-string>&quot;-m&quot;</span> switch.
+  thing.cc
+  win_delay_load_hook.cc
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 1 <span class=hljs-built_in>functions</span> were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  thing.vcxproj -&gt; somewhere\build\Release\\thing.node
+gyp info ok
+</code></pre>
+<p>Great, it builds. Now how do we use it? What I like to do is create a js module to require and export it so it's easier to deal with.</p>
+<pre class=code-block><input id=code-block-38-7 type=checkbox><label for=code-block-38-7></label><code><span class="hljs-variable language_">module</span>.<span class=hljs-property>exports</span> = <span class=hljs-built_in>require</span>(<span class=hljs-string>&quot;bindings&quot;</span>)(<span class=hljs-string>&quot;thing&quot;</span>);
+</code></pre>
+<p><code>bindings</code> helps find the module, although now that I'm writing this I don't think it's necessary and more or less will depend on how you package your electron app. You also have get the benefit of being able to define a <code>d.ts</code>
+file now. Of course, what goes in it depends on what you write in the native module. The files end up laid out like so:</p>
+<pre class=code-block><input id=code-block-38-8 type=checkbox><label for=code-block-38-8></label><code>└───src
+    └───native_module
+            binding.gyp
+            thing.cc
+            thing.d.ts
+            thing.js
+</code></pre>
+<p>At this point, it's all straightforward. You can import or require from thing. Here's what I had for some files since I'm too lazy to come out with simplified examples: (some of the paths and things might be off)</p>
+<pre class=code-block><input id=code-block-38-9 type=checkbox><label for=code-block-38-9></label><code><span class=hljs-comment>// src/native_module/thing.cc</span>
+<span class=hljs-meta>#<span class=hljs-keyword>include</span> <span class=hljs-string>&lt;napi.h&gt;</span></span>
+<span class=hljs-meta>#<span class=hljs-keyword>include</span> <span class=hljs-string>&lt;windows.h&gt;</span></span>
+<span class=hljs-meta>#<span class=hljs-keyword>include</span> <span class=hljs-string>&lt;psapi.h&gt;</span></span>
+
+<span class=hljs-meta>#<span class=hljs-keyword>include</span> <span class=hljs-string>&lt;thread&gt;</span></span>
+<span class=hljs-meta>#<span class=hljs-keyword>include</span> <span class=hljs-string>&lt;codecvt&gt;</span></span>
+<span class=hljs-meta>#<span class=hljs-keyword>include</span> <span class=hljs-string>&lt;iostream&gt;</span></span>
+
+<span class=hljs-comment>// fwd</span>
+<span class=hljs-function>BOOL CALLBACK <span class=hljs-title>EnumWindowsProc</span><span class=hljs-params>(HWND hwnd, LPARAM lParam)</span></span>;
+<span class=hljs-function><span class=hljs-type>void</span> CALLBACK <span class=hljs-title>WinEventProc</span><span class=hljs-params>(HWINEVENTHOOK hook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)</span></span>;
+<span class=hljs-function><span class=hljs-type>void</span> <span class=hljs-title>StartEventsThread</span><span class=hljs-params>()</span></span>;
+<span class=hljs-keyword>struct</span> <span class="hljs-title class_">Wrapper</span> {
+    Napi::Object* obj;
+    Napi::Env* env;
+};
+
+<span class=hljs-comment>// Globals</span>
+Napi::ThreadSafeFunction tsfn;
+std::thread thread;
+
+<span class=hljs-function>Napi::Value <span class=hljs-title>RegisterEmit</span><span class=hljs-params>(<span class=hljs-type>const</span> Napi::CallbackInfo&amp; info)</span> </span>{
+    <span class=hljs-keyword>auto</span> env = info.<span class=hljs-built_in>Env</span>();
+    tsfn = Napi::ThreadSafeFunction::<span class=hljs-built_in>New</span>(
+        env, info[<span class=hljs-number>0</span>].<span class=hljs-built_in>As</span>&lt;Napi::Function&gt;(),
+        <span class=hljs-string>&quot;tsfn&quot;</span>,
+        <span class=hljs-number>0</span>, <span class=hljs-number>1</span>,
+        [](Napi::Env) {
+            thread.<span class=hljs-built_in>join</span>();
+        }
+    );
+    thread = std::<span class=hljs-built_in>thread</span>(StartEventsThread);
+
+    <span class=hljs-keyword>return</span> Napi::Number::<span class=hljs-built_in>New</span>(env, <span class=hljs-number>0</span>);
+}
+
+<span class=hljs-function>Napi::Object <span class=hljs-title>Init</span><span class=hljs-params>(Napi::Env env, Napi::Object exports)</span> </span>{
+    exports.<span class=hljs-built_in>Set</span>(Napi::String::<span class=hljs-built_in>New</span>(env, <span class=hljs-string>&quot;registerCallback&quot;</span>), Napi::Function::<span class=hljs-built_in>New</span>(env, RegisterEmit));
+    <span class=hljs-keyword>return</span> exports;
+}
+
+<span class=hljs-built_in>NODE_API_MODULE</span>(NODE_GYP_MODULE_NAME, Init);
+
+
+<span class=hljs-function>BOOL CALLBACK <span class=hljs-title>EnumWindowsProc</span><span class=hljs-params>(
+    HWND hwnd,
+    LPARAM lParam
+)</span> </span>{
+    <span class=hljs-comment>// Setup</span>
+    <span class=hljs-keyword>auto</span> objEnv = <span class=hljs-built_in>reinterpret_cast</span>&lt;Wrapper*&gt;(lParam);
+
+    <span class=hljs-keyword>if</span> (!<span class=hljs-built_in>IsWindowVisible</span>(hwnd)) {
+        <span class=hljs-keyword>return</span> TRUE;
+    }
+
+    <span class=hljs-comment>// Get process</span>
+    DWORD pid;
+    <span class=hljs-keyword>if</span> (!<span class=hljs-built_in>GetWindowThreadProcessId</span>(hwnd, &amp;pid)) {
+        <span class=hljs-keyword>return</span> TRUE;
+    }
+
+    HANDLE hProc = <span class=hljs-built_in>OpenProcess</span>(PROCESS_QUERY_INFORMATION, <span class=hljs-literal>false</span>, pid);
+
+    <span class=hljs-keyword>if</span> (!hProc) {
+        <span class=hljs-keyword>return</span> TRUE;
+    }
+
+    TCHAR processName[MAX_PATH];
+    <span class=hljs-keyword>if</span> (<span class=hljs-built_in>GetProcessImageFileName</span>(hProc, processName, MAX_PATH)) {
+        <span class=hljs-keyword>auto</span> processNameStr = std::<span class=hljs-built_in>string</span>(processName);
+
+        <span class=hljs-keyword>auto</span> obj = objEnv-&gt;obj-&gt;<span class=hljs-built_in>Has</span>(processNameStr)
+            ? objEnv-&gt;obj-&gt;<span class=hljs-built_in>Get</span>(processNameStr).<span class=hljs-built_in>As</span>&lt;Napi::Object&gt;()
+            : Napi::Object::<span class=hljs-built_in>New</span>(*objEnv-&gt;env);
+
+        objEnv-&gt;obj-&gt;<span class=hljs-built_in>Set</span>(std::<span class=hljs-built_in>string</span>(processName), obj);
+
+        <span class=hljs-comment>// If at least one of the windows is the foreground window then this</span>
+        <span class=hljs-comment>// process is in the foreground</span>
+        <span class=hljs-keyword>auto</span> hasForeground = obj.<span class=hljs-built_in>Has</span>(<span class=hljs-string>&quot;foreground&quot;</span>)
+            ? obj.<span class=hljs-built_in>Get</span>(<span class=hljs-string>&quot;foreground&quot;</span>).<span class=hljs-built_in>As</span>&lt;Napi::Boolean&gt;().<span class=hljs-built_in>Value</span>()
+            : <span class=hljs-literal>false</span>;
+        <span class=hljs-comment>// Maybe cache getforegroundwindow in js callback</span>
+        obj.<span class=hljs-built_in>Set</span>(<span class=hljs-string>&quot;foreground&quot;</span>, hasForeground || hwnd == <span class=hljs-built_in>GetForegroundWindow</span>());
+
+        <span class=hljs-comment>// Get window name</span>
+        <span class=hljs-built_in>setlocale</span>(LC_ALL, <span class=hljs-string>&quot;en-US&quot;</span>);
+        WCHAR title[<span class=hljs-number>256</span>] {};
+        <span class=hljs-built_in>GetWindowTextW</span>(hwnd, title, <span class=hljs-number>256</span>);
+        <span class=hljs-function>std::wstring <span class=hljs-title>ws</span><span class=hljs-params>(title)</span></span>;
+        std::wstring_convert&lt;std::codecvt_utf8&lt;<span class=hljs-type>wchar_t</span>&gt;&gt; myconv;
+        std::string str = myconv.<span class=hljs-built_in>to_bytes</span>(ws);
+
+        <span class=hljs-keyword>if</span> (!str.<span class=hljs-built_in>empty</span>() &amp;&amp; str.<span class=hljs-built_in>compare</span>(<span class=hljs-string>&quot;Default IME&quot;</span>) &amp;&amp; !obj.<span class=hljs-built_in>Has</span>(<span class=hljs-string>&quot;name&quot;</span>)) {
+            <span class=hljs-comment>// Make sure the process has a window with an actual name</span>
+            <span class=hljs-comment>// Also from testing Default IME pops up a lot...</span>
+            <span class=hljs-comment>// if obj doesnt have name? or allow a set of names?</span>
+            obj.<span class=hljs-built_in>Set</span>(<span class=hljs-string>&quot;name&quot;</span>, str);
+        }
+
+    }
+
+    <span class=hljs-built_in>CloseHandle</span>(hProc);
+    <span class=hljs-keyword>return</span> TRUE;
+}
+
+<span class=hljs-comment>// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwineventhook</span>
+<span class=hljs-comment>// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wineventproc</span>
+<span class=hljs-comment>// https://docs.microsoft.com/en-us/windows/win32/winauto/event-constants</span>
+<span class=hljs-function><span class=hljs-type>void</span> CALLBACK <span class=hljs-title>WinEventProc</span><span class=hljs-params>(
+    HWINEVENTHOOK hook,
+    DWORD event,
+    HWND hwnd,
+    LONG idObject,
+    LONG idChild,
+    DWORD dwEventThread,
+    DWORD dwmsEventTime
+)</span> </span>{
+    <span class=hljs-comment>// Sanity</span>
+    <span class=hljs-keyword>if</span> (event != EVENT_SYSTEM_FOREGROUND
+        || idObject != OBJID_WINDOW
+        || idChild != CHILDID_SELF) {
+        <span class=hljs-keyword>return</span>;
+    }
+
+    <span class=hljs-keyword>auto</span> status = tsfn.<span class=hljs-built_in>BlockingCall</span>([dwmsEventTime](Napi::Env env, Napi::Function jsCallback) {
+        <span class=hljs-comment>// Do we need this? https://github.com/nodejs/node-addon-api/blob/main/doc/object_lifetime_management.md</span>
+        Napi::HandleScope <span class=hljs-built_in>scope</span>(env);
+
+        <span class=hljs-keyword>auto</span> processList = Napi::Object::<span class=hljs-built_in>New</span>(env);
+        Wrapper objEnv = {
+            &amp;processList, &amp;env
+        };
+
+        <span class=hljs-built_in>EnumWindows</span>(EnumWindowsProc, <span class=hljs-built_in>reinterpret_cast</span>&lt;LPARAM&gt;(&amp;objEnv));
+
+        <span class=hljs-keyword>auto</span> watcherMessage = Napi::Object::<span class=hljs-built_in>New</span>(env);
+        watcherMessage.<span class=hljs-built_in>Set</span>(<span class=hljs-string>&quot;processes&quot;</span>, processList);
+        watcherMessage.<span class=hljs-built_in>Set</span>(<span class=hljs-string>&quot;time&quot;</span>, <span class=hljs-built_in>static_cast</span>&lt;<span class=hljs-type>unsigned</span> <span class=hljs-type>int</span>&gt;(dwmsEventTime));
+
+        jsCallback.<span class=hljs-built_in>Call</span>({ watcherMessage });
+    });
+}
+
+<span class=hljs-function><span class=hljs-type>void</span> <span class=hljs-title>StartEventsThread</span><span class=hljs-params>()</span> </span>{
+    <span class=hljs-keyword>auto</span> gHook = <span class=hljs-built_in>SetWinEventHook</span>(
+        EVENT_SYSTEM_FOREGROUND,
+        EVENT_SYSTEM_MINIMIZEEND, <span class=hljs-comment>// EVENT_SYSTEM_FOREGROUND,</span>
+        <span class=hljs-literal>NULL</span>,
+        WinEventProc,
+        <span class=hljs-number>0</span>, <span class=hljs-number>0</span>,
+        WINEVENT_OUTOFCONTEXT <span class=hljs-comment>// | WINEVENT_SKIPOWNPROCESS</span>
+    );
+
+    MSG msg;
+    <span class=hljs-keyword>while</span> (<span class=hljs-built_in>GetMessage</span>(&amp;msg, <span class=hljs-literal>NULL</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>)){
+        <span class=hljs-built_in>TranslateMessage</span>(&amp;msg);
+        <span class=hljs-built_in>DispatchMessage</span>(&amp;msg);
+    };
+
+    <span class=hljs-comment>// <span class=hljs-doctag>TODO:</span> cleanup</span>
+    <span class=hljs-comment>// Theoretically the thread shouldn&#x27;t die until the app does</span>
+    tsfn.<span class=hljs-built_in>Release</span>();
+}
+</code></pre>
+<pre class=code-block><input id=code-block-38-10 type=checkbox><label for=code-block-38-10></label><code><span class=hljs-comment>// src/native_module/index.ts</span>
+<span class=hljs-keyword>export</span> <span class=hljs-keyword>interface</span> <span class="hljs-title class_">ProcessInfo</span> {
+    <span class=hljs-attr>name</span>: <span class=hljs-built_in>string</span>;
+    <span class=hljs-attr>foreground</span>: <span class=hljs-built_in>boolean</span>;
+}
+<span class=hljs-keyword>export</span> <span class=hljs-keyword>interface</span> <span class="hljs-title class_">WatcherMessage</span> {
+    <span class=hljs-attr>time</span>: <span class=hljs-built_in>number</span>;
+    <span class=hljs-attr>processes</span>: <span class="hljs-title class_">Record</span>&lt;<span class=hljs-built_in>string</span>, <span class="hljs-title class_">ProcessInfo</span>&gt;;
+}
+<span class=hljs-keyword>export</span> <span class=hljs-keyword>function</span> <span class="hljs-title function_">registerCallback</span>(<span class=hljs-params>
+    emitFn: (processes: WatcherMessage) =&gt; <span class=hljs-built_in>void</span>
+</span>): <span class=hljs-built_in>void</span>;
+</code></pre>
+<pre class=code-block><input id=code-block-38-11 type=checkbox><label for=code-block-38-11></label><code><span class=hljs-comment>// src/main.ts</span>
+<span class=hljs-keyword>import</span> { app, <span class="hljs-title class_">BrowserWindow</span> } <span class=hljs-keyword>from</span> <span class=hljs-string>&quot;electron&quot;</span>;
+<span class=hljs-keyword>import</span> * <span class=hljs-keyword>as</span> path <span class=hljs-keyword>from</span> <span class=hljs-string>&quot;path&quot;</span>;
+<span class=hljs-keyword>import</span> { registerCallback, <span class="hljs-title class_">WatcherMessage</span> } <span class=hljs-keyword>from</span> <span class=hljs-string>&quot;./src/native_module/thing&quot;</span>;
+
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">createWindow</span>(<span class=hljs-params></span>) {
+    <span class=hljs-keyword>const</span> mainWindow = <span class=hljs-keyword>new</span> <span class="hljs-title class_">BrowserWindow</span>({
+        <span class=hljs-attr>height</span>: <span class=hljs-number>600</span>,
+        <span class=hljs-attr>webPreferences</span>: {
+            <span class=hljs-attr>preload</span>: path.<span class="hljs-title function_">join</span>(__dirname, <span class=hljs-string>&quot;preload.js&quot;</span>),
+        },
+        <span class=hljs-attr>width</span>: <span class=hljs-number>800</span>,
+    });
+
+    mainWindow.<span class="hljs-title function_">loadFile</span>(path.<span class="hljs-title function_">join</span>(__dirname, <span class=hljs-string>&quot;index.html&quot;</span>));
+
+    mainWindow.<span class=hljs-property>webContents</span>.<span class="hljs-title function_">on</span>(<span class=hljs-string>&quot;did-finish-load&quot;</span>, <span class=hljs-function>() =&gt;</span> {
+        <span class="hljs-title function_">registerCallback</span>(<span class=hljs-function>(<span class=hljs-params>message: WatcherMessage</span>) =&gt;</span> {
+            mainWindow.<span class=hljs-property>webContents</span>.<span class="hljs-title function_">send</span>(<span class=hljs-string>&quot;data&quot;</span>, message);
+        });
+    });
+
+    mainWindow.<span class=hljs-property>webContents</span>.<span class="hljs-title function_">openDevTools</span>();
+}
+
+app.<span class="hljs-title function_">on</span>(<span class=hljs-string>&quot;ready&quot;</span>, <span class=hljs-function>() =&gt;</span> {
+    <span class="hljs-title function_">createWindow</span>();
+
+    app.<span class="hljs-title function_">on</span>(<span class=hljs-string>&quot;activate&quot;</span>, <span class=hljs-function>() =&gt;</span> {
+        <span class=hljs-keyword>if</span> (<span class="hljs-title class_">BrowserWindow</span>.<span class="hljs-title function_">getAllWindows</span>().<span class=hljs-property>length</span> === <span class=hljs-number>0</span>) <span class="hljs-title function_">createWindow</span>();
+    });
+});
+
+app.<span class="hljs-title function_">on</span>(<span class=hljs-string>&quot;window-all-closed&quot;</span>, <span class=hljs-function>() =&gt;</span> {
+    <span class=hljs-keyword>if</span> (process.<span class=hljs-property>platform</span> !== <span class=hljs-string>&quot;darwin&quot;</span>) {
+        app.<span class="hljs-title function_">quit</span>();
+    }
+});
+</code></pre>
+<pre class=code-block><input id=code-block-38-12 type=checkbox><label for=code-block-38-12></label><code><span class=hljs-comment>// src/preload.ts</span>
+<span class=hljs-keyword>import</span> { ipcRenderer, <span class="hljs-title class_">IpcRendererEvent</span> } <span class=hljs-keyword>from</span> <span class=hljs-string>&quot;electron&quot;</span>;
+<span class=hljs-keyword>import</span> { <span class="hljs-title class_">WatcherMessage</span> } <span class=hljs-keyword>from</span> <span class=hljs-string>&quot;../watcher&quot;</span>;
+
+ipcRenderer.<span class="hljs-title function_">on</span>(<span class=hljs-string>&quot;data&quot;</span>, <span class=hljs-function>(<span class=hljs-params>event: IpcRendererEvent, message: WatcherMessage</span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(message);
+});
+</code></pre>
+<p>Now we can build using something like <code>electron-forge</code> since it makes things easy.</p>
+<pre class=code-block><input id=code-block-38-13 type=checkbox><label for=code-block-38-13></label><code>&gt; npm i -D @electron-forge/cli electron-rebuild
+&gt; npx electron-forge import
+&gt; npx electron-rebuild
+&gt; npm run make
+</code></pre>
+<p>Yay 100mb executable and a lot of other things…</p>
+<p>Oh right, because <code>electron-forge</code> expects <code>main.js</code> in this fashion I just made it with <code>require("./dist");</code> which then runs the compiled <code>src/preload.ts</code> file. I've probably forgotten to mention some other commands and <code>tsconfig</code> settings that are necessary… Well it should be pretty simple to fill in the blanks hopefully.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/37>&lt; figured out I have a facebook</a></div> <div style=text-align:end><a href=/./posts/39>yet another life introspective &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-09-20 - add post 38</summary>
+<pre class=code-block><input id=code-block-ceaf7f4a4d6915eab41a5350d34fb19be406c095-1 type=checkbox><label for=code-block-ceaf7f4a4d6915eab41a5350d34fb19be406c095-1></label><code><span class=hljs-meta>@@ -0,0 +1,362 @@</span>
+<span class=hljs-addition>+# native modules with electron</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So, as mentioned a few posts ago, I was trying my hand at writing an Electron app</span>
+<span class=hljs-addition>+that pulled some data and ran some math with the Windows api via native modules.</span>
+<span class=hljs-addition>+Unfortunately I ended up dropping it because I felt it would be a mess I couldn&#x27;t</span>
+<span class=hljs-addition>+be proud of (and I am proud of some real messes I&#x27;ve made so that says something)</span>
+<span class=hljs-addition>+but at least I can write something technical for once.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Step 1 is to install various packages for working with electron, and typescript</span>
+<span class=hljs-addition>+because I find types extremely valuable.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```bash</span>
+<span class=hljs-addition>+&gt; npm i -D electron typescript</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then we can install a few modules for working with native modules:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+&gt; npm i -D node-gyp \ # for building</span>
+<span class=hljs-addition>+    node-addon-api # probably best option for compatability</span>
+<span class=hljs-addition>+&gt; npm i bindings # makes requiring a lot simpler</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I wanted to have a separate folder for my native modules so I created the following</span>
+<span class=hljs-addition>+directory layout</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+├───node_modules</span>
+<span class=hljs-addition>+├───package.json</span>
+<span class=hljs-addition>+├───package-lock.json</span>
+<span class=hljs-addition>+└───src</span>
+<span class=hljs-addition>+    └───native_module</span>
+<span class=hljs-addition>+            thing.cc</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Then in the project root, I created a `binding.gyp` file with the contents</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```json</span>
+<span class=hljs-addition>+{</span>
+<span class=hljs-addition>+    &quot;targets&quot;: [{</span>
+<span class=hljs-addition>+        &quot;target_name&quot;: &quot;build&quot;,</span>
+<span class=hljs-addition>+        &quot;type&quot;: &quot;none&quot;,</span>
+<span class=hljs-addition>+        &quot;dependencies&quot;: [ &quot;src/native_module/binding.gyp:*&quot; ],</span>
+<span class=hljs-addition>+    }]</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This means that whenever I run `node-gyp rebuild`, it would also run the `binding.gyp`</span>
+<span class=hljs-addition>+file in that `native_module` directory so let&#x27;s make that too.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```json</span>
+<span class=hljs-addition>+{</span>
+<span class=hljs-addition>+    &quot;targets&quot;: [{</span>
+<span class=hljs-addition>+        &quot;target_name&quot;: &quot;thing&quot;,</span>
+<span class=hljs-addition>+        &quot;sources&quot;: [ &quot;thing.cc&quot; ],</span>
+<span class=hljs-addition>+        &quot;cflags&quot;: [ &quot;-fno-exceptions&quot; ],</span>
+<span class=hljs-addition>+        &quot;cflags_cc&quot;: [ &quot;-fno-exceptions&quot; ],</span>
+<span class=hljs-addition>+        &quot;include_dirs&quot;: [</span>
+<span class=hljs-addition>+            &quot;&lt;!@(node -p \&quot;require(&#x27;node-addon-api&#x27;).include\&quot;)&quot;</span>
+<span class=hljs-addition>+        ],</span>
+<span class=hljs-addition>+        &quot;defines&quot;: [&quot;NAPI_DISABLE_CPP_EXCEPTIONS&quot;]</span>
+<span class=hljs-addition>+    }]</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The main thing to pay attention to is the `target_name` (unless you want to modify</span>
+<span class=hljs-addition>+compiler options or something) because that&#x27;s what is `required` from the js code.</span>
+<span class=hljs-addition>+Now with both `binding.gyp` files set up, you should be able to run `npx node-gyp</span>
+<span class=hljs-addition>+rebuild` from the project root.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+&gt; npx node-gyp rebuild</span>
+<span class=hljs-addition>+# ...</span>
+<span class=hljs-addition>+Building the projects in this solution one at a time. To enable parallel build, please add the &quot;-m&quot; switch.</span>
+<span class=hljs-addition>+  thing.cc</span>
+<span class=hljs-addition>+  win_delay_load_hook.cc</span>
+<span class=hljs-addition>+  Generating code</span>
+<span class=hljs-addition>+  Previous IPDB not found, fall back to full compilation.</span>
+<span class=hljs-addition>+  All 1 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.</span>
+<span class=hljs-addition>+  Finished generating code</span>
+<span class=hljs-addition>+  thing.vcxproj -&gt; somewhere\build\Release\\thing.node</span>
+<span class=hljs-addition>+gyp info ok</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Great, it builds. Now how do we use it? What I like to do is create a js module</span>
+<span class=hljs-addition>+to require and export it so it&#x27;s easier to deal with.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+module.exports = require(&quot;bindings&quot;)(&quot;thing&quot;);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+`bindings` helps find the module, although now that I&#x27;m writing this I don&#x27;t think</span>
+<span class=hljs-addition>+it&#x27;s necessary and more or less will depend on how you package your electron app.</span>
+<span class=hljs-addition>+You also have get the benefit of being able to define a `d.ts` file now. Of course,</span>
+<span class=hljs-addition>+what goes in it depends on what you write in the native module. The files end up</span>
+<span class=hljs-addition>+laid out like so:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+└───src</span>
+<span class=hljs-addition>+    └───native_module</span>
+<span class=hljs-addition>+            binding.gyp</span>
+<span class=hljs-addition>+            thing.cc</span>
+<span class=hljs-addition>+            thing.d.ts</span>
+<span class=hljs-addition>+            thing.js</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At this point, it&#x27;s all straightforward. You can import or require from thing. Here&#x27;s</span>
+<span class=hljs-addition>+what I had for some files since I&#x27;m too lazy to come out with simplified examples:</span>
+<span class=hljs-addition>+(some of the paths and things might be off)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```cpp</span>
+<span class=hljs-addition>+// src/native_module/thing.cc</span>
+<span class=hljs-addition>+#include &lt;napi.h&gt;</span>
+<span class=hljs-addition>+#include &lt;windows.h&gt;</span>
+<span class=hljs-addition>+#include &lt;psapi.h&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#include &lt;thread&gt;</span>
+<span class=hljs-addition>+#include &lt;codecvt&gt;</span>
+<span class=hljs-addition>+#include &lt;iostream&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// fwd</span>
+<span class=hljs-addition>+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);</span>
+<span class=hljs-addition>+void CALLBACK WinEventProc(HWINEVENTHOOK hook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime);</span>
+<span class=hljs-addition>+void StartEventsThread();</span>
+<span class=hljs-addition>+struct Wrapper {</span>
+<span class=hljs-addition>+    Napi::Object* obj;</span>
+<span class=hljs-addition>+    Napi::Env* env;</span>
+<span class=hljs-addition>+};</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// Globals</span>
+<span class=hljs-addition>+Napi::ThreadSafeFunction tsfn;</span>
+<span class=hljs-addition>+std::thread thread;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Napi::Value RegisterEmit(const Napi::CallbackInfo&amp;amp; info) {</span>
+<span class=hljs-addition>+    auto env = info.Env();</span>
+<span class=hljs-addition>+    tsfn = Napi::ThreadSafeFunction::New(</span>
+<span class=hljs-addition>+        env, info[0].As&lt;Napi::Function&gt;(),</span>
+<span class=hljs-addition>+        &quot;tsfn&quot;,</span>
+<span class=hljs-addition>+        0, 1,</span>
+<span class=hljs-addition>+        [](Napi::Env) {</span>
+<span class=hljs-addition>+            thread.join();</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    thread = std::thread(StartEventsThread);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    return Napi::Number::New(env, 0);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Napi::Object Init(Napi::Env env, Napi::Object exports) {</span>
+<span class=hljs-addition>+    exports.Set(Napi::String::New(env, &quot;registerCallback&quot;), Napi::Function::New(env, RegisterEmit));</span>
+<span class=hljs-addition>+    return exports;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+NODE_API_MODULE(NODE_GYP_MODULE_NAME, Init);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+BOOL CALLBACK EnumWindowsProc(</span>
+<span class=hljs-addition>+    HWND hwnd,</span>
+<span class=hljs-addition>+    LPARAM lParam</span>
+<span class=hljs-addition>+) {</span>
+<span class=hljs-addition>+    // Setup</span>
+<span class=hljs-addition>+    auto objEnv = reinterpret_cast&lt;Wrapper*&gt;(lParam);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    if (!IsWindowVisible(hwnd)) {</span>
+<span class=hljs-addition>+        return TRUE;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    // Get process</span>
+<span class=hljs-addition>+    DWORD pid;</span>
+<span class=hljs-addition>+    if (!GetWindowThreadProcessId(hwnd, &amp;amp;pid)) {</span>
+<span class=hljs-addition>+        return TRUE;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, false, pid);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    if (!hProc) {</span>
+<span class=hljs-addition>+        return TRUE;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    TCHAR processName[MAX_PATH];</span>
+<span class=hljs-addition>+    if (GetProcessImageFileName(hProc, processName, MAX_PATH)) {</span>
+<span class=hljs-addition>+        auto processNameStr = std::string(processName);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        auto obj = objEnv-&gt;obj-&gt;Has(processNameStr)</span>
+<span class=hljs-addition>+            ? objEnv-&gt;obj-&gt;Get(processNameStr).As&lt;Napi::Object&gt;()</span>
+<span class=hljs-addition>+            : Napi::Object::New(*objEnv-&gt;env);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        objEnv-&gt;obj-&gt;Set(std::string(processName), obj);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        // If at least one of the windows is the foreground window then this</span>
+<span class=hljs-addition>+        // process is in the foreground</span>
+<span class=hljs-addition>+        auto hasForeground = obj.Has(&quot;foreground&quot;)</span>
+<span class=hljs-addition>+            ? obj.Get(&quot;foreground&quot;).As&lt;Napi::Boolean&gt;().Value()</span>
+<span class=hljs-addition>+            : false;</span>
+<span class=hljs-addition>+        // Maybe cache getforegroundwindow in js callback</span>
+<span class=hljs-addition>+        obj.Set(&quot;foreground&quot;, hasForeground || hwnd == GetForegroundWindow());</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        // Get window name</span>
+<span class=hljs-addition>+        setlocale(LC_ALL, &quot;en-US&quot;);</span>
+<span class=hljs-addition>+        WCHAR title[256] {};</span>
+<span class=hljs-addition>+        GetWindowTextW(hwnd, title, 256);</span>
+<span class=hljs-addition>+        std::wstring ws(title);</span>
+<span class=hljs-addition>+        std::wstring_convert&lt;std::codecvt_utf8&lt;wchar_t&gt;&gt; myconv;</span>
+<span class=hljs-addition>+        std::string str = myconv.to_bytes(ws);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        if (!str.empty() &amp;amp;&amp;amp; str.compare(&quot;Default IME&quot;) &amp;amp;&amp;amp; !obj.Has(&quot;name&quot;)) {</span>
+<span class=hljs-addition>+            // Make sure the process has a window with an actual name</span>
+<span class=hljs-addition>+            // Also from testing Default IME pops up a lot...</span>
+<span class=hljs-addition>+            // if obj doesnt have name? or allow a set of names?</span>
+<span class=hljs-addition>+            obj.Set(&quot;name&quot;, str);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    CloseHandle(hProc);</span>
+<span class=hljs-addition>+    return TRUE;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwineventhook</span>
+<span class=hljs-addition>+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wineventproc</span>
+<span class=hljs-addition>+// https://docs.microsoft.com/en-us/windows/win32/winauto/event-constants</span>
+<span class=hljs-addition>+void CALLBACK WinEventProc(</span>
+<span class=hljs-addition>+    HWINEVENTHOOK hook,</span>
+<span class=hljs-addition>+    DWORD event,</span>
+<span class=hljs-addition>+    HWND hwnd,</span>
+<span class=hljs-addition>+    LONG idObject,</span>
+<span class=hljs-addition>+    LONG idChild,</span>
+<span class=hljs-addition>+    DWORD dwEventThread,</span>
+<span class=hljs-addition>+    DWORD dwmsEventTime</span>
+<span class=hljs-addition>+) {</span>
+<span class=hljs-addition>+    // Sanity</span>
+<span class=hljs-addition>+    if (event != EVENT_SYSTEM_FOREGROUND</span>
+<span class=hljs-addition>+        || idObject != OBJID_WINDOW</span>
+<span class=hljs-addition>+        || idChild != CHILDID_SELF) {</span>
+<span class=hljs-addition>+        return;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    auto status = tsfn.BlockingCall([dwmsEventTime](Napi::Env env, Napi::Function jsCallback) {</span>
+<span class=hljs-addition>+        // Do we need this? https://github.com/nodejs/node-addon-api/blob/main/doc/object_lifetime_management.md</span>
+<span class=hljs-addition>+        Napi::HandleScope scope(env);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        auto processList = Napi::Object::New(env);</span>
+<span class=hljs-addition>+        Wrapper objEnv = {</span>
+<span class=hljs-addition>+            &amp;amp;processList, &amp;amp;env</span>
+<span class=hljs-addition>+        };</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        EnumWindows(EnumWindowsProc, reinterpret_cast&lt;LPARAM&gt;(&amp;amp;objEnv));</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        auto watcherMessage = Napi::Object::New(env);</span>
+<span class=hljs-addition>+        watcherMessage.Set(&quot;processes&quot;, processList);</span>
+<span class=hljs-addition>+        watcherMessage.Set(&quot;time&quot;, static_cast&lt;unsigned int&gt;(dwmsEventTime));</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        jsCallback.Call({ watcherMessage });</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+void StartEventsThread() {</span>
+<span class=hljs-addition>+    auto gHook = SetWinEventHook(</span>
+<span class=hljs-addition>+        EVENT_SYSTEM_FOREGROUND,</span>
+<span class=hljs-addition>+        EVENT_SYSTEM_MINIMIZEEND, // EVENT_SYSTEM_FOREGROUND,</span>
+<span class=hljs-addition>+        NULL,</span>
+<span class=hljs-addition>+        WinEventProc,</span>
+<span class=hljs-addition>+        0, 0,</span>
+<span class=hljs-addition>+        WINEVENT_OUTOFCONTEXT // | WINEVENT_SKIPOWNPROCESS</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    MSG msg;</span>
+<span class=hljs-addition>+    while (GetMessage(&amp;amp;msg, NULL, 0, 0)){</span>
+<span class=hljs-addition>+        TranslateMessage(&amp;amp;msg);</span>
+<span class=hljs-addition>+        DispatchMessage(&amp;amp;msg);</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    // TODO: cleanup</span>
+<span class=hljs-addition>+    // Theoretically the thread shouldn&#x27;t die until the app does</span>
+<span class=hljs-addition>+    tsfn.Release();</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```ts</span>
+<span class=hljs-addition>+// src/native_module/index.ts</span>
+<span class=hljs-addition>+export interface ProcessInfo {</span>
+<span class=hljs-addition>+    name: string;</span>
+<span class=hljs-addition>+    foreground: boolean;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+export interface WatcherMessage {</span>
+<span class=hljs-addition>+    time: number;</span>
+<span class=hljs-addition>+    processes: Record&lt;string, ProcessInfo&gt;;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+export function registerCallback(emitFn: (processes: WatcherMessage) =&gt; void): void;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+// src/main.ts</span>
+<span class=hljs-addition>+import { app, BrowserWindow } from &quot;electron&quot;;</span>
+<span class=hljs-addition>+import * as path from &quot;path&quot;;</span>
+<span class=hljs-addition>+import { registerCallback, WatcherMessage } from &quot;./src/native_module/thing&quot;;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+function createWindow() {</span>
+<span class=hljs-addition>+    const mainWindow = new BrowserWindow({</span>
+<span class=hljs-addition>+        height: 600,</span>
+<span class=hljs-addition>+        webPreferences: {</span>
+<span class=hljs-addition>+            preload: path.join(__dirname, &quot;preload.js&quot;),</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+        width: 800,</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    mainWindow.loadFile(path.join(__dirname, &quot;index.html&quot;));</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    mainWindow.webContents.on(&quot;did-finish-load&quot;, () =&gt; {</span>
+<span class=hljs-addition>+        registerCallback((message: WatcherMessage) =&gt; {</span>
+<span class=hljs-addition>+            mainWindow.webContents.send(&quot;data&quot;, message);</span>
+<span class=hljs-addition>+        });</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    mainWindow.webContents.openDevTools();</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+app.on(&quot;ready&quot;, () =&gt; {</span>
+<span class=hljs-addition>+    createWindow();</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    app.on(&quot;activate&quot;, () =&gt; {</span>
+<span class=hljs-addition>+        if (BrowserWindow.getAllWindows().length === 0) createWindow();</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+});</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+app.on(&quot;window-all-closed&quot;, () =&gt; {</span>
+<span class=hljs-addition>+    if (process.platform !== &quot;darwin&quot;) {</span>
+<span class=hljs-addition>+        app.quit();</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+});</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```ts</span>
+<span class=hljs-addition>+// src/preload.ts</span>
+<span class=hljs-addition>+import { ipcRenderer, IpcRendererEvent } from &quot;electron&quot;;</span>
+<span class=hljs-addition>+import { WatcherMessage } from &quot;../watcher&quot;;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+ipcRenderer.on(&quot;data&quot;, (event: IpcRendererEvent, message: WatcherMessage) =&gt; {</span>
+<span class=hljs-addition>+    console.log(message);</span>
+<span class=hljs-addition>+});</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now we can build using something like `electron-forge` since it makes things easy.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+&gt; npm i -D @electron-forge/cli electron-rebuild</span>
+<span class=hljs-addition>+&gt; npx electron-forge import</span>
+<span class=hljs-addition>+&gt; npx electron-rebuild</span>
+<span class=hljs-addition>+&gt; npm run make</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Yay 100mb executable and a lot of other things...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Oh right, because `electron-forge` expects `main.js` in this fashion I just made</span>
+<span class=hljs-addition>+it with `require(&quot;./dist&quot;);` which then runs the compiled `src/preload.ts` file.</span>
+<span class=hljs-addition>+I&#x27;ve probably forgotten to mention some other commands and `tsconfig` settings that</span>
+<span class=hljs-addition>+are necessary... Well it should be pretty simple to fill in the blanks hopefully.</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

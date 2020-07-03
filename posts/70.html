@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>life as a false positive case for bot detection</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/69>&lt; updating this site and checking for regressions</a></div> <div style=text-align:end><a href=/./posts/71>my time on mmos &gt;</a></div>
+</nav>
+<h1 id=life-as-a-false-positive-case-for-bot-detection>life as a false positive case for bot detection</h1>
+<p>This was previously titled <strong>i love cloudflare (not)</strong>, which is why this is focused on it, but I realized it applies to a lot of other services like hCaptcha (though I believe in this case these two services, hCaptcha and Cloudflare, are related).</p>
+<p>A little backstory about me; I like privacy and take decent measures to preserve my own.</p>
+<p>Cloudflare seems to have grown to a point where their "Performance &amp; Security" solutions are used in a lot of the sites I frequent. Unfortunately, their means that I'm constantly locked out by their checks.</p>
+<p>When initially visiting a site, I'm usually greeted with the prompt:</p>
+<blockquote>
+<p>Checking if the site is secure Enable JavaScript and cookies to continue
+<em>site</em> needs to review the security of your connection before proceeding.</p>
+</blockquote>
+<p>Then, after enabling javascript, I'm greeted by the same prompt; this time with a spinner. Instead of letting me in or erroring out, the page just constantly refreshes. If I'm lucky, after several refreshes, I'm presented with a verify that you're human by clicking here and if I'm extra lucky, I get in after filling it out. If not… then I determine if the site is worth visiting, and play the dance of determining which privacy measure I need to sacrifice to appease Cloudflare if so. If I try to wait the screen out, my computer's fans turn on…</p>
+<p><img alt=verification-loop src=/blobs/70/verification-loop.gif></p>
+<p>Another thing that happens is getting randomly banned from sites as I'm in the middle of browsing around. In fact, I just hit an "Access Denied (Error code 1020)" which spurred me to write this. Searching for the meaning of the code leads me to believe that my <em>residential</em> ip is what triggered it… or something about a firewall rule.</p>
+<blockquote>
+<p>1020 Access Denied is an error that commonly appears when Cloudflare perceives a threat associated with your IP address or when a firewall rule has been violated.</p>
+</blockquote>
+<p>or</p>
+<blockquote>
+<p>So basically when the end-user sees the 1020 error, it’s because the IP address was blocked due to security concerns detected by the Cloudflare CDN.</p>
+</blockquote>
+<p>There is a
+<a href=https://community.cloudflare.com/t/community-tip-access-was-denied-error-code-1020/66439>link to the cloudflare community forums</a>
+that I assume would be a better resource, but guess what? I can't access it because it's behind the endlessly refreshing screen I described above! I also can't access
+<a href=https://support.cloudflare.com/hc/en-us/articles/360029779472-Troubleshooting-Cloudflare-1XXX-errors>this official(?) support link</a>
+for the same reason!</p>
+<p>Another issue I've run into is a sudden screen with the following text:</p>
+<blockquote>
+<p>Sorry, you have been blocked You are unable to access <em>site</em> Why have I been blocked?</p>
+<p>This website is using a security service to protect itself from online attacks. The action you just performed triggered the security solution. There are several actions that could trigger this block including submitting a certain word or phrase, a SQL command or malformed data.</p>
+<p>What can I do to resolve this?</p>
+<p>You can email the site owner to let them know you were blocked. Please include what you were doing when this page came up and the Cloudflare Ray ID found at the bottom of this page.</p>
+</blockquote>
+<p>So I'm just banned off a random website for some unknown reason. Fortunately it seems to get lifted after a day or so; whether that is because the owner removed my ban or if it only lasts that long, I have no idea.</p>
+<p>And my favorite thing is when I'm presented with a captcha, solve it, and then get blocked.</p>
+<p><img alt=solved-and-blocked src=/blobs/70/solved-and-blocked.gif></p>
+<p>On one hand, I understand that getting DDoS'd is terrible and providing security against it is good, but as the person being falsely flagged it's extremely annoying. I doubt Cloudflare cares much for me as a single data point, as their false positive rate is probably quite low and therefore good enough from a metrics standpoint, but it sucks. At least I know my privacy measures seem to be effective if they consider me one of millions of bots?</p>
+<p>Come on, step it up…</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/69>&lt; updating this site and checking for regressions</a></div> <div style=text-align:end><a href=/./posts/71>my time on mmos &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-03-21 - update post 70</summary>
+<pre class=code-block><input id=code-block-3a4d33fc1139f0fd571a5fc4d01580abf2dd33f6-1 type=checkbox><label for=code-block-3a4d33fc1139f0fd571a5fc4d01580abf2dd33f6-1></label><code><span class=hljs-meta>@@ -1,2 +1,7 @@</span>
+<span class=hljs-deletion>-# i love cloudflare (not)</span>
+<span class=hljs-addition>+# life as a false positive case for bot detection</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This was previously titled **i love cloudflare (not)**, which is why this is</span>
+<span class=hljs-addition>+focused on it, but I realized it applies to a lot of other services like</span>
+<span class=hljs-addition>+hCaptcha (though I believe in this case these two services, hCaptcha and</span>
+<span class=hljs-addition>+Cloudflare, are related).</span>
+</code></pre>
+<pre class=code-block><input id=code-block-3a4d33fc1139f0fd571a5fc4d01580abf2dd33f6-2 type=checkbox><label for=code-block-3a4d33fc1139f0fd571a5fc4d01580abf2dd33f6-2></label><code><span class=hljs-meta>@@ -23,2 +28,4 @@</span> turn on...
+
+<span class=hljs-addition>+![verification-loop](/blobs/70/verification-loop.gif)</span>
+<span class=hljs-addition>+</span>
+ Another thing that happens is getting randomly banned from sites as I&#x27;m in the
+</code></pre>
+<pre class=code-block><input id=code-block-3a4d33fc1139f0fd571a5fc4d01580abf2dd33f6-3 type=checkbox><label for=code-block-3a4d33fc1139f0fd571a5fc4d01580abf2dd33f6-3></label><code><span class=hljs-meta>@@ -66,2 +73,7 @@</span> my ban or if it only lasts that long, I have no idea.
+
+<span class=hljs-addition>+And my favorite thing is when I&#x27;m presented with a captcha, solve it, and then</span>
+<span class=hljs-addition>+get blocked.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![solved-and-blocked](/blobs/70/solved-and-blocked.gif)</span>
+<span class=hljs-addition>+</span>
+ On one hand, I understand that getting DDoS&#x27;d is terrible and providing security
+</code></pre>
+</details>
+<details>
+<summary>2023-01-28 - add post 70</summary>
+<pre class=code-block><input id=code-block-1d24a89f48e4a444526592bb2d39c638df9bd35d-1 type=checkbox><label for=code-block-1d24a89f48e4a444526592bb2d39c638df9bd35d-1></label><code><span class=hljs-meta>@@ -0,0 +1,74 @@</span>
+<span class=hljs-addition>+# i love cloudflare (not)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A little backstory about me; I like privacy and take decent measures to preserve</span>
+<span class=hljs-addition>+my own.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Cloudflare seems to have grown to a point where their &quot;Performance &amp;amp; Security&quot;</span>
+<span class=hljs-addition>+solutions are used in a lot of the sites I frequent. Unfortunately, their means</span>
+<span class=hljs-addition>+that I&#x27;m constantly locked out by their checks.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When initially visiting a site, I&#x27;m usually greeted with the prompt:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Checking if the site is secure Enable JavaScript and cookies to continue</span>
+<span class=hljs-addition>+&gt; _site_ needs to review the security of your connection before proceeding.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Then, after enabling javascript, I&#x27;m greeted by the same prompt; this time with</span>
+<span class=hljs-addition>+a spinner. Instead of letting me in or erroring out, the page just constantly</span>
+<span class=hljs-addition>+refreshes. If I&#x27;m lucky, after several refreshes, I&#x27;m presented with a verify</span>
+<span class=hljs-addition>+that you&#x27;re human by clicking here and if I&#x27;m extra lucky, I get in after</span>
+<span class=hljs-addition>+filling it out. If not... then I determine if the site is worth visiting, and</span>
+<span class=hljs-addition>+play the dance of determining which privacy measure I need to sacrifice to</span>
+<span class=hljs-addition>+appease Cloudflare if so. If I try to wait the screen out, my computer&#x27;s fans</span>
+<span class=hljs-addition>+turn on...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another thing that happens is getting randomly banned from sites as I&#x27;m in the</span>
+<span class=hljs-addition>+middle of browsing around. In fact, I just hit an &quot;Access Denied (Error code</span>
+<span class=hljs-addition>+1020)&quot; which spurred me to write this. Searching for the meaning of the code</span>
+<span class=hljs-addition>+leads me to believe that my _residential_ ip is what triggered it... or</span>
+<span class=hljs-addition>+something about a firewall rule.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; 1020 Access Denied is an error that commonly appears when Cloudflare perceives</span>
+<span class=hljs-addition>+&gt; a threat associated with your IP address or when a firewall rule has been</span>
+<span class=hljs-addition>+&gt; violated.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+or</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; So basically when the end-user sees the 1020 error, it’s because the IP</span>
+<span class=hljs-addition>+&gt; address was blocked due to security concerns detected by the Cloudflare CDN.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is a</span>
+<span class=hljs-addition>+[link to the cloudflare community forums](https://community.cloudflare.com/t/community-tip-access-was-denied-error-code-1020/66439)</span>
+<span class=hljs-addition>+that I assume would be a better resource, but guess what? I can&#x27;t access it</span>
+<span class=hljs-addition>+because it&#x27;s behind the endlessly refreshing screen I described above! I also</span>
+<span class=hljs-addition>+can&#x27;t access</span>
+<span class=hljs-addition>+[this official(?) support link](https://support.cloudflare.com/hc/en-us/articles/360029779472-Troubleshooting-Cloudflare-1XXX-errors)</span>
+<span class=hljs-addition>+for the same reason!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another issue I&#x27;ve run into is a sudden screen with the following text:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Sorry, you have been blocked You are unable to access _site_ Why have I been</span>
+<span class=hljs-addition>+&gt; blocked?</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; This website is using a security service to protect itself from online</span>
+<span class=hljs-addition>+&gt; attacks. The action you just performed triggered the security solution. There</span>
+<span class=hljs-addition>+&gt; are several actions that could trigger this block including submitting a</span>
+<span class=hljs-addition>+&gt; certain word or phrase, a SQL command or malformed data.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; What can I do to resolve this?</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; You can email the site owner to let them know you were blocked. Please include</span>
+<span class=hljs-addition>+&gt; what you were doing when this page came up and the Cloudflare Ray ID found at</span>
+<span class=hljs-addition>+&gt; the bottom of this page.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I&#x27;m just banned off a random website for some unknown reason. Fortunately it</span>
+<span class=hljs-addition>+seems to get lifted after a day or so; whether that is because the owner removed</span>
+<span class=hljs-addition>+my ban or if it only lasts that long, I have no idea.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On one hand, I understand that getting DDoS&#x27;d is terrible and providing security</span>
+<span class=hljs-addition>+against it is good, but as the person being falsely flagged it&#x27;s extremely</span>
+<span class=hljs-addition>+annoying. I doubt Cloudflare cares much for me as a single data point, as their</span>
+<span class=hljs-addition>+false positive rate is probably quite low and therefore good enough from a</span>
+<span class=hljs-addition>+metrics standpoint, but it sucks. At least I know my privacy measures seem to be</span>
+<span class=hljs-addition>+effective if they consider me one of millions of bots?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Come on, step it up...</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

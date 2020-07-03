@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>divide and conquer 1</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div style=text-align:end><a href=/./puzzles/6>graphs 1 &gt;</a></div>
+</nav>
+<h2 id=question-1>Question 1</h2>
+<p>What is the running time of the median finding algorithm if you break up the list into $n/3$ groups of 3. <br> <br> What about $n/7$ groups of 7? <br>
+<br> First, a quick refreshed on how the median finding algorithm works normally:</p>
+<ol>
+<li>Break list into groups of 5.</li>
+<li>Sort groups</li>
+<li>Get median of each group and put together into another list</li>
+<li>Let the pivot be the median of the list from 3, which is found by recursively applying the formula</li>
+<li>Partition list from 1 using the pivot</li>
+<li>Recursively apply formula on single partition depending on which one contains the index of the median</li>
+</ol>
+<p>What is it with 5? Let's look at the runtime of each step:</p>
+<ol>
+<li>$O(n)$</li>
+<li>$n * O(1) \Rightarrow O(n)$</li>
+<li>$n * O(1) \Rightarrow O(n)$</li>
+<li>$T(n / 5)$</li>
+<li>$O(n)$</li>
+<li>$T(3n / 4)$</li>
+</ol>
+<p>The final equation is something like $T(3n / 4) + T(n / 5) + O(n)$ which is $O(n)$. Breaking the groups into different sizes changes the runtime of steps 4 and 7. If we do break into groups of 3, the runtime turns into something like $T(n / 3) + T(2n / 3) + O(n)$ which doesn't really cut the cases down (through the master theorem it looks to be $O(nlogn)$). Using groups of 7, the equation is $T(n / 7) + T(5n / 7) + O(n)$ which reduces down to $O(n)$.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div style=text-align:end><a href=/./puzzles/6>graphs 1 &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-12-23 - add exercise 5</summary>
+<pre class=code-block><input id=code-block-5b50e89dfddf96baedc30c2dcc43ce863ad09cc2-1 type=checkbox><label for=code-block-5b50e89dfddf96baedc30c2dcc43ce863ad09cc2-1></label><code><span class=hljs-meta>@@ -0,0 +1,36 @@</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD041 --&gt;</span>
+<span class=hljs-addition>+## Question 1</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What is the running time of the median finding algorithm if you break up the list</span>
+<span class=hljs-addition>+into $n/3$ groups of 3.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+What about $n/7$ groups of 7?</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+First, a quick refreshed on how the median finding algorithm works normally:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Break list into groups of 5.</span>
+<span class=hljs-addition>+2. Sort groups</span>
+<span class=hljs-addition>+3. Get median of each group and put together into another list</span>
+<span class=hljs-addition>+4. Let the pivot be the median of the list from 3, which is found by recursively</span>
+<span class=hljs-addition>+   applying the formula</span>
+<span class=hljs-addition>+5. Partition list from 1 using the pivot</span>
+<span class=hljs-addition>+6. Recursively apply formula on single partition depending on which one contains</span>
+<span class=hljs-addition>+   the index of the median</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What is it with 5? Let&#x27;s look at the runtime of each step:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. $O(n)$</span>
+<span class=hljs-addition>+2. $n * O(1) \Rightarrow O(n)$</span>
+<span class=hljs-addition>+3. $n * O(1) \Rightarrow O(n)$</span>
+<span class=hljs-addition>+4. $T(n / 5)$</span>
+<span class=hljs-addition>+5. $O(n)$</span>
+<span class=hljs-addition>+6. $T(3n / 4)$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The final equation is something like $T(3n / 4) + T(n / 5) + O(n)$ which is $O(n)$.</span>
+<span class=hljs-addition>+Breaking the groups into different sizes changes the runtime of steps 4 and 7. If</span>
+<span class=hljs-addition>+we do break into groups of 3, the runtime turns into something like</span>
+<span class=hljs-addition>+$T(n / 3) + T(2n / 3) + O(n)$ which doesn&#x27;t really cut the cases down (through</span>
+<span class=hljs-addition>+the master theorem it looks to be $O(nlogn)$). Using groups of 7, the equation is</span>
+<span class=hljs-addition>+$T(n / 7) + T(5n / 7) + O(n)$ which reduces down to $O(n)$.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

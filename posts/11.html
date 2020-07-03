@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>review of my haskell project</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/10>&lt; importance of argument ordering in haskell</a></div> <div style=text-align:end><a href=/./posts/12>start with a statically typed language &gt;</a></div>
+</nav>
+<h1 id=review-of-my-haskell-project>review of my haskell project</h1>
+<p>I think I'm more or less finished with my game, and here is the review:</p>
+<p>The programming of the game was a good way to learn the basics of developing with Haskell. I've (re)learned how to use various tools while working with the language including <code>stack</code>, <code>hlint</code>, and <code>brittany</code> (mainly because I'm too lazy to follow a consistent style when programming so if I can hit one or two keys to format my code, I'm a happy person).</p>
+<p>Furthermore, I was able to use several libraries and learn how to read documentation for Haskell projects. Mainly I used <code>containers</code> for a hash table and <code>gloss</code> for graphics. I also got some good experience using <code>hoogle</code> to look for functions.</p>
+<p>However, there were also some problems with this project. First I'll start with some generic things:</p>
+<ol>
+<li><p>I had a hard time organizing my code</p>
+<ul>
+<li>Basically I started out with a few top level files just so I could get things rolling quickly, then moved them to their respective folders later. However, as I found the need to make more files, I was not sure if the current structure was good.</li></ul></li>
+<li><p>I did not have a clear idea of the game</p>
+<ul>
+<li>When I first started writing the game, all I had in mind was colors and a board with hexagonal tiles. I basically came up with the rest of the mechanics while writing which could have contributed to my problems in point 1.</li></ul></li>
+</ol>
+<p>Now for Haskell specific things, I think that the game was just too simple to allow me the opportunity to implement instances for typeclasses. Only once did I implement <code>Functor</code> only to realize that it was unnecessary one or two days later. Oh also I didn't test it, although I do have some previous things Haskell things which include tests.</p>
+<p>If I had to rate the effectiveness of this experience, I would give it a 6/10. However, it may be possible to fill in the missing gaps without doing another project; looking at already existing Haskell code could give good insight for these things. Also I'm most definitely missing a lot of other stuff that I'm unaware of because I've only just touched the surface of the language.</p>
+<p>Now bringing it all back to entry 2: Why learn Haskell? So far I cannot think of many new reasons outside of the previously given:</p>
+<ol>
+<li>Functional<ul>
+<li>Being exposed to different programming paradigms is most likely very valuable as it gives a broader view of computer science/programming as a whole</li></ul></li>
+<li>No boilerplate<ul>
+<li>If you are aware of at least some of the language constructs, you can cut down on a lot of code that you would have to write using other languages</li></ul></li>
+<li>Statically typed<ul>
+<li>I didn't have to worry about too many runtime errors because the compiler would either error out or complain</li></ul></li>
+<li><del>Sound smart</del>Review/learn concepts<ul>
+<li>That was a joke point originally but Haskell seems to place more emphasis on various concepts that imperative programming languages barely touch - monads, type inference, lazy eval - granted this is common in most, if not all, functional languages.</li></ul></li>
+</ol>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/10>&lt; importance of argument ordering in haskell</a></div> <div style=text-align:end><a href=/./posts/12>start with a statically typed language &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,56 @@</span>
+<span class=hljs-addition>+# review of my haskell project</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think I&#x27;m more or less finished with my game, and here is the review:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The programming of the game was a good way to learn the basics of developing with</span>
+<span class=hljs-addition>+Haskell. I&#x27;ve (re)learned how to use various tools while working with the language</span>
+<span class=hljs-addition>+including `stack`, `hlint`, and `brittany` (mainly because I&#x27;m too lazy to follow</span>
+<span class=hljs-addition>+a consistent style when programming so if I can hit one or two keys to format my</span>
+<span class=hljs-addition>+code, I&#x27;m a happy person).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Furthermore, I was able to use several libraries and learn how to read documentation</span>
+<span class=hljs-addition>+for Haskell projects. Mainly I used `containers` for a hashtable and `gloss` for</span>
+<span class=hljs-addition>+graphics. I also got some good experience using `hoogle` to look for functions.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, there were also some problems with this project. First I&#x27;ll start with</span>
+<span class=hljs-addition>+some generic things:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. I had a hard time organizing my code</span>
+<span class=hljs-addition>+   - Basically I started out with a few toplevel files just so I could get things</span>
+<span class=hljs-addition>+     rolling quickly, then moved them to their respective folders later. However,</span>
+<span class=hljs-addition>+     as I found the need to make more files, I was not sure if the current structure</span>
+<span class=hljs-addition>+     was good.</span>
+<span class=hljs-addition>+2. I did not have a clear idea of the game</span>
+<span class=hljs-addition>+   - When I first started writing the game, all I had in mind was colors and a</span>
+<span class=hljs-addition>+     board with hexagonal tiles. I basically came up with the rest of the mechanics</span>
+<span class=hljs-addition>+     while writing which could have contributed to my problems in point 1.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now for Haskell specific things, I think that the game was just too simple to allow</span>
+<span class=hljs-addition>+me the opportunity to implement instances for typeclasses. Only once did I implement</span>
+<span class=hljs-addition>+`Functor` only to realize that it was unnecessary one or two days later. Oh also</span>
+<span class=hljs-addition>+I didn&#x27;t test it, although I do have some previous things Haskell things which include</span>
+<span class=hljs-addition>+tests.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If I had to rate the effectiveness of this experience, I would give it a 6/10.</span>
+<span class=hljs-addition>+However, it may be possible to fill in the missing gaps without doing another project;</span>
+<span class=hljs-addition>+looking at already existing Haskell code could give good insight for these things.</span>
+<span class=hljs-addition>+Also I&#x27;m most definitely missing a lot of other stuff that I&#x27;m unaware of because</span>
+<span class=hljs-addition>+I&#x27;ve only just touched the surface of the language.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now bringing it all back to entry 2: Why learn Haskell? So far I cannot think of</span>
+<span class=hljs-addition>+many new reasons outside of the previously given:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Functional</span>
+<span class=hljs-addition>+   - Being exposed to different programming paradigms is most likely very valuable</span>
+<span class=hljs-addition>+     as it gives a broader view of computer science/programming as a whole</span>
+<span class=hljs-addition>+2. No boilerplate</span>
+<span class=hljs-addition>+   - If you are aware of at least some of the language constructs, you can cut down</span>
+<span class=hljs-addition>+     on a lot of code that you would have to write using other languages</span>
+<span class=hljs-addition>+3. Statically typed</span>
+<span class=hljs-addition>+   - I didn&#x27;t have to worry about too many runtime errors because the compiler would</span>
+<span class=hljs-addition>+     either error out or complain</span>
+<span class=hljs-addition>+4. ~~Sound smart~~Review/learn concepts</span>
+<span class=hljs-addition>+   - That was a joke point originally but Haskell seems to place more emphasis on</span>
+<span class=hljs-addition>+     various concepts that imperative programming languages barely touch - monads,</span>
+<span class=hljs-addition>+     type inference, lazy eval - granted this is common in most, if not all,</span>
+<span class=hljs-addition>+     functional languages.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

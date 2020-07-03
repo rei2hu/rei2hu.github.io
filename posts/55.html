@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>a half baked replacement for angular js' $compile </title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/54>&lt; copy and paste interview questions</a></div> <div style=text-align:end><a href=/./posts/56>a quick hobby project &gt;</a></div>
+</nav>
+<h1 id=a-half-baked-replacement-for-angular-js-compile>a half baked replacement for angular js' \$compile</h1>
+<p>Forewarning: I'm not checking any of the code I type below for 100% correctness.</p>
+<p>I recently came across a bit of code that uses Angular JS' <code>$compile</code> to dynamically generate content and I had to migrate it to a more modern Angular version. The only issue is that there is no direct replacement.</p>
+<p>To back up a bit, the reason <code>$compile</code> was originally used was because we were allowing end users to submit markdown and have it display properly in html - but in addition to basic markdown elements, we may also possible generate some components based on what the text contains via some replace logic.</p>
+<p>For example, we might do this kind of transformation:</p>
+<pre class=code-block><input id=code-block-55-1 type=checkbox><label for=code-block-55-1></label><code>| name | number | | -- | -- | | person_1_id | 123 | | person_2_id | 456 |
+
+<span class=hljs-tag>&lt;<span class=hljs-name>table</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>thead</span>&gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>tr</span>&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>td</span>&gt;</span>name<span class=hljs-tag>&lt;/<span class=hljs-name>td</span>&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>td</span>&gt;</span>number<span class=hljs-tag>&lt;/<span class=hljs-name>td</span>&gt;</span>
+        <span class=hljs-tag>&lt;/<span class=hljs-name>tr</span>&gt;</span>
+    <span class=hljs-tag>&lt;/<span class=hljs-name>thead</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>tbody</span>&gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>tr</span>&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>td</span>&gt;</span><span class=hljs-tag>&lt;<span class=hljs-name>UserInfo</span> <span class=hljs-attr>user-id</span>=<span class=hljs-string>&quot;person_1_id&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>UserInfo</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>td</span>&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>td</span>&gt;</span>123<span class=hljs-tag>&lt;/<span class=hljs-name>td</span>&gt;</span>
+        <span class=hljs-tag>&lt;/<span class=hljs-name>tr</span>&gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>tr</span>&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>td</span>&gt;</span><span class=hljs-tag>&lt;<span class=hljs-name>UserInfo</span> <span class=hljs-attr>user-id</span>=<span class=hljs-string>&quot;person_2_id&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>UserInfo</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>td</span>&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>td</span>&gt;</span>456<span class=hljs-tag>&lt;/<span class=hljs-name>td</span>&gt;</span>
+        <span class=hljs-tag>&lt;/<span class=hljs-name>tr</span>&gt;</span>
+    <span class=hljs-tag>&lt;/<span class=hljs-name>tbody</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>table</span>&gt;</span>
+</code></pre>
+<p>And that second bit is passed to <code>$compile</code> to be inserted into the dom. Great. Let's call the function that does this <code>generateTemplate</code> and its internal details aren't very important; all you need to know is
+<code>generateTemplate(userProvidedText)</code> gives back some valid html.</p>
+<p>The first problem to tackle is how to get that html to render. If you've attempted to do anything like this, then you should know the answer is the
+<code>[innerHTML]</code> prop (are these called props or am I just leveraging React nomenclature?). Maybe something like:</p>
+<pre class=code-block><input id=code-block-55-2 type=checkbox><label for=code-block-55-2></label><code>&lt;div [innerHTML]=<span class=hljs-string>&quot;html&quot;</span>&gt;&lt;div&gt;
+
+<span class=hljs-comment>// ...</span>
+
+<span class="hljs-title function_">ngOnChanges</span>(<span class=hljs-params></span>) {
+    <span class=hljs-comment>// i swear this is safe</span>
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>html</span> = sanitizer.<span class="hljs-title function_">bypassSecurityTrustHtml</span>(<span class="hljs-title function_">generateTemplate</span>(<span class="hljs-variable language_">this</span>.<span class=hljs-property>userProvidedText</span>));
+}
+</code></pre>
+<p>The issue here is that the custom components, in this case <code>&lt;UserInfo&gt;</code> won't actually generate. If you inspect the dom, then you would see
+<code>&lt;UserInfo user-id="person_1_id"&gt;&lt;/UserInfo&gt;</code> with nothing inside it. Ok, that's a problem, so we need to somehow create the element; fortunately we can do that with Angular. And depending on your version, there are several ways to do so.</p>
+<pre class=code-block><input id=code-block-55-3 type=checkbox><label for=code-block-55-3></label><code><span class=hljs-keyword>const</span> vcrCreated = <span class="hljs-variable language_">this</span>.<span class=hljs-property>viewContainerRef</span>.<span class="hljs-title function_">createComponent</span>(<span class="hljs-title class_">UserInfo</span>);
+
+<span class=hljs-keyword>const</span> fac = <span class="hljs-variable language_">this</span>.<span class=hljs-property>componentFactoryResolver</span>.<span class="hljs-title function_">resolveComponentFactory</span>(<span class="hljs-title class_">UserInfo</span>);
+<span class=hljs-keyword>const</span> facCreated = fac.<span class="hljs-title function_">create</span>();
+</code></pre>
+<p>We'll worry about the other arguments later, as they are important. So this will actually create the element and stick it somewhere in the dom, but we want it to be in the correct tag. This is where how you create it kind of matters. For factories, we can specify the <code>rootSelectorOrNode</code></p>
+<pre class=code-block><input id=code-block-55-4 type=checkbox><label for=code-block-55-4></label><code>fac.<span class="hljs-title function_">create</span>(<span class="hljs-variable language_">this</span>.<span class=hljs-property>injector</span>, [], somehowGetTheUserInfoElement);
+</code></pre>
+<p>But we're not so lucky with <code>viewContainerRef</code> and have to rely on native dom manipulation to move the component into it's correct spot (also you may have duplicated tags as <code>createComponent</code> will generate the component's custom element in addition to anything on the inside). You can also use Angular's
+<code>Renderer2#appendChild</code> instead of native dom manipulation but, let's be honest, that's what it's doing under the hood basically.</p>
+<p>So how do we get the UserInfo element? I've already hinted at relying on native dom apis, and that's what we're going to use. Instead of using the <code>innerHTML</code>
+prop, we will set it manually with
+<code>this.elementRef.nativeElement.innerHTML = html</code>.</p>
+<p>Once we've done that, we can then rely on the native dom api to do most of the things Angular doesn't let us.</p>
+<pre class=code-block><input id=code-block-55-5 type=checkbox><label for=code-block-55-5></label><code><span class="hljs-variable language_">this</span>.<span class=hljs-property>elementRef</span>.<span class=hljs-property>nativeElement</span>.<span class=hljs-property>innerHTML</span> = <span class="hljs-title function_">generateTemplate</span>(
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>userProvidedText</span>
+);
+<span class=hljs-keyword>const</span> baseElement = <span class="hljs-variable language_">this</span>.<span class=hljs-property>elementRef</span>.<span class=hljs-property>nativeElement</span>;
+
+baseElement.<span class="hljs-title function_">querySelectorAll</span>(<span class=hljs-string>&quot;UserInfo&quot;</span>).<span class="hljs-title function_">forEach</span>(<span class=hljs-function>(<span class=hljs-params>element</span>) =&gt;</span> {
+    <span class=hljs-comment>// could be brought out but too lazy, also depending on number of elements</span>
+    <span class=hljs-comment>// you may have an outer loop based on selector, component pairs</span>
+    <span class=hljs-keyword>const</span> fac = <span class="hljs-variable language_">this</span>.<span class=hljs-property>componentFactoryResolve</span>.<span class="hljs-title function_">resolveComponentFactory</span>(<span class="hljs-title class_">UserInfo</span>);
+    <span class=hljs-keyword>const</span> component = fac.<span class="hljs-title function_">create</span>(<span class="hljs-variable language_">this</span>.<span class=hljs-property>injector</span>, [], element);
+});
+</code></pre>
+<p>And you should see the component created and inserted. The last thing is to get the props working, which we can do with <code>ComponentRef#setInput</code> or, if not up to date <code>component.instance[input] = element.getAttribute(input)</code>. A small warning, double check casing of the property as most browser automatically lowercase attribute keys.</p>
+<p>The final thing to talk about is to take advantage of <code>projectableNodes</code> if you use <code>ng-content</code> anywhere. Simply pass <code>[Array.from(element.childNodes)]</code> as its value. Overall, the solution should look like</p>
+<pre class=code-block><input id=code-block-55-6 type=checkbox><label for=code-block-55-6></label><code><span class="hljs-variable language_">this</span>.<span class=hljs-property>elementRef</span>.<span class=hljs-property>nativeElement</span>.<span class=hljs-property>innerHTML</span> = <span class="hljs-title function_">generateTemplate</span>(
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>userProvidedText</span>
+);
+<span class=hljs-keyword>const</span> baseElement = <span class="hljs-variable language_">this</span>.<span class=hljs-property>elementRef</span>.<span class=hljs-property>nativeElement</span>;
+
+baseElement.<span class="hljs-title function_">querySelectorAll</span>(<span class=hljs-string>&quot;UserInfo&quot;</span>).<span class="hljs-title function_">forEach</span>(<span class=hljs-function>(<span class=hljs-params>element</span>) =&gt;</span> {
+    <span class=hljs-keyword>const</span> fac = <span class="hljs-variable language_">this</span>.<span class=hljs-property>componentFactoryResolve</span>.<span class="hljs-title function_">resolveComponentFactory</span>(<span class="hljs-title class_">UserInfo</span>);
+    <span class=hljs-keyword>const</span> component = fac.<span class="hljs-title function_">create</span>(
+        <span class="hljs-variable language_">this</span>.<span class=hljs-property>injector</span>,
+        [<span class="hljs-title class_">Array</span>.<span class="hljs-title function_">from</span>(element.<span class=hljs-property>childNodes</span>)],
+        element
+    );
+
+    <span class=hljs-keyword>for</span> (<span class=hljs-keyword>const</span> attr <span class=hljs-keyword>of</span> <span class="hljs-title function_">getAttributeNames</span>()) {
+        component.<span class=hljs-property>instance</span>[attr] = element.<span class="hljs-title function_">getAttribute</span>(attr);
+    }
+});
+</code></pre>
+<p>Now, there are also some things you may want to do like keep track of generate component references and <code>destroy</code>/<code>detectChanges</code> during the applicable lifecycle stages but I'll leave that to you to figure out. Also you may be wondering about how <code>@Output</code>s work or even directives. I haven't attempted to figure it out because it was unnecessary for my use case. Overall, I think this kind of workaround sucks.</p>
+<p>Well I guess this is what happens when components aren't treated as first class citizens and you rely on a custom templating language.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/54>&lt; copy and paste interview questions</a></div> <div style=text-align:end><a href=/./posts/56>a quick hobby project &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-06-22 - add post 55</summary>
+<pre class=code-block><input id=code-block-1ecf6e7c33518062870d5af7c928f740b83f775f-1 type=checkbox><label for=code-block-1ecf6e7c33518062870d5af7c928f740b83f775f-1></label><code><span class=hljs-meta>@@ -0,0 +1,146 @@</span>
+<span class=hljs-addition>+# a half baked replacement for angular js&#x27; $compile</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Forewarning: I&#x27;m not checking any of the code I type below for 100% correctness.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I recently came across a bit of code that uses Angular JS&#x27; `$compile` to dynamically</span>
+<span class=hljs-addition>+generate content and I had to migrate it to a more modern Angular version. The only</span>
+<span class=hljs-addition>+issue is that there is no direct replacement.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To back up a bit, the reason `$compile` was originally used was because we were</span>
+<span class=hljs-addition>+allowing end users to submit markdown and have it display properly in html - but</span>
+<span class=hljs-addition>+in addition to basic markdown elements, we may also possible generate some components</span>
+<span class=hljs-addition>+based on what the text contains via some replace logic.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For example, we might do this kind of transformation:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+| name | number |</span>
+<span class=hljs-addition>+| -- | -- |</span>
+<span class=hljs-addition>+| person_1_id | 123 |</span>
+<span class=hljs-addition>+| person_2_id | 456 |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;table&gt;</span>
+<span class=hljs-addition>+    &lt;thead&gt;</span>
+<span class=hljs-addition>+        &lt;tr&gt;</span>
+<span class=hljs-addition>+            &lt;td&gt;name&lt;/td&gt;</span>
+<span class=hljs-addition>+            &lt;td&gt;number&lt;/td&gt;</span>
+<span class=hljs-addition>+        &lt;/tr&gt;</span>
+<span class=hljs-addition>+    &lt;/thead&gt;</span>
+<span class=hljs-addition>+    &lt;tbody&gt;</span>
+<span class=hljs-addition>+        &lt;tr&gt;</span>
+<span class=hljs-addition>+            &lt;td&gt;&lt;UserInfo user-id=&quot;person_1_id&quot;&gt;&lt;/UserInfo&gt;&lt;/td&gt;</span>
+<span class=hljs-addition>+            &lt;td&gt;123&lt;/td&gt;</span>
+<span class=hljs-addition>+        &lt;/tr&gt;</span>
+<span class=hljs-addition>+        &lt;tr&gt;</span>
+<span class=hljs-addition>+            &lt;td&gt;&lt;UserInfo user-id=&quot;person_2_id&quot;&gt;&lt;/UserInfo&gt;&lt;/td&gt;</span>
+<span class=hljs-addition>+            &lt;td&gt;456&lt;/td&gt;</span>
+<span class=hljs-addition>+        &lt;/tr&gt;</span>
+<span class=hljs-addition>+    &lt;/tbody&gt;</span>
+<span class=hljs-addition>+&lt;/table&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And that second bit is passed to `$compile` to be inserted into the dom. Great.</span>
+<span class=hljs-addition>+Let&#x27;s call the function that does this `generateTemplate` and its internal details</span>
+<span class=hljs-addition>+aren&#x27;t very important; all you need to know is `generateTemplate(userProvidedText)`</span>
+<span class=hljs-addition>+gives back some valid html.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first problem to tackle is how to get that html to render. If you&#x27;ve attempted</span>
+<span class=hljs-addition>+to do anything like this, then you should know the answer is the `[innerHTML]` prop</span>
+<span class=hljs-addition>+(are these called props or am I just leveraging React nomenclature?). Maybe something</span>
+<span class=hljs-addition>+like:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+&lt;div [innerHTML]=&quot;html&quot;&gt;&lt;div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// ...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+ngOnChanges() {</span>
+<span class=hljs-addition>+    // i swear this is safe</span>
+<span class=hljs-addition>+    this.html = sanitizer.bypassSecurityTrustHtml(generateTemplate(this.userProvidedText));</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The issue here is that the custom components, in this case `&lt;UserInfo&gt;` won&#x27;t actually</span>
+<span class=hljs-addition>+generate. If you inspect the dom, then you would see `&lt;UserInfo user-id=&quot;person_1_id&quot;&gt;&lt;/UserInfo&gt;`</span>
+<span class=hljs-addition>+with nothing inside it. Ok, that&#x27;s a problem, so we need to somehow create the element;</span>
+<span class=hljs-addition>+fortunately we can do that with Angular. And depending on your version, there are</span>
+<span class=hljs-addition>+several ways to do so.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+const vcrCreated = this.viewContainerRef.createComponent(UserInfo);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+const fac = this.componentFactoryResolver.resolveComponentFactory(UserInfo);</span>
+<span class=hljs-addition>+const facCreated = fac.create();</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We&#x27;ll worry about the other arguments later, as they are important. So this will</span>
+<span class=hljs-addition>+actually create the element and stick it somewhere in the dom, but we want it to</span>
+<span class=hljs-addition>+be in the correct tag. This is where how you create it kind of matters. For factories,</span>
+<span class=hljs-addition>+we can specify the `rootSelectorOrNode`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+fac.create(this.injector, [], somehowGetTheUserInfoElement);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But we&#x27;re not so lucky with `viewContainerRef` and have to rely on native dom manipulation</span>
+<span class=hljs-addition>+to move the componet into it&#x27;s correct spot (also you may have duplicated tags as</span>
+<span class=hljs-addition>+`createComponent` will generate the component&#x27;s custom element in addition to anything</span>
+<span class=hljs-addition>+on the inside). You can also use Angular&#x27;s `Renderer2#appendChild` instead of native</span>
+<span class=hljs-addition>+dom manipulation but, let&#x27;s be honest, that&#x27;s what it&#x27;s doing under the hood basically.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So how do we get the UserInfo element? I&#x27;ve already hinted at relying on native</span>
+<span class=hljs-addition>+dom apis, and that&#x27;s what we&#x27;re going to use. Instead of using the `innerHTML` prop,</span>
+<span class=hljs-addition>+we will set it manually with `this.elementRef.nativeElement.innerHTML = html`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Once we&#x27;ve done that, we can then rely on the native dom api to do most of the things</span>
+<span class=hljs-addition>+Angular doesn&#x27;t let us.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+this.elementRef.nativeElement.innerHTML = generateTemplate(this.userProvidedText);</span>
+<span class=hljs-addition>+const baseElement = this.elementRef.nativeElement;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+baseElement.querySelectorAll(&quot;UserInfo&quot;)</span>
+<span class=hljs-addition>+    .forEach(element =&gt; {</span>
+<span class=hljs-addition>+        // could be brought out but too lazy, also depending on number of elements</span>
+<span class=hljs-addition>+        // you may have an outer loop based on selector, component pairs</span>
+<span class=hljs-addition>+        const fac = this.componentFactoryResolve.resolveComponentFactory(UserInfo);</span>
+<span class=hljs-addition>+        const component = fac.create(this.injector, [], element);</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And you should see the component created and inserted. The last thing is to get</span>
+<span class=hljs-addition>+the props working, which we can do with `ComponentRef#setInput` or, if not up to</span>
+<span class=hljs-addition>+date `component.instance[input] = element.getAttribute(input)`. A small warning,</span>
+<span class=hljs-addition>+double check casing of the property as most browser automatically lowercase attribute</span>
+<span class=hljs-addition>+keys.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The final thing to talk about is to take advantage of `projectableNodes` if you</span>
+<span class=hljs-addition>+use `ng-content` anywhere. Simply pass `[Array.from(element.childNodes)]` as its</span>
+<span class=hljs-addition>+value. Overall, the solution should look like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+this.elementRef.nativeElement.innerHTML = generateTemplate(this.userProvidedText);</span>
+<span class=hljs-addition>+const baseElement = this.elementRef.nativeElement;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+baseElement.querySelectorAll(&quot;UserInfo&quot;)</span>
+<span class=hljs-addition>+    .forEach(element =&gt; {</span>
+<span class=hljs-addition>+        const fac = this.componentFactoryResolve.resolveComponentFactory(UserInfo);</span>
+<span class=hljs-addition>+        const component = fac.create(this.injector,</span>
+<span class=hljs-addition>+            [Array.from(element.childNodes)],</span>
+<span class=hljs-addition>+            element);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        for (const attr of getAttributeNames()) {</span>
+<span class=hljs-addition>+            component.instance[attr] = element.getAttribute(attr);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now, there are also some things you may want to do like keep track of generate component</span>
+<span class=hljs-addition>+references and `destroy`/`detectChanges` during the applicable lifecycle stages</span>
+<span class=hljs-addition>+but I&#x27;ll leave that to you to figure out. Also you may be wondering about how `@Output`s</span>
+<span class=hljs-addition>+work or even directivesw. I haven&#x27;t attempted to figure it out because it was unnecessary</span>
+<span class=hljs-addition>+for my use case. Overall, I think this kind of workaround sucks.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well I guess this is what happens when components aren&#x27;t treated as first class</span>
+<span class=hljs-addition>+citizens and you rely on a custom templating language.</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

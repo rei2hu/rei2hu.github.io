@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<script src=/scripts/image_loader.js></script>
+<title>lost in space</title>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script>
+ext.canvasFn = (context) => {
+			var oldStyle = context.fillStyle;
+			context.font = "bold 10em Courier";
+			context.fillStyle = getComputedStyle(
+				document.body
+			).getPropertyValue("--fg-1");
+			context.fillText("404", 100, 200);
+			var width = context.measureText("404").width / 2;
+			context.font = "bold 1em Courier";
+			context.fillText("you are lost in space", 100 + width, 250);
+			context.fillStyle = oldStyle;
+		};
+		if (!window.location.hash)
+			window.location.replace(window.location.href + "#stars");
+</script>
+</head>
+<body>
+<noscript>
+This is the 404 page.
+</noscript>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp")' srcset=reimu>
+</picture>
+</body>

@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>setting up an os on removable media</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/64>&lt; witnessed my first set of layoffs</a></div> <div style=text-align:end><a href=/./posts/66>a godot game &gt;</a></div>
+</nav>
+<h1 id=setting-up-an-os-on-removable-media>setting up an os on removable media</h1>
+<p>Specifically related to a 250GB Framework storage expansion card I was convinced to purchase alongside the laptop. I assume it works similar to any other removable media.</p>
+<p>TLDR: Make sure the bootloader file is loaded in <code>/EFI/BOOT/bootx64.efi</code> (or maybe a different file name depending on architecture). This can be accomplished when installing GRUB by including the <code>--removable</code> flag.</p>
+<p>This is the "fallback" boot loader which is intended for removable media, and works great with the expansion card. I guess I could have achieved similar outcomes with an external usb but the expansion card is integrated in the frame of the laptop itself - there may be some BIOS settings around boot order that you may need to mess with to get a nice startup but otherwise steps are literally the same as setting up a normal Linux distribution.</p>
+<p>Below is a rough outline of steps based on the Arch Linux installation guide (I use arch btw):</p>
+<ol>
+<li><p>Load installation media</p></li>
+<li><p>Run <code>fdisk -l</code> to figure out which device is the storage card. For me it was
+<code>/dev/sda</code></p></li>
+<li><p>Partition the drive into EFI, swap, and Linux partitions</p>
+<ol>
+<li>I prefer <code>cfdisk</code> because I don't know the <code>fdisk</code> commands.</li>
+<li>You can follow the Arch Linux suggested partitions. The partition names will be used in the rest of the steps.</li>
+<li>Make sure to toggle bootable for the EFI System partition.</li></ol>
+<table>
+<thead>
+<tr>
+<th>Partition</th>
+<th>Partition Type</th>
+<th>Suggested Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/dev/sda1</td>
+<td>EFI System</td>
+<td>&gt;= 300M</td>
+</tr>
+<tr>
+<td>/dev/sda2</td>
+<td>Swap</td>
+<td>&gt;= 512M</td>
+</tr>
+<tr>
+<td>/dev/sda3</td>
+<td>Linux</td>
+<td>Rest of device</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>Format the partitions</p>
+<ol>
+<li>Create a file system for the Linux partition via <code>mkfs.ext4 /dev/sda3</code></li>
+<li>Set up swap via <code>mkswap /dev/sda2</code></li>
+<li>Format the EFI System partition <code>mkfs.fat -F32 /dev/sda1</code></li></ol></li>
+<li><p>Mount the file systems</p>
+<ol>
+<li><code>mount /dev/sda3 /mnt</code></li>
+<li><code>mount /dev/sda1 /mnt/boot</code></li></ol></li>
+<li><p>Change root into system with <code>arch-chroot /mnt</code></p></li>
+<li><p>Install GRUB via
+<code>grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --removable</code>. Don't forget <code>--removable</code>!</p></li>
+</ol>
+<p>Make sure you do other steps like installing network related packages and actually setting up Linux/GRUB. If everything is done correctly, you should be able to boot without the installation media and get the GRUB bootloader to show when starting up (see BIOS menus around boot order, or try the one time boot override with F12 to see if there's an entry for it). You may also want to add an entry for your original OS so you may boot it while the storage card is attached.</p>
+<p>This setup allows loading the bootloader on the expansion card when it is attached but otherwise loads bootloaders found on the laptop's storage when it is removed. Hmm, very much like a CD… Do those still exist? Would it be possible to add a menu entry for the OS located on the expansion card to the laptop's boot loader? Possibly, but this way is cooler because you won't have a dead entry unless the card is attached I guess.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/64>&lt; witnessed my first set of layoffs</a></div> <div style=text-align:end><a href=/./posts/66>a godot game &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-12-21 - add post 65</summary>
+<pre class=code-block><input id=code-block-848aaf680a563ca07657b9cfc13d5cec066b7863-1 type=checkbox><label for=code-block-848aaf680a563ca07657b9cfc13d5cec066b7863-1></label><code><span class=hljs-meta>@@ -0,0 +1,60 @@</span>
+<span class=hljs-addition>+# setting up an os on removable media</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Specifically related to a 250GB Framework storage expansion card I was convinced</span>
+<span class=hljs-addition>+to purchase alongside the laptop. I assume it works similar to any other</span>
+<span class=hljs-addition>+removable media.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+TLDR:</span>
+<span class=hljs-addition>+Make sure the bootloader file is loaded in `/EFI/BOOT/bootx64.efi` (or maybe a</span>
+<span class=hljs-addition>+different file name depending on architecture). This can be accomplished when</span>
+<span class=hljs-addition>+installing GRUB by including the `--removable` flag.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is the &quot;fallback&quot; boot loader which is intended for removable media, and</span>
+<span class=hljs-addition>+works great with the expansion card. I guess I could have achieved similar</span>
+<span class=hljs-addition>+outcomes with an external usb but the expansion card is integrated in the frame</span>
+<span class=hljs-addition>+of the laptop itself - there may be some BIOS settings around boot order that</span>
+<span class=hljs-addition>+you may need to mess with to get a nice startup but otherwise steps are</span>
+<span class=hljs-addition>+literally the same as setting up a normal Linux distribution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Below is a rough outline of steps based on the Arch Linux installation guide (I</span>
+<span class=hljs-addition>+use arch btw):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Load installation media</span>
+<span class=hljs-addition>+2. Run `fdisk -l` to figure out which device is the storage card. For me it was</span>
+<span class=hljs-addition>+   `/dev/sda`</span>
+<span class=hljs-addition>+3. Partition the drive into EFI, swap, and Linux partitions</span>
+<span class=hljs-addition>+    1. I prefer `cfdisk` because I don&#x27;t know the `fdisk` commands.</span>
+<span class=hljs-addition>+    2. You can follow the Arch Linux suggested partitions. The partition names</span>
+<span class=hljs-addition>+    will be used in the rest of the steps.</span>
+<span class=hljs-addition>+    3. Make sure to toggle bootable for the EFI System partition.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    | Partition | Partition Type | Suggested Size |</span>
+<span class=hljs-addition>+    | --------- | -------------- | -------------- |</span>
+<span class=hljs-addition>+    | /dev/sda1 | EFI System     | &gt;= 300M        |</span>
+<span class=hljs-addition>+    | /dev/sda2 | Swap           | &gt;= 512M        |</span>
+<span class=hljs-addition>+    | /dev/sda3 | Linux          | Rest of device |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+4. Format the partitions</span>
+<span class=hljs-addition>+    1. Create a file system for the Linux partition via `mkfs.ext4 /dev/sda3`</span>
+<span class=hljs-addition>+    2. Set up swap via `mkswap /dev/sda2`</span>
+<span class=hljs-addition>+    3. Format the EFI System partition `mkfs.fat -F32 /dev/sda1`</span>
+<span class=hljs-addition>+5. Mount the file systems</span>
+<span class=hljs-addition>+    1. `mount /dev/sda3 /mnt`</span>
+<span class=hljs-addition>+    2. `mount /dev/sda1 /mnt/boot`</span>
+<span class=hljs-addition>+6. Change root into system with `arch-chroot /mnt`</span>
+<span class=hljs-addition>+7. Install GRUB via `grub-install --target=x86_64-efi --efi-directory=/boot</span>
+<span class=hljs-addition>+   --bootloader-id=GRUB --removable`. Don&#x27;t forget `--removable`!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Make sure you do other steps like installing network related packages and</span>
+<span class=hljs-addition>+actually setting up Linux/GRUB. If everything is done correctly, you should be able</span>
+<span class=hljs-addition>+to boot without the installation media and get the GRUB bootloader to show when</span>
+<span class=hljs-addition>+starting up (see BIOS menus around boot order, or try the one time boot override</span>
+<span class=hljs-addition>+with F12 to see if there&#x27;s an entry for it). You may also want to add an entry</span>
+<span class=hljs-addition>+for your original OS so you may boot it while the storage card is attached.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This setup allows loading the bootloader on the expansion card when it is</span>
+<span class=hljs-addition>+attached but otherwise loads bootloaders found on the laptop&#x27;s storage when it</span>
+<span class=hljs-addition>+is removed. Hmm, very much like a CD... Do those still exist? Would it be</span>
+<span class=hljs-addition>+possible to add a menu entry for the OS located on the expansion card to the</span>
+<span class=hljs-addition>+laptop&#x27;s boot loader? Possibly, but this way is cooler because you won&#x27;t have a</span>
+<span class=hljs-addition>+dead entry unless the card is attached I guess.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

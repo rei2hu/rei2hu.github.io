@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>heroku go broku</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/59>&lt; thoughts on ai utilization</a></div> <div style=text-align:end><a href=/./posts/61>fake expertise &gt;</a></div>
+</nav>
+<h1 id=heroku-go-broku>heroku go broku</h1>
+<p>A few weeks ago I received an email regarding Heroku discontinuing its free tier. This is quite unfortunate as I think free services like Heroku are great for budding developers. It used to be one of my suggestions for a hosting service when I was helping people with their personal projects as you could get enough hours to run something for the entire month and then some if you had a CC number. Weirdly enough it did seem to get looked down upon by other experienced develpers in that community because they would say "just get a vps from linode or digital ocean" etc etc without understanding the context of what people were looking for, but that's a tangent.</p>
+<p>Personally, I had my own project which has a couple thousand users that's been quietly running for the past 5 or so using only free hours and a worker dyno. Unfortunately it's going to shut down November 28th, which is when Heroku will wipe everything. There are numerous alternatives for me to host it but I figure this is a nice time to let that project truly die as I released the source long ago and haven't updated it since.</p>
+<p>Again, it's always sad to see a free service go, especially because of (I believe in Heroku's case) abuse. A few bad people ruining things for the rest.</p>
+<p>Of course, you could argue that someone like me, utilizing a free service and never planning to pay, falls under that umbrella. But my understanding is that the abuse stemmed from single entities utilizing multiple instances of the free service to do whatever while I used my allowance as a single entity and no more.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/59>&lt; thoughts on ai utilization</a></div> <div style=text-align:end><a href=/./posts/61>fake expertise &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-12-02 - update post 60</summary>
+<pre class=code-block><input id=code-block-c15ce353bd7c692460906bcdc0971ea89f3ead7d-1 type=checkbox><label for=code-block-c15ce353bd7c692460906bcdc0971ea89f3ead7d-1></label><code>@@ -20 +20,6 @@ Again, it&#x27;s always sad to see a free service go, especially because of (I believ
+ in Heroku&#x27;s case) abuse. A few bad people ruining things for the rest.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Of course, you could argue that someone like me, utilizing a free service and</span>
+<span class=hljs-addition>+never planning to pay, falls under that umbrella. But my understanding is that</span>
+<span class=hljs-addition>+the abuse stemmed from single entities utilizing multiple instances of the free</span>
+<span class=hljs-addition>+service to do whatever while I used my allowance as a single entity and no more.</span>
+</code></pre>
+</details>
+<details>
+<summary>2022-10-11 - add post 60</summary>
+<pre class=code-block><input id=code-block-b8d58e14cc70de596a9feaca5ef17ffeb9427240-1 type=checkbox><label for=code-block-b8d58e14cc70de596a9feaca5ef17ffeb9427240-1></label><code><span class=hljs-meta>@@ -0,0 +1,20 @@</span>
+<span class=hljs-addition>+# heroku go broku</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A few weeks ago I received an email regarding Heroku discontinuing its free tier.</span>
+<span class=hljs-addition>+This is quite unfortunate as I think free services like Heroku are great for budding</span>
+<span class=hljs-addition>+developers. It used to be one of my suggestions for a hosting service when I was</span>
+<span class=hljs-addition>+helping people with their personal projects as you could get enough hours to run</span>
+<span class=hljs-addition>+something for the entire month and then some if you had a CC number. Weirdly enough</span>
+<span class=hljs-addition>+it did seem to get looked down upon by other experienced develpers in that community</span>
+<span class=hljs-addition>+because they would say &quot;just get a vps from linode or digital ocean&quot; etc etc without</span>
+<span class=hljs-addition>+understanding the context of what people were looking for, but that&#x27;s a tangent.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Personally, I had my own project which has a couple thousand users that&#x27;s been quietly</span>
+<span class=hljs-addition>+running for the past 5 or so using only free hours and a worker dyno. Unfortunately</span>
+<span class=hljs-addition>+it&#x27;s going to shut down November 28th, which is when Heroku will wipe everything.</span>
+<span class=hljs-addition>+There are numerous alternatives for me to host it but I figure this is a nice time</span>
+<span class=hljs-addition>+to let that project truly die as I released the source long ago and haven&#x27;t updated</span>
+<span class=hljs-addition>+it since.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Again, it&#x27;s always sad to see a free service go, especially because of (I believe</span>
+<span class=hljs-addition>+in Heroku&#x27;s case) abuse. A few bad people ruining things for the rest.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

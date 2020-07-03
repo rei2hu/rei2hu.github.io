@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>failing to gather requirements</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/74>&lt; brute force compression idea</a></div> <div style=text-align:end><a href=/./posts/76>menma's tera cease&desist &gt;</a></div>
+</nav>
+<h1 id=failing-to-gather-requirements>failing to gather requirements</h1>
+<p>Sooo, I think a few months back I made my first "mistake" - building the wrong thing.</p>
+<p>The core problem was that we had an object like this:</p>
+<pre class=code-block><input id=code-block-75-1 type=checkbox><label for=code-block-75-1></label><code>{
+    <span class=hljs-attr>x</span>: {
+        <span class=hljs-attr>a</span>: <span class=hljs-comment>// ...</span>
+        <span class=hljs-attr>b</span>: <span class=hljs-comment>// ...</span>
+        <span class=hljs-attr>c</span>: <span class=hljs-comment>// ...</span>
+    }
+}
+</code></pre>
+<p>And I worked on a task that said I want to be able to have multiple <code>x</code> and a few other details. I discussed it a bit with the product manager through text and came to the conclusion that they were looking for this:</p>
+<pre class=code-block><input id=code-block-75-2 type=checkbox><label for=code-block-75-2></label><code>{
+    <span class=hljs-attr>xs</span>: [{
+        <span class=hljs-attr>a</span>: <span class=hljs-comment>// ...</span>
+        <span class=hljs-attr>b</span>: <span class=hljs-comment>// ...</span>
+        <span class=hljs-attr>c</span>: <span class=hljs-comment>// ...</span>
+    }, {
+        <span class=hljs-attr>a</span>: <span class=hljs-comment>// ...</span>
+        <span class=hljs-attr>b</span>: <span class=hljs-comment>// ...</span>
+        <span class=hljs-attr>c</span>: <span class=hljs-comment>// ...</span>
+    }]
+}
+</code></pre>
+<p>As I asked if they would like a list of <code>x</code> and they said yes.</p>
+<p>There were already dependencies on the previous structure in production, so it required shuffling a lot of the data around so things worked in a backwards compatible manner. Later on, I get a few mocks from the designer that suggested that the task was to instead do this</p>
+<pre class=code-block><input id=code-block-75-3 type=checkbox><label for=code-block-75-3></label><code>{
+    <span class=hljs-attr>x</span>: {
+        <span class=hljs-attr>a</span>: [ <span class=hljs-comment>/* ... */</span> ],
+        <span class=hljs-attr>b</span>: [ <span class=hljs-comment>/* ... */</span> ],
+        <span class=hljs-attr>c</span>: [ <span class=hljs-comment>/* ... */</span> ],
+    }
+}
+</code></pre>
+<p>And I became very worried. At this time, we tried to get the product manager in a meeting to clarify things, but it they only joined in our second meeting to fully discuss things (they did message me later saying that they were scared it was a meeting where the designer was going to chew them out on the design, a common occurrence, so they passed on the first one). I learned that they were looking for the second structure instead. Yikes!</p>
+<p>Things could be torn down and we could start from the beginning, or we could somehow beat the schema into shape. We went with #2, and eventually the code relied on something like</p>
+<pre class=code-block><input id=code-block-75-4 type=checkbox><label for=code-block-75-4></label><code>{
+    <span class=hljs-attr>xs</span>: [{
+        a?: <span class=hljs-comment>// ...</span>
+        b?: <span class=hljs-comment>// ...</span>
+        c?: <span class=hljs-comment>// ...</span>
+    }]
+}
+</code></pre>
+<p>And a table in the database is also shaped like that <em>shiver</em>. Now I understand how people end up making extremely questionable data modeling choices.</p>
+<p>Also I think I wrote a post about spamming booleans everywhere? Well, on this same project I ended up doing something like that; something had two states so I used a boolean, but then there were three states so I added another boolean, so one combination of <code>(boolean, boolean)</code> is invalid.</p>
+<p>It all makes sense… and I hate it (and myself). Well, that project turned out to be extremely popular and pulled in a good amount of sales and the company is happy about that. Also that product manager changed positions and is instead more of an industry expert type role, which makes sense to me.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/74>&lt; brute force compression idea</a></div> <div style=text-align:end><a href=/./posts/76>menma's tera cease&desist &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-04-11 - add post 75</summary>
+<pre class=code-block><input id=code-block-7243be2623ef8d07997b0155bbbb3708042c91c5-1 type=checkbox><label for=code-block-7243be2623ef8d07997b0155bbbb3708042c91c5-1></label><code><span class=hljs-meta>@@ -0,0 +1,85 @@</span>
+<span class=hljs-addition>+# failing to gather requirements</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Sooo, I think a few months back I made my first &quot;mistake&quot; - building the wrong</span>
+<span class=hljs-addition>+thing.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The core problem was that we had an object like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+{</span>
+<span class=hljs-addition>+    x: {</span>
+<span class=hljs-addition>+        a: // ...</span>
+<span class=hljs-addition>+        b: // ...</span>
+<span class=hljs-addition>+        c: // ...</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And I worked on a task that said I want to be able to have multiple `x` and a</span>
+<span class=hljs-addition>+few other details. I discussed it a bit with the product manager through text</span>
+<span class=hljs-addition>+and came to the conclusion that they were looking for this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+{</span>
+<span class=hljs-addition>+    xs: [{</span>
+<span class=hljs-addition>+        a: // ...</span>
+<span class=hljs-addition>+        b: // ...</span>
+<span class=hljs-addition>+        c: // ...</span>
+<span class=hljs-addition>+    }, {</span>
+<span class=hljs-addition>+        a: // ...</span>
+<span class=hljs-addition>+        b: // ...</span>
+<span class=hljs-addition>+        c: // ...</span>
+<span class=hljs-addition>+    }]</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As I asked if they would like a list of `x` and they said yes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There were already dependencies on the previous structure in production, so it</span>
+<span class=hljs-addition>+required shuffling a lot of the data around so things worked in a backwards</span>
+<span class=hljs-addition>+compatible manner. Later on, I get a few mocks from the designer that suggested</span>
+<span class=hljs-addition>+that the task was to instead do this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+{</span>
+<span class=hljs-addition>+    x: {</span>
+<span class=hljs-addition>+        a: [ /* ... */ ],</span>
+<span class=hljs-addition>+        b: [ /* ... */ ],</span>
+<span class=hljs-addition>+        c: [ /* ... */ ],</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And I became very worried. At this time, we tried to get the product manager in</span>
+<span class=hljs-addition>+a meeting to clarify things, but it they only joined in our second meeting to</span>
+<span class=hljs-addition>+fully discuss things (they did message me later saying that they were scared it</span>
+<span class=hljs-addition>+was a meeting where the designer was going to chew them out on the design, a</span>
+<span class=hljs-addition>+common occurrence, so they passed on the first one). I learned that they were</span>
+<span class=hljs-addition>+looking for the second structure instead. Yikes!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Things could be torn down and we could start from the beginning, or we could</span>
+<span class=hljs-addition>+somehow beat the schema into shape. We went with #2, and eventually the code</span>
+<span class=hljs-addition>+relied on something like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+{</span>
+<span class=hljs-addition>+    xs: [{</span>
+<span class=hljs-addition>+        a?: // ...</span>
+<span class=hljs-addition>+        b?: // ...</span>
+<span class=hljs-addition>+        c?: // ...</span>
+<span class=hljs-addition>+    }]</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And a table in the database is also shaped like that _shiver_. Now I understand</span>
+<span class=hljs-addition>+how people end up making extremely questionable data modeling choices.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also I think I wrote a post about spamming booleans everywhere? Well, on this</span>
+<span class=hljs-addition>+same project I ended up doing something like that; something had two states so I</span>
+<span class=hljs-addition>+used a boolean, but then there were three states so I added another boolean, so</span>
+<span class=hljs-addition>+one combination of `(boolean, boolean)` is invalid.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It all makes sense... and I hate it (and myself). Well, that project turned out</span>
+<span class=hljs-addition>+to be extremely popular and pulled in a good amount of sales and the company is</span>
+<span class=hljs-addition>+happy about that. Also that product manager changed positions and is instead</span>
+<span class=hljs-addition>+more of an industry expert type role, which makes sense to me.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

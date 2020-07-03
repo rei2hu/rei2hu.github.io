@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>learning haskell</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/3>&lt; what is an acceptable amount of tech debt</a></div> <div style=text-align:end><a href=/./posts/5>reducing a list of arguments &gt;</a></div>
+</nav>
+<h1 id=learning-haskell>learning haskell</h1>
+<p>I've decided to go ahead and learn a new programming language - and not one that is similar to most other oop languages - Haskell. I have dabbled in it here and there thanks to influences from other people I hang around with but I've never really gotten into it.</p>
+<p>Why?</p>
+<ol>
+<li>Functional - I've come to appreciate functional programming</li>
+<li>No boilerplate - a lot of the Haskell code I've seen does away with a lot of boilerplate that you can find in other languages.</li>
+<li>Statically typed</li>
+<li>Sound smart</li>
+</ol>
+<p>Naturally, because I don't know much about Haskell right now, I cannot give a solid list of reasons. So I guess if I wanted to give reasons for learning Haskell, I would have to learn about it first. Quite interesting.</p>
+<p>Also it gives me something to write about, and I don't want to write about work for now.</p>
+<p>I've read up to the Modules chapter in <code>learnyouahaskell</code>. So far, everything has been a refresher but it was good to re-experience the syntax again. I'll actually focus on restyling this page now because it looks ugly to me. And I don't usually care much for appearances.</p>
+<p>But before I go, I'd like to point out that I've already come across a case where Haskell does away with boilerplate.</p>
+<blockquote>
+<p>make a new list where each element is the sum of the previous elements. For example, <code>[3, 3, 2, 3, 4, 3] =&gt; [3, 6, 8, 11, 15, 18]</code>.</p>
+</blockquote>
+<p>For an oop language you might find something like this</p>
+<pre class=code-block><input id=code-block-4-1 type=checkbox><label for=code-block-4-1></label><code><span class=hljs-type>int</span>[] events = [<span class=hljs-number>3</span>, <span class=hljs-number>3</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>, <span class=hljs-number>4</span>, <span class=hljs-number>3</span>];
+<span class=hljs-type>int</span>[] summed = <span class=hljs-keyword>new</span> <span class="hljs-title class_">int</span>[events.length];
+summed[<span class=hljs-number>0</span>] = events[<span class=hljs-number>0</span>];
+<span class=hljs-keyword>for</span> (<span class=hljs-type>int</span> <span class=hljs-variable>i</span> <span class=hljs-operator>=</span> <span class=hljs-number>1</span>; i &lt; events.length; i++) {
+    summed[i] = summed[i - <span class=hljs-number>1</span>] + events[i];
+}
+</code></pre>
+<p>For Haskell you could do this</p>
+<pre class=code-block><input id=code-block-4-2 type=checkbox><label for=code-block-4-2></label><code><span class=hljs-title>let</span> events = [<span class=hljs-number>3</span>, <span class=hljs-number>3</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>, <span class=hljs-number>4</span>, <span class=hljs-number>3</span>] <span class=hljs-keyword>in</span> scanl1 (+) events
+</code></pre>
+<p>The existence of various built in methods that don't appear in other languages are great.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/3>&lt; what is an acceptable amount of tech debt</a></div> <div style=text-align:end><a href=/./posts/5>reducing a list of arguments &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,52 @@</span>
+<span class=hljs-addition>+# learning haskell</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve decided to go ahead and learn a new programming language - and not one that</span>
+<span class=hljs-addition>+is similar to most other oop languages - Haskell. I have dabbled in it here and</span>
+<span class=hljs-addition>+there thanks to influences from other people I hang around with but I&#x27;ve never really</span>
+<span class=hljs-addition>+gotten into it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Why?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Functional - I&#x27;ve come to appreciate functional programming</span>
+<span class=hljs-addition>+2. No boilerplate - a lot of the Haskell code I&#x27;ve seen does away with a lot of</span>
+<span class=hljs-addition>+   boilerplate that you can find in other languages.</span>
+<span class=hljs-addition>+3. Statically typed</span>
+<span class=hljs-addition>+4. Sound smart</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Naturally, because I don&#x27;t know much about Haskell right now, I cannot give a solid</span>
+<span class=hljs-addition>+list of reasons. So I guess if I wanted to give reasons for learning Haskell, I</span>
+<span class=hljs-addition>+would have to learn about it first. Quite interesting.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also it gives me something to write about, and I don&#x27;t want to write about work</span>
+<span class=hljs-addition>+for now.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve read up to the Modules chapter in `learnyouahaskell`. So far, everything has</span>
+<span class=hljs-addition>+been a refresher but it was good to re-experience the syntax again. I&#x27;ll actually</span>
+<span class=hljs-addition>+focus on restyling this page now because it looks ugly to me. And I don&#x27;t usually</span>
+<span class=hljs-addition>+care much for appearances.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But before I go, I&#x27;d like to point out that I&#x27;ve already come across a case where</span>
+<span class=hljs-addition>+Haskell does away with boilerplate.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; make a new list where each element is the sum of the previous elements.</span>
+<span class=hljs-addition>+&gt; For example, `[3, 3, 2, 3, 4, 3] =&gt; [3, 6, 8, 11, 15, 18]`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For an oop language you might find something like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+int[] events = [3, 3, 2, 3, 4, 3];</span>
+<span class=hljs-addition>+int[] summed = new int[events.length];</span>
+<span class=hljs-addition>+summed[0] = events[0];</span>
+<span class=hljs-addition>+for (int i = 1; i &lt; events.length; i++) {</span>
+<span class=hljs-addition>+    summed[i] = summed[i - 1] + events[i];</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For Haskell you could do this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+let events = [3, 3, 2, 3, 4, 3] in scanl1 (+) events</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The existence of various built in methods that don&#x27;t appear in other languages are</span>
+<span class=hljs-addition>+great.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

@@ -1,0 +1,415 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>mp3 headers</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/15>&lt; first time aws user here</a></div> <div style=text-align:end><a href=/./posts/17>underplanning and underestimating &gt;</a></div>
+</nav>
+<h1 id=mp3-headers>mp3 headers</h1>
+<p>Recently, I wanted to try my hand at figuring out a way to hash mp3s in such a way that the result is based on the actual sounds (music) contained in the mp3. This basically came about as a result that I wanted to search for a
+<a href="https://www.youtube.com/watch?v=grdy6rLbQ-c">song</a> that was playing in the background of another video.</p>
+<p>I was able to eventually source it manually, but it's gotten me to try to do the above problem.</p>
+<h2 id=the-mp3-file-format>the mp3 file format</h2>
+<p>The first hurdle was to decode a mp3 file in such a way that I get data that I actually want. Many libraries exist for messing with mp3s, but I could not find one that would simply give me the pitches over time. So I figured this would be a good side project to start on. And one where I could use Rust to prevent my Rust skills from getting any more rusty.</p>
+<p>Unfortunately, the official mp3 specification looks like it has to be bought for
+<a href=https://www.iso.org/standard/22412.html>around \$200</a> which was quite surprising to me. It's interesting how things like this are locked behind a paywall.</p>
+<p>Fortunately, in addition to a lot of open source implementations to reference, I am not the first person to attempt this, so there is a lot of unofficial information on the internet.</p>
+<p>Oh, but first I had to get my hands on an mp3 file. But that's the easy part. It happens to be one of <a href="https://www.youtube.com/watch?v=EDjYDfRunUk">this song</a>.</p>
+<h3 id=frame-header>frame header</h3>
+<p>Based on what I've read, an overwhelming part of the bytes in an mp3 is organized in frames, where each frame contains audio information.</p>
+<p>The way to determine a frame is to look for 11 (or 12) consecutive 1 bits, which give the pattern FF F_ or FF E_. I mention 12 because it seems like it used to be 12 until an updated standard came out and cut it down to 11.</p>
+<p>I took a look at my mp3 with <code>xxd -g 1 otome_dissection.mp3 | less</code>, I am presented with the following:</p>
+<pre class=code-block><input id=code-block-16-1 type=checkbox><label for=code-block-16-1></label><code>00000000: 49 44 33 04 00 00 00 00 01 00 54 58 58 58 00 00  ID3.......TXXX..
+00000010: 00 12 00 00 03 6d 61 6a 6f 72 5f 62 72 61 6e 64  .....major_brand
+00000020: 00 64 61 73 68 00 54 58 58 58 00 00 00 11 00 00  .dash.TXXX......
+00000030: 03 6d 69 6e 6f 72 5f 76 65 72 73 69 6f 6e 00 30  .minor_version.0
+00000040: 00 54 58 58 58 00 00 00 1c 00 00 03 63 6f 6d 70  .TXXX.......comp
+00000050: 61 74 69 62 6c 65 5f 62 72 61 6e 64 73 00 69 73  atible_brands.is
+00000060: 6f 36 6d 70 34 31 00 54 53 53 45 00 00 00 0f 00  o6mp41.TSSE.....
+00000070: 00 03 4c 61 76 66 35 37 2e 35 36 2e 31 30 31 00  ..Lavf57.56.101.
+00000080: 00 00 00 00 00 00 00 00 00 00 ff fb b0 00 00 00  ................
+00000090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+000000a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 49 6e  ..............In
+000000b0: 66 6f 00 00 00 0f 00 00 21 f3 00 53 26 86 00 02  fo......!..S&amp;...
+</code></pre>
+<p>The first thing I see is <a href=https://id3.org/ >ID3</a>, which indicates some metadata that I will not care about for this project. Continuing to scan the bytes, we see the <code>ff fb</code> pattern at <code>0x0000008a</code>. This indicates the start of the frame header.</p>
+<p>At this point, I wondered to myself - why can't <code>ff f/e</code> be somewhere in the metadata? Well, while I did say I didn't care about the ID3 data, I did glance at the <a href=https://id3.org/id3v2.4.0-structure>documented layout</a> and this seems to be handled by the sections "The unsynchronisation scheme" (and another section after it).</p>
+<blockquote>
+<p>Whenever a false synchronization is found within the tag, one zeroed byte is inserted after the first false synchronization byte.</p>
+</blockquote>
+<p>Cool, so that's a thing. But let's get back to the frame header. The frame header is 8 bytes (32 bits) long, so the header in our case will be
+<code>ff fb b0 00</code>. The frame header contains information about 13 different things through its bits. The best source I've found so far on this has been from
+<a href=http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm>this website</a>.</p>
+<p>Let's see what our frame header says. For simplicity, let's convert
+<code>ff fb b0 00</code> to bits <code>11111111 11111011 10110000 00000000</code>.</p>
+<ol>
+<li>Frame Sync</li>
+<li>MPEG version 1</li>
+<li>Layer 3</li>
+<li>No CRC</li>
+<li>192 kbps bitrate</li>
+<li>44100 Hz frequency</li>
+<li>Not padded</li>
+<li>Private bit not set</li>
+<li>Stereo</li>
+<li>Intensity stereo off, MS stereo off</li>
+<li>Not copyrighted</li>
+<li>A copy of the original</li>
+<li>No emphasis</li>
+</ol>
+<p>And we can also use the bitrate/frequency to determine the frame size</p>
+<p>
+$floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100 + 0) = 626$
+</p>
+<p>This suggests the next frame will start from <code>0x0000008a + 626</code> or <code>0x000002fc</code>, so let's look further.</p>
+<pre class=code-block><input id=code-block-16-2 type=checkbox><label for=code-block-16-2></label><code>000002b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+000002c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+000002d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+000002e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+000002f0: 00 00 00 00 00 00 00 00 00 00 00 00 ff fb b0 64  ...............d
+00000300: 00 0f f0 00 00 69 00 00 00 08 00 00 0d 20 00 00  .....i....... ..
+00000310: 01 00 00 01 a4 00 00 00 20 00 00 34 80 00 00 04  ........ ..4....
+00000320: 4c 41 4d 45 33 2e 39 39 2e 35 55 55 55 55 55 55  LAME3.99.5UUUUUU
+</code></pre>
+<p>Here, we have another occurrence of <code>ff f_</code> at the offset we expected
+<code>0x000002fc</code>.</p>
+<h2 id=the-basic-code>the basic code</h2>
+<p>Pardon my Rust.</p>
+<p>Now with a sufficient understanding of the basics of frame headers, I started writing. First, a method to find the frame sync.</p>
+<pre class=code-block><input id=code-block-16-3 type=checkbox><label for=code-block-16-3></label><code><span class=hljs-keyword>fn</span> <span class="hljs-title function_">find_frame_header_pos</span>(f: &amp;<span class=hljs-keyword>mut</span> BufReader&lt;File&gt;) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>Option</span>&lt;<span class=hljs-type>usize</span>&gt; {
+    <span class=hljs-keyword>let</span> <span class=hljs-keyword>mut </span><span class=hljs-variable>next_byte</span> = [<span class=hljs-number>0</span>];
+    <span class=hljs-keyword>loop</span> {
+        <span class=hljs-keyword>let</span> <span class=hljs-variable>check</span> = f
+            <span class=hljs-comment>// we discard until we find 0xff, which suggests perhaps the start of</span>
+            <span class=hljs-comment>// the frame header, which will be 0xfff or 0xffe</span>
+            .<span class="hljs-title function_ invoke__">read_until</span>(<span class=hljs-number>0xff</span>, &amp;<span class=hljs-keyword>mut</span> <span class=hljs-built_in>vec!</span>[])
+            .<span class="hljs-title function_ invoke__">and_then</span>(|_| f.<span class="hljs-title function_ invoke__">read</span>(&amp;<span class=hljs-keyword>mut</span> next_byte));
+
+        <span class=hljs-keyword>match</span> check {
+            <span class=hljs-comment>// no more bytes to read</span>
+            <span class="hljs-title function_ invoke__">Ok</span>(<span class=hljs-number>0</span>) =&gt; <span class=hljs-keyword>return</span> <span class=hljs-literal>None</span>,
+            <span class=hljs-comment>// we found 0xffe or 0xfff</span>
+            <span class="hljs-title function_ invoke__">Ok</span>(_) <span class=hljs-keyword>if</span> next_byte[<span class=hljs-number>0</span>] &amp; <span class=hljs-number>0xe0</span> == <span class=hljs-number>0xe0</span> =&gt; {
+                <span class=hljs-keyword>return</span> <span class="hljs-title function_ invoke__">Some</span>(f.<span class="hljs-title function_ invoke__">seek</span>(SeekFrom::<span class="hljs-title function_ invoke__">Current</span>(-<span class=hljs-number>2</span>)).<span class="hljs-title function_ invoke__">unwrap</span>() <span class=hljs-keyword>as</span> <span class=hljs-type>usize</span>);
+            }
+            <span class=hljs-comment>// we found 0xff(not f or e), we don&#x27;t have to seek backwards because</span>
+            <span class=hljs-comment>// we know we didn&#x27;t skip f</span>
+            <span class="hljs-title function_ invoke__">Ok</span>(_) =&gt; <span class=hljs-keyword>continue</span>,
+            <span class=hljs-comment>// there was a file reading error or something</span>
+            <span class="hljs-title function_ invoke__">Err</span>(_) =&gt; <span class=hljs-keyword>return</span> <span class=hljs-literal>None</span>,
+        }
+    }}
+}
+</code></pre>
+<p>Which is used in main like so:</p>
+<pre class=code-block><input id=code-block-16-4 type=checkbox><label for=code-block-16-4></label><code><span class=hljs-keyword>let</span> <span class=hljs-keyword>mut </span><span class=hljs-variable>buf_reader</span> = BufReader::<span class="hljs-title function_ invoke__">new</span>(File::<span class="hljs-title function_ invoke__">open</span>(<span class=hljs-string>&quot;tests/otome dissection remix.mp3&quot;</span>)?);
+<span class=hljs-keyword>while</span> <span class=hljs-keyword>let</span> <span class=hljs-variable>Some</span>(header_pos) = <span class="hljs-title function_ invoke__">find_frame_header</span>(&amp;<span class=hljs-keyword>mut</span> buf_reader) {
+    <span class=hljs-comment>// do something with header_pos</span>
+}
+</code></pre>
+<p>Now, I had to make a struct for the frame header. I was lazy and was putting much more emphasis on getting things to work, so I simply wrapped <code>u32</code> as I know the frame header is 4 bytes long.</p>
+<p>And then the methods just use bitwise operations for now.</p>
+<pre class=code-block><input id=code-block-16-5 type=checkbox><label for=code-block-16-5></label><code><span class=hljs-keyword>struct</span> <span class="hljs-title class_">FrameHeader</span>(<span class=hljs-type>u32</span>);
+
+<span class=hljs-keyword>impl</span> <span class="hljs-title class_">FrameHeader</span> {
+    <span class=hljs-comment>// <span class=hljs-doctag>TODO:</span> enums for everything</span>
+    <span class=hljs-keyword>fn</span> <span class="hljs-title function_">get_audio_version</span>(&amp;<span class=hljs-keyword>self</span>) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>u8</span> {
+        ((<span class=hljs-keyword>self</span>.<span class=hljs-number>0</span> &amp; <span class=hljs-number>0x00180000</span>) &gt;&gt; <span class=hljs-number>19</span>) <span class=hljs-keyword>as</span> <span class=hljs-type>u8</span>
+    }
+    <span class=hljs-comment>// etc</span>
+}
+</code></pre>
+<p>But I also took the time to hackily implement <code>From&lt;[u8; 4]&gt;</code> because that's the type of the buffer the reader will read the bytes into!</p>
+<pre class=code-block><input id=code-block-16-6 type=checkbox><label for=code-block-16-6></label><code><span class=hljs-keyword>impl</span> <span class="hljs-title class_">From</span>&lt;[<span class=hljs-type>u8</span>; <span class=hljs-number>4</span>]&gt; <span class=hljs-keyword>for</span> <span class="hljs-title class_">FrameHeader</span> {
+    <span class=hljs-keyword>fn</span> <span class="hljs-title function_">from</span>(nums: [<span class=hljs-type>u8</span>; <span class=hljs-number>4</span>]) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-keyword>Self</span> {
+        <span class="hljs-title function_ invoke__">FrameHeader</span>(nums.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">fold</span>(<span class=hljs-number>0</span>, |reduced, x| (reduced &lt;&lt; <span class=hljs-number>8</span> | *x <span class=hljs-keyword>as</span> <span class=hljs-type>u64</span>)))
+    }
+}
+</code></pre>
+<p>And it is used within the while loop like so</p>
+<pre class=code-block><input id=code-block-16-7 type=checkbox><label for=code-block-16-7></label><code><span class=hljs-keyword>let</span> <span class=hljs-keyword>mut </span><span class=hljs-variable>header_buf</span> = [<span class=hljs-number>0</span>; <span class=hljs-number>4</span>];
+buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span class=hljs-keyword>mut</span> header_buf)?;
+<span class=hljs-keyword>let</span> <span class=hljs-variable>frame_header</span> = FrameHeader::<span class="hljs-title function_ invoke__">from</span>(header_buf);
+</code></pre>
+<p>Everything seems to be working quite well and I'm happy that I've progressed this far in a day. Unfortunately, I believe the toughest part will be decoding the actual audio data. And the fact that I have to do a large refactor… For example my <code>get_bitrate</code> function is actually a huge match like this:</p>
+<pre class=code-block><input id=code-block-16-8 type=checkbox><label for=code-block-16-8></label><code><span class=hljs-keyword>let</span> <span class=hljs-variable>code</span> = (<span class=hljs-keyword>self</span>.<span class=hljs-number>0</span> &amp; <span class=hljs-number>0x0000F000</span>) &gt;&gt; <span class=hljs-number>12</span>;
+<span class=hljs-keyword>let</span> <span class=hljs-variable>layer</span> = <span class=hljs-keyword>self</span>.<span class="hljs-title function_ invoke__">get_layer_description</span>();
+<span class=hljs-keyword>let</span> <span class=hljs-variable>audio_version</span> = <span class=hljs-keyword>self</span>.<span class="hljs-title function_ invoke__">get_audio_version</span>();
+
+<span class=hljs-keyword>match</span> (code, audio_version, layer) {
+    <span class=hljs-comment>// MPEG version 1, layer 1</span>
+    (<span class=hljs-number>0</span>, <span class=hljs-number>3</span>, <span class=hljs-number>3</span>) =&gt; <span class=hljs-number>0</span>, <span class=hljs-comment>// free</span>
+    (<span class=hljs-number>1</span>, <span class=hljs-number>3</span>, <span class=hljs-number>3</span>) =&gt; <span class=hljs-number>32</span>,
+    (<span class=hljs-number>2</span>, <span class=hljs-number>3</span>, <span class=hljs-number>3</span>) =&gt; <span class=hljs-number>64</span>,
+    (<span class=hljs-number>3</span>, <span class=hljs-number>3</span>, <span class=hljs-number>3</span>) =&gt; <span class=hljs-number>96</span>,
+    <span class=hljs-comment>// etc</span>
+}
+</code></pre>
+<p>Yuck!</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/15>&lt; first time aws user here</a></div> <div style=text-align:end><a href=/./posts/17>underplanning and underestimating &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-09-04 - change a title</summary>
+<pre class=code-block><input id=code-block-f7621a6be6ad3968ad98eca9c36cb6ed19bd9292-1 type=checkbox><label for=code-block-f7621a6be6ad3968ad98eca9c36cb6ed19bd9292-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-# mp3 - pt 1 - figuring out frame headers</span>
+<span class=hljs-addition>+# mp3 headers</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-08-13 - add post 16</summary>
+<pre class=code-block><input id=code-block-c48724e040389529d8527ff3d14cec4ea7c4f0bc-1 type=checkbox><label for=code-block-c48724e040389529d8527ff3d14cec4ea7c4f0bc-1></label><code><span class=hljs-meta>@@ -0,0 +1,214 @@</span>
+<span class=hljs-addition>+# mp3 - pt 1 - figuring out frame headers</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I wanted to try my hand at figuring out a way to hash mp3s in such a way</span>
+<span class=hljs-addition>+that the result is based on the actual sounds (music) contained in the mp3. This</span>
+<span class=hljs-addition>+basically came about as a result that I wanted to search for a [song](https://www.youtube.com/watch?v=grdy6rLbQ-c)</span>
+<span class=hljs-addition>+that was playing in the background of another video.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was able to eventually source it manually, but it&#x27;s gotten me to try to do the</span>
+<span class=hljs-addition>+above problem.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## the mp3 file format</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first hurdle was to decode a mp3 file in such a way that I get data that I actually</span>
+<span class=hljs-addition>+want. Many libraries exist for messing with mp3s, but I could not find one that would</span>
+<span class=hljs-addition>+simply give me the pitches over time. So I figured this would be a good side project</span>
+<span class=hljs-addition>+to start on. And one where I could use Rust to prevent my Rust skills from getting</span>
+<span class=hljs-addition>+any more rusty.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unfortunately, the official mp3 specification looks like it has to be bought for</span>
+<span class=hljs-addition>+[around \$200](https://www.iso.org/standard/22412.html) which was quite surprising</span>
+<span class=hljs-addition>+to me. It&#x27;s interesting how things like this are locked behind a paywall.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Fortunately, in addition to a lot of open source implementations to reference, I</span>
+<span class=hljs-addition>+am not the first person to attempt this, so there is a lot of unofficial information</span>
+<span class=hljs-addition>+on the internet.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Oh, but first I had to get my hands on an mp3 file. But that&#x27;s the easy part.</span>
+<span class=hljs-addition>+It happens to be one of [this song](https://www.youtube.com/watch?v=EDjYDfRunUk).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### frame header</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Based on what I&#x27;ve read, an overwhelming part of the bytes in an mp3 is organized</span>
+<span class=hljs-addition>+in frames, where each frame contains audio information.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The way to determine a frame is to look for 11 (or 12) consecutive 1 bits, which</span>
+<span class=hljs-addition>+give the pattern FF F\_ or FF E\_. I mention 12 because it seems like it used to</span>
+<span class=hljs-addition>+be 12 until an updated standard came out and cut it down to 11.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I took a look at my mp3 with `xxd -g 1 otome_dissection.mp3 | less`, I am presented</span>
+<span class=hljs-addition>+with the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```bash</span>
+<span class=hljs-addition>+00000000: 49 44 33 04 00 00 00 00 01 00 54 58 58 58 00 00  ID3.......TXXX..</span>
+<span class=hljs-addition>+00000010: 00 12 00 00 03 6d 61 6a 6f 72 5f 62 72 61 6e 64  .....major_brand</span>
+<span class=hljs-addition>+00000020: 00 64 61 73 68 00 54 58 58 58 00 00 00 11 00 00  .dash.TXXX......</span>
+<span class=hljs-addition>+00000030: 03 6d 69 6e 6f 72 5f 76 65 72 73 69 6f 6e 00 30  .minor_version.0</span>
+<span class=hljs-addition>+00000040: 00 54 58 58 58 00 00 00 1c 00 00 03 63 6f 6d 70  .TXXX.......comp</span>
+<span class=hljs-addition>+00000050: 61 74 69 62 6c 65 5f 62 72 61 6e 64 73 00 69 73  atible_brands.is</span>
+<span class=hljs-addition>+00000060: 6f 36 6d 70 34 31 00 54 53 53 45 00 00 00 0f 00  o6mp41.TSSE.....</span>
+<span class=hljs-addition>+00000070: 00 03 4c 61 76 66 35 37 2e 35 36 2e 31 30 31 00  ..Lavf57.56.101.</span>
+<span class=hljs-addition>+00000080: 00 00 00 00 00 00 00 00 00 00 ff fb b0 00 00 00  ................</span>
+<span class=hljs-addition>+00000090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span>
+<span class=hljs-addition>+000000a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 49 6e  ..............In</span>
+<span class=hljs-addition>+000000b0: 66 6f 00 00 00 0f 00 00 21 f3 00 53 26 86 00 02  fo......!..S&amp;amp;...</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first thing I see is [ID3](https://id3.org/), which indicates some metadata</span>
+<span class=hljs-addition>+that I will not care about for this project. Continuing to scan the bytes, we see</span>
+<span class=hljs-addition>+the `ff fb` pattern at `0x0000008a`. This indicates the start of the frame header.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At this point, I wondered to myself - why can&#x27;t `ff f/e` be somewhere in the metadata?</span>
+<span class=hljs-addition>+Well, while I did say I didn&#x27;t care about the ID3 data, I did glance at the [documented</span>
+<span class=hljs-addition>+layout](https://id3.org/id3v2.4.0-structure) and this seems to be handled by the</span>
+<span class=hljs-addition>+sections &quot;The unsynchronisation scheme&quot; (and another section after it).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Whenever a false synchronisation is found within the tag, one zeroed</span>
+<span class=hljs-addition>+&gt; byte is inserted after the first false synchronisation byte.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Cool, so that&#x27;s a thing. But let&#x27;s get back to the frame header. The frame header</span>
+<span class=hljs-addition>+is 8 bytes (32 bits) long, so the header in our case will be `ff fb b0 00`. The frame</span>
+<span class=hljs-addition>+header contains information about 13 different things through its bits. The best</span>
+<span class=hljs-addition>+source I&#x27;ve found so far on this has been from [this website](http://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Let&#x27;s see what our frame header says. For simplicity, let&#x27;s convert `ff fb b0 00`</span>
+<span class=hljs-addition>+to bits `11111111 11111011 10110000 00000000`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Frame Sync</span>
+<span class=hljs-addition>+2. MPEG version 1</span>
+<span class=hljs-addition>+3. Layer 3</span>
+<span class=hljs-addition>+4. No CRC</span>
+<span class=hljs-addition>+5. 192 kbps bitrate</span>
+<span class=hljs-addition>+6. 44100 Hz frequency</span>
+<span class=hljs-addition>+7. Not padded</span>
+<span class=hljs-addition>+8. Private bit not set</span>
+<span class=hljs-addition>+9. Stereo</span>
+<span class=hljs-addition>+10. Intensity stereo off, MS stereo off</span>
+<span class=hljs-addition>+11. Not copyrighted</span>
+<span class=hljs-addition>+12. A copy of the original</span>
+<span class=hljs-addition>+13. No emphasis</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And we can also use the bitrate/frequency to determine the frame size</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+$floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100</span>
+<span class=hljs-addition>++ 0) = 626$</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This suggests the next frame will start from `0x0000008a + 626` or `0x000002fc`,</span>
+<span class=hljs-addition>+so let&#x27;s look further.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```bash</span>
+<span class=hljs-addition>+000002b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span>
+<span class=hljs-addition>+000002c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span>
+<span class=hljs-addition>+000002d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span>
+<span class=hljs-addition>+000002e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span>
+<span class=hljs-addition>+000002f0: 00 00 00 00 00 00 00 00 00 00 00 00 ff fb b0 64  ...............d</span>
+<span class=hljs-addition>+00000300: 00 0f f0 00 00 69 00 00 00 08 00 00 0d 20 00 00  .....i....... ..</span>
+<span class=hljs-addition>+00000310: 01 00 00 01 a4 00 00 00 20 00 00 34 80 00 00 04  ........ ..4....</span>
+<span class=hljs-addition>+00000320: 4c 41 4d 45 33 2e 39 39 2e 35 55 55 55 55 55 55  LAME3.99.5UUUUUU</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here, we have another occurrence of `ff f_` at the offset we expected `0x000002fc`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## the basic code</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Pardon my Rust.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now with a sufficient understanding of the basics of frame headers, I started</span>
+<span class=hljs-addition>+writing. First, a method to find the frame sync.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rust</span>
+<span class=hljs-addition>+fn find_frame_header_pos(f: &amp;amp;mut BufReader&lt;File&gt;) -&gt; Option&lt;usize&gt; {</span>
+<span class=hljs-addition>+    let mut next_byte = [0];</span>
+<span class=hljs-addition>+    loop {</span>
+<span class=hljs-addition>+        let check = f</span>
+<span class=hljs-addition>+            // we discard until we find 0xff, which suggests perhaps the start of</span>
+<span class=hljs-addition>+            // the frame header, which will be 0xfff or 0xffe</span>
+<span class=hljs-addition>+            .read_until(0xff, &amp;amp;mut vec![])</span>
+<span class=hljs-addition>+            .and_then(|_| f.read(&amp;amp;mut next_byte));</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        match check {</span>
+<span class=hljs-addition>+            // no more bytes to read</span>
+<span class=hljs-addition>+            Ok(0) =&gt; return None,</span>
+<span class=hljs-addition>+            // we found 0xffe or 0xfff</span>
+<span class=hljs-addition>+            Ok(_) if next_byte[0] &amp;amp; 0xe0 == 0xe0 =&gt; {</span>
+<span class=hljs-addition>+                return Some(f.seek(SeekFrom::Current(-2)).unwrap() as usize);</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+            // we found 0xff(not f or e), we dont have to seek backwards because</span>
+<span class=hljs-addition>+            // we know we didn&#x27;t skip f</span>
+<span class=hljs-addition>+            Ok(_) =&gt; continue,</span>
+<span class=hljs-addition>+            // there was a file reading error or something</span>
+<span class=hljs-addition>+            Err(_) =&gt; return None,</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }}</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Which is used in main like so:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rust</span>
+<span class=hljs-addition>+let mut buf_reader = BufReader::new(File::open(&quot;tests/otome dissection remix.mp3&quot;)?);</span>
+<span class=hljs-addition>+while let Some(header_pos) = find_frame_header(&amp;amp;mut buf_reader) {</span>
+<span class=hljs-addition>+    // do something with header_pos</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now, I had to make a struct for the frame header. I was lazy and was putting much</span>
+<span class=hljs-addition>+more emphasis on getting things to work, so I simply wrapped `u32` as I know the</span>
+<span class=hljs-addition>+frame header is 4 bytes long.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then the methods just use bitwise operations for now.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rust</span>
+<span class=hljs-addition>+struct FrameHeader(u32);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+impl FrameHeader {</span>
+<span class=hljs-addition>+    // TODO: enums for everything</span>
+<span class=hljs-addition>+    fn get_audio_version(&amp;amp;self) -&gt; u8 {</span>
+<span class=hljs-addition>+        ((self.0 &amp;amp; 0x00180000) &gt;&gt; 19) as u8</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    // etc</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But I also took the time to hackily implement `From&lt;[u8; 4]&gt;` because that&#x27;s the</span>
+<span class=hljs-addition>+type of the buffer the reader will read the bytes into!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rust</span>
+<span class=hljs-addition>+impl From&lt;[u8; 4]&gt; for FrameHeader {</span>
+<span class=hljs-addition>+    fn from(nums: [u8; 4]) -&gt; Self {</span>
+<span class=hljs-addition>+        FrameHeader(nums.iter().fold(0, |reduced, x| (reduced &lt;&lt; 8 | *x as u64)))</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And it is used within the while loop like so</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rust</span>
+<span class=hljs-addition>+let mut header_buf = [0; 4];</span>
+<span class=hljs-addition>+buf_reader.read(&amp;amp;mut header_buf)?;</span>
+<span class=hljs-addition>+let frame_header = FrameHeader::from(header_buf);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Everything sems to be working quite well and I&#x27;m happy that I&#x27;ve progressed this</span>
+<span class=hljs-addition>+far in a day. Unfortunately, I believe the toughest part will be decoding the actual</span>
+<span class=hljs-addition>+audio data. And the fact that I have to do a large refactor... For example my `get_bitrate`</span>
+<span class=hljs-addition>+function is actually a huge match like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rust</span>
+<span class=hljs-addition>+let code = (self.0 &amp;amp; 0x0000F000) &gt;&gt; 12;</span>
+<span class=hljs-addition>+let layer = self.get_layer_description();</span>
+<span class=hljs-addition>+let audio_version = self.get_audio_version();</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+match (code, audio_version, layer) {</span>
+<span class=hljs-addition>+    // MPEG version 1, layer 1</span>
+<span class=hljs-addition>+    (0, 3, 3) =&gt; 0, // free</span>
+<span class=hljs-addition>+    (1, 3, 3) =&gt; 32,</span>
+<span class=hljs-addition>+    (2, 3, 3) =&gt; 64,</span>
+<span class=hljs-addition>+    (3, 3, 3) =&gt; 96,</span>
+<span class=hljs-addition>+    // etc</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Yuck!</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

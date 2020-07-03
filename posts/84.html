@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>custom domains + catch-all emails + sieve</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/83>&lt; following up with bing chat about virtual piano</a></div> <div style=text-align:end><a href=/./posts/85>the urge to consume &gt;</a></div>
+</nav>
+<h1 id=custom-domains--catch-all-emails--sieve>custom domains + catch-all emails + sieve</h1>
+<p>A while back I decided to <a href=/posts/43>write about</a> my $free^{TM}$ email forwarding setup. In short, it uses a network of emails across multiple services like gmail and outlook to move mail from various "edge" accounts to central ones where emails are read.</p>
+<p>Somewhat recently, Google announced an
+<a href=https://support.google.com/accounts/answer/12418290>inactive account policy</a></p>
+<blockquote>
+<p>An inactive Google Account is an account that has not been used within a 2-year period. Google reserves the right to delete an inactive Google Account and its activity and data if you are inactive across Google for at least two years.</p>
+</blockquote>
+<p>This means that some accounts in the network might be deleted, though there should be a notification if this was going to happen. Either way, I decided it was finally time to migrate off of the service. I went with Proton and recently upgraded to Unlimited after some time with Mail Plus. I could go into the reasons of Proton over other services like Fastmail and Tutanota, but that's enough shilling in this article. The relevant bit is that the service has custom domains, catch-all emails, and supports sieve.</p>
+<p>Our goal is hard to connect email aliases so we need an email service that has support for aliases - both for sending and receiving. For example, I could set up these emails:</p>
+<ul>
+<li>jrhett2003@protonmail.com</li>
+<li>rhondajmackenzie@proton.me</li>
+<li>strengthbeyondbelief@pm.me</li>
+<li>3birdsin1nest@protonmail.com</li>
+<li>1337g4m3r@pm.me</li>
+</ul>
+<p>And an outside observer would be very hard-pressed to find some kind of connection between them; all they would know is these are 4 emails from a widely used email service. Of course Proton the company could figure it out if they wanted to, but the point is that there's no reason to. These are prime emails for setting up separate online personas, which is great for your privacy… as long as the personas don't mirror your real life.</p>
+<p>Creating aliases like this is all nice and good, but in most email services' cases, there will be a hard cap on the number of aliases you can make depending on your plan. This is where custom domains and catch-alls come in.</p>
+<p>Custom domain support means the email service will let you set up and receive emails for a domain you own. Now instead of all those custom endings, you can have one.</p>
+<ul>
+<li>jrhett2003@sail.boats</li>
+<li>rhondajmackenzie@sail.boats</li>
+<li>strengthbeyondbelief@sail.boats</li>
+<li>3birdsin1nest@sail.boats</li>
+<li>1337g4m3r@sail.boats</li>
+</ul>
+<p>But isn't this less secure because they all belong to the same domain? Yes, it's easier to connect these emails together, and back to you UNLESS the email attached to your real online persona does not use this domain. In fact, these emails will also take up your alias limit despite being under your own domain. So why use custom domains? Because hopefully catch-all emails are supported.</p>
+<p>A catch-all email will allow you to receive email from <em>any</em> address in your domain, and only takes up one alias slot. This means you can hand out as many addresses as you want and <em>receive</em> email sent to them. The downside is you cannot send email as them, so this will be used for scenarios where receiving is the only priority. But using a catch-all email also means that it will, well, catch all incoming emails. And organizing the incoming email can be a pain. Some services allow dropping emails <em>if</em> you make an alias for a specific address then disable it, but it's a lot of work to do this. Instead sieve filters can be used.</p>
+<p>Sieve is like scripting for emails, and in our case we can use it to handle emails programmatically as they come in. For example, what we're interested in is doing the following:</p>
+<ol>
+<li>Whitelisting certain addresses for your custom domain</li>
+<li>Tagging or forwarding emails</li>
+</ol>
+<p>And it's as simple as something like this</p>
+<pre class=code-block><input id=code-block-84-1 type=checkbox><label for=code-block-84-1></label><code>require &quot;fileinto&quot;;
+
+if address :is :domain &quot;to&quot; &quot;sail.boats&quot; {
+    if address :is :localpart &quot;to&quot; &quot;1337g4m3r&quot; {
+        fileinto &quot;gaming&quot;;
+    } elsif address :is :localpart &quot;to&quot; &quot;rhondajmackenzie&quot; {
+        fileinto &quot;beauty&quot;;
+    } else {
+        fileinto &quot;possible spam&quot;;
+        # you could also just discard the message
+        # discard;
+    }
+}
+</code></pre>
+<p>It's not the cleanest "code" (<em>cough</em> please separate data and logic <em>cough</em>) but it gets the job done. Sieve also offers a lot more than just this, but the documentation is kind of sparse and testing is <strong>very</strong> annoying. I'm happy enough with this level of quality because it gets the job done and is easy to extend.</p>
+<p>So in summary, I use the service's domains to set up aliases that I have to reply from, and I submit custom domain addresses when I only plan to receive email. A setup like:</p>
+<ul>
+<li>realmainaccount@pm.me</li>
+<li>persona1@protonmail.com</li>
+<li>persona2@proton.me</li>
+<li>persona3@pm.me</li>
+<li>persona4@protonmail.com</li>
+<li>specificthing@pm.me</li>
+<li>specificthing2@proton.me</li>
+<li>something@custom1.com (catch-all for custom1.com)</li>
+<li>something@custom2.com (catch-all for custom2.com)</li>
+<li>something@custom3.com (catch-all for custom3.com)</li>
+</ul>
+<p>And so on.</p>
+<p>I will also caution that domains themselves typically cost money to own (make sure you use a reputable registrar so you can keep control over the domain) so that approach might not be ideal for those with less disposable income. If you do plan on using a custom domain, make sure it supports domain privacy or else the information you use to register the domain will be available to a simple WHOIS request.</p>
+<p>Also as an second aside, I would suggest not directly using the name of thing you're using the address for in the address e.g.
+<code>streaming-service@custom-domain.com</code> strictly because if someone obtains the email then they know what it's used for. I instead use an opaque or randomly generated name, and have a comment or logic in my sieve filter that lets me know what it was for e.g.</p>
+<pre class=code-block><input id=code-block-84-2 type=checkbox><label for=code-block-84-2></label><code># disney streaming
+if address :is :localpart &quot;to&quot; &quot;81r3wiqj&quot; {
+    fileinto &quot;streaming service&quot;
+}
+
+# ...
+
+# credit card
+if address :is :localpart &quot;to&quot; &quot;rj13ioa&quot; {
+    fileinto &quot;master card&quot;
+}
+</code></pre>
+<p>When someone sees <code>81r3wiqj@custom-domain.com</code> then they have no idea what it's for, and when someone sees <code>rj13ioa@custom-domain.com</code> or <code>rj13ioa@proton.me</code>
+then they won't know it's for your credit card account.</p>
+<blockquote>
+<p>Surely the boss was being a bit paranoid. "I heard that thought," screeched Opal. "I am not paranoid!"</p>
+<p>…</p>
+<p>Had Miss Koboi really intercepted the thought? Or was it just the paranoia again? After all, paranoid people usually believe that everyone thinks they are paranoid.</p>
+</blockquote>
+<p>I may be a little paranoid, but I think a small dose of paranoia is needed when it comes to think about privacy. It's relatively crazy how it's being invaded nowadays.</p>
+<h2 id=a-coincidence>a coincidence?</h2>
+<p>I also ended up receiving my first spam email (that passed through the usual spam filters) at the address I use as the contact point for this website.</p>
+<p>While the address could have been guessed or picked up off this website, I'm more inclined to believe that it was scraped from GitHub commit information, as I also use that address when making commits to this website's repository.</p>
+<p>It just goes to show where people pick up information from, I guess.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/83>&lt; following up with bing chat about virtual piano</a></div> <div style=text-align:end><a href=/./posts/85>the urge to consume &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-10-26 - update post 84</summary>
+<pre class=code-block><input id=code-block-964fac9557d42dcdc07dcd7a550930ae18e69723-1 type=checkbox><label for=code-block-964fac9557d42dcdc07dcd7a550930ae18e69723-1></label><code>@@ -162 +162,12 @@ it comes to think about privacy. It&#x27;s relatively crazy how it&#x27;s being invaded
+ nowadays.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## a coincidence?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I also ended up receiving my first spam email (that passed through the usual</span>
+<span class=hljs-addition>+spam filters) at the address I use as the contact point for this website.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While the address could have been guessed or picked up off this website, I&#x27;m</span>
+<span class=hljs-addition>+more inclined to believe that it was scraped from GitHub commit information, as</span>
+<span class=hljs-addition>+I also use that address when making commits to this website&#x27;s repository.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It just goes to show where people pick up information from, I guess.</span>
+</code></pre>
+</details>
+<details>
+<summary>2023-10-23 - add post 84</summary>
+<pre class=code-block><input id=code-block-9f7067f8615a8d3d5ad6df04482350210003c01c-1 type=checkbox><label for=code-block-9f7067f8615a8d3d5ad6df04482350210003c01c-1></label><code><span class=hljs-meta>@@ -0,0 +1,162 @@</span>
+<span class=hljs-addition>+# custom domains + catch-all emails + sieve</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A while back I decided to [write about](/posts/43) my $free^{TM}$ email</span>
+<span class=hljs-addition>+forwarding setup. In short, it uses a network of emails across multiple services</span>
+<span class=hljs-addition>+like gmail and outlook to move mail from various &quot;edge&quot; accounts to central ones</span>
+<span class=hljs-addition>+where emails are read.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Somewhat recently, Google announced an</span>
+<span class=hljs-addition>+[inactive account policy](https://support.google.com/accounts/answer/12418290)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; An inactive Google Account is an account that has not been used within a</span>
+<span class=hljs-addition>+&gt; 2-year period. Google reserves the right to delete an inactive Google Account</span>
+<span class=hljs-addition>+&gt; and its activity and data if you are inactive across Google for at least two</span>
+<span class=hljs-addition>+&gt; years.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This means that some accounts in the network might be deleted, though there</span>
+<span class=hljs-addition>+should be a notification if this was going to happen. Either way, I decided it</span>
+<span class=hljs-addition>+was finally time to migrate off of the service. I went with Proton and recently</span>
+<span class=hljs-addition>+upgraded to Unlimited after some time with Mail Plus. I could go into the</span>
+<span class=hljs-addition>+reasons of Proton over other services like Fastmail and Tutanota, but that&#x27;s</span>
+<span class=hljs-addition>+enough shilling in this article. The relevant bit is that the service has custom</span>
+<span class=hljs-addition>+domains, catch-all emails, and supports sieve.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Our goal is hard to connect email aliases so we need an email service that has</span>
+<span class=hljs-addition>+support for aliases - both for sending and receiving. For example, I could set</span>
+<span class=hljs-addition>+up these emails:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- jrhett2003@protonmail.com</span>
+<span class=hljs-addition>+- rhondajmackenzie@proton.me</span>
+<span class=hljs-addition>+- strengthbeyondbelief@pm.me</span>
+<span class=hljs-addition>+- 3birdsin1nest@protonmail.com</span>
+<span class=hljs-addition>+- 1337g4m3r@pm.me</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And an outside observer would be very hard-pressed to find some kind of</span>
+<span class=hljs-addition>+connection between them; all they would know is these are 4 emails from a widely</span>
+<span class=hljs-addition>+used email service. Of course Proton the company could figure it out if they</span>
+<span class=hljs-addition>+wanted to, but the point is that there&#x27;s no reason to. These are prime emails</span>
+<span class=hljs-addition>+for setting up separate online personas, which is great for your privacy... as</span>
+<span class=hljs-addition>+long as the personas don&#x27;t mirror your real life.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Creating aliases like this is all nice and good, but in most email services&#x27;</span>
+<span class=hljs-addition>+cases, there will be a hard cap on the number of aliases you can make depending</span>
+<span class=hljs-addition>+on your plan. This is where custom domains and catch-alls come in.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Custom domain support means the email service will let you set up and receive</span>
+<span class=hljs-addition>+emails for a domain you own. Now instead of all those custom endings, you can</span>
+<span class=hljs-addition>+have one.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- jrhett2003@sail.boats</span>
+<span class=hljs-addition>+- rhondajmackenzie@sail.boats</span>
+<span class=hljs-addition>+- strengthbeyondbelief@sail.boats</span>
+<span class=hljs-addition>+- 3birdsin1nest@sail.boats</span>
+<span class=hljs-addition>+- 1337g4m3r@sail.boats</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But isn&#x27;t this less secure because they all belong to the same domain? Yes, it&#x27;s</span>
+<span class=hljs-addition>+easier to connect these emails together, and back to you UNLESS the email</span>
+<span class=hljs-addition>+attached to your real online persona does not use this domain. In fact, these</span>
+<span class=hljs-addition>+emails will also take up your alias limit despite being under your own domain.</span>
+<span class=hljs-addition>+So why use custom domains? Because hopefully catch-all emails are supported.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A catch-all email will allow you to receive email from _any_ address in your</span>
+<span class=hljs-addition>+domain, and only takes up one alias slot. This means you can hand out as many</span>
+<span class=hljs-addition>+addresses as you want and _receive_ email sent to them. The downside is you</span>
+<span class=hljs-addition>+cannot send email as them, so this will be used for scenarios where receiving is</span>
+<span class=hljs-addition>+the only priority. But using a catch-all email also means that it will, well,</span>
+<span class=hljs-addition>+catch all incoming emails. And organizing the incoming email can be a pain. Some</span>
+<span class=hljs-addition>+services allow dropping emails _if_ you make an alias for a specific address</span>
+<span class=hljs-addition>+then disable it, but it&#x27;s a lot of work to do this. Instead sieve filters can be</span>
+<span class=hljs-addition>+used.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Sieve is like scripting for emails, and in our case we can use it to handle</span>
+<span class=hljs-addition>+emails programmatically as they come in. For example, what we&#x27;re interested in</span>
+<span class=hljs-addition>+is doing the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Whitelisting certain addresses for your custom domain</span>
+<span class=hljs-addition>+2. Tagging or forwarding emails</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And it&#x27;s as simple as something like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+require &quot;fileinto&quot;;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+if address :is :domain &quot;to&quot; &quot;sail.boats&quot; {</span>
+<span class=hljs-addition>+    if address :is :localpart &quot;to&quot; &quot;1337g4m3r&quot; {</span>
+<span class=hljs-addition>+        fileinto &quot;gaming&quot;;</span>
+<span class=hljs-addition>+    } elsif address :is :localpart &quot;to&quot; &quot;rhondajmackenzie&quot; {</span>
+<span class=hljs-addition>+        fileinto &quot;beauty&quot;;</span>
+<span class=hljs-addition>+    } else {</span>
+<span class=hljs-addition>+        fileinto &quot;possible spam&quot;;</span>
+<span class=hljs-addition>+        # you could also just discard the message</span>
+<span class=hljs-addition>+        # discard;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s not the cleanest &quot;code&quot; (_cough_ please separate data and logic _cough_)</span>
+<span class=hljs-addition>+but it gets the job done. Sieve also offers a lot more than just this, but the</span>
+<span class=hljs-addition>+documentation is kind of sparse and testing is **very** annoying. I&#x27;m happy</span>
+<span class=hljs-addition>+enough with this level of quality because it gets the job done and is easy to</span>
+<span class=hljs-addition>+extend.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So in summary, I use the service&#x27;s domains to set up aliases that I have to</span>
+<span class=hljs-addition>+reply from, and I submit custom domain addresses when I only plan to receive</span>
+<span class=hljs-addition>+email. A setup like:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- realmainaccount@pm.me</span>
+<span class=hljs-addition>+- persona1@protonmail.com</span>
+<span class=hljs-addition>+- persona2@proton.me</span>
+<span class=hljs-addition>+- persona3@pm.me</span>
+<span class=hljs-addition>+- persona4@protonmail.com</span>
+<span class=hljs-addition>+- specificthing@pm.me</span>
+<span class=hljs-addition>+- specificthing2@proton.me</span>
+<span class=hljs-addition>+- something@custom1.com (catch-all for custom1.com)</span>
+<span class=hljs-addition>+- something@custom2.com (catch-all for custom2.com)</span>
+<span class=hljs-addition>+- something@custom3.com (catch-all for custom3.com)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And so on.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I will also caution that domains themselves typically cost money to own (make</span>
+<span class=hljs-addition>+sure you use a reputable registrar so you can keep control over the domain) so</span>
+<span class=hljs-addition>+that approach might not be ideal for those with less disposable income. If you</span>
+<span class=hljs-addition>+do plan on using a custom domain, make sure it supports domain privacy or else</span>
+<span class=hljs-addition>+the information you use to register the domain will be available to a simple</span>
+<span class=hljs-addition>+WHOIS request.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also as an second aside, I would suggest not directly using the name of thing</span>
+<span class=hljs-addition>+you&#x27;re using the address for in the address e.g.</span>
+<span class=hljs-addition>+`streaming-service@custom-domain.com` strictly because if someone obtains the</span>
+<span class=hljs-addition>+email then they know what it&#x27;s used for. I instead use an opaque or randomly</span>
+<span class=hljs-addition>+generated name, and have a comment or logic in my sieve filter that lets me know</span>
+<span class=hljs-addition>+what it was for e.g.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+# disney streaming</span>
+<span class=hljs-addition>+if address :is :localpart &quot;to&quot; &quot;81r3wiqj&quot; {</span>
+<span class=hljs-addition>+    fileinto &quot;streaming service&quot;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+# ...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+# credit card</span>
+<span class=hljs-addition>+if address :is :localpart &quot;to&quot; &quot;rj13ioa&quot; {</span>
+<span class=hljs-addition>+    fileinto &quot;master card&quot;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When someone sees `81r3wiqj@custom-domain.com` then they have no idea what it&#x27;s</span>
+<span class=hljs-addition>+for, and when someone sees `rj13ioa@custom-domain.com` or `rj13ioa@proton.me`</span>
+<span class=hljs-addition>+then they won&#x27;t know it&#x27;s for your credit card account.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Surely the boss was being a bit paranoid. &quot;I heard that thought,&quot; screeched</span>
+<span class=hljs-addition>+&gt; Opal. &quot;I am not paranoid!&quot;</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ...</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Had Miss Koboi really intercepted the thought? Or was it just the paranoia</span>
+<span class=hljs-addition>+&gt; again? After all, paranoid people usually believe that everyone thinks they</span>
+<span class=hljs-addition>+&gt; are paranoid.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I may be a little paranoid, but I think a small dose of paranoia is needed when</span>
+<span class=hljs-addition>+it comes to think about privacy. It&#x27;s relatively crazy how it&#x27;s being invaded</span>
+<span class=hljs-addition>+nowadays.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

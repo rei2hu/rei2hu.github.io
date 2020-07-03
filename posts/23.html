@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>random requests to my aws application</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/22>&lt; some job application statistics</a></div> <div style=text-align:end><a href=/./posts/24>docs gen for rocket_rs websites &gt;</a></div>
+</nav>
+<h1 id=random-requests-to-my-aws-application>random requests to my aws application</h1>
+<p>Recently, I started getting into figuring out some AWS fundamentals and deployed a website through an EC2 instance.</p>
+<p>Naturally, it is hit with random requests here and there that I assume are related to exploits (well there are also some legitimate ones like trying to get robots.txt and some unknown ones). I decided to look into what some things could be.</p>
+<h3 id=get-apijsonwsinvoke>GET /api/jsonws/invoke</h3>
+<p>Searching for this returns results in
+<a href=https://help.liferay.com/hc/en-us/articles/360018161131-JSON-Web-Services-Invoker>links</a>
+pointing to Liferay, which seems to be some kind of web portal vendor for enterprise things.</p>
+<p>It seems to be related to an
+<a href=https://nvd.nist.gov/vuln/detail/CVE-2020-7961>RCE attack</a> where you can run things based on what is sent to this endpoint - also reading the documentation it looks like the data is either sent as the request body or as query parameters.</p>
+<p>I'm not fully sure what this request is trying to do since it lacks query parameters and is a GET request which implies no body, but my guess is it's just initially trying to determine which severs could be using Liferay and therefore would be susceptible to this attack.</p>
+<h3 id=get-dnsexe>GET /DNS.exe</h3>
+<p>Actually I have no idea what this is. DNS.exe seems to be Windows specific, but I am running an Ubuntu vm. This request comes in the most often - perhaps it is just hunting for Windows machines to mess with…?</p>
+<h3 id=get-env>GET /.env</h3>
+<p>This one seems straightforward. Maybe you have your .env file stored at the root of your project and accidentally are serving it up. Fortunately, I'm not.</p>
+<h3 id=post->POST /</h3>
+<p>No idea about this one, something is posting to the index. Unfortunately I'm not logging the bodies or anything so I can't say much more.</p>
+<h3 id=get-wp-loginphp>GET /wp-login.php</h3>
+<p>Something is checking for some WordPress things. I am aware there are multiple exploits related to poorly configured WordPress setups (had to deal with WordPress a while back…) but I assume this is only for scouting out WordPress servers, which this is not.</p>
+<h3 id=get-wp-contentpluginswp-file-managerreadmetxt>GET /wp-content/plugins/wp-file-manager/readme.txt</h3>
+<p>Another WordPress related thing. This time I guess it is checking for a specific plugin which looks to be wp-file-manager. With this in mind, I was able to find an exploit related to it <a href=https://nvd.nist.gov/vuln/detail/CVE-2020-25213>here</a>
+which I assume falls under RCE as you can upload an execute php.</p>
+<p>I'm not sure if the person making this request is related to the one above, but it is a little interesting how this person went straight to checking for the plugin rather than checking for WordPress first.</p>
+<h3 id=get-solradmininfosystemwtjson>GET /solr/admin/info/system?wt=json</h3>
+<p>A quick lookup shows that solr is most likely
+<a href=https://lucene.apache.org/solr/ >Apache Solr</a>. This request seems to be extracting information about what version of solr is being run (assuming you're running it) and may open up many avenues of attack depending on the version.</p>
+<p>For example, <a href=https://nvd.nist.gov/vuln/detail/CVE-2019-12409>this</a> seems to be an RCE attack that is available if you are on version 8.1.1 or 8.2.0 and use the default configuration settings.</p>
+<h3 id=get-owaauthlogonaspxurlhttps3a2f2f12fecp2f>GET /owa/auth/logon.aspx?url=https%3a%2f%2f1%2fecp%2f</h3>
+<p>So something related to Outlook Web Access, and I assume url is the redirect url. It decodes to <a href=https://1/ecp/ >https://1/ecp/</a>. Unfortunately I have no idea what this does, but a search led me to <a href=https://isc.sans.edu/diary/rss/26132>this page</a>
+which seems to have encountered similar requests a few months ago.</p>
+<p>It also references
+<a href=https://nvd.nist.gov/vuln/detail/CVE-2020-0688>this RCE attack</a></p>
+<h3 id=get-jsindexphp>GET /js/index.php</h3>
+<p>No idea why a php file would be under the js directory, and this is too generic of a request for me to tie it down to anything specifically. Maybe it is like some file browser thing.</p>
+<h3 id=get-vendorphpunitphpunitsrcutilphpeval-stdinphp>GET /vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php</h3>
+<p>So this looks like some file that shouldn't be exposed which evals stdin. Pretty straightforward and documented
+<a href=https://nvd.nist.gov/vuln/detail/CVE-2017-9841>here</a>.</p>
+<h3 id=get-console>GET /console/</h3>
+<p>Maybe this is like a shell with root access on some servers? Too generic to find things about easily though.</p>
+<h3 id=get-ab2h-ab2g>GET /ab2h, /ab2g</h3>
+<p>Honestly I feel like someone typod something at this point, but also ended up typing in my server's ip or domain name along with it somehow.</p>
+<h3 id=get-well-knownsecuritytxt>GET /.well-known/security.txt</h3>
+<p>This is an interesting one, as it seems to be a
+<a href=https://securitytxt.org/ >proposed standard</a> for websites. The quote on the page says</p>
+<blockquote>
+<p>When security risks in web services are discovered by independent security researchers who understand the severity of the risk, they often lack the channels to disclose them properly. As a result, security issues may be left unreported. security.txt defines a standard to help organizations define the process for security researchers to disclose security vulnerabilities securely.</p>
+</blockquote>
+<p>So does this mean my EC2 instance has a vulnerability? I would sure hope not… Anyways, that got me thinking specifically about XSS and I realized I would have to make an effort to avoid it in the near future of developing my project.</p>
+<h3 id=post-mifsserviceslogservice>POST /mifs/.;/services/LogService</h3>
+<p>A quick search brings me to
+<a href=https://nvd.nist.gov/vuln/detail/CVE-2020-15506>this exploit</a> and a
+<a href=https://blog.orange.tw/2020/09/how-i-hacked-facebook-again-mobileiron-mdm-rce.html>2020 post</a>
+about things in 2015/2018 regarding it.</p>
+<h3 id=conclusion>Conclusion</h3>
+<p>Everything is a learning experience. It might be useful to know what are the most common exploits going around.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/22>&lt; some job application statistics</a></div> <div style=text-align:end><a href=/./posts/24>docs gen for rocket_rs websites &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-11-10 - update 23</summary>
+<pre class=code-block><input id=code-block-abbe9f57d031d18926cd6d421546e60b1ab954ec-1 type=checkbox><label for=code-block-abbe9f57d031d18926cd6d421546e60b1ab954ec-1></label><code><span class=hljs-meta>@@ -125,2 +125,3 @@</span> about things in 2015/2018 regarding it.
+
+<span class=hljs-deletion>-Everything is a learning experience.</span>
+<span class=hljs-addition>+Everything is a learning experience. It might be useful to know what are the most</span>
+<span class=hljs-addition>+common exploits going around.</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-11-03 - add a post</summary>
+<pre class=code-block><input id=code-block-0e9bc59f443705bd0c835426878c596dc14aa862-1 type=checkbox><label for=code-block-0e9bc59f443705bd0c835426878c596dc14aa862-1></label><code><span class=hljs-meta>@@ -0,0 +1,126 @@</span>
+<span class=hljs-addition>+# random requests to my aws application</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I started getting into figuring out some AWS fundamentals and deployed</span>
+<span class=hljs-addition>+a website through an EC2 instance.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Naturally, it is hit with random requests here and there that I assume are related</span>
+<span class=hljs-addition>+to exploits (well there are also some legitimate ones like trying to get robots.txt</span>
+<span class=hljs-addition>+and some unknown ones). I decided to look into what some things could be.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable header-increment --&gt;</span>
+<span class=hljs-addition>+### GET /api/jsonws/invoke</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable header-increment --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Searching for this returns results in [links](https://help.liferay.com/hc/en-us/articles/360018161131-JSON-Web-Services-Invoker)</span>
+<span class=hljs-addition>+pointing to Liferay, which seems to be some kind of web portal vendor for enterprise</span>
+<span class=hljs-addition>+things.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It seems to be related to an [RCE attack](https://nvd.nist.gov/vuln/detail/CVE-2020-7961)</span>
+<span class=hljs-addition>+where you can run things based on what is sent to this endpoint - also reading the</span>
+<span class=hljs-addition>+documentation it looks like the data is either sent as the request body or as</span>
+<span class=hljs-addition>+query parameters.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not fully sure what this request is trying to do since it lacks query parameters</span>
+<span class=hljs-addition>+and is a GET request which implies no body, but my guess is it&#x27;s just initially trying</span>
+<span class=hljs-addition>+to determine which severs could be using Liferay and therefore would be susceptible</span>
+<span class=hljs-addition>+to this attack.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /DNS.exe</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Actually I have no idea what this is. DNS.exe seems to be Windows specific, but</span>
+<span class=hljs-addition>+I am running an Ubuntu vm. This request comes in the most often - perhaps it is</span>
+<span class=hljs-addition>+just hunting for Windows machines to mess with...?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /.env</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This one seems straightforward. Maybe you have your .env file stored at the root</span>
+<span class=hljs-addition>+of your project and accidentally are serving it up. Fortunately, I&#x27;m not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### POST /</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+No idea about this one, something is posting to the index. Unforunately I&#x27;m not</span>
+<span class=hljs-addition>+logging the bodies or anything so I can&#x27;t say much more.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /wp-login.php</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Something is checking for some WordPress things. I am aware there are multiple</span>
+<span class=hljs-addition>+exploits related to poorly configured WordPress setups (had to deal with WordPress</span>
+<span class=hljs-addition>+a while back...) but I assume this is only for scouting out WordPress servers, which</span>
+<span class=hljs-addition>+this is not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /wp-content/plugins/wp-file-manager/readme.txt</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another WordPress related thing. This time I guess it is checking for a specific</span>
+<span class=hljs-addition>+plugin which looks to be wp-file-manager. With this in mind, I was able to find an</span>
+<span class=hljs-addition>+exploit related to it [here](https://nvd.nist.gov/vuln/detail/CVE-2020-25213) which</span>
+<span class=hljs-addition>+I assume falls under RCE as you can upload an execute php.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not sure if the person making this request is related to the one above, but</span>
+<span class=hljs-addition>+it is a little interesting how this person went straight to checking for the plugin</span>
+<span class=hljs-addition>+rather than checking for WordPress first.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /solr/admin/info/system?wt=json</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A quick lookup shows that solr is most likely [Apache Solr](https://lucene.apache.org/solr/).</span>
+<span class=hljs-addition>+This request seems to be extracting information about what version of solr is being</span>
+<span class=hljs-addition>+run (assuming you&#x27;re running it) and may open up many avenues of attack depending</span>
+<span class=hljs-addition>+on the version.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For example, [this](https://nvd.nist.gov/vuln/detail/CVE-2019-12409) seems to be</span>
+<span class=hljs-addition>+an RCE attack that is available if you are on version 8.1.1 or 8.2.0 and use the</span>
+<span class=hljs-addition>+default configuration settings.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /owa/auth/logon.aspx?url=https%3a%2f%2f1%2fecp%2f</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So something related to Outlook Web Access, and I assume url is the redirect url.</span>
+<span class=hljs-addition>+It decodes to &lt;https://1/ecp/&gt;. Unforunately I have no idea what this does, but a</span>
+<span class=hljs-addition>+search led me to [this page](https://isc.sans.edu/diary/rss/26132) which seems to</span>
+<span class=hljs-addition>+have encountered similar requests a few months ago.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It also references [this RCE attack](https://nvd.nist.gov/vuln/detail/CVE-2020-0688)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /js/index.php</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+No idea why a php file would be under the js directory, and this is too generic</span>
+<span class=hljs-addition>+of a request for me to tie it down to anything specifically. Maybe it is like some</span>
+<span class=hljs-addition>+file browser thing.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So this looks like some file that shouldn&#x27;t be exposed which evals stdin. Pretty</span>
+<span class=hljs-addition>+straightforward and documented [here](https://nvd.nist.gov/vuln/detail/CVE-2017-9841).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /console/</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Maybe this is like a shell with root access on some servers? Too generic to find</span>
+<span class=hljs-addition>+things about easily though.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /ab2h, /ab2g</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Honestly I feel like someone typod something at this point, but also ended up typing</span>
+<span class=hljs-addition>+in my server&#x27;s ip or domain name along with it somehow.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### GET /.well-known/security.txt</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is an interesting one, as it seems to be a [proposed standard](https://securitytxt.org/)</span>
+<span class=hljs-addition>+for websites. The quote on the page says</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; When security risks in web services are discovered by independent security researchers</span>
+<span class=hljs-addition>+&gt; who understand the severity of the risk, they often lack the channels to disclose</span>
+<span class=hljs-addition>+&gt; them properly. As a result, security issues may be left unreported. security.txt</span>
+<span class=hljs-addition>+&gt; defines a standard to help organizations define the process for security researchers</span>
+<span class=hljs-addition>+&gt; to disclose security vulnerabilities securely.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So does this mean my EC2 instance has a vulnerability? I would sure hope not...</span>
+<span class=hljs-addition>+Anyways, that got me thinking specifically about XSS and I realized I would have</span>
+<span class=hljs-addition>+to make an effort to avoid it in the near future of developing my project.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### POST /mifs/.;/services/LogService</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A quick search brings me to [this exploit](https://nvd.nist.gov/vuln/detail/CVE-2020-15506)</span>
+<span class=hljs-addition>+and a [2020 post](https://blog.orange.tw/2020/09/how-i-hacked-facebook-again-mobileiron-mdm-rce.html)</span>
+<span class=hljs-addition>+about things in 2015/2018 regarding it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Everything is a learning experience.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

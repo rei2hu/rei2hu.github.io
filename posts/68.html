@@ -1,0 +1,872 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>use (and abuse) of pseudo-classes</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/67>&lt; positioning and filters</a></div> <div style=text-align:end><a href=/./posts/69>updating this site and checking for regressions &gt;</a></div>
+</nav>
+<h1 id=use-and-abuse-of-pseudo-classes>use (and abuse) of pseudo-classes</h1>
+<style>.p68_demo-div::before{content:"Demo:"}.p68_demo-div{margin:20px;padding:20px}</style>
+<p>I'm a big fan of not using Javascript in situations where it usually isn't necessary, and this leaves me in the scenario of trying to implement things with css. A core feature that Javascript typically fills is the ability to retain and modify state in response to user interaction, and to also update what gets displayed depending on the state.</p>
+<p>If you've read <a href=/posts/45>this somewhat related post</a> where I try to "generate" randomness through css, then you may be familiar with a few pseudo-classes like
+<code>:hover</code> and <code>:focus</code>. If you've seen any codeblocks, then maybe you know they rely on <code>:checked</code> to work (if you haven't, there should be a ton of codeblocks as this post will have some examples).</p>
+<p>All of these things fall under the category of
+<a href=https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>pseudo-class</a>
+and is typically the cornerstone of these types of applications/hacks. Let's take a look at what we can do with them.</p>
+<p>First things first, let's look at some css/html that I threw together for my codeblocks as it covers what is probably the most common use case of this:</p>
+<pre class=code-block><input id=code-block-68-1 type=checkbox><label for=code-block-68-1></label><code><span class=hljs-comment>/* toggle styling */</span>
+pre &gt; <span class=hljs-selector-tag>input</span> + <span class=hljs-selector-tag>label</span><span class=hljs-selector-pseudo>:after</span> {
+    <span class=hljs-attribute>cursor</span>: pointer;
+}
+
+pre &gt; <span class=hljs-selector-tag>input</span><span class=hljs-selector-pseudo>:checked</span> + <span class=hljs-selector-tag>label</span><span class=hljs-selector-pseudo>:after</span> {
+    <span class=hljs-attribute>content</span>: <span class=hljs-string>&quot;[\25b2] Collapse&quot;</span>; <span class=hljs-comment>/* up triangle */</span>
+}
+
+pre &gt; <span class=hljs-selector-tag>input</span><span class=hljs-selector-pseudo>:not</span>(<span class=hljs-selector-pseudo>:checked</span>) + <span class=hljs-selector-tag>label</span><span class=hljs-selector-pseudo>:after</span> {
+    <span class=hljs-attribute>content</span>: <span class=hljs-string>&quot;[\25bc] Expand&quot;</span>; <span class=hljs-comment>/* down triangle */</span>
+}
+
+<span class=hljs-comment>/* code block styling */</span>
+pre &gt; <span class=hljs-selector-tag>input</span> + <span class=hljs-selector-tag>label</span> + <span class=hljs-selector-tag>code</span> {
+    <span class=hljs-attribute>display</span>: block;
+}
+
+pre &gt; <span class=hljs-selector-tag>input</span><span class=hljs-selector-pseudo>:checked</span> + <span class=hljs-selector-tag>label</span> + <span class=hljs-selector-tag>code</span> {
+    <span class=hljs-attribute>max-height</span>: auto;
+    <span class=hljs-attribute>overflow-y</span>: hidden;
+}
+
+pre &gt; <span class=hljs-selector-tag>input</span><span class=hljs-selector-pseudo>:not</span>(<span class=hljs-selector-pseudo>:checked</span>) + <span class=hljs-selector-tag>label</span> + <span class=hljs-selector-tag>code</span> {
+    <span class=hljs-attribute>max-height</span>: <span class=hljs-number>20vh</span>;
+    <span class=hljs-attribute>overflow-y</span>: hidden;
+}
+
+pre &gt; <span class=hljs-selector-tag>input</span><span class=hljs-selector-pseudo>:not</span>(<span class=hljs-selector-pseudo>:checked</span>) + <span class=hljs-selector-tag>label</span> + <span class=hljs-selector-tag>code</span><span class=hljs-selector-pseudo>:after</span> {
+    <span class=hljs-attribute>content</span>: <span class=hljs-string>&quot;&quot;</span>;
+    <span class=hljs-attribute>position</span>: absolute;
+    <span class=hljs-attribute>bottom</span>: <span class=hljs-number>0px</span>;
+    <span class=hljs-attribute>left</span>: <span class=hljs-number>0px</span>;
+    <span class=hljs-attribute>height</span>: <span class=hljs-number>50%</span>;
+    <span class=hljs-attribute>max-height</span>: <span class=hljs-number>10vh</span>;
+    <span class=hljs-attribute>width</span>: <span class=hljs-number>100%</span>;
+    <span class=hljs-attribute>background</span>: <span class=hljs-built_in>linear-gradient</span>(
+        <span class=hljs-built_in>rgba</span>(<span class=hljs-built_in>var</span>(--rgb-factor), <span class=hljs-built_in>var</span>(--rgb-factor), <span class=hljs-built_in>var</span>(--rgb-factor), <span class=hljs-number>0</span>),
+        <span class=hljs-built_in>rgba</span>(<span class=hljs-built_in>var</span>(--rgb-factor), <span class=hljs-built_in>var</span>(--rgb-factor), <span class=hljs-built_in>var</span>(--rgb-factor), <span class=hljs-number>1</span>) <span class=hljs-number>90%</span>
+    );
+}
+</code></pre>
+<pre class=code-block><input id=code-block-68-2 type=checkbox><label for=code-block-68-2></label><code><span class=hljs-tag>&lt;<span class=hljs-name>pre</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>input</span> <span class=hljs-attr>id</span>=<span class=hljs-string>code-block-146</span> <span class=hljs-attr>type</span>=<span class=hljs-string>checkbox</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>label</span> <span class=hljs-attr>for</span>=<span class=hljs-string>code-block-146</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>label</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>code</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;css language-css&quot;</span>&gt;</span><span class=hljs-comment>&lt;!-- code --&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>code</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>pre</span>&gt;</span>
+</code></pre>
+<p>There are a couple moving parts here, but the important thing to note is that there are two "versions" of each style, one which has <code>input:checked</code> and one which has <code>input:not(:checked)</code> - this makes the styles be dependent on the state of the checkbox, which is toggled by the user.</p>
+<p>If it's <code>:not(:checked)</code> then the content of the label for that input is a down triangle and we limit the height of the codeblock to <code>20vh</code> while adding a fancy gradient to fadeout/blur the content. If it is <code>:checked</code> then the height is basically unlocked and the gradient is removed. <del>Now that I'm looking at it, the arrow is reversed, but it may be fixed by the time you're reading this.</del></p>
+<p>Click it and try! Or I assume you already have to see the code - if you happen to have a super long screen and there is no expand toggle, disable Javascript because there is a script that hides that toggle if the codeblock is short enough.</p>
+<p>Now let's go through the list of pseudo-classes on mdn.</p>
+<h2 id=element-display-state-pseudo-classes>Element display state pseudo-classes</h2>
+<ul>
+<li><code>:fullscreen</code></li>
+<li><code>:modal</code></li>
+<li><code>:picture-in-picture</code></li>
+</ul>
+<p>In general these aren't too nice to use. Setting these classes is a large interaction on the user's part, and bringing up a modal typically requires using the <code>showModal</code> api, implying Javascript works.</p>
+<h2 id=input-pseudo-classes>Input pseudo-classes</h2>
+<ul>
+<li><code>:autofill</code></li>
+<li><code>:enabled</code></li>
+<li><code>:disabled</code></li>
+<li><code>:read-only</code></li>
+<li><code>:read-write</code></li>
+<li><code>:placeholder-shown</code></li>
+<li><code>:default</code></li>
+<li><code>:checked</code></li>
+<li><code>:indeterminate</code></li>
+<li><code>:blank</code></li>
+<li><code>:valid</code></li>
+<li><code>:invalid</code></li>
+<li><code>:in-range</code></li>
+<li><code>:out-of-range</code></li>
+<li><code>:required</code></li>
+<li><code>:optional</code></li>
+</ul>
+<p>As we've seen above, we can get some value out of classes that describe the state of the input, although how useful it really is from a user experience perspective varies wildly. In my opinion, only <code>:checked</code> is useful, but you may get some mileage out of <code>:blank</code>, <code>:valid</code>, <code>:invalid</code>, <code>:in-range</code>,
+<code>:out-of-range</code>, and <code>:user-invalid</code> for basic form styling when coupled with
+<code>min</code>, <code>max</code>, <code>pattern</code> or other attributes.</p>
+<h2 id=linguistic-pseudo-classes>Linguistic pseudo-classes</h2>
+<ul>
+<li><code>:dir()</code></li>
+<li><code>:lang()</code></li>
+</ul>
+<p><code>:lang()</code> is possibly useful for i18n, but is probably more work than it's worth. <code>:dir()</code>… there is a css property called
+<a href=https://developer.mozilla.org/en-US/docs/Web/CSS/direction>direction</a> that I've never had to use but I know exists, might be useful there?</p>
+<h2 id=location-pseudo-classes>Location pseudo-classes</h2>
+<ul>
+<li><code>:any-link</code></li>
+<li><code>:link</code></li>
+<li><code>:visited</code></li>
+<li><code>:local-link</code></li>
+<li><code>:target</code></li>
+<li><code>:target-within</code></li>
+<li><code>:scope</code></li>
+</ul>
+<p>There used to be some interesting things to do around <code>:link</code>, <code>:visited</code>, and
+<code>:any-link</code>, but that was shut down due to security concerns of how people could extract your browser history (could be done simply through having <code>background</code>
+make requests to certain webpages based on what style is picked).</p>
+<p>The interesting parts here are going to be <code>:target</code> and the similar class,
+<code>:target-within</code>. These let you match against the url, and the url can be used to store arbitrary state in a sense - if you're writing enough selectors and elements to match them.</p>
+<pre class=code-block><input id=code-block-68-3 type=checkbox><label for=code-block-68-3></label><code><span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+    <span class=hljs-selector-tag>p</span><span class=hljs-selector-class>.p68_tab</span> {
+        <span class=hljs-attribute>display</span>: none;
+    }
+    <span class=hljs-selector-tag>p</span><span class=hljs-selector-class>.p68_tab</span><span class=hljs-selector-pseudo>:target</span> {
+        <span class=hljs-attribute>display</span>: block;
+    }
+    <span class=hljs-selector-class>.p68_fake-tabs</span> {
+        <span class=hljs-attribute>display</span>: flex;
+        <span class=hljs-attribute>width</span>: <span class=hljs-number>100%</span>;
+        <span class=hljs-attribute>justify-content</span>: space-between;
+    }
+</span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;p68_fake-tabs&quot;</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>a</span> <span class=hljs-attr>href</span>=<span class=hljs-string>&quot;#tab1&quot;</span>&gt;</span>Tab 1<span class=hljs-tag>&lt;/<span class=hljs-name>a</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>a</span> <span class=hljs-attr>href</span>=<span class=hljs-string>&quot;#tab2&quot;</span>&gt;</span>Tab 2<span class=hljs-tag>&lt;/<span class=hljs-name>a</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>a</span> <span class=hljs-attr>href</span>=<span class=hljs-string>&quot;#tab3&quot;</span>&gt;</span>Tab 3<span class=hljs-tag>&lt;/<span class=hljs-name>a</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>p</span> <span class=hljs-attr>id</span>=<span class=hljs-string>&quot;tab1&quot;</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;p68_tab&quot;</span>&gt;</span>Tab 1<span class=hljs-tag>&lt;/<span class=hljs-name>p</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>p</span> <span class=hljs-attr>id</span>=<span class=hljs-string>&quot;tab2&quot;</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;p68_tab&quot;</span>&gt;</span>Tab 2<span class=hljs-tag>&lt;/<span class=hljs-name>p</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>p</span> <span class=hljs-attr>id</span>=<span class=hljs-string>&quot;tab3&quot;</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;p68_tab&quot;</span>&gt;</span>Tab 3<span class=hljs-tag>&lt;/<span class=hljs-name>p</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<div class=p68_demo-div>
+<style>p.p68_tab{display:none}p.p68_tab:target{display:block}.p68_fake-tabs{display:flex;width:100%;justify-content:space-between}.p68_fake-tabs+div,.p68_fake-tabs>a{text-align:center;width:100%;border:1px solid red}</style>
+<div class=p68_fake-tabs>
+<a href=#tab1>Tab 1</a>
+<a href=#tab2>Tab 2</a>
+<a href=#tab3>Tab 3</a>
+</div>
+<div>
+<p class=p68_tab id=tab1>Tab 1 Content</p>
+<p class=p68_tab id=tab2>Tab 2 Content</p>
+<p class=p68_tab id=tab3>Tab 3 Content</p>
+</div>
+</div>
+<p>Unfortunately, this does end up pushing entries to history, well maybe it's not unfortunate depending on your use case as it offers a somewhat functional undo (any redux users?) And jumping around to the anchor <em>might</em> be annoying, but this is somewhat avoidable with a different layout.</p>
+<p>Wow I just happened to be looking at some <code>:target</code> docs to double check some things and realised a lot of them also go with the tab example - I swear I did not use those for inspiration! The point is that you can store "state" in the hash and react to it accordingly through a mix of html ids and css styles.</p>
+<h2 id=resource-state-pseudo-classes-time-dimensional-pseudo-classes>Resource state pseudo-classes, Time-dimensional pseudo-classes</h2>
+<ul>
+<li><p><code>:playing</code></p></li>
+<li><p><code>:paused</code></p></li>
+<li><p><code>:current</code></p></li>
+<li><p><code>:past</code></p></li>
+<li><p><code>:future</code></p></li>
+</ul>
+<p>I haven't used these at all, but I guess they could be useful (highlight current while you dim other things?)</p>
+<h2 id=tree-structural-pseudo-classes>Tree-structural pseudo-classes</h2>
+<ul>
+<li><code>:root</code></li>
+<li><code>:empty</code></li>
+<li><code>:nth-child</code></li>
+<li><code>:nth-last-child</code></li>
+<li><code>:first-child</code></li>
+<li><code>:last-child</code></li>
+<li><code>:only-child</code></li>
+<li><code>:nth-of-type</code></li>
+<li><code>:nth-last-of-type</code></li>
+<li><code>:first-of-type</code></li>
+<li><code>:last-of-type</code></li>
+<li><code>:only-of-type</code></li>
+</ul>
+<p>For me, most of these are only for alternating styles between several elements, but one thing I kind of like is <code>:empty</code> which I use to add cheap loading icons to things.</p>
+<pre class=code-block><input id=code-block-68-4 type=checkbox><label for=code-block-68-4></label><code><span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+    <span class=hljs-selector-class>.p68_loadable</span><span class=hljs-selector-pseudo>:empty</span> {
+        <span class=hljs-attribute>display</span>: flex;
+        <span class=hljs-attribute>justify-content</span>: center;
+    }
+    <span class=hljs-selector-class>.p68_loadable</span><span class=hljs-selector-pseudo>:empty</span><span class=hljs-selector-pseudo>::after</span> {
+        <span class=hljs-attribute>content</span>: <span class=hljs-string>&quot;O&quot;</span>;
+        <span class=hljs-attribute>display</span>: block;
+        <span class=hljs-attribute>width</span>: <span class=hljs-number>16px</span>;
+        <span class=hljs-attribute>height</span>: <span class=hljs-number>16px</span>;
+        <span class=hljs-attribute>border</span>: solid red <span class=hljs-number>1px</span>;
+        <span class=hljs-attribute>border-radius</span>: <span class=hljs-number>50%</span>;
+        <span class=hljs-attribute>animation</span>: p68_rotate <span class=hljs-number>1s</span> linear infinite;
+    }
+    <span class=hljs-keyword>@keyframes</span> p68_rotate {
+        <span class=hljs-number>0%</span> {
+            <span class=hljs-attribute>transform</span>: <span class=hljs-built_in>rotate</span>(<span class=hljs-number>0deg</span>);
+        }
+        <span class=hljs-number>100%</span> {
+            <span class=hljs-attribute>transform</span>: <span class=hljs-built_in>rotate</span>(<span class=hljs-number>360deg</span>);
+        }
+    }
+</span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;p68_loadable&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<div class=p68_demo-div>
+<style>.p68_loadable:empty{display:flex;justify-content:center}.p68_loadable:empty::after{content:"O";display:block;width:16px;height:16px;border:solid red 1px;border-radius:50%;animation:p68_rotate 1s linear infinite}@keyframes p68_rotate{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}</style>
+<div class=p68_loadable></div>
+</div>
+<p>Quite the bootleg spinner. I'm sure we'd be able to do better if it was important! Once content is loaded… by Javascript… then the element is no longer <code>:empty</code> and the loading thing goes away.</p>
+<h2 id=user-action-pseudo-classes>User action pseudo-classes</h2>
+<ul>
+<li><code>:hover</code></li>
+<li><code>:active</code></li>
+<li><code>:focus</code></li>
+<li><code>:focus-visible</code></li>
+<li><code>:focus-within</code></li>
+</ul>
+<p>These are also good classes to know of, <code>:hover</code> and <code>:focus</code> can be used for tooltips or previews of the like, but overall I think their states change quite quickly for anything persistent.</p>
+<pre class=code-block><input id=code-block-68-5 type=checkbox><label for=code-block-68-5></label><code><span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+    <span class=hljs-selector-class>.p68_spooky</span> {
+        <span class=hljs-attribute>text-align</span>: center;
+    }
+    <span class=hljs-selector-class>.p68_spooky</span><span class=hljs-selector-pseudo>::after</span> {
+        <span class=hljs-attribute>content</span>: <span class=hljs-string>&quot;Hover for Surprise!&quot;</span>;
+    }
+    <span class=hljs-selector-class>.p68_spooky</span><span class=hljs-selector-pseudo>:hover</span> {
+        <span class=hljs-attribute>transform</span>: <span class=hljs-built_in>scale</span>(<span class=hljs-number>5</span>);
+    }
+    <span class=hljs-selector-class>.p68_spooky</span><span class=hljs-selector-pseudo>:hover</span><span class=hljs-selector-pseudo>::after</span> {
+        <span class=hljs-attribute>content</span>: <span class=hljs-string>&quot;...&quot;</span>;
+    }
+</span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;p68_spooky&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<div class=p68_demo-div>
+<style>.p68_spooky{text-align:center}.p68_spooky::after{content:"Hover for Surprise!"}.p68_spooky:hover{transform:scale(5)}.p68_spooky:hover::after{content:"BOO!"}</style>
+<div class=p68_spooky></div>
+</div>
+<h2 id=functional-pseudo-classes>Functional pseudo-classes</h2>
+<ul>
+<li><code>:is()</code></li>
+<li><code>:not()</code></li>
+<li><code>:where()</code></li>
+<li><code>:has()</code></li>
+</ul>
+<p>These are more like augmentations for selectors rather than their own thing. I'd say the most interesting one in this group is <code>:has()</code> as it finally allows targetting an element with relative selectors, rather than the element the selector ends at. For example <code>label:has(input)</code> targets the label while
+<code>label input</code> targets the input.</p>
+<p>I use <code>:has()</code> in my knock off darkmode on this site, which you can only see if your browser <em>has</em> <code>:has()</code> support - at the moment it's available to all except for Firefox, which has it locked behind a flag and whose implementation doesn't work for my use case - so the demo will only work if that's satisfied.</p>
+<pre class=code-block><input id=code-block-68-6 type=checkbox><label for=code-block-68-6></label><code><span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+    <span class=hljs-selector-pseudo>:root</span><span class=hljs-selector-pseudo>:has</span>(<span class=hljs-selector-id>#p68_input</span><span class=hljs-selector-pseudo>:not</span>(<span class=hljs-selector-pseudo>:checked</span>)) {
+        <span class=hljs-attr>--p68_color</span>: red;
+    }
+    <span class=hljs-selector-pseudo>:root</span><span class=hljs-selector-pseudo>:has</span>(<span class=hljs-selector-id>#p68_input</span><span class=hljs-selector-pseudo>:checked</span>) {
+        <span class=hljs-attr>--p68_color</span>: blue;
+    }
+    <span class=hljs-selector-tag>label</span><span class=hljs-selector-pseudo>:has</span>(<span class=hljs-selector-id>#p68_input</span>) {
+        <span class=hljs-attribute>color</span>: <span class=hljs-built_in>var</span>(--p68_color);
+    }
+</span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>label</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>input</span> <span class=hljs-attr>id</span>=<span class=hljs-string>&quot;#p68_input&quot;</span> <span class=hljs-attr>type</span>=<span class=hljs-string>&quot;checkbox&quot;</span> /&gt;</span>Click to change var value
+<span class=hljs-tag>&lt;/<span class=hljs-name>label</span>&gt;</span>
+</code></pre>
+<div class=p68_demo-div>
+<style>:root:has(#p68_input:not(:checked)){--p68_color:red}:root:has(#p68_input:checked){--p68_color:blue}label:has(>#p68_input){color:var(--p68_color)}</style>
+<label>
+<input id=p68_input type=checkbox>Click to change var value
+</label>
+</div>
+<p>We can set various css variables based on the state of the child checkbox, which is a similar approach to what I do for my lightmode/darkmode toggle. We can also check if <code>:has()</code> is broken and show/hide things that rely on it like this:</p>
+<pre class=code-block><input id=code-block-68-7 type=checkbox><label for=code-block-68-7></label><code><span class=hljs-keyword>@supports</span> selector(<span class=hljs-attribute>p</span>: has(p)) {
+    <span class=hljs-selector-id>#lights-label</span><span class=hljs-selector-pseudo>:has</span>(&gt; <span class=hljs-selector-id>#lights</span>) {
+        <span class=hljs-attribute>display</span>: flex;
+        user-select: none;
+        <span class=hljs-attribute>cursor</span>: pointer;
+    }
+}
+<span class=hljs-selector-id>#lights-label</span> {
+    <span class=hljs-attribute>display</span>: none;
+}
+</code></pre>
+<p>This prevents a browser like Firefox from displaying the lights toggle as it doesn't include <code>:has()</code> support (though when you enable the (incomplete)
+<code>:has()</code> support, it will show but not work). The selector <code>p:has(p)</code> can be anything that utilizes <code>:has()</code>.</p>
+<p>Unfortunately we cannot exactly maintain the state across page transitions, but maybe with some clever butchering of <code>:target</code> and other pseudo-classes we may be able to do so… if we're willing to generate the right html - maybe something like 2 urls everytime with either the darkmode or lightmode hash, and which url shows depends on the current hash… if anything before wasn't considered a hack, this definitely should be.</p>
+<p>You also may be wondering about the performance of these approaches in terms of a "how long does it take my browser to recalculate styles?" The short answer is I have no clue - figuring these things out is 90% done as a casual brain teaser and 10% because of my dislike of Javascript on sites that don't need it. Overall, I do not notice any significant performance impact on this website, which means it is fine… for this website.</p>
+<p>Cue story about senior frontend engineer talking about one of his old company's websites being slow due to complex css rules.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/67>&lt; positioning and filters</a></div> <div style=text-align:end><a href=/./posts/69>updating this site and checking for regressions &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-02-07 - update post 68</summary>
+<pre class=code-block><input id=code-block-87f4b8e02a575877921b5bc33b0cc16639d45d29-1 type=checkbox><label for=code-block-87f4b8e02a575877921b5bc33b0cc16639d45d29-1></label><code><span class=hljs-meta>@@ -429,2 +429,9 @@</span> check if `:has()` is broken and show/hide things that rely on it like this:
+</code></pre>
+<p>css +@supports selector(p: has(p)) {</p>
+<ul>
+<li>#lights-label:has(&gt; #lights) {</li>
+<li>display: flex;</li>
+<li>user-select: none;</li>
+<li>cursor: pointer;</li>
+<li>} +} #lights-label {</li>
+</ul>
+<p>```</p>
+<pre class=code-block><input id=code-block-87f4b8e02a575877921b5bc33b0cc16639d45d29-2 type=checkbox><label for=code-block-87f4b8e02a575877921b5bc33b0cc16639d45d29-2></label><code><span class=hljs-meta>@@ -432,12 +439,8 @@</span> check if `:has()` is broken and show/hide things that rely on it like this:
+ }
+<span class=hljs-deletion>-#lights-label:has(&gt; #lights) {</span>
+<span class=hljs-deletion>-    display: flex;</span>
+<span class=hljs-deletion>-    user-select: none;</span>
+<span class=hljs-deletion>-    cursor: pointer;</span>
+<span class=hljs-deletion>-}</span>
+</code></pre>
+<p>-This is css straight from my stylesheet, and prevents a browser like Firefox -from displaying the lights toggle as it doesn't include <code>:has()</code> support (though -when you enable the (incomplete) <code>:has()</code> support, it will show but not work). +This prevents a browser like Firefox from displaying the lights toggle as it +doesn't include <code>:has()</code> support (though when you enable the (incomplete) +<code>:has()</code> support, it will show but not work). The selector <code>p:has(p)</code> can be +anything that utilizes <code>:has()</code>.</p>
+<p>```</p>
+</details>
+<details>
+<summary>2023-01-27 - update post 68</summary>
+<pre class=code-block><input id=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-1 type=checkbox><label for=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-1></label><code><span class=hljs-meta>@@ -16,11 +16,14 @@</span> css. A core feature that Javascript typically fills is the ability to retain and
+ modify state in response to user interaction, and to also update what gets
+<span class=hljs-deletion>-displayed depending on the state. If you&#x27;ve read</span>
+<span class=hljs-deletion>-[this somewhat related post](/posts/45) where I try to &quot;generate&quot; randomness</span>
+<span class=hljs-deletion>-through css, then you may be familiar with a few pseudo-classes like `:hover`</span>
+<span class=hljs-deletion>-and `:focus`. If you&#x27;ve seen any codeblocks, then maybe you know they rely on</span>
+<span class=hljs-deletion>-`:checked` to work (if you haven&#x27;t, there should be a ton of codeblocks as this</span>
+<span class=hljs-deletion>-post will have some examples). All of these things fall under the category of</span>
+<span class=hljs-addition>+displayed depending on the state.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If you&#x27;ve read [this somewhat related post](/posts/45) where I try to &quot;generate&quot;</span>
+<span class=hljs-addition>+randomness through css, then you may be familiar with a few pseudo-classes like</span>
+<span class=hljs-addition>+`:hover` and `:focus`. If you&#x27;ve seen any codeblocks, then maybe you know they</span>
+<span class=hljs-addition>+rely on `:checked` to work (if you haven&#x27;t, there should be a ton of codeblocks</span>
+<span class=hljs-addition>+as this post will have some examples).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+All of these things fall under the category of</span>
+ [pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes)
+<span class=hljs-deletion>-and is typically the cornerstone of these types of hacks. Let&#x27;s take a look at</span>
+<span class=hljs-deletion>-what we can do with them.</span>
+<span class=hljs-addition>+and is typically the cornerstone of these types of applications/hacks. Let&#x27;s</span>
+<span class=hljs-addition>+take a look at what we can do with them.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-2 type=checkbox><label for=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-2></label><code><span class=hljs-meta>@@ -227,2 +230,7 @@</span> this is somewhat avoidable with a different layout.
+
+<span class=hljs-addition>+Wow I just happened to be looking at some `:target` docs to double check some</span>
+<span class=hljs-addition>+things and realised a lot of them also go with the tab example - I swear I did</span>
+<span class=hljs-addition>+not use those for inspiration! The point is that you can store &quot;state&quot; in the</span>
+<span class=hljs-addition>+hash and react to it accordingly through a mix of html ids and css styles.</span>
+<span class=hljs-addition>+</span>
+ ## Resource state pseudo-classes, Time-dimensional pseudo-classes
+</code></pre>
+<pre class=code-block><input id=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-3 type=checkbox><label for=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-3></label><code><span class=hljs-meta>@@ -431,3 +439,5 @@</span> check if `:has()` is broken and show/hide things that rely on it like this:
+
+<span class=hljs-deletion>-This is css straight from my stylesheet.</span>
+<span class=hljs-addition>+This is css straight from my stylesheet, and prevents a browser like Firefox</span>
+<span class=hljs-addition>+from displaying the lights toggle as it doesn&#x27;t include `:has()` support (though</span>
+<span class=hljs-addition>+when you enable the (incomplete) `:has()` support, it will show but not work).</span>
+</code></pre>
+<pre class=code-block><input id=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-4 type=checkbox><label for=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-4></label><code><span class=hljs-meta>@@ -437,3 +447,4 @@</span> be able to do so... if we&#x27;re willing to generate the right html - maybe
+ something like 2 urls everytime with either the darkmode or lightmode hash, and
+<span class=hljs-deletion>-which url shows depends on the current hash...</span>
+<span class=hljs-addition>+which url shows depends on the current hash... if anything before wasn&#x27;t</span>
+<span class=hljs-addition>+considered a hack, this definitely should be.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-5 type=checkbox><label for=code-block-b93febc23bfc8b49588ea7436922e4a70a4927e7-5></label><code>@@ -443 +454,6 @@ I have no clue - figuring these things out is 90% done as a casual brain teaser
+ and 10% because of my dislike of Javascript on sites that don&#x27;t need it.
+<span class=hljs-addition>+Overall, I do not notice any significant performance impact on this website,</span>
+<span class=hljs-addition>+which means it is fine... for this website.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Cue story about senior frontend engineer talking about one of his old company&#x27;s</span>
+<span class=hljs-addition>+websites being slow due to complex css rules.</span>
+</code></pre>
+</details>
+<details>
+<summary>2023-01-25 - update post 68</summary>
+<pre class=code-block><input id=code-block-343e7a774cd34e3c3a539c04a6be2feed00d65cc-1 type=checkbox><label for=code-block-343e7a774cd34e3c3a539c04a6be2feed00d65cc-1></label><code><span class=hljs-meta>@@ -326,3 +326,3 @@</span> These are also good classes to know of, `:hover` and `:focus` can be used for
+ tooltips or previews of the like, but overall I think their states change quite
+<span class=hljs-deletion>-quickly for anything consistent.</span>
+<span class=hljs-addition>+quickly for anything persistent.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-343e7a774cd34e3c3a539c04a6be2feed00d65cc-2 type=checkbox><label for=code-block-343e7a774cd34e3c3a539c04a6be2feed00d65cc-2></label><code><span class=hljs-meta>@@ -435,3 +435,5 @@</span> Unfortunately we cannot exactly maintain the state across page transitions, but
+ maybe with some clever butchering of `:target` and other pseudo-classes we may
+<span class=hljs-deletion>-be able to do so... if we&#x27;re willing to generate the right html!</span>
+<span class=hljs-addition>+be able to do so... if we&#x27;re willing to generate the right html - maybe</span>
+<span class=hljs-addition>+something like 2 urls everytime with either the darkmode or lightmode hash, and</span>
+<span class=hljs-addition>+which url shows depends on the current hash...</span>
+</code></pre>
+</details>
+<details>
+<summary>2023-01-24 - add post 68</summary>
+<pre class=code-block><input id=code-block-9dc8be2e3ae2a29eef504439a5176c1eb6b88372-1 type=checkbox><label for=code-block-9dc8be2e3ae2a29eef504439a5176c1eb6b88372-1></label><code><span class=hljs-meta>@@ -0,0 +1,441 @@</span>
+<span class=hljs-addition>+# use (and abuse) of pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    .p68_demo-div::before {</span>
+<span class=hljs-addition>+        content: &quot;Demo:&quot;;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    .p68_demo-div {</span>
+<span class=hljs-addition>+        margin: 20px;</span>
+<span class=hljs-addition>+        padding: 20px;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m a big fan of not using Javascript in situations where it usually isn&#x27;t</span>
+<span class=hljs-addition>+necessary, and this leaves me in the scenario of trying to implement things with</span>
+<span class=hljs-addition>+css. A core feature that Javascript typically fills is the ability to retain and</span>
+<span class=hljs-addition>+modify state in response to user interaction, and to also update what gets</span>
+<span class=hljs-addition>+displayed depending on the state. If you&#x27;ve read</span>
+<span class=hljs-addition>+[this somewhat related post](/posts/45) where I try to &quot;generate&quot; randomness</span>
+<span class=hljs-addition>+through css, then you may be familiar with a few pseudo-classes like `:hover`</span>
+<span class=hljs-addition>+and `:focus`. If you&#x27;ve seen any codeblocks, then maybe you know they rely on</span>
+<span class=hljs-addition>+`:checked` to work (if you haven&#x27;t, there should be a ton of codeblocks as this</span>
+<span class=hljs-addition>+post will have some examples). All of these things fall under the category of</span>
+<span class=hljs-addition>+[pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes)</span>
+<span class=hljs-addition>+and is typically the cornerstone of these types of hacks. Let&#x27;s take a look at</span>
+<span class=hljs-addition>+what we can do with them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First things first, let&#x27;s look at some css/html that I threw together for my</span>
+<span class=hljs-addition>+codeblocks as it covers what is probably the most common use case of this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```css</span>
+<span class=hljs-addition>+/* toggle styling */</span>
+<span class=hljs-addition>+pre &gt; input + label:after {</span>
+<span class=hljs-addition>+    cursor: pointer;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pre &gt; input:checked + label:after {</span>
+<span class=hljs-addition>+    content: &quot;[\25b2] Collapse&quot;; /* up triangle */</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pre &gt; input:not(:checked) + label:after {</span>
+<span class=hljs-addition>+    content: &quot;[\25bc] Expand&quot;; /* down triangle */</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+/* code block styling */</span>
+<span class=hljs-addition>+pre &gt; input + label + code {</span>
+<span class=hljs-addition>+    display: block;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pre &gt; input:checked + label + code {</span>
+<span class=hljs-addition>+    max-height: auto;</span>
+<span class=hljs-addition>+    overflow-y: hidden;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pre &gt; input:not(:checked) + label + code {</span>
+<span class=hljs-addition>+    max-height: 20vh;</span>
+<span class=hljs-addition>+    overflow-y: hidden;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pre &gt; input:not(:checked) + label + code:after {</span>
+<span class=hljs-addition>+    content: &quot;&quot;;</span>
+<span class=hljs-addition>+    position: absolute;</span>
+<span class=hljs-addition>+    bottom: 0px;</span>
+<span class=hljs-addition>+    left: 0px;</span>
+<span class=hljs-addition>+    height: 50%;</span>
+<span class=hljs-addition>+    max-height: 10vh;</span>
+<span class=hljs-addition>+    width: 100%;</span>
+<span class=hljs-addition>+    background: linear-gradient(</span>
+<span class=hljs-addition>+        rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 0),</span>
+<span class=hljs-addition>+        rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 1) 90%</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;pre&gt;</span>
+<span class=hljs-addition>+    &lt;input id=code-block-146 type=checkbox&gt;</span>
+<span class=hljs-addition>+    &lt;label for=code-block-146&gt;&lt;/label&gt;</span>
+<span class=hljs-addition>+    &lt;code class=&quot;css language-css&quot;&gt;&lt;!-- code --&gt;&lt;/code&gt;</span>
+<span class=hljs-addition>+&lt;/pre&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There are a couple moving parts here, but the important thing to note is that</span>
+<span class=hljs-addition>+there are two &quot;versions&quot; of each style, one which has `input:checked` and one</span>
+<span class=hljs-addition>+which has `input:not(:checked)` - this makes the styles be dependent on the</span>
+<span class=hljs-addition>+state of the checkbox, which is toggled by the user.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If it&#x27;s `:not(:checked)` then the content of the label for that input is a down</span>
+<span class=hljs-addition>+triangle and we limit the height of the codeblock to `20vh` while adding a fancy</span>
+<span class=hljs-addition>+gradient to fadeout/blur the content. If it is `:checked` then the height is</span>
+<span class=hljs-addition>+basically unlocked and the gradient is removed. ~~Now that I&#x27;m looking at it,</span>
+<span class=hljs-addition>+the arrow is reversed, but it may be fixed by the time you&#x27;re reading this.~~</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Click it and try! Or I assume you already have to see the code - if you happen</span>
+<span class=hljs-addition>+to have a super long screen and there is no expand toggle, disable Javascript</span>
+<span class=hljs-addition>+because there is a script that hides that toggle if the codeblock is short</span>
+<span class=hljs-addition>+enough.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now let&#x27;s go through the list of pseudo-classes on mdn.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Element display state pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:fullscreen`</span>
+<span class=hljs-addition>+- `:modal`</span>
+<span class=hljs-addition>+- `:picture-in-picture`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In general these aren&#x27;t too nice to use. Setting these classes is a large</span>
+<span class=hljs-addition>+interaction on the user&#x27;s part, and bringing up a modal typically requires using</span>
+<span class=hljs-addition>+the `showModal` api, implying Javascript works.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Input pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:autofill`</span>
+<span class=hljs-addition>+- `:enabled`</span>
+<span class=hljs-addition>+- `:disabled`</span>
+<span class=hljs-addition>+- `:read-only`</span>
+<span class=hljs-addition>+- `:read-write`</span>
+<span class=hljs-addition>+- `:placeholder-shown`</span>
+<span class=hljs-addition>+- `:default`</span>
+<span class=hljs-addition>+- `:checked`</span>
+<span class=hljs-addition>+- `:indeterminate`</span>
+<span class=hljs-addition>+- `:blank`</span>
+<span class=hljs-addition>+- `:valid`</span>
+<span class=hljs-addition>+- `:invalid`</span>
+<span class=hljs-addition>+- `:in-range`</span>
+<span class=hljs-addition>+- `:out-of-range`</span>
+<span class=hljs-addition>+- `:required`</span>
+<span class=hljs-addition>+- `:optional`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As we&#x27;ve seen above, we can get some value out of classes that describe the</span>
+<span class=hljs-addition>+state of the input, although how useful it really is from a user experience</span>
+<span class=hljs-addition>+perspective varies wildly. In my opinion, only `:checked` is useful, but you may</span>
+<span class=hljs-addition>+get some mileage out of `:blank`, `:valid`, `:invalid`, `:in-range`,</span>
+<span class=hljs-addition>+`:out-of-range`, and `:user-invalid` for basic form styling when coupled with</span>
+<span class=hljs-addition>+`min`, `max`, `pattern` or other attributes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Linguistic pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:dir()`</span>
+<span class=hljs-addition>+- `:lang()`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+`:lang()` is possibly useful for i18n, but is probably more work than it&#x27;s</span>
+<span class=hljs-addition>+worth. `:dir()`... there is a css property called</span>
+<span class=hljs-addition>+[direction](https://developer.mozilla.org/en-US/docs/Web/CSS/direction) that</span>
+<span class=hljs-addition>+I&#x27;ve never had to use but I know exists, might be useful there?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Location pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:any-link`</span>
+<span class=hljs-addition>+- `:link`</span>
+<span class=hljs-addition>+- `:visited`</span>
+<span class=hljs-addition>+- `:local-link`</span>
+<span class=hljs-addition>+- `:target`</span>
+<span class=hljs-addition>+- `:target-within`</span>
+<span class=hljs-addition>+- `:scope`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There used to be some interesting things to do around `:link`, `:visited`, and</span>
+<span class=hljs-addition>+`:any-link`, but that was shut down due to security concerns of how people could</span>
+<span class=hljs-addition>+extract your browser history (could be done simply through having `background`</span>
+<span class=hljs-addition>+make requests to certain webpages based on what style is picked).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The interesting parts here are going to be `:target` and the similar class,</span>
+<span class=hljs-addition>+`:target-within`. These let you match against the url, and the url can be used</span>
+<span class=hljs-addition>+to store arbitrary state in a sense - if you&#x27;re writing enough selectors and</span>
+<span class=hljs-addition>+elements to match them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    p.p68_tab {</span>
+<span class=hljs-addition>+        display: none;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    p.p68_tab:target {</span>
+<span class=hljs-addition>+        display: block;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    .p68_fake-tabs {</span>
+<span class=hljs-addition>+        display: flex;</span>
+<span class=hljs-addition>+        width: 100%;</span>
+<span class=hljs-addition>+        justify-content: space-between;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+&lt;div class=&quot;p68_fake-tabs&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;a href=&quot;#tab1&quot;&gt;Tab 1&lt;/a&gt;</span>
+<span class=hljs-addition>+    &lt;a href=&quot;#tab2&quot;&gt;Tab 2&lt;/a&gt;</span>
+<span class=hljs-addition>+    &lt;a href=&quot;#tab3&quot;&gt;Tab 3&lt;/a&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;div&gt;</span>
+<span class=hljs-addition>+    &lt;p id=&quot;tab1&quot; class=&quot;p68_tab&quot;&gt;Tab 1&lt;/p&gt;</span>
+<span class=hljs-addition>+    &lt;p id=&quot;tab2&quot; class=&quot;p68_tab&quot;&gt;Tab 2&lt;/p&gt;</span>
+<span class=hljs-addition>+    &lt;p id=&quot;tab3&quot; class=&quot;p68_tab&quot;&gt;Tab 3&lt;/p&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;p68_demo-div&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        p.p68_tab {</span>
+<span class=hljs-addition>+            display: none;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        p.p68_tab:target {</span>
+<span class=hljs-addition>+            display: block;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        .p68_fake-tabs {</span>
+<span class=hljs-addition>+            display: flex;</span>
+<span class=hljs-addition>+            width: 100%;</span>
+<span class=hljs-addition>+            justify-content: space-between;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        .p68_fake-tabs &gt; a,.p68_fake-tabs + div {</span>
+<span class=hljs-addition>+            text-align: center;</span>
+<span class=hljs-addition>+            width: 100%;</span>
+<span class=hljs-addition>+            border: 1px solid red;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;p68_fake-tabs&quot;&gt;</span>
+<span class=hljs-addition>+        &lt;a href=&quot;#tab1&quot;&gt;Tab 1&lt;/a&gt;</span>
+<span class=hljs-addition>+        &lt;a href=&quot;#tab2&quot;&gt;Tab 2&lt;/a&gt;</span>
+<span class=hljs-addition>+        &lt;a href=&quot;#tab3&quot;&gt;Tab 3&lt;/a&gt;</span>
+<span class=hljs-addition>+    &lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div&gt;</span>
+<span class=hljs-addition>+        &lt;p id=&quot;tab1&quot; class=&quot;p68_tab&quot;&gt;Tab 1 Content&lt;/p&gt;</span>
+<span class=hljs-addition>+        &lt;p id=&quot;tab2&quot; class=&quot;p68_tab&quot;&gt;Tab 2 Content&lt;/p&gt;</span>
+<span class=hljs-addition>+        &lt;p id=&quot;tab3&quot; class=&quot;p68_tab&quot;&gt;Tab 3 Content&lt;/p&gt;</span>
+<span class=hljs-addition>+    &lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unfortunately, this does end up pushing entries to history, well maybe it&#x27;s not</span>
+<span class=hljs-addition>+unfortunate depending on your use case as it offers a somewhat functional undo</span>
+<span class=hljs-addition>+(any redux users?) And jumping around to the anchor _might_ be annoying, but</span>
+<span class=hljs-addition>+this is somewhat avoidable with a different layout.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Resource state pseudo-classes, Time-dimensional pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:playing`</span>
+<span class=hljs-addition>+- `:paused`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:current`</span>
+<span class=hljs-addition>+- `:past`</span>
+<span class=hljs-addition>+- `:future`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I haven&#x27;t used these at all, but I guess they could be useful (highlight current</span>
+<span class=hljs-addition>+while you dim other things?)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Tree-structural pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:root`</span>
+<span class=hljs-addition>+- `:empty`</span>
+<span class=hljs-addition>+- `:nth-child`</span>
+<span class=hljs-addition>+- `:nth-last-child`</span>
+<span class=hljs-addition>+- `:first-child`</span>
+<span class=hljs-addition>+- `:last-child`</span>
+<span class=hljs-addition>+- `:only-child`</span>
+<span class=hljs-addition>+- `:nth-of-type`</span>
+<span class=hljs-addition>+- `:nth-last-of-type`</span>
+<span class=hljs-addition>+- `:first-of-type`</span>
+<span class=hljs-addition>+- `:last-of-type`</span>
+<span class=hljs-addition>+- `:only-of-type`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For me, most of these are only for alternating styles between several elements,</span>
+<span class=hljs-addition>+but one thing I kind of like is `:empty` which I use to add cheap loading icons</span>
+<span class=hljs-addition>+to things.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    .p68_loadable:empty {</span>
+<span class=hljs-addition>+        display: flex;</span>
+<span class=hljs-addition>+        justify-content: center;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    .p68_loadable:empty::after {</span>
+<span class=hljs-addition>+        content: &quot;O&quot;;</span>
+<span class=hljs-addition>+        display: block;</span>
+<span class=hljs-addition>+        width: 16px;</span>
+<span class=hljs-addition>+        height: 16px;</span>
+<span class=hljs-addition>+        border: solid red 1px;</span>
+<span class=hljs-addition>+        border-radius: 50%;</span>
+<span class=hljs-addition>+        animation: p68_rotate 1s linear infinite;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    @keyframes p68_rotate {</span>
+<span class=hljs-addition>+        0% {</span>
+<span class=hljs-addition>+            transform: rotate(0deg);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        100% {</span>
+<span class=hljs-addition>+            transform: rotate(360deg);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+&lt;div class=&quot;p68_loadable&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;p68_demo-div&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        .p68_loadable:empty {</span>
+<span class=hljs-addition>+            display: flex;</span>
+<span class=hljs-addition>+            justify-content: center;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        .p68_loadable:empty::after {</span>
+<span class=hljs-addition>+            content: &quot;O&quot;;</span>
+<span class=hljs-addition>+            display: block;</span>
+<span class=hljs-addition>+            width: 16px;</span>
+<span class=hljs-addition>+            height: 16px;</span>
+<span class=hljs-addition>+            border: solid red 1px;</span>
+<span class=hljs-addition>+            border-radius: 50%;</span>
+<span class=hljs-addition>+            animation: p68_rotate 1s linear infinite;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        @keyframes p68_rotate {</span>
+<span class=hljs-addition>+            0% {</span>
+<span class=hljs-addition>+                transform: rotate(0deg);</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+            100% {</span>
+<span class=hljs-addition>+                transform: rotate(360deg);</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;p68_loadable&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Quite the bootleg spinner. I&#x27;m sure we&#x27;d be able to do better if it was</span>
+<span class=hljs-addition>+important! Once content is loaded... by Javascript... then the element is no</span>
+<span class=hljs-addition>+longer `:empty` and the loading thing goes away.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## User action pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:hover`</span>
+<span class=hljs-addition>+- `:active`</span>
+<span class=hljs-addition>+- `:focus`</span>
+<span class=hljs-addition>+- `:focus-visible`</span>
+<span class=hljs-addition>+- `:focus-within`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+These are also good classes to know of, `:hover` and `:focus` can be used for</span>
+<span class=hljs-addition>+tooltips or previews of the like, but overall I think their states change quite</span>
+<span class=hljs-addition>+quickly for anything consistent.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    .p68_spooky {</span>
+<span class=hljs-addition>+        text-align: center;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    .p68_spooky::after {</span>
+<span class=hljs-addition>+        content: &quot;Hover for Surprise!&quot;;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    .p68_spooky:hover {</span>
+<span class=hljs-addition>+        transform: scale(5);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    .p68_spooky:hover::after {</span>
+<span class=hljs-addition>+        content: &quot;...&quot;;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+&lt;div class=&quot;p68_spooky&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;p68_demo-div&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        .p68_spooky {</span>
+<span class=hljs-addition>+            text-align: center;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        .p68_spooky::after {</span>
+<span class=hljs-addition>+            content: &quot;Hover for Surprise!&quot;;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        .p68_spooky:hover {</span>
+<span class=hljs-addition>+            transform: scale(5);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        .p68_spooky:hover::after {</span>
+<span class=hljs-addition>+            content: &quot;BOO!&quot;;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;p68_spooky&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Functional pseudo-classes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- `:is()`</span>
+<span class=hljs-addition>+- `:not()`</span>
+<span class=hljs-addition>+- `:where()`</span>
+<span class=hljs-addition>+- `:has()`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+These are more like augmentations for selectors rather than their own thing. I&#x27;d</span>
+<span class=hljs-addition>+say the most interesting one in this group is `:has()` as it finally allows</span>
+<span class=hljs-addition>+targetting an element with relative selectors, rather than the element the</span>
+<span class=hljs-addition>+selector ends at. For example `label:has(input)` targets the label while</span>
+<span class=hljs-addition>+`label input` targets the input.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I use `:has()` in my knock off darkmode on this site, which you can only see if</span>
+<span class=hljs-addition>+your browser _has_ `:has()` support - at the moment it&#x27;s available to all except</span>
+<span class=hljs-addition>+for Firefox, which has it locked behind a flag and whose implementation doesn&#x27;t</span>
+<span class=hljs-addition>+work for my use case - so the demo will only work if that&#x27;s satisfied.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    :root:has(#p68_input:not(:checked)) {</span>
+<span class=hljs-addition>+        --p68_color: red;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    :root:has(#p68_input:checked) {</span>
+<span class=hljs-addition>+        --p68_color: blue;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    label:has(#p68_input) {</span>
+<span class=hljs-addition>+        color: var(--p68_color);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+&lt;label&gt;</span>
+<span class=hljs-addition>+    &lt;input id=&quot;#p68_input&quot; type=&quot;checkbox&quot; /&gt;Click to change var value</span>
+<span class=hljs-addition>+&lt;/label&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;p68_demo-div&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        :root:has(#p68_input:not(:checked)) {</span>
+<span class=hljs-addition>+            --p68_color: red;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        :root:has(#p68_input:checked) {</span>
+<span class=hljs-addition>+            --p68_color: blue;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        label:has(&gt; #p68_input) {</span>
+<span class=hljs-addition>+            color: var(--p68_color);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+    &lt;label&gt;</span>
+<span class=hljs-addition>+        &lt;input id=&quot;p68_input&quot; type=&quot;checkbox&quot; /&gt;Click to change var value</span>
+<span class=hljs-addition>+    &lt;/label&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can set various css variables based on the state of the child checkbox, which</span>
+<span class=hljs-addition>+is a similar approach to what I do for my lightmode/darkmode toggle. We can also</span>
+<span class=hljs-addition>+check if `:has()` is broken and show/hide things that rely on it like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```css</span>
+<span class=hljs-addition>+#lights-label {</span>
+<span class=hljs-addition>+    display: none;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+#lights-label:has(&gt; #lights) {</span>
+<span class=hljs-addition>+    display: flex;</span>
+<span class=hljs-addition>+    user-select: none;</span>
+<span class=hljs-addition>+    cursor: pointer;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is css straight from my stylesheet.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unfortunately we cannot exactly maintain the state across page transitions, but</span>
+<span class=hljs-addition>+maybe with some clever butchering of `:target` and other pseudo-classes we may</span>
+<span class=hljs-addition>+be able to do so... if we&#x27;re willing to generate the right html!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You also may be wondering about the performance of these approaches in terms of</span>
+<span class=hljs-addition>+a &quot;how long does it take my browser to recalculate styles?&quot; The short answer is</span>
+<span class=hljs-addition>+I have no clue - figuring these things out is 90% done as a casual brain teaser</span>
+<span class=hljs-addition>+and 10% because of my dislike of Javascript on sites that don&#x27;t need it.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

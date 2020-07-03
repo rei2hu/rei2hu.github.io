@@ -1,0 +1,542 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>a godot game</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/65>&lt; setting up an os on removable media</a></div> <div style=text-align:end><a href=/./posts/67>positioning and filters &gt;</a></div>
+</nav>
+<h1 id=a-godot-game>a godot game</h1>
+<style type=text/css>p{position:relative}#canvas-container{position:sticky;top:0;z-index:1}#canvas{filter:invert(1);display:block;position:relative!important;width:100%!important;height:auto!important;max-height:33vh}#canvas:focus{outline:0}.godot{font-family:'Noto Sans','Droid Sans',Arial,sans-serif;color:#e0e0e0;background-color:#3b3943;background-image:linear-gradient(to bottom,#403e48,#35333c);border:1px solid #45434e;box-shadow:0 0 1px 1px #2f2d35}</style>
+<div id=canvas-container>
+<canvas id=canvas>
+HTML5 canvas appears to be unsupported in the current browser.<br>
+Please try updating or use a different browser.
+</canvas>
+</div>
+<div id=status>
+<div id=status-progress style=display:none oncontextmenu=event.preventDefault()>
+<div id=status-progress-inner></div></div>
+<div id=status-indeterminate style=display:none oncontextmenu=event.preventDefault()>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<div id=status-notice style=display:none class=godot></div>
+</div>
+<script src="/blobs/66/Reimu Geimu.js" defer type=text/javascript></script>
+<script src=/blobs/66/bootstrap.js defer type=text/javascript></script>
+<p><del>Light font on pure black background time! This is mainly because I was tired of trying to get the embedded game that <em>should</em> load in the back if you have javascript enabled to work nicely. I hope your eyes don't get burned too badly and the text isn't too hard to read… but at least it's an incentive to click on the white bits in the background. If it overlaps. Which I hope it doesn't because I added some custom css to avoid it. But it probably can.</del></p>
+<p>Of course…! Apply an invert filter to the canvas!</p>
+<p>I promised myself that I would make an actual video game this year, so I picked up Godot. Well, here's a little sample game I did to learn a bit about the engine… Except at the end I don't think I really learned much about the engine itself as the game is too simple and doesn't leverage anything - like everything in the game is generated through scripts and I hardly used any other part of the engine. This is probably because I'm terrible at graphis, so I just write the "backend" and make the graphics as simple as possible - case in point, my previous "game" was made with just code and a graphics library instead of a game engine.</p>
+<p>Well I am more familiar with the scripting APIs at least. Overall I think Godot is much nicer to work with compared to Unity as it's much much much much more lightweight and it covers the necessary functionality that I'm looking for… so far. Perhaps the lightweightedness can also be attributed to my laptop now having a SSD instead of a HDD.</p>
+<p>Another cool thing is that Godot can has HTML5 as a target and outputs wasm, which is how I got the game on to this page. It only required exporting it through Godot and then mucking around with the created files.</p>
+<p>The first thing I wanted to do was extract the relevant parts of the html file which you can find in this page's source once you break through the minimization. Afterwords, I moved the generated script of the page into its own script ie <code>bootstrap.js</code>. This was definitely not needed but I didn't want the script in here. I then moved all of the other generated files into my <code>blobs</code>
+directory as that's where I keep post specific items. This caused a small issue because the scripts assume everything is in the same directory. I worked around this by modiyfing a line in the <code>bootstrap.js</code> file to update file paths:</p>
+<pre class=code-block><input id=code-block-66-1 type=checkbox><label for=code-block-66-1></label><code><span class=hljs-keyword>const</span> <span class="hljs-variable constant_">GODOT_CONFIG</span> = {
+    <span class=hljs-attr>args</span>: [],
+    <span class=hljs-attr>canvasResizePolicy</span>: <span class=hljs-number>2</span>,
+    <span class=hljs-attr>executable</span>: <span class=hljs-string>&quot;/blobs/66/Reimu Geimu&quot;</span>,
+    <span class=hljs-attr>experimentalVK</span>: <span class=hljs-literal>false</span>,
+    <span class=hljs-attr>fileSizes</span>: {
+        <span class=hljs-string>&quot;/blobs/66/Reimu Geimu.pck&quot;</span>: <span class=hljs-number>34000</span>,
+        <span class=hljs-string>&quot;/blobs/66/Reimu Geimu.wasm&quot;</span>: <span class=hljs-number>17862218</span>,
+    },
+    <span class=hljs-attr>focusCanvas</span>: <span class=hljs-literal>true</span>,
+    <span class=hljs-attr>gdnativeLibs</span>: [],
+};
+</code></pre>
+<p>Perhaps these should be strictly file names but adding the path seemed to be a safe bet. There are other places you could edit the
+<a href=/blobs/66/Reimu%20Geimu.js>non-bootstrap.js</a> file, around <code>loadPromise</code> or
+<code>loadFetch</code> or even <code>Engine.load</code> but after a few minutes of sprinting through the code I think the configuration was the best bet for this scenario.</p>
+<p>After working through that, I came across a new error:
+<code>CompileError: wasm validation error: at offset 4: failed to match magic number</code>. This was interesting, as it suggests the wasm payload was somehow getting messed up. Based on some tests, I was able to load the game with the original generated html file but not the html that gets generated from posts like these - so something in the html files must be affecting it, specifically one of the scripts (because what else could). Some more testing later I figured out it was the inclusion of the <a href=/scripts/tikz.js>tikz</a> bootstrapper that was causing this somehow. TLDR, somewhere in that script either <code>ReadableStream</code> or
+<code>ReadableStreamDefaultController</code> is being overwritten so that the controller provided to the <code>start</code> callback does not have the same functionality as
+<code>ReadableStreamDefaultController</code>. Specifically, these few lines start causing some kind of issue.</p>
+<pre class=code-block><input id=code-block-66-2 type=checkbox><label for=code-block-66-2></label><code><span class=hljs-keyword>function</span> <span class="hljs-title function_">getTrackedResponse</span>(<span class=hljs-params>response, load_status</span>) {
+    <span class=hljs-comment>// ...</span>
+    <span class=hljs-keyword>return</span> <span class=hljs-keyword>new</span> <span class="hljs-title class_">Response</span>(
+        <span class=hljs-keyword>new</span> <span class="hljs-title class_">ReadableStream</span>({
+            <span class=hljs-attr>start</span>: <span class=hljs-keyword>function</span> (<span class=hljs-params>controller</span>) {
+                <span class=hljs-comment>// controller here is possibly messed up</span>
+                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(controller);
+                <span class="hljs-title function_">onloadprogress</span>(reader, controller).<span class="hljs-title function_">then</span>(<span class=hljs-keyword>function</span> (<span class=hljs-params></span>) {
+                    controller.<span class="hljs-title function_">close</span>();
+                });
+            },
+        }),
+        { <span class=hljs-attr>headers</span>: response.<span class=hljs-property>headers</span> }
+    );
+}
+
+<span class=hljs-comment>// Object { _controlledReadableStream: {…}, _underlyingSource: {…}, _queue: (1) […], _started: true, _closeRequested: true, _pullAgain: false, _pulling: false, _strategySize: undefined, _strategyHWM: 1 }</span>
+<span class=hljs-comment>// ReadableStreamDefaultController { desiredSize: 0 }</span>
+</code></pre>
+<p>Calling <code>arrayBuffer()</code> on the above response would return either the entire wasm payload or 15 bytes in the broken case. Fortunately I was able to entirely sidestep this function, though I guess it may cause some inefficiencies around loading since that's what it looks like the function is for, or maybe it's just used for updating the initial loading bar. I probably could find out some more details if I wanted to dig through <code>tikz.js</code> - I love webpack, not.</p>
+<p>Cleaning that up was the last step in getting it to work, and afterwards I slapped the styles around to make the game display somewhat nicely on this page. Specifically removing all styles around the loading bar and scaling the canvas element which contains the game itself.</p>
+<p>Is it too late for the tutorial? Try to flip all tiles to the same color while minimizing the number of clicks. There's a counter in the top left which uses white text (genius!) that keeps track of your clicks. The game is endless and randomly generated apart from the first set of tiles which is supposed to read "Reimu Geimu" which was a suggested name that I did not come up with.</p>
+<p>On a somewhat related note, nice to use wasm yet again.</p>
+<p>On another somewhat related note, I feel like the a solution for this would be to keep track of the number of adjacent blocks of opposite colored tiles to another one, and greedily flip the one with the most neighbors each time. I haven't fully thought it through but here's an example:</p>
+<pre class=code-block><input id=code-block-66-3 type=checkbox><label for=code-block-66-3></label><code>  12345
+1 xooox
+2 ooxxx
+3 xooxo
+4 oxxxx
+5 ooooo
+</code></pre>
+<p>We do a first pass to determine every "chunk". There are 3 <code>x</code> chunks and 3 <code>o</code>
+chunks. We then do another pass to determine how many adjacent chunks of a different character there are: for example the <code>o</code> chunk in the top left has 3 adjacent <code>x</code> chunks, the <code>x</code> chunk in the top left has 1 adjacent <code>o</code> chunk and so on. Then we order the chunks by neighbors surrounding them:</p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>internal_coord</th>
+<th>neighbors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>o</td>
+<td>(1, 2)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>x</td>
+<td>(1, 5)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>x</td>
+<td>(3, 1)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>o</td>
+<td>(4, 1)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>o</td>
+<td>(3, 5)</td>
+<td>1</td>
+</tr>
+<tr>
+<td>x</td>
+<td>(1, 1)</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>We plan to click on chunks with the most neighbors to consolidate as much as possible, but an issue arises when they're equal - in which case I guess you have to simulate going attempting both (but maybe not, reminder that I don't know if this is even the correct way to obtain the most efficient solution). So let's just run through it but pick an arbitrary one on ties. Pick <code>(1, 2)</code></p>
+<pre class=code-block><input id=code-block-66-4 type=checkbox><label for=code-block-66-4></label><code>  12345
+1 xxxxx
+2 xxxxx
+3 xxxxo
+4 oxxxx
+5 ooooo
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>internal_coord</th>
+<th>neighbors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x</td>
+<td>(1, 1)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>o</td>
+<td>(4, 1)</td>
+<td>1</td>
+</tr>
+<tr>
+<td>o</td>
+<td>(3, 5)</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>In terms of recalculating the new table, we would need to keep track of the actual neighbors of each chunk and combine them in the following fashion (which I hope is accurate):</p>
+<p>We clicked <code>(1, 2)</code> which has neighbors <code>(1, 1)</code>, <code>(1, 5)</code>, and <code>(3, 1)</code>. This means the borders of the new chunk are the unique neighbors of these 4 chunks together. This also means that any chunk which had <code>n</code> of these 4 chunks as neighbors now have <code>n - 1</code> less neighbors (loses all its neighbors, but gains a new one which is the consolidated chunk). <code>(4, 1)</code> had <code>(3, 1)</code> and <code>(1, 5)</code> as neighbors, so it ends up losing <code>2 - 1</code> neighbors, leaving it at 1. <code>(3, 5)</code>'s only neighbor was <code>(1, 5)</code> which means it loses <code>1 - 1</code> neighbors, leaving it at one.</p>
+<p>We then pick <code>(1, 1)</code> leaving the entire board as <code>o</code>s. Again, is this right? I have no clue, but it seems plausible for at least a basic answer.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/65>&lt; setting up an os on removable media</a></div> <div style=text-align:end><a href=/./posts/67>positioning and filters &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-01-24 - update post 66</summary>
+<pre class=code-block><input id=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-1 type=checkbox><label for=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-1></label><code><span class=hljs-meta>@@ -5,3 +5,2 @@</span>
+     position: relative;
+<span class=hljs-deletion>-    z-index: 1;</span>
+   }
+</code></pre>
+<pre class=code-block><input id=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-2 type=checkbox><label for=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-2></label><code><span class=hljs-meta>@@ -9,5 +8,5 @@</span>
+   #canvas-container {
+<span class=hljs-deletion>-    position: fixed;</span>
+<span class=hljs-deletion>-    top: 25vh;</span>
+<span class=hljs-deletion>-    left: max(21rem, 55vw);</span>
+<span class=hljs-addition>+    position: sticky;</span>
+<span class=hljs-addition>+    top: 0;</span>
+<span class=hljs-addition>+    z-index: 1;</span>
+   }
+</code></pre>
+<pre class=code-block><input id=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-3 type=checkbox><label for=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-3></label><code><span class=hljs-meta>@@ -20,2 +19,3 @@</span>
+     height: auto !important;
+<span class=hljs-addition>+    max-height: 33vh;</span>
+   }
+</code></pre>
+<pre class=code-block><input id=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-4 type=checkbox><label for=code-block-7908c12070185176a8ccbe3040cd405b35aacd49-4></label><code><span class=hljs-meta>@@ -141,5 +141,5 @@</span> function getTrackedResponse(response, load_status) {
+             start: function (controller) {
+<span class=hljs-addition>+                // controller here is possibly messed up</span>
+<span class=hljs-addition>+                console.log(controller);</span>
+                 onloadprogress(reader, controller).then(function () {
+<span class=hljs-deletion>-                    // controller here is possibly messed up</span>
+<span class=hljs-deletion>-                    console.log(controller);</span>
+                     controller.close();
+</code></pre>
+</details>
+<details>
+<summary>2023-01-02 - update post 66</summary>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-1 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-1></label><code><span class=hljs-meta>@@ -3,7 +3,2 @@</span>
+ &lt;style type=&#x27;text/css&#x27;&gt;
+<span class=hljs-deletion>-  body {</span>
+<span class=hljs-deletion>-    background-color: black;</span>
+<span class=hljs-deletion>-    color: lightgray !important;</span>
+<span class=hljs-deletion>-  }</span>
+<span class=hljs-deletion>-</span>
+   p {
+</code></pre>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-2 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-2></label><code><span class=hljs-meta>@@ -13,7 +8,14 @@</span>
+
+<span class=hljs-addition>+  #canvas-container {</span>
+<span class=hljs-addition>+    position: fixed;</span>
+<span class=hljs-addition>+    top: 25vh;</span>
+<span class=hljs-addition>+    left: max(21rem, 55vw);</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+</span>
+   #canvas {
+<span class=hljs-addition>+    filter: invert(1);</span>
+     display: block;
+<span class=hljs-deletion>-    position: fixed !important;</span>
+<span class=hljs-deletion>-    transform: scale(0.5);</span>
+<span class=hljs-deletion>-    transform-origin: right;</span>
+<span class=hljs-addition>+    position: relative !important;</span>
+<span class=hljs-addition>+    width: 100% !important;</span>
+<span class=hljs-addition>+    height: auto !important;</span>
+   }
+</code></pre>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-3 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-3></label><code><span class=hljs-meta>@@ -33,2 +35,3 @@</span>
+ &lt;/style&gt;
+<span class=hljs-addition>+&lt;div id=&#x27;canvas-container&#x27;&gt;</span>
+ &lt;canvas id=&#x27;canvas&#x27;&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-4 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-4></label><code><span class=hljs-meta>@@ -37,2 +40,3 @@</span> Please try updating or use a different browser.
+ &lt;/canvas&gt;
+<span class=hljs-addition>+&lt;/div&gt;</span>
+ &lt;div id=&#x27;status&#x27;&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-5 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-5></label><code><span class=hljs-meta>@@ -56,3 +60,3 @@</span> Please try updating or use a different browser.
+
+<span class=hljs-deletion>-Light font on pure black background time! This is mainly because I was tired of</span>
+<span class=hljs-addition>+~~Light font on pure black background time! This is mainly because I was tired of</span>
+ trying to get the embedded game that *should* load in the back if you have
+</code></pre>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-6 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-6></label><code><span class=hljs-meta>@@ -61,3 +65,5 @@</span> and the text isn&#x27;t too hard to read... but at least it&#x27;s an incentive to click
+ on the white bits in the background. If it overlaps. Which I hope it doesn&#x27;t
+<span class=hljs-deletion>-because I added some custom css to avoid it. But it probably can.</span>
+<span class=hljs-addition>+because I added some custom css to avoid it. But it probably can.~~</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Of course...! Apply an invert filter to the canvas!</span>
+</code></pre>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-7 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-7></label><code><span class=hljs-meta>@@ -119,3 +125,3 @@</span> html files must be affecting it, specifically one of the scripts (because what
+ else could). Some more testing later I figured out it was the inclusion of the
+<span class=hljs-deletion>-[tikz](/scripts/tikz.js) bootloader that was causing this somehow. TLDR,</span>
+<span class=hljs-addition>+[tikz](/scripts/tikz.js) bootstrapper that was causing this somehow. TLDR,</span>
+ somewhere in that script either `ReadableStream` or
+</code></pre>
+<pre class=code-block><input id=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-8 type=checkbox><label for=code-block-02d316b36c1d0c298cf9b810f7bf397817159ac2-8></label><code>@@ -165 +171,67 @@ randomly generated apart from the first set of tiles which is supposed to read
+ On a somewhat related note, nice to use wasm yet again.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On another somewhat related note, I feel like the a solution for this would be</span>
+<span class=hljs-addition>+to keep track of the number of adjacent blocks of opposite colored tiles to</span>
+<span class=hljs-addition>+another one, and greedily flip the one with the most neighbors each time. I</span>
+<span class=hljs-addition>+haven&#x27;t fully thought it through but here&#x27;s an example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```text</span>
+<span class=hljs-addition>+  12345</span>
+<span class=hljs-addition>+1 xooox</span>
+<span class=hljs-addition>+2 ooxxx</span>
+<span class=hljs-addition>+3 xooxo</span>
+<span class=hljs-addition>+4 oxxxx</span>
+<span class=hljs-addition>+5 ooooo</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We do a first pass to determine every &quot;chunk&quot;. There are 3 `x` chunks and 3 `o`</span>
+<span class=hljs-addition>+chunks. We then do another pass to determine how many adjacent chunks of a</span>
+<span class=hljs-addition>+different character there are: for example the `o` chunk in the top left has 3</span>
+<span class=hljs-addition>+adjacent `x` chunks, the `x` chunk in the top left has 1 adjacent `o` chunk and</span>
+<span class=hljs-addition>+so on. Then we order the chunks by neighbors surrounding them:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| type | internal\_coord | neighbors |</span>
+<span class=hljs-addition>+| ---- | --------------- | --------- |</span>
+<span class=hljs-addition>+| o    | (1, 2)          | 3         |</span>
+<span class=hljs-addition>+| x    | (1, 5)          | 3         |</span>
+<span class=hljs-addition>+| x    | (3, 1)          | 2         |</span>
+<span class=hljs-addition>+| o    | (4, 1)          | 2         |</span>
+<span class=hljs-addition>+| o    | (3, 5)          | 1         |</span>
+<span class=hljs-addition>+| x    | (1, 1)          | 1         |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We plan to click on chunks with the most neighbors to consolidate as much as</span>
+<span class=hljs-addition>+possible, but an issue arises when they&#x27;re equal - in which case I guess you</span>
+<span class=hljs-addition>+have to simulate going attempting both (but maybe not, reminder that I don&#x27;t</span>
+<span class=hljs-addition>+know if this is even the correct way to obtain the most efficient solution). So</span>
+<span class=hljs-addition>+let&#x27;s just run through it but pick an arbitrary one on ties. Pick `(1, 2)`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```text</span>
+<span class=hljs-addition>+  12345</span>
+<span class=hljs-addition>+1 xxxxx</span>
+<span class=hljs-addition>+2 xxxxx</span>
+<span class=hljs-addition>+3 xxxxo</span>
+<span class=hljs-addition>+4 oxxxx</span>
+<span class=hljs-addition>+5 ooooo</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| type | internal\_coord | neighbors |</span>
+<span class=hljs-addition>+| ---- | --------------- | --------- |</span>
+<span class=hljs-addition>+| x    | (1, 1)          | 2         |</span>
+<span class=hljs-addition>+| o    | (4, 1)          | 1         |</span>
+<span class=hljs-addition>+| o    | (3, 5)          | 1         |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In terms of recalculating the new table, we would need to keep track of the</span>
+<span class=hljs-addition>+actual neighbors of each chunk and combine them in the following fashion (which</span>
+<span class=hljs-addition>+I hope is accurate):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We clicked `(1, 2)` which has neighbors `(1, 1)`, `(1, 5)`, and `(3, 1)`. This</span>
+<span class=hljs-addition>+means the borders of the new chunk are the unique neighbors of these 4 chunks</span>
+<span class=hljs-addition>+together. This also means that any chunk which had `n` of these 4 chunks as</span>
+<span class=hljs-addition>+neighbors now have `n - 1` less neighbors (loses all its neighbors, but gains a</span>
+<span class=hljs-addition>+new one which is the consolidated chunk). `(4, 1)` had `(3, 1)` and `(1, 5)` as</span>
+<span class=hljs-addition>+neighbors, so it ends up losing `2 - 1` neighbors, leaving it at 1. `(3, 5)`&#x27;s</span>
+<span class=hljs-addition>+only neighbor was `(1, 5)` which means it loses `1 - 1` neighbors, leaving it at</span>
+<span class=hljs-addition>+1.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We then pick `(1, 1)` leaving the entire board as `o`s. Again, is this right? I</span>
+<span class=hljs-addition>+have no clue, but it seems plausible for at least a basic answer.</span>
+</code></pre>
+</details>
+<details>
+<summary>2023-01-01 - add post 66</summary>
+<pre class=code-block><input id=code-block-2a3a33e1627e0efe8d4bf50e7580373ce0ce4e74-1 type=checkbox><label for=code-block-2a3a33e1627e0efe8d4bf50e7580373ce0ce4e74-1></label><code><span class=hljs-meta>@@ -0,0 +1,165 @@</span>
+<span class=hljs-addition>+# a godot game</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;style type=&#x27;text/css&#x27;&gt;</span>
+<span class=hljs-addition>+  body {</span>
+<span class=hljs-addition>+    background-color: black;</span>
+<span class=hljs-addition>+    color: lightgray !important;</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+  p {</span>
+<span class=hljs-addition>+    position: relative;</span>
+<span class=hljs-addition>+    z-index: 1;</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+  #canvas {</span>
+<span class=hljs-addition>+    display: block;</span>
+<span class=hljs-addition>+    position: fixed !important;</span>
+<span class=hljs-addition>+    transform: scale(0.5);</span>
+<span class=hljs-addition>+    transform-origin: right;</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+  #canvas:focus {</span>
+<span class=hljs-addition>+    outline: none</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+  .godot {</span>
+<span class=hljs-addition>+    font-family: &#x27;Noto Sans&#x27;, &#x27;Droid Sans&#x27;, Arial, sans-serif;</span>
+<span class=hljs-addition>+    color: #e0e0e0;</span>
+<span class=hljs-addition>+    background-color: #3b3943;</span>
+<span class=hljs-addition>+    background-image: linear-gradient(to bottom, #403e48, #35333c);</span>
+<span class=hljs-addition>+    border: 1px solid #45434e;</span>
+<span class=hljs-addition>+    box-shadow: 0 0 1px 1px #2f2d35;</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+&lt;canvas id=&#x27;canvas&#x27;&gt;</span>
+<span class=hljs-addition>+HTML5 canvas appears to be unsupported in the current browser.&lt;br /&gt;</span>
+<span class=hljs-addition>+Please try updating or use a different browser.</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;div id=&#x27;status&#x27;&gt;</span>
+<span class=hljs-addition>+&lt;div id=&#x27;status-progress&#x27; style=&#x27;display: none;&#x27; oncontextmenu=&#x27;event.preventDefault();&#x27;&gt;</span>
+<span class=hljs-addition>+&lt;div id =&#x27;status-progress-inner&#x27;&gt;&lt;/div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;div id=&#x27;status-indeterminate&#x27; style=&#x27;display: none;&#x27; oncontextmenu=&#x27;event.preventDefault();&#x27;&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+  &lt;div&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;div id=&#x27;status-notice&#x27; class=&#x27;godot&#x27; style=&#x27;display: none;&#x27;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script defer type=&#x27;text/javascript&#x27; src=&#x27;/blobs/66/Reimu Geimu.js&#x27;&gt;&lt;/script&gt;</span>
+<span class=hljs-addition>+&lt;script defer type=&#x27;text/javascript&#x27; src=&#x27;/blobs/66/bootstrap.js&#x27;&gt;&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Light font on pure black background time! This is mainly because I was tired of</span>
+<span class=hljs-addition>+trying to get the embedded game that *should* load in the back if you have</span>
+<span class=hljs-addition>+javascript enabled to work nicely. I hope your eyes don&#x27;t get burned too badly</span>
+<span class=hljs-addition>+and the text isn&#x27;t too hard to read... but at least it&#x27;s an incentive to click</span>
+<span class=hljs-addition>+on the white bits in the background. If it overlaps. Which I hope it doesn&#x27;t</span>
+<span class=hljs-addition>+because I added some custom css to avoid it. But it probably can.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I promised myself that I would make an actual video game this year, so I picked</span>
+<span class=hljs-addition>+up Godot. Well, here&#x27;s a little sample game I did to learn a bit about the</span>
+<span class=hljs-addition>+engine... Except at the end I don&#x27;t think I really learned much about the engine</span>
+<span class=hljs-addition>+itself as the game is too simple and doesn&#x27;t leverage anything - like everything</span>
+<span class=hljs-addition>+in the game is generated through scripts and I hardly used any other part of the</span>
+<span class=hljs-addition>+engine. This is probably because I&#x27;m terrible at graphis, so I just write the</span>
+<span class=hljs-addition>+&quot;backend&quot; and make the graphics as simple as possible - case in point, my</span>
+<span class=hljs-addition>+previous &quot;game&quot; was made with just code and a graphics library instead of a game</span>
+<span class=hljs-addition>+engine.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well I am more familiar with the scripting APIs at least. Overall I think Godot</span>
+<span class=hljs-addition>+is much nicer to work with compared to Unity as it&#x27;s much much much much more</span>
+<span class=hljs-addition>+lightweight and it covers the necessary functionality that I&#x27;m looking for... so</span>
+<span class=hljs-addition>+far. Perhaps the lightweightedness can also be attributed to my laptop now</span>
+<span class=hljs-addition>+having a SSD instead of a HDD.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another cool thing is that Godot can has HTML5 as a target and outputs wasm,</span>
+<span class=hljs-addition>+which is how I got the game on to this page. It only required exporting it</span>
+<span class=hljs-addition>+through Godot and then mucking around with the created files.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first thing I wanted to do was extract the relevant parts of the html file</span>
+<span class=hljs-addition>+which you can find in this page&#x27;s source once you break through the minimization.</span>
+<span class=hljs-addition>+Afterwords, I moved the generated script of the page into its own script ie</span>
+<span class=hljs-addition>+`bootstrap.js`. This was definitely not needed but I didn&#x27;t want the script in</span>
+<span class=hljs-addition>+here. I then moved all of the other generated files into my `blobs` directory as</span>
+<span class=hljs-addition>+that&#x27;s where I keep post specific items. This caused a small issue because the</span>
+<span class=hljs-addition>+scripts assume everything is in the same directory. I worked around this by</span>
+<span class=hljs-addition>+modiyfing a line in the `bootstrap.js` file to update file paths:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+const GODOT_CONFIG = {</span>
+<span class=hljs-addition>+    &quot;args&quot;: [],</span>
+<span class=hljs-addition>+    &quot;canvasResizePolicy&quot;: 2,</span>
+<span class=hljs-addition>+    &quot;executable&quot;: &quot;/blobs/66/Reimu Geimu&quot;,</span>
+<span class=hljs-addition>+    &quot;experimentalVK&quot;: false,</span>
+<span class=hljs-addition>+    &quot;fileSizes&quot;:{</span>
+<span class=hljs-addition>+        &quot;/blobs/66/Reimu Geimu.pck&quot;: 34000,</span>
+<span class=hljs-addition>+        &quot;/blobs/66/Reimu Geimu.wasm&quot;: 17862218</span>
+<span class=hljs-addition>+    },</span>
+<span class=hljs-addition>+    &quot;focusCanvas&quot;:true,&quot;gdnativeLibs&quot;: []</span>
+<span class=hljs-addition>+};</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Perhaps these should be strictly file names but adding the path seemed to be a</span>
+<span class=hljs-addition>+safe bet. There are other places you could edit the</span>
+<span class=hljs-addition>+[non-bootstrap.js](/blobs/66/Reimu%20Geimu.js) file, around `loadPromise` or</span>
+<span class=hljs-addition>+`loadFetch` or even `Engine.load` but after a few minutes of sprinting through</span>
+<span class=hljs-addition>+the code I think the configuration was the best bet for this scenario.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+After working through that, I came across a new error: `CompileError: wasm</span>
+<span class=hljs-addition>+validation error: at offset 4: failed to match magic number`. This was</span>
+<span class=hljs-addition>+interesting, as it suggests the wasm payload was somehow getting messed up. Based</span>
+<span class=hljs-addition>+on some tests, I was able to load the game with the original generated html file</span>
+<span class=hljs-addition>+but not the html that gets generated from posts like these - so something in the</span>
+<span class=hljs-addition>+html files must be affecting it, specifically one of the scripts (because what</span>
+<span class=hljs-addition>+else could). Some more testing later I figured out it was the inclusion of the</span>
+<span class=hljs-addition>+[tikz](/scripts/tikz.js) bootloader that was causing this somehow. TLDR,</span>
+<span class=hljs-addition>+somewhere in that script either `ReadableStream` or</span>
+<span class=hljs-addition>+`ReadableStreamDefaultController` is being overwritten so that the controller</span>
+<span class=hljs-addition>+provided to the `start` callback does not have the same functionality as</span>
+<span class=hljs-addition>+`ReadableStreamDefaultController`. Specifically, these few lines start causing</span>
+<span class=hljs-addition>+some kind of issue.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+function getTrackedResponse(response, load_status) {</span>
+<span class=hljs-addition>+    // ...</span>
+<span class=hljs-addition>+    return new Response(new ReadableStream({</span>
+<span class=hljs-addition>+        start: function (controller) {</span>
+<span class=hljs-addition>+            onloadprogress(reader, controller).then(function () {</span>
+<span class=hljs-addition>+                // controller here is possibly messed up</span>
+<span class=hljs-addition>+                console.log(controller);</span>
+<span class=hljs-addition>+                controller.close();</span>
+<span class=hljs-addition>+            });</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+    }), { headers: response.headers });</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// Object { _controlledReadableStream: {…}, _underlyingSource: {…}, _queue: (1) […], _started: true, _closeRequested: true, _pullAgain: false, _pulling: false, _strategySize: undefined, _strategyHWM: 1 }</span>
+<span class=hljs-addition>+// ReadableStreamDefaultController { desiredSize: 0 }</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Calling `arrayBuffer()` on the above response would return either the entire</span>
+<span class=hljs-addition>+wasm payload or 15 bytes in the broken case. Fortunately I was able to entirely</span>
+<span class=hljs-addition>+sidestep this function, though I guess it may cause some inefficiencies around</span>
+<span class=hljs-addition>+loading since that&#x27;s what it looks like the function is for, or maybe it&#x27;s just</span>
+<span class=hljs-addition>+used for updating the initial loading bar. I probably could find out some more</span>
+<span class=hljs-addition>+details if I wanted to dig through `tikz.js` - I love webpack, not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Cleaning that up was the last step in getting it to work, and afterwards I</span>
+<span class=hljs-addition>+slapped the styles around to make the game display somewhat nicely on this page.</span>
+<span class=hljs-addition>+Specifically removing all styles around the loading bar and scaling the canvas</span>
+<span class=hljs-addition>+element which contains the game itself.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Is it too late for the tutorial? Try to flip all tiles to the same color while</span>
+<span class=hljs-addition>+minimizing the number of clicks. There&#x27;s a counter in the top left which uses</span>
+<span class=hljs-addition>+white text (genius!) that keeps track of your clicks. The game is endless and</span>
+<span class=hljs-addition>+randomly generated apart from the first set of tiles which is supposed to read</span>
+<span class=hljs-addition>+&quot;Reimu Geimu&quot; which was a suggested name that I did not come up with.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On a somewhat related note, nice to use wasm yet again.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

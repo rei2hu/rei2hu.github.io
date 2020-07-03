@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>personal haskell project</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/8>&lt; the coin flip example</a></div> <div style=text-align:end><a href=/./posts/10>importance of argument ordering in haskell &gt;</a></div>
+</nav>
+<h1 id=personal-haskell-project>personal haskell project</h1>
+<p>It just so happens that I finished <code>learnyouahaskell</code> a while back and have started on a simple project to practice Haskell. I'm basically using <code>gloss</code> to do all the graphics and event loop hard work so I can focus on writing Haskell instead of dealing with all the internals of a game. Oh right, it's a game.</p>
+<p>The funny thing is when I started out, I actually did use a few things I've learned from <code>learnyouahaskell</code> like this:</p>
+<pre class=code-block><input id=code-block-9-1 type=checkbox><label for=code-block-9-1></label><code><span class=hljs-title>getTiles</span> :: <span class=hljs-type>Game</span> -&gt; [(<span class=hljs-type>OffsetCoords</span>, <span class=hljs-type>Color</span>)]
+<span class=hljs-title>getTiles</span> (<span class=hljs-type>Game</span> _ t)= <span class=hljs-type>Map</span>.foldr (\a b -&gt; ((,) &lt;$&gt; <span class=hljs-type>Tile</span>.positionOf &lt;*&gt; <span class=hljs-type>Tile</span>.colorOf $ a):b) [] t
+
+<span class=hljs-comment>-- and even more scary</span>
+<span class=hljs-title>hasDarkNghbr</span> :: <span class=hljs-type>Tile</span> -&gt; <span class=hljs-type>TileMap</span> -&gt; <span class=hljs-type>Bool</span>
+<span class=hljs-title>hasDarkNghbr</span> (<span class=hljs-type>Tile</span> (x, y) _) ts = <span class=hljs-keyword>let</span> pred (<span class=hljs-type>Just</span> (<span class=hljs-type>Tile</span> _ (_, _, _, k))) = k &gt; <span class=hljs-number>0.5</span>
+                                      pred <span class=hljs-type>Nothing</span> = <span class=hljs-type>True</span>
+                                  <span class=hljs-keyword>in</span> any pred $ zipWith (uncurry nghbr) (zip [<span class=hljs-number>1</span>..<span class=hljs-number>6</span>] (replicate <span class=hljs-number>6</span> ts)) (replicate <span class=hljs-number>6</span> (x, y))
+</code></pre>
+<p>It's cool and functional and all but then I realized that zip/curry part is really a consequence of having the arguments lined up pretty badly for the nghbr function. By changing the order of the arguments</p>
+<pre class=code-block><input id=code-block-9-2 type=checkbox><label for=code-block-9-2></label><code><span class=hljs-title>nghbr</span> :: <span class=hljs-type>Int</span> -&gt; <span class=hljs-type>TileMap</span> -&gt; <span class=hljs-type>OffsetCoords</span> -&gt; <span class=hljs-type>Maybe</span> <span class=hljs-type>Tile</span>
+<span class=hljs-comment>-- to</span>
+<span class=hljs-title>nghbr</span> :: <span class=hljs-type>TileMap</span> -&gt; <span class=hljs-type>OffsetCoords</span> -&gt; <span class=hljs-type>Int</span> -&gt; <span class=hljs-type>Maybe</span> <span class=hljs-type>Tile</span>
+</code></pre>
+<p>I was able to simplify that line to:</p>
+<pre class=code-block><input id=code-block-9-3 type=checkbox><label for=code-block-9-3></label><code><span class=hljs-title>in</span> any pred $ fmap (nghbr ts p) [<span class=hljs-number>1</span>..<span class=hljs-number>6</span>]
+</code></pre>
+<p>I'm using <code>fmap</code> just to avoid a name clash with Data.Map.Strict.map. Well I mean I could've done it the right way but yeah. So far, I'm really enjoying writing this since most functions are just a few lines and quick to write despite doing a lot. I think the game is coming across quite nicely.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/8>&lt; the coin flip example</a></div> <div style=text-align:end><a href=/./posts/10>importance of argument ordering in haskell &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,43 @@</span>
+<span class=hljs-addition>+# personal haskell project</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It just so happens that I finished `learnyouahaskell` a while back and have started</span>
+<span class=hljs-addition>+on a simple project to practice Haskell. I&#x27;m basically using `gloss` to do all</span>
+<span class=hljs-addition>+the graphics and event loop hard work so I can focus on writing Haskell instead</span>
+<span class=hljs-addition>+of dealing with all the internals of a game. Oh right, it&#x27;s a game.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The funny thing is when I started out, I actually did use a few things I&#x27;ve learned</span>
+<span class=hljs-addition>+from `learnyouahaskell` like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```hs</span>
+<span class=hljs-addition>+getTiles :: Game -&gt; [(OffsetCoords, Color)]</span>
+<span class=hljs-addition>+getTiles (Game _ t)= Map.foldr (\a b -&gt; ((,) &lt;$&gt; Tile.positionOf &lt;*&gt; Tile.colorOf $ a):b) [] t</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- and even more scary</span>
+<span class=hljs-addition>+hasDarkNghbr :: Tile -&gt; TileMap -&gt; Bool</span>
+<span class=hljs-addition>+hasDarkNghbr (Tile (x, y) _) ts = let pred (Just (Tile _ (_, _, _, k))) = k &gt; 0.5</span>
+<span class=hljs-addition>+                                      pred Nothing = True</span>
+<span class=hljs-addition>+                                  in any pred $ zipWith (uncurry nghbr) (zip [1..6] (replicate 6 ts)) (replicate 6 (x, y))</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s cool and functional and all but then I realized that zip/curry part is really</span>
+<span class=hljs-addition>+a consequence of having the arguments lined up pretty badly for the nghbr function.</span>
+<span class=hljs-addition>+By changing the order of the arguments</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```hs</span>
+<span class=hljs-addition>+nghbr :: Int -&gt; TileMap -&gt; OffsetCoords -&gt; Maybe Tile</span>
+<span class=hljs-addition>+-- to</span>
+<span class=hljs-addition>+nghbr :: TileMap -&gt; OffsetCoords -&gt; Int -&gt; Maybe Tile</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was able to simplify that line to:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```hs</span>
+<span class=hljs-addition>+in any pred $ fmap (nghbr ts p) [1..6]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m using `fmap` just to avoid a name clash with Data.Map.Strict.map. Well I mean</span>
+<span class=hljs-addition>+I could&#x27;ve done it the right way but yeah. So far, I&#x27;m really enjoying writing this</span>
+<span class=hljs-addition>+since most functions are just a few lines and quick to write despite doing a lot.</span>
+<span class=hljs-addition>+I think the game is coming across quite nicely.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

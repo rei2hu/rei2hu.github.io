@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>thoughts on ai utilization</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/58>&lt; a little append only ds idea</a></div> <div style=text-align:end><a href=/./posts/60>heroku go broku &gt;</a></div>
+</nav>
+<h1 id=thoughts-on-ai-utilization>thoughts on ai utilization</h1>
+<p>With the recent release of Stable Diffusion, I've been browsing a lot of ai generated materials. It is all quite impressive, but not-uncommonly, I would come across something that was slightly off. So I decided to write a little bit about considerations that should be taken when incorporating ai in things.</p>
+<p>First things first, I am by no means an expert nor even relatively proficient - I took one ML course in uni which covered more basic approaches (decision trees, GA, etc) but then only touched upon more complex ones (RNN), and also took a data science course of which the main thing I remember was using linear regression models with various data sets.</p>
+<p>The main issue I have with the use of ai is that, when "scaling" it (applying it to a ton of cases), not many people seem to care about double checking the output. This is fine, and sometimes funny, in not-so-serious situations like generated artwork, but when it comes to things like bans from services or something that can result in negative consequences, the affected usually have no recourse.</p>
+<p>Even if the utilizers notice the issue, how then would they improve the models to avoid such false positives? By re-training it I'd guess. And how would they know that it worked? If you're someone like me, an average software developer using these things. How the hell does it even work? If I come across a false positive, is there a way for me to go in the code and isolate the specific lines that cause the issue? It's very unlikely - to me, most ai is so complex they're basically black boxes.</p>
+<p>I believe the basic idea is to split your data into training/verification sets where one part is used for training while the model is verified against the other. But again, the issue is not with the cases in the training itself but rather situations that occurr outside the ai's trained scenarios. You constantly have to keep updating the models if you cared, and you probably have to spend a ton more effort to get those last few points of accuracy.</p>
+<p>Well, I guess from the business perspective ignoring the false positives is worth it.</p>
+<p>And then there is the use of ai to solve problems which have definitive answers; things like random trivia or even writing code! In these cases, generating a correct answer is important. It's kind of crazy to see how many people think this is a good thing - perhaps they believe in the accuracy of ai - without considering the impact an inaccurate or incorrect answer could have. Again, I think it boils down the need for human verification of the outputs, but if you do any kind of collaborative software engineering, it is sometimes <em>harder</em> to audit existing code that someone else has written than it is to write it yourself. It is also possible that verification of answers is simpler than generating them.</p>
+<p>In short, the complex black box types of ai that are gaining popularity for use in today's systems are more suited for subjective tasks where new perspectives are welcome, while its usage for objective tasks should be limited. In both cases, it should be pair with human oversight to avoid issues.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/58>&lt; a little append only ds idea</a></div> <div style=text-align:end><a href=/./posts/60>heroku go broku &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-12-02 - update post 59</summary>
+<pre class=code-block><input id=code-block-faa75dc7401050ddf7ab6f7ce86439dde3238634-1 type=checkbox><label for=code-block-faa75dc7401050ddf7ab6f7ce86439dde3238634-1></label><code>@@ -36 +36,17 @@ Well, I guess from the business perspective ignoring the false positives is wort
+ it.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then there is the use of ai to solve problems which have definitive answers;</span>
+<span class=hljs-addition>+things like random trivia or even writing code! In these cases, generating a</span>
+<span class=hljs-addition>+correct answer is important. It&#x27;s kind of crazy to see how many people think</span>
+<span class=hljs-addition>+this is a good thing - perhaps they believe in the accuracy of ai - without</span>
+<span class=hljs-addition>+considering the impact an inaccurate or incorrect answer could have. Again, I</span>
+<span class=hljs-addition>+think it boils down the need for human verification of the outputs, but if you</span>
+<span class=hljs-addition>+do any kind of collaborative software engineering, it is sometimes *harder* to</span>
+<span class=hljs-addition>+audit existing code that someone else has written than it is to write it</span>
+<span class=hljs-addition>+yourself. It is also possible that verification of answers is simpler than</span>
+<span class=hljs-addition>+generating them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In short, the complex black box types of ai that are gaining popularity for use</span>
+<span class=hljs-addition>+in today&#x27;s systems are more suited for subjective tasks where new perspectives</span>
+<span class=hljs-addition>+are welcome, while its usage for objective tasks should be limited. In both</span>
+<span class=hljs-addition>+cases, it should be pair with human oversight to avoid issues.</span>
+</code></pre>
+</details>
+<details>
+<summary>2022-09-20 - add post 59</summary>
+<pre class=code-block><input id=code-block-c5eae0e000ec1ec45a8b9a64f3277d02e0a2a3b2-1 type=checkbox><label for=code-block-c5eae0e000ec1ec45a8b9a64f3277d02e0a2a3b2-1></label><code><span class=hljs-meta>@@ -0,0 +1,37 @@</span>
+<span class=hljs-addition>+# thoughts on ai utilization</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+With the recent release of Stable Diffusion, I&#x27;ve been browsing a lot of ai generated</span>
+<span class=hljs-addition>+materials. It is all quite impressive, but not-uncommonly, I would come across something</span>
+<span class=hljs-addition>+that was slightly off. So I decided to write a little bit about considerations that</span>
+<span class=hljs-addition>+should be taken when incorporating ai in things.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First things first, I am by no means an expert nor even relatively proficient -</span>
+<span class=hljs-addition>+I took one ML course in uni which covered more basic approaches (decision trees,</span>
+<span class=hljs-addition>+GA, etc) but then only touched upon more complex ones (RNN), and also took a data</span>
+<span class=hljs-addition>+science course of which the main thing I remember was using linear regression models</span>
+<span class=hljs-addition>+with various data sets.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The main issue I have with the use of ai is that, when &quot;scaling&quot; it (applying it</span>
+<span class=hljs-addition>+to a ton of cases), not many people seem to care about double checking the output.</span>
+<span class=hljs-addition>+This is fine, and sometimes funny, in not-so-serious situations like generated artwork,</span>
+<span class=hljs-addition>+but when it comes to things like bans from services or something that can result</span>
+<span class=hljs-addition>+in negative consequences, the affected usually have no recourse.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Even if the utilizers notice the issue, how then would they improve the models to</span>
+<span class=hljs-addition>+avoid such false positives? By re-training it I&#x27;d guess. And how would they know</span>
+<span class=hljs-addition>+that it worked? If you&#x27;re someone like me, an average software developer using</span>
+<span class=hljs-addition>+these things. How the hell does it even work? If I come across a false positive,</span>
+<span class=hljs-addition>+is there a way for me to go in the code and isolate the specific lines that cause</span>
+<span class=hljs-addition>+the issue? It&#x27;s very unlikely - to me, most ai is so complex they&#x27;re basically black</span>
+<span class=hljs-addition>+boxes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I believe the basic idea is to split your data into training/verification</span>
+<span class=hljs-addition>+sets where one part is used for training while the model is verified against the</span>
+<span class=hljs-addition>+other. But again, the issue is not with the cases in the training itself but rather</span>
+<span class=hljs-addition>+situations that occurr outside the ai&#x27;s trained scenarios. You constantly have to</span>
+<span class=hljs-addition>+keep updating the models if you cared, and you probably have to spend a ton more</span>
+<span class=hljs-addition>+effort to get those last few points of accuracy.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, I guess from the business perspective ignoring the false positives is worth</span>
+<span class=hljs-addition>+it.</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

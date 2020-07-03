@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>asking dall-e 3 to generate sheet music</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/81>&lt; first travel vacation thoughts and lessons</a></div> <div style=text-align:end><a href=/./posts/83>following up with bing chat about virtual piano &gt;</a></div>
+</nav>
+<h1 id=asking-dall-e-3-to-generate-sheet-music>asking dall-e 3 to generate sheet music</h1>
+<p>Microsoft recently provided free access to DALL-E 3 through Bing's new Image Creator feature. <a href=/posts/80>Previously</a> we looked at chatGPT's attempt to generate virtual piano music. I decided to see if I could get a picture of sheet music from it.</p>
+<p>So I gave it the following prompt:</p>
+<blockquote>
+<p>sheet music for canon in c using virtual piano's musical notation</p>
+</blockquote>
+<p>It generated 4 images; let's take a look at them.</p>
+<p><img alt="piano and town" src=/blobs/82/canonc1.png></p>
+<p>The only relevant thing in this image is the piano. However, the keys of the piano are inaccurate as the black keys should be in groups of 2 then 3. I don't know how it decided to generate the rest of the picture from the prompt but it is what it is. And it looks nice.</p>
+<p><img alt="piano surrounded by tendrils of music" src=/blobs/82/canonc2.png>
+<img alt="another piano surrounded by tendrils of music" src=/blobs/82/canonc4.png></p>
+<p>Here we have a piano and what looks like lines of music. However a closer look and we will see that most of these only look like notes - there are various imperfections that make them look wrong, even simple things like the note heads being only somewhat round. It's still a nice image to look at and I love how one of the tendrils floating upwards is made of piano keys.</p>
+<p>The notes in the other image are even worse, unfortunately.</p>
+<p><img alt="a river in a city with piano keys in the foreground" src=/blobs/82/canonc3.png></p>
+<p>Here we have another town, dare I call it AI London, with inaccurate piano keys in the foreground. One interesting thing I'll note here is the clock faces which are not actually clock faces, or at least not the kind I'm familiar with.</p>
+<p>I wasn't sure if DALLE-3 didn't understand the concept of sheet music, or if my initial prompt had too much cruft around it to generate an image of it, so I tried something more straightforward:</p>
+<blockquote>
+<p>sheet music for twinkle twinkle little star for violin</p>
+</blockquote>
+<p>And it generated another 4 images.</p>
+<p><img alt="four ai generated images that each show measures and a
+violin" src=/blobs/82/twinklesheet.png></p>
+<p>On the top left picture, there is a picture of sheet music on a bed, but the contents of the sheet are messed up. In fact, in all the pictures, like before the notes do not look like notes; we can also see that the treble cleft is messed up a couple of times, though the fact that it uses a treble cleft which is what appears in violin sheet music is amazing - unless I ask it about something like cello music, which uses bass cleft, and it continues to draw trebles. The lines are actually lined up in the images, so it looks more like sheet music in that sense, too. There is also the attempt to include some musical terms and symbols outside the notes though most of it is incoherent.</p>
+<p>This is all pretty cool except none of these notes are for twinkle twinkle little star. The bottom right image's violin also seems to be missing a chin rest, though that's not too uncommon as I've seen people use cloths instead. The top right musician is also holding the violin/viola reversed - the common way to play a violin is to hold the bow in the right hand and the violin neck in the left, though there is the existence of left-handed violins (naming is based on the bow hand) so it's not incorrect.</p>
+<p>I ended up thinking perhaps musical notation was too tough to generate and tried to generate text instead.</p>
+<blockquote>
+<p>the first page of a mystery horror novel</p>
+</blockquote>
+<p><img alt="four ai generated images of a book opened to the first page with the text the
+hillwood manor" src=/blobs/82/horrorbook.png></p>
+<p>It was hoping for a page filled with text, but it instead gave what I would expect from a book cover printed on the first page of the book. All of the books seem to be called the Hillwood Manor (with varying degrees of spelling) and any attempt of text outside of "it was a dark and stormy night" is illegible, which can only be seen in the top right image. I guess it's not that good at text either? It is interesting that all of these books have the same content; I do not know if this is because they were generated in the same batch or for some other reason.</p>
+<p>At least all of the hands are spot on as funny hands/appendages was previously an issue for image generation… Actually I'm not too sure about the top right hand; it looks correct but is holding the book in a very weird way.</p>
+<p>Unfortunately the service is severely overloaded or bugged, as I have several prompts that have been processing for a few hours while re-submissions of those prompts have completed. The pending generations have locked me out from submitting any further prompts so I cannot test any further for now.</p>
+<p>But I maintain my opinion; generative AI is bad at precision details. Music notes will be core to my evaluation criteria from now on for general intelligence - it's like text for sounds.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/81>&lt; first travel vacation thoughts and lessons</a></div> <div style=text-align:end><a href=/./posts/83>following up with bing chat about virtual piano &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-10-02 - update post 82</summary>
+<pre class=code-block><input id=code-block-d26db68afdb2b8aa2846c4873cb865c353264849-1 type=checkbox><label for=code-block-d26db68afdb2b8aa2846c4873cb865c353264849-1></label><code><span class=hljs-meta>@@ -57,4 +57,10 @@</span> sheet music in that sense, too. There is also the attempt to include some
+ musical terms and symbols outside the notes though most of it is incoherent.
+<span class=hljs-addition>+</span>
+ This is all pretty cool except none of these notes are for twinkle twinkle
+<span class=hljs-deletion>-little star.</span>
+<span class=hljs-addition>+little star. The bottom right image&#x27;s violin also seems to be missing a chin</span>
+<span class=hljs-addition>+rest, though that&#x27;s not too uncommon as I&#x27;ve seen people use cloths instead. The</span>
+<span class=hljs-addition>+top right musician is also holding the violin/viola reversed - the common way to</span>
+<span class=hljs-addition>+play a violin is to hold the bow in the right hand and the violin neck in the</span>
+<span class=hljs-addition>+left, though there is the existence of left-handed violins (naming is based on</span>
+<span class=hljs-addition>+the bow hand) so it&#x27;s not incorrect.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-d26db68afdb2b8aa2846c4873cb865c353264849-2 type=checkbox><label for=code-block-d26db68afdb2b8aa2846c4873cb865c353264849-2></label><code><span class=hljs-meta>@@ -87,3 +93,3 @@</span> submitting any further prompts so I cannot test any further for now.
+ But I maintain my opinion; generative AI is bad at precision details. Music
+<span class=hljs-deletion>-notes will be core to my evaluation criteria from now on - it&#x27;s like text for</span>
+<span class=hljs-deletion>-sounds.</span>
+<span class=hljs-addition>+notes will be core to my evaluation criteria from now on for general</span>
+<span class=hljs-addition>+intelligence - it&#x27;s like text for sounds.</span>
+</code></pre>
+</details>
+<details>
+<summary>2023-10-01 - add post 82</summary>
+<pre class=code-block><input id=code-block-0253ec80a1b774cecbdd5cd85c2cf2a9a2ca7df9-1 type=checkbox><label for=code-block-0253ec80a1b774cecbdd5cd85c2cf2a9a2ca7df9-1></label><code><span class=hljs-meta>@@ -0,0 +1,89 @@</span>
+<span class=hljs-addition>+# asking dall-e 3 to generate sheet music</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Microsoft recently provided free access to DALL-E 3 through Bing&#x27;s new Image</span>
+<span class=hljs-addition>+Creator feature. [Previously](/posts/80) we looked at chatGPT&#x27;s attempt to</span>
+<span class=hljs-addition>+generate virtual piano music. I decided to see if I could get a picture of sheet</span>
+<span class=hljs-addition>+music from it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I gave it the following prompt:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; sheet music for canon in c using virtual piano&#x27;s musical notation</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It generated 4 images; let&#x27;s take a look at them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![piano and town](/blobs/82/canonc1.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The only relevant thing in this image is the piano. However, the keys of the</span>
+<span class=hljs-addition>+piano are inaccurate as the black keys should be in groups of 2 then 3. I don&#x27;t</span>
+<span class=hljs-addition>+know how it decided to generate the rest of the picture from the prompt but it</span>
+<span class=hljs-addition>+is what it is. And it looks nice.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![piano surrounded by tendrils of music](/blobs/82/canonc2.png)</span>
+<span class=hljs-addition>+![another piano surrounded by tendrils of music](/blobs/82/canonc4.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here we have a piano and what looks like lines of music. However a closer look</span>
+<span class=hljs-addition>+and we will see that most of these only look like notes - there are various</span>
+<span class=hljs-addition>+imperfections that make them look wrong, even simple things like the note heads</span>
+<span class=hljs-addition>+being only somewhat round. It&#x27;s still a nice image to look at and I love how one</span>
+<span class=hljs-addition>+of the tendrils floating upwards is made of piano keys.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The notes in the other image are even worse, unfortunately.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![a river in a city with piano keys in the foreground](/blobs/82/canonc3.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here we have another town, dare I call it AI London, with inaccurate piano keys</span>
+<span class=hljs-addition>+in the foreground. One interesting thing I&#x27;ll note here is the clock faces which</span>
+<span class=hljs-addition>+are not actually clock faces, or at least not the kind I&#x27;m familiar with.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I wasn&#x27;t sure if DALLE-3 didn&#x27;t understand the concept of sheet music, or if my</span>
+<span class=hljs-addition>+initial prompt had too much cruft around it to generate an image of it, so I</span>
+<span class=hljs-addition>+tried something more straightforward:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; sheet music for twinkle twinkle little star for violin</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And it generated another 4 images.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![four ai generated images that each show measures and a</span>
+<span class=hljs-addition>+violin](/blobs/82/twinklesheet.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On the top left picture, there is a picture of sheet music on a bed, but the</span>
+<span class=hljs-addition>+contents of the sheet are messed up. In fact, in all the pictures, like before</span>
+<span class=hljs-addition>+the notes do not look like notes; we can also see that the treble cleft is</span>
+<span class=hljs-addition>+messed up a couple of times, though the fact that it uses a treble cleft which</span>
+<span class=hljs-addition>+is what appears in violin sheet music is amazing - unless I ask it about</span>
+<span class=hljs-addition>+something like cello music, which uses bass cleft, and it continues to draw</span>
+<span class=hljs-addition>+trebles. The lines are actually lined up in the images, so it looks more like</span>
+<span class=hljs-addition>+sheet music in that sense, too. There is also the attempt to include some</span>
+<span class=hljs-addition>+musical terms and symbols outside the notes though most of it is incoherent.</span>
+<span class=hljs-addition>+This is all pretty cool except none of these notes are for twinkle twinkle</span>
+<span class=hljs-addition>+little star.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ended up thinking perhaps musical notation was too tough to generate and tried</span>
+<span class=hljs-addition>+to generate text instead.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; the first page of a mystery horror novel</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![four ai generated images of a book opened to the first page with the text the</span>
+<span class=hljs-addition>+hillwood manor](/blobs/82/horrorbook.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It was hoping for a page filled with text, but it instead gave what I would</span>
+<span class=hljs-addition>+expect from a book cover printed on the first page of the book. All of the books</span>
+<span class=hljs-addition>+seem to be called the Hillwood Manor (with varying degrees of spelling) and any</span>
+<span class=hljs-addition>+attempt of text outside of &quot;it was a dark and stormy night&quot; is illegible, which</span>
+<span class=hljs-addition>+can only be seen in the top right image. I guess it&#x27;s not that good at text</span>
+<span class=hljs-addition>+either? It is interesting that all of these books have the same content; I do</span>
+<span class=hljs-addition>+not know if this is because they were generated in the same batch or for some</span>
+<span class=hljs-addition>+other reason.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At least all of the hands are spot on as funny hands/appendages was previously</span>
+<span class=hljs-addition>+an issue for image generation... Actually I&#x27;m not too sure about the top right</span>
+<span class=hljs-addition>+hand; it looks correct but is holding the book in a very weird way.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unfortunately the service is severely overloaded or bugged, as I have several</span>
+<span class=hljs-addition>+prompts that have been processing for a few hours while re-submissions of those</span>
+<span class=hljs-addition>+prompts have completed. The pending generations have locked me out from</span>
+<span class=hljs-addition>+submitting any further prompts so I cannot test any further for now.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But I maintain my opinion; generative AI is bad at precision details. Music</span>
+<span class=hljs-addition>+notes will be core to my evaluation criteria from now on - it&#x27;s like text for</span>
+<span class=hljs-addition>+sounds.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

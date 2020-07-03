@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>updating this site and checking for regressions</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/68>&lt; use (and abuse) of pseudo-classes</a></div> <div style=text-align:end><a href=/./posts/70>life as a false positive case for bot detection &gt;</a></div>
+</nav>
+<h1 id=updating-this-site-and-checking-for-regressions>updating this site and checking for regressions</h1>
+<p>Recently I've been pretty keen on making some small updates to this website; just some small design things here and there, which we can guess at in the following commit messages (I make them generic on purpose):</p>
+<ul>
+<li>2023-01-25 <code>e2fde62</code> small cosemtic and wording changes</li>
+<li>2023-01-25 <code>99c67ef</code> update some scripts</li>
+<li>2023-01-25 <code>fe75b1b</code> add previous commit to ignore list</li>
+<li>2023-01-25 <code>079b7d1</code> fix tables after showdown update</li>
+<li>2023-01-25 <code>4003ad4</code> update noscript warning and improve in..</li>
+<li>2023-01-25 <code>74db445</code> fix 404 script</li>
+<li>2023-01-25 <code>ac57d4d</code> update some lighting toggle features</li>
+<li>2023-01-24 <code>3f11da0</code> fix style for small codeblocks</li>
+<li>2023-01-24 <code>d9d9f5f</code> update some packages because why not</li>
+<li>2023-01-24 <code>d39d231</code> change syntax highlighting to server s..</li>
+<li>2023-01-24 <code>73b5042</code> prevent space script from firing for a..</li>
+<li>2023-01-23 <code>8331be1</code> fix template navs if nothing before</li>
+<li>2023-01-23 <code>8357cbc</code> change min width to max width</li>
+<li>2023-01-23 <code>190f9e9</code> fix script</li>
+<li>2023-01-23 <code>6abb2b8</code> update styles</li>
+<li>2023-01-23 <code>e64c2d8</code> hide certain large commits that have n..</li>
+<li>2023-01-23 <code>0357f5d</code> work on various qol items</li>
+</ul>
+<p>That's a decent amount of commits in two days… and that spelling…! And all the "fix…" things…! Let's take a look at how I could've caught some of these issues and the cause of others. The first thing to know is that the website can be built locally, and the output should be the exact same as what is built for the web, as it uses the same command but just moves the files into the root working directory.</p>
+<p>Because of this, we can look at the generated content of the website for any changes - a change in output suggests a change in the layout, and that layout might be messed up. Let's pull the commit hash of the first change, which is
+<code>86ce4b124ee05943b3ffb5e08eda887114122c9f</code>. We can compare it with it's neighboring state by running <code>git diff hash hash^1</code>, but quickly run into a problem where, due to things being minimized to a few lines, the diff is kind of useless. Fortunately, we can improve things with <code>--word-diff</code> option, which will be better. Unfortunately there's no support for word diff in the syntax highlighting processor I'm using, so I've made small changes to make it highlight nicely.</p>
+<pre class=code-block><input id=code-block-69-1 type=checkbox><label for=code-block-69-1></label><code>&lt;!DOCTYPE html&gt;
+<span class=hljs-addition>+&lt;html&gt;</span>
+&lt;head&gt; &lt;meta charset=UTF-8&gt;
+...
+&lt;img srcset=reimu
+<span class=hljs-deletion>- onerror=&#x27;load_backup_image(&quot;/scripts/cozy_reimu.bmp&quot;),load_backup_image(&quot;/scripts/confused_reimu.bmp&quot;)&#x27;&gt;</span>
+<span class=hljs-addition>+ onerror=&#x27;load_backup_image(&quot;/scripts/cozy_reimu.bmp&quot;),load_backup_image(&quot;/scripts/confused_reimu.bmp&quot;),load_backup_image(&quot;/scripts/unamused_reimu.bmp&quot;)&#x27;&gt;</span>
+&lt;/picture&gt;
+...
+Code block
+<span class=hljs-deletion>- highlighting and</span>
+<span class=hljs-addition>+ highlighting,</span>
+TeX/TikZ diagrams need
+<span class=hljs-deletion>- javascript</span>
+<span class=hljs-addition>+ Javascript</span>
+to display
+<span class=hljs-deletion>- properly</span>
+<span class=hljs-addition>+ properly.</span>
+<span class=hljs-addition>+ &lt;div&gt; &lt;label id=lights-label&gt;Lights &lt;input id=lights type=checkbox&gt; &lt;/label&gt; &lt;span id=lights-description&gt; May need to click twice if lights already on!&lt;/span&gt; &lt;/div&gt; &lt;/div&gt;</span>
+</code></pre>
+<p>We can see the addition of same html tags, a change in the noscript warning text, and an added light switch - all which are covered by changes in the related internal commit. All <em>looks</em> good, but once we get to the puzzles directory, we see an issue:</p>
+<pre class=code-block><input id=code-block-69-2 type=checkbox><label for=code-block-69-2></label><code><span class=hljs-deletion>- &lt;table&gt; &lt;thead&gt; &lt;tr&gt; &lt;th style=text-align:center&gt;n\t&lt;/th&gt; &lt;th&gt;0&lt;/th&gt;&lt;th&gt;1&lt;/th&gt; &lt;th&gt;2&lt;/th&gt; &lt;th&gt;3&lt;/th&gt; &lt;th&gt;4&lt;/th&gt; &lt;th&gt;5&lt;/th&gt; &lt;th&gt;6&lt;/th&gt; &lt;th&gt;7&lt;/th&gt;&lt;/tr&gt; &lt;/thead&gt; &lt;tbody&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;1&lt;/td&gt; &lt;td&gt;3&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;-3&lt;/td&gt;&lt;td&gt;2&lt;/td&gt; &lt;td&gt;-4&lt;/td&gt; &lt;td&gt;-1&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;2&lt;/td&gt; &lt;td&gt;?&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;…&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;/tr&gt; &lt;/tbody&gt; &lt;/table&gt;</span>
+<span class=hljs-addition>+ &lt;p&gt;| n\t | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | | :-: | --- | --- | --- | --- | --- | --- | --- | --- | | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | | 1 | 3 | 1 | -3 | 2 | -4 | -1 | 1 | 0 | | 2 | ? | | | | | | | | | … | | | | | | | | |&lt;/p&gt;</span>
+</code></pre>
+<p>Our table is no longer being converted nicely from markdown! I eventually figured out this was due to the <code>:-:</code> in the table, which I guess is interpreted as an emoji even though I have emojis disabled. And this was due to the linter/formatter formatting the table!</p>
+<pre class=code-block><input id=code-block-69-3 type=checkbox><label for=code-block-69-3></label><code><span class=hljs-deletion>- |  n\t  | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   |</span>
+<span class=hljs-deletion>- | :---: | --- | --- | --- | --- | --- | --- | --- | --- |</span>
+<span class=hljs-deletion>- |   0   | 0   | 0   | 0   | 0   | 0   | 0   | 0   | 0   |</span>
+<span class=hljs-deletion>- |   1   | 3   | 1   | -3  | 2   | -4  | -1  | 1   | 0   |</span>
+<span class=hljs-deletion>- |   2   | ?   |     |     |     |     |     |     |     |</span>
+<span class=hljs-deletion>- |  ...  |     |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+ | n\t | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   |</span>
+<span class=hljs-addition>+ | :-: | --- | --- | --- | --- | --- | --- | --- | --- |</span>
+<span class=hljs-addition>+ |  0  | 0   | 0   | 0   | 0   | 0   | 0   | 0   | 0   |</span>
+<span class=hljs-addition>+ |  1  | 3   | 1   | -3  | 2   | -4  | -1  | 1   | 0   |</span>
+<span class=hljs-addition>+ |  2  | ?   |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+ | ... |     |     |     |     |     |     |     |     |</span>
+</code></pre>
+<p>I ended up fixing it in the commit <code>079b7d1</code>, incorrectly attributing it to a package update I did later. But I'm not going to reword that commit because I don't care too much!</p>
+<p>Let's look now at <code>684cc42a1957cfff1839be1c69efa929b7cff183</code>, the build of the commit where I updated packages - I assume this is also the cause of a different issue I've recently come across, where an image <a href=/puzzles/4>here</a> was not displaying properly, but I'm not sure if this is the cause.</p>
+<p>Well I just looked through it and it's not, so instead we'll check the history of the file with <code>git log</code>; unfortunately I don't think <code>git blame</code> will be useful as it's squished to one line - this could be avoided by keeping a non-minified version to compare against but too bad!</p>
+<p>There is also <code>git bisect</code> which would probably lead me to an answer more easily, but let's guess. We are looking for
+<code>&lt;img loading=lazy src=/blobs/4/dptable.png alt=dptable&gt;</code>, and once we find a commit without it, then we know something happened. As we do a improv semi binary search starting from the creation of the file and the "update a lot of packages" commit, we see that it has been like this weeks ago and was actually changed in commit <code>2c20a3f0729b1630fc977dfe0111bda298737de8</code>, whose internal commit is <code>c7e0e02cf966a1ac14720b96249aaca16676e9f4</code>. It just so happens it was also built to include changes in the previous commit,
+<code>204bc51955ef1ed4bcf4cd74e4eabed44ea07a6b</code> aka "change img to markdown img tags". That sounds like the likely culprit and most likely is. In this case, for some reason, markdown images in <code>&lt;p&gt;</code> tags were not converted properly, so I extracted it.</p>
+<p>Let me give a quick rundown of the other "fix" commits.</p>
+<ol>
+<li>2023-01-23 <code>8331be1</code> fix template navs if nothing before<ul>
+<li>This was a style update which caused the navigation above and below to hug left if there was only one.</li></ul></li>
+<li>2023-01-23 <code>190f9e9</code> fix script<ul>
+<li>I updated the checkbox above code blocks to use a label instead of a span; part of a script which determined if code blocks needed an expand/collapse toggle had the span inside the selector to find code blocks so it no longer worked.</li></ul></li>
+<li>2023-01-24 <code>3f11da0</code> fix style for small codeblocks<ul>
+<li>Same as above, but some selectors in css.</li></ul></li>
+<li>2023-01-25 <code>74db445</code> fix 404 script<ul>
+<li>I thought <code>window.location.hash</code> included the "#".</li></ul></li>
+</ol>
+<p>And now that I'm using nested bullet points and see it coming out as a flat list, there's something else that needs investigating… It seems to be around 2 vs 4 spaces for the list, but since I seem to always use numbers with nested bullet points that works.</p>
+<p>Heh, in the meantime I saw that <a href=/posts/21>this post</a> has a ton of &gt; due to me messing up some mdlint ignore comments.</p>
+<p>So yes, with a little diligence I could have avoided most issues, but since this is my personal website and personal project, I do take liberties. Overall I'd say it's decent.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/68>&lt; use (and abuse) of pseudo-classes</a></div> <div style=text-align:end><a href=/./posts/70>life as a false positive case for bot detection &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-01-26 - add post 69</summary>
+<pre class=code-block><input id=code-block-c8189f61a633b923a0abb24dba4ae905ad053031-1 type=checkbox><label for=code-block-c8189f61a633b923a0abb24dba4ae905ad053031-1></label><code><span class=hljs-meta>@@ -0,0 +1,156 @@</span>
+<span class=hljs-addition>+# updating this site and checking for regressions</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently I&#x27;ve been pretty keen on making some small updates to this website;</span>
+<span class=hljs-addition>+just some small design things here and there, which we can guess at in the</span>
+<span class=hljs-addition>+following commit messages (I make them generic on purpose):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- 2023-01-25 `e2fde62` small cosemtic and wording changes</span>
+<span class=hljs-addition>+- 2023-01-25 `99c67ef` update some scripts</span>
+<span class=hljs-addition>+- 2023-01-25 `fe75b1b` add previous commit to ignore list</span>
+<span class=hljs-addition>+- 2023-01-25 `079b7d1` fix tables after showdown update</span>
+<span class=hljs-addition>+- 2023-01-25 `4003ad4` update noscript warning and improve in..</span>
+<span class=hljs-addition>+- 2023-01-25 `74db445` fix 404 script</span>
+<span class=hljs-addition>+- 2023-01-25 `ac57d4d` update some lighting toggle features</span>
+<span class=hljs-addition>+- 2023-01-24 `3f11da0` fix style for small codeblocks</span>
+<span class=hljs-addition>+- 2023-01-24 `d9d9f5f` update some packages because why not</span>
+<span class=hljs-addition>+- 2023-01-24 `d39d231` change syntax highlighting to server s..</span>
+<span class=hljs-addition>+- 2023-01-24 `73b5042` prevent space script from firing for a..</span>
+<span class=hljs-addition>+- 2023-01-23 `8331be1` fix template navs if nothing before</span>
+<span class=hljs-addition>+- 2023-01-23 `8357cbc` change min width to max width</span>
+<span class=hljs-addition>+- 2023-01-23 `190f9e9` fix script</span>
+<span class=hljs-addition>+- 2023-01-23 `6abb2b8` update styles</span>
+<span class=hljs-addition>+- 2023-01-23 `e64c2d8` hide certain large commits that have n..</span>
+<span class=hljs-addition>+- 2023-01-23 `0357f5d` work on various qol items</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+That&#x27;s a decent amount of commits in two days... and that spelling...! And all</span>
+<span class=hljs-addition>+the &quot;fix...&quot; things...! Let&#x27;s take a look at how I could&#x27;ve caught some of these</span>
+<span class=hljs-addition>+issues and the cause of others. The first thing to know is that the website can</span>
+<span class=hljs-addition>+be built locally, and the output should be the exact same as what is built for</span>
+<span class=hljs-addition>+the web, as it uses the same command but just moves the files into the root</span>
+<span class=hljs-addition>+working directory.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Because of this, we can look at the generated content of the website for any</span>
+<span class=hljs-addition>+changes - a change in output suggests a change in the layout, and that layout</span>
+<span class=hljs-addition>+might be messed up. Let&#x27;s pull the commit hash of the first change, which is</span>
+<span class=hljs-addition>+`86ce4b124ee05943b3ffb5e08eda887114122c9f`. We can compare it with it&#x27;s</span>
+<span class=hljs-addition>+neighboring state by running `git diff hash hash^1`, but quickly run into a</span>
+<span class=hljs-addition>+problem where, due to things being minimized to a few lines, the diff is kind of</span>
+<span class=hljs-addition>+useless. Fortunately, we can improve things with `--word-diff` option, which</span>
+<span class=hljs-addition>+will be better. Unfortunately there&#x27;s no support for word diff in the syntax</span>
+<span class=hljs-addition>+highlighting processor I&#x27;m using, so I&#x27;ve made small changes to make it</span>
+<span class=hljs-addition>+highlight nicely.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD013 --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```diff</span>
+<span class=hljs-addition>+&lt;!DOCTYPE html&gt;</span>
+<span class=hljs-addition>++&lt;html&gt;</span>
+<span class=hljs-addition>+&lt;head&gt; &lt;meta charset=UTF-8&gt;</span>
+<span class=hljs-addition>+...</span>
+<span class=hljs-addition>+&lt;img srcset=reimu</span>
+<span class=hljs-addition>+- onerror=&#x27;load_backup_image(&quot;/scripts/cozy_reimu.bmp&quot;),load_backup_image(&quot;/scripts/confused_reimu.bmp&quot;)&#x27;&gt;</span>
+<span class=hljs-addition>++ onerror=&#x27;load_backup_image(&quot;/scripts/cozy_reimu.bmp&quot;),load_backup_image(&quot;/scripts/confused_reimu.bmp&quot;),load_backup_image(&quot;/scripts/unamused_reimu.bmp&quot;)&#x27;&gt;</span>
+<span class=hljs-addition>+&lt;/picture&gt;</span>
+<span class=hljs-addition>+...</span>
+<span class=hljs-addition>+Code block</span>
+<span class=hljs-addition>+- highlighting and</span>
+<span class=hljs-addition>++ highlighting,</span>
+<span class=hljs-addition>+TeX/TikZ diagrams need</span>
+<span class=hljs-addition>+- javascript</span>
+<span class=hljs-addition>++ Javascript</span>
+<span class=hljs-addition>+to display</span>
+<span class=hljs-addition>+- properly</span>
+<span class=hljs-addition>++ properly.</span>
+<span class=hljs-addition>++ &lt;div&gt; &lt;label id=lights-label&gt;Lights &lt;input id=lights type=checkbox&gt; &lt;/label&gt; &lt;span id=lights-description&gt; May need to click twice if lights already on!&lt;/span&gt; &lt;/div&gt; &lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD013 --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can see the addition of same html tags, a change in the noscript warning</span>
+<span class=hljs-addition>+text, and an added light switch - all which are covered by changes in the</span>
+<span class=hljs-addition>+related internal commit. All _looks_ good, but once we get to the puzzles</span>
+<span class=hljs-addition>+directory, we see an issue:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD013 --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```diff</span>
+<span class=hljs-addition>+- &lt;table&gt; &lt;thead&gt; &lt;tr&gt; &lt;th style=text-align:center&gt;n\t&lt;/th&gt; &lt;th&gt;0&lt;/th&gt;&lt;th&gt;1&lt;/th&gt; &lt;th&gt;2&lt;/th&gt; &lt;th&gt;3&lt;/th&gt; &lt;th&gt;4&lt;/th&gt; &lt;th&gt;5&lt;/th&gt; &lt;th&gt;6&lt;/th&gt; &lt;th&gt;7&lt;/th&gt;&lt;/tr&gt; &lt;/thead&gt; &lt;tbody&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;td&gt;0&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;1&lt;/td&gt; &lt;td&gt;3&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;-3&lt;/td&gt;&lt;td&gt;2&lt;/td&gt; &lt;td&gt;-4&lt;/td&gt; &lt;td&gt;-1&lt;/td&gt; &lt;td&gt;1&lt;/td&gt; &lt;td&gt;0&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;2&lt;/td&gt; &lt;td&gt;?&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td style=text-align:center&gt;…&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;td&gt;&lt;/td&gt; &lt;/tr&gt; &lt;/tbody&gt; &lt;/table&gt;</span>
+<span class=hljs-addition>++ &lt;p&gt;| n\t | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | | :-: | --- | --- | --- | --- | --- | --- | --- | --- | | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | | 1 | 3 | 1 | -3 | 2 | -4 | -1 | 1 | 0 | | 2 | ? | | | | | | | | | … | | | | | | | | |&lt;/p&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD013 --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Our table is no longer being converted nicely from markdown! I eventually</span>
+<span class=hljs-addition>+figured out this was due to the `:-:` in the table, which I guess is interpreted</span>
+<span class=hljs-addition>+as an emoji even though I have emojis disabled. And this was due to the</span>
+<span class=hljs-addition>+linter/formatter formatting the table!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```diff</span>
+<span class=hljs-addition>+- |  n\t  | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   |</span>
+<span class=hljs-addition>+- | :---: | --- | --- | --- | --- | --- | --- | --- | --- |</span>
+<span class=hljs-addition>+- |   0   | 0   | 0   | 0   | 0   | 0   | 0   | 0   | 0   |</span>
+<span class=hljs-addition>+- |   1   | 3   | 1   | -3  | 2   | -4  | -1  | 1   | 0   |</span>
+<span class=hljs-addition>+- |   2   | ?   |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+- |  ...  |     |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>++ | n\t | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   |</span>
+<span class=hljs-addition>++ | :-: | --- | --- | --- | --- | --- | --- | --- | --- |</span>
+<span class=hljs-addition>++ |  0  | 0   | 0   | 0   | 0   | 0   | 0   | 0   | 0   |</span>
+<span class=hljs-addition>++ |  1  | 3   | 1   | -3  | 2   | -4  | -1  | 1   | 0   |</span>
+<span class=hljs-addition>++ |  2  | ?   |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>++ | ... |     |     |     |     |     |     |     |     |</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ended up fixing it in the commit `079b7d1`, incorrectly attributing it to a</span>
+<span class=hljs-addition>+package update I did later. But I&#x27;m not going to reword that commit because I</span>
+<span class=hljs-addition>+don&#x27;t care too much!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Let&#x27;s look now at `684cc42a1957cfff1839be1c69efa929b7cff183`, the build of the</span>
+<span class=hljs-addition>+commit where I updated packages - I assume this is also the cause of a different</span>
+<span class=hljs-addition>+issue I&#x27;ve recently come across, where an image [here](/puzzles/4) was not</span>
+<span class=hljs-addition>+displaying properly, but I&#x27;m not sure if this is the cause.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well I just looked through it and it&#x27;s not, so instead we&#x27;ll check the history</span>
+<span class=hljs-addition>+of the file with `git log`; unfortunately I don&#x27;t think `git blame` will be</span>
+<span class=hljs-addition>+useful as it&#x27;s squished to one line - this could be avoided by keeping a</span>
+<span class=hljs-addition>+non-minified version to compare against but too bad!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is also `git bisect` which would probably lead me to an answer more</span>
+<span class=hljs-addition>+easily, but let&#x27;s guess. We are looking for</span>
+<span class=hljs-addition>+`&lt;img loading=lazy src=/blobs/4/dptable.png alt=dptable&gt;`, and once we find a</span>
+<span class=hljs-addition>+commit without it, then we know something happened. As we do a improv semi</span>
+<span class=hljs-addition>+binary search starting from the creation of the file and the &quot;update a lot of</span>
+<span class=hljs-addition>+packages&quot; commit, we see that it has been like this weeks ago and was actually</span>
+<span class=hljs-addition>+changed in commit `2c20a3f0729b1630fc977dfe0111bda298737de8`, whose internal</span>
+<span class=hljs-addition>+commit is `c7e0e02cf966a1ac14720b96249aaca16676e9f4`. It just so happens it was</span>
+<span class=hljs-addition>+also built to include changes in the previous commit,</span>
+<span class=hljs-addition>+`204bc51955ef1ed4bcf4cd74e4eabed44ea07a6b` aka &quot;change img to markdown img</span>
+<span class=hljs-addition>+tags&quot;. That sounds like the likely culprit and most likely is. In this case, for</span>
+<span class=hljs-addition>+some reason, markdown images in `&lt;p&gt;` tags were not converted properly, so I</span>
+<span class=hljs-addition>+extracted it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Let me give a quick rundown of the other &quot;fix&quot; commits.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. 2023-01-23 `8331be1` fix template navs if nothing before</span>
+<span class=hljs-addition>+    - This was a style update which caused the navigation above and below to hug</span>
+<span class=hljs-addition>+      left if there was only one.</span>
+<span class=hljs-addition>+2. 2023-01-23 `190f9e9` fix script</span>
+<span class=hljs-addition>+    - I updated the checkbox above code blocks to use a label instead of a span;</span>
+<span class=hljs-addition>+      part of a script which determined if code blocks needed an expand/collapse</span>
+<span class=hljs-addition>+      toggle had the span inside the selector to find code blocks so it no</span>
+<span class=hljs-addition>+      longer worked.</span>
+<span class=hljs-addition>+3. 2023-01-24 `3f11da0` fix style for small codeblocks</span>
+<span class=hljs-addition>+    - Same as above, but some selectors in css.</span>
+<span class=hljs-addition>+4. 2023-01-25 `74db445` fix 404 script</span>
+<span class=hljs-addition>+    - I thought `window.location.hash` included the &quot;#&quot;.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And now that I&#x27;m using nested bullet points and see it coming out as a flat</span>
+<span class=hljs-addition>+list, there&#x27;s something else that needs investigating... It seems to be around 2</span>
+<span class=hljs-addition>+vs 4 spaces for the list, but since I seem to always use numbers with nested</span>
+<span class=hljs-addition>+bullet points that works.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Heh, in the meantime I saw that [this post](/posts/21) has a ton of &gt; due to me</span>
+<span class=hljs-addition>+messing up some mdlint ignore comments.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So yes, with a little diligence I could have avoided most issues, but since this</span>
+<span class=hljs-addition>+is my personal website and personal project, I do take liberties. Overall I&#x27;d</span>
+<span class=hljs-addition>+say it&#x27;s decent.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

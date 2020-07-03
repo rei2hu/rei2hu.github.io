@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>count elements in a list</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/34>&lt; natural disasters and first world problems</a></div> <div style=text-align:end><a href=/./posts/36>correlated queries and lateral joins &gt;</a></div>
+</nav>
+<h1 id=count-elements-in-a-list>count elements in a list</h1>
+<p>One of my recent powerless nights, I was thinking about determining the theoretical limit of a problem compared to the book answer given for a problem. Is it possible that I could one day poke a hole in a LeetCode:tm: problem during an interview using this?</p>
+<p>What's the theoretical limit for counting the number of occurrences of an element in a list? $O(n)$ because you have to consider every element.</p>
+<p>What if the list is sorted? Same idea? No because you could find the first and last elements and subtract the positions to get how many are in between. And now writing this, I'm not sure what a solid way to describe the theoretical lower bound for this would be. How to find an element such that at least the element to the left or right of it is not equivalent? One idea would be having to look at consecutive pairs that include the wanted element. However, there are $O(n)$ pairs and we really only care about the first and the last ones.</p>
+<p>What I realized was you could do a modified binary search to find the first occurrence, then do some modified binary subsearches to find the first and last element. But is this truly the most efficient solution out there? And does it even work? I'm not going to bother checking it but it sounds solid. I don't even know the theoretical lower bound for it.</p>
+<p>Long story short, I realized it was probably a lot harder to do this than just solve the problem normally. How do I know when to stop optimizing a solution? When the interviewer says so. How does the interviewer know when to stop optimizing the solution? Because the answer key says so. How does the answer key know? ???.</p>
+<p>Probably because a few smart guys worked on it for several days. Meanwhile I have 15 minutes. God I used to enjoy doing these casually as a puzzle now and then but ever since interviews… When things get incorporated into work I seem to lose passion.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/34>&lt; natural disasters and first world problems</a></div> <div style=text-align:end><a href=/./posts/36>correlated queries and lateral joins &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-09-02 - add post 34 and 35</summary>
+<pre class=code-block><input id=code-block-fa833a205b95b6a048173ddc0567a488a8ba5361-1 type=checkbox><label for=code-block-fa833a205b95b6a048173ddc0567a488a8ba5361-1></label><code><span class=hljs-meta>@@ -0,0 +1,32 @@</span>
+<span class=hljs-addition>+# count elements in a list</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One of my recent powerless nights, I was thinking about determining the</span>
+<span class=hljs-addition>+theoretical limit of a problem compared to the book answer given for a problem.</span>
+<span class=hljs-addition>+Is it possible that I could one day poke a hole in a LeetCode:tm: problem during</span>
+<span class=hljs-addition>+an interview using this?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What&#x27;s the theoretical limit for counting the number of occurences of an element</span>
+<span class=hljs-addition>+in a list? $O(n)$ because you have to consider every element.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What if the list is sorted? Same idea? No because you could find the first and last</span>
+<span class=hljs-addition>+elements and subtract the positions to get how many are in between. And now writing</span>
+<span class=hljs-addition>+this, I&#x27;m not sure what a solid way to descibe the theoretcal lower bound for this</span>
+<span class=hljs-addition>+would be. How to find an element such that at least the element to the left or right</span>
+<span class=hljs-addition>+of it is not equivalent? One idea would be having to look at consecutive pairs that</span>
+<span class=hljs-addition>+include the wanted element. However, there are $O(n)$ pairs and we really only care</span>
+<span class=hljs-addition>+about the first and the last ones.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What I realized was you could do a modified binary search to find the first occurence,</span>
+<span class=hljs-addition>+then do some modified binary subsearches to find the first and last element. But</span>
+<span class=hljs-addition>+is this truly the most efficient solution out there? And does it even work? I&#x27;m</span>
+<span class=hljs-addition>+not going to bother checking it but it sounds solid. I don&#x27;t even know the theoretical</span>
+<span class=hljs-addition>+lower bound for it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Long story short, I realized it was probably a lot harder to do this than just solve</span>
+<span class=hljs-addition>+the problem normally. How do I know when to stop optimizing a solution? When the</span>
+<span class=hljs-addition>+interviewer says so. How does the interviewer know when to stop optimizing the solution?</span>
+<span class=hljs-addition>+Because the answer key says so. How does the answer key know? ???.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Probably because a few smart guys worked on it for several days. Meanwhile I have</span>
+<span class=hljs-addition>+15 minutes. God I used to enjoy doing these casually as a puzzle now and then but</span>
+<span class=hljs-addition>+ever since interviews... When things get incorporated into work I seem to lose passion.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

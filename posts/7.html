@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>monads</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/6>&lt; functors and applicatives</a></div> <div style=text-align:end><a href=/./posts/8>the coin flip example &gt;</a></div>
+</nav>
+<h1 id=monads>monads</h1>
+<p>Monads seem pretty straightforward. However, I think that <code>learnyouahaskell</code>
+should have gone a little more in-depth into how <code>guard</code> is working instead of showing some examples so I figured I should look into it.</p>
+<p>First, let's review the types of the operators:</p>
+<pre class=code-block><input id=code-block-7-1 type=checkbox><label for=code-block-7-1></label><code>(&gt;&gt;=) :: (<span class=hljs-type>Monad</span> m) =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+(&gt;&gt;) :: (<span class=hljs-type>Monad</span> m) =&gt; m a -&gt; m b -&gt; m b
+<span class=hljs-title>x</span> &gt;&gt; y = x &gt;&gt;= \_ -&gt; y
+</code></pre>
+<p>And we're also given the implementation of <code>guard</code>:</p>
+<pre class=code-block><input id=code-block-7-2 type=checkbox><label for=code-block-7-2></label><code><span class=hljs-title>guard</span> :: (<span class=hljs-type>MonadPlus</span> m) =&gt; <span class=hljs-type>Bool</span> -&gt; m ()
+<span class=hljs-title>guard</span> <span class=hljs-type>True</span> = return ()
+<span class=hljs-title>guard</span> <span class=hljs-type>False</span> = mzero
+<span class=hljs-comment>-- something to note is that running :t guard actually gives a slightly different</span>
+<span class=hljs-comment>-- type guard :: GHC.Base.Alternative f =&gt; Bool -&gt; f ()</span>
+<span class=hljs-comment>-- the difference here is the method names and mainly that MonadPlus has a Monad</span>
+<span class=hljs-comment>-- constraint while Alternative has an Applicative constraint (right now, Applicative</span>
+<span class=hljs-comment>-- is a superclass of Monad)</span>
+</code></pre>
+<p>And I wanted to understand exactly how <code>\x -&gt; guard x &gt;&gt; return "cool"</code> worked. We are shown a few things:</p>
+<pre class=code-block><input id=code-block-7-3 type=checkbox><label for=code-block-7-3></label><code><span class=hljs-title>guard</span> (<span class=hljs-number>2</span> &gt; <span class=hljs-number>5</span>) :: [()]
+<span class=hljs-comment>-- []</span>
+<span class=hljs-title>guard</span> (<span class=hljs-number>5</span> &gt; <span class=hljs-number>2</span>) :: [()]
+<span class=hljs-comment>-- [()]</span>
+<span class=hljs-title>guard</span> (<span class=hljs-number>5</span> &gt; <span class=hljs-number>2</span>) &gt;&gt; return <span class=hljs-string>&quot;cool&quot;</span> :: [<span class=hljs-type>String</span>]
+<span class=hljs-comment>-- [&quot;cool&quot;]</span>
+</code></pre>
+<p>I think one problem was that I was thinking of <code>&gt;&gt;</code> as just returning the second argument since the type was <code>m a -&gt; m b -&gt; m b</code> which made me think of
+<code>x -&gt; y -&gt; y</code>. But really that's pretty far off. So I stepped through it slowly:</p>
+<pre class=code-block><input id=code-block-7-4 type=checkbox><label for=code-block-7-4></label><code><span class=hljs-comment>-- definition for &gt;&gt;= in the instance Monad []</span>
+<span class=hljs-title>xs</span> &gt;&gt;= f = concat (map f xs)
+<span class=hljs-comment>-- therefore</span>
+<span class=hljs-title>guard</span> (<span class=hljs-number>5</span> &gt; <span class=hljs-number>2</span>) &gt;&gt; return <span class=hljs-string>&quot;cool&quot;</span>
+<span class=hljs-comment>-- =&gt; guard (5 &gt; 2) &gt;&gt;= \_ -&gt; return &quot;cool&quot;</span>
+<span class=hljs-comment>-- =&gt; [()] &gt;&gt;= \_ -&gt; return &quot;cool&quot;</span>
+<span class=hljs-comment>-- =&gt; concat (map (\_ -&gt; return &quot;cool&quot;) [()])</span>
+<span class=hljs-comment>-- =&gt; [&quot;cool&quot;]</span>
+</code></pre>
+<p>So when I saw this, I realized that because <code>guard False = mzero</code> is the failure (eg for lists the empty list) it is basically filtered from a the list. As such, when we look at the full example we understand how it works:</p>
+<pre class=code-block><input id=code-block-7-5 type=checkbox><label for=code-block-7-5></label><code>[<span class=hljs-number>1</span>..<span class=hljs-number>50</span>] &gt;&gt;= (\x -&gt; guard (<span class=hljs-string>&#x27;7&#x27;</span> `elem` show x) &gt;&gt; return x)
+<span class=hljs-comment>-- =&gt; concat (map (\x -&gt; guard (&#x27;7&#x27; `elem` show x) &gt;&gt; return x) [1..50])</span>
+<span class=hljs-comment>-- example of one</span>
+<span class=hljs-comment>-- =&gt; (\x -&gt; guard (&#x27;7&#x27; `elem` show x) &gt;&gt; return x) 27</span>
+<span class=hljs-comment>-- =&gt; guard (&#x27;7&#x27; `elem` show 27) &gt;&gt; return x</span>
+<span class=hljs-comment>-- =&gt; [27] because the above function is like :: (Num a, Show a) =&gt; [a]</span>
+</code></pre>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/6>&lt; functors and applicatives</a></div> <div style=text-align:end><a href=/./posts/8>the coin flip example &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,66 @@</span>
+<span class=hljs-addition>+# monads</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Monads seem pretty straightforward. However, I think that `learnyouahaskell` should</span>
+<span class=hljs-addition>+have gone a little more in-depth into how `guard` is working instead of showing</span>
+<span class=hljs-addition>+some examples so I figured I should look into it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First, let&#x27;s review the types of the operators:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+(&gt;&gt;=) :: (Monad m) =&gt; m a -&gt; (a -&gt; m b) -&gt; m b</span>
+<span class=hljs-addition>+(&gt;&gt;) :: (Monad m) =&gt; m a -&gt; m b -&gt; m b</span>
+<span class=hljs-addition>+x &gt;&gt; y = x &gt;&gt;= \_ -&gt; y</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And we&#x27;re also given the implementation of `guard`:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+guard :: (MonadPlus m) =&gt; Bool -&gt; m ()</span>
+<span class=hljs-addition>+guard True = return ()</span>
+<span class=hljs-addition>+guard False = mzero</span>
+<span class=hljs-addition>+-- something to note is that running :t guard actually gives a slightly different</span>
+<span class=hljs-addition>+-- type guard :: GHC.Base.Alternative f =&gt; Bool -&gt; f ()</span>
+<span class=hljs-addition>+-- the difference here is the method names and mainly that MonadPlus has a Monad</span>
+<span class=hljs-addition>+-- constraint while Alternative has an Applicative constraint (right now, Applicative</span>
+<span class=hljs-addition>+-- is a superclass of Monad)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And I wanted to understand exactly how `\x -&gt; guard x &gt;&gt; return &quot;cool&quot;` worked.</span>
+<span class=hljs-addition>+We are shown a few things:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+guard (2 &gt; 5) :: [()]</span>
+<span class=hljs-addition>+-- []</span>
+<span class=hljs-addition>+guard (5 &gt; 2) :: [()]</span>
+<span class=hljs-addition>+-- [()]</span>
+<span class=hljs-addition>+guard (5 &gt; 2) &gt;&gt; return &quot;cool&quot; :: [String]</span>
+<span class=hljs-addition>+-- [&quot;cool&quot;]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think one problem was that I was thinking of `&gt;&gt;` as just returning the second</span>
+<span class=hljs-addition>+argument since the type was `m a -&gt; m b -&gt; m b` which made me think of</span>
+<span class=hljs-addition>+`x -&gt; y -&gt; y`. But really that&#x27;s pretty far off. So I stepped through it slowly:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+-- definition for &gt;&gt;= in the instance Monad []</span>
+<span class=hljs-addition>+xs &gt;&gt;= f = concat (map f xs)</span>
+<span class=hljs-addition>+-- therefore</span>
+<span class=hljs-addition>+guard (5 &gt; 2) &gt;&gt; return &quot;cool&quot;</span>
+<span class=hljs-addition>+-- =&gt; guard (5 &gt; 2) &gt;&gt;= \_ -&gt; return &quot;cool&quot;</span>
+<span class=hljs-addition>+-- =&gt; [()] &gt;&gt;= \_ -&gt; return &quot;cool&quot;</span>
+<span class=hljs-addition>+-- =&gt; concat (map (\_ -&gt; return &quot;cool&quot;) [()])</span>
+<span class=hljs-addition>+-- =&gt; [&quot;cool&quot;]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So when I saw this, I realized that because `guard False = mzero` is the failure</span>
+<span class=hljs-addition>+(eg for lists the empty list) it is basically filtered from a the list. As such,</span>
+<span class=hljs-addition>+when we look at the full example we understand how it works:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+[1..50] &gt;&gt;= (\x -&gt; guard (&#x27;7&#x27; `elem` show x) &gt;&gt; return x)</span>
+<span class=hljs-addition>+-- =&gt; concat (map (\x -&gt; guard (&#x27;7&#x27; `elem` show x) &gt;&gt; return x) [1..50])</span>
+<span class=hljs-addition>+-- example of one</span>
+<span class=hljs-addition>+-- =&gt; (\x -&gt; guard (&#x27;7&#x27; `elem` show x) &gt;&gt; return x) 27</span>
+<span class=hljs-addition>+-- =&gt; guard (&#x27;7&#x27; `elem` show 27) &gt;&gt; return x</span>
+<span class=hljs-addition>+-- =&gt; [27] because the above function is like :: (Num a, Show a) =&gt; [a]</span>
+<span class=hljs-addition>+```</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

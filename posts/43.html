@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>email organization for privacy enthusiasts</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/42>&lt; another sudoku solver</a></div> <div style=text-align:end><a href=/./posts/44>the worst projects make for the best stories &gt;</a></div>
+</nav>
+<h1 id=email-organization-for-privacy-enthusiasts>email organization for privacy enthusiasts</h1>
+<p>Me, I'm the privacy enthusiast. I originally wanted to say paranoid people but I figured calling myself paranoid wasn't an good look for me.</p>
+<p>I think the first personal email I had was back around 2005. It was one in a group of emails provided to my family by our then internet provider, as it was hosted on under their domain. I didn't really use it at the time, as I was too young to really know how important it could be. My main memory of using that email is when a good friend of mine started sending me spam, and I had the audacity to (jokingly) type loudly at him in a reply. Back then I wasn't really aware of people getting hacked and stuff.</p>
+<p>However, once I got into the seedy side of gaming, I realized I needed more emails when I received my first ban. This is when I came across the concept of disposable/ temporary emails. This was quite useful as most services at the time didn't seem to have white/blacklists that prevented you from signing up with a shady looking address. I must've made a few hundred emails this way and used them for various reasons, but I eventually came to the conclusion this wasn't ideal as the emails were public as long as anyone knew the username and they couldn't be used reliably - numerous times I tried to work around various game account issues only to be shut down because the email used to register the account was no longer accessible to me.</p>
+<p>Then, I turned to Big Tech. Ehh, just hotmail, gmail, and yahoo. I had the ability to create persistent personal emails at virtually no cost - quite amazing really. I originally started out with several independent emails on these services like so:</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]
+    \node [] (a) {a};
+    \node [right of = a] (b) {b};
+    \node [right of = b] (c) {c};
+    \node [right of = c] (d) {d};
+  \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]
+    \node [] (a) {a};
+    \node [right of = a] (b) {b};
+    \node [right of = b] (c) {c};
+    \node [right of = c] (d) {d};
+  \end{tikzpicture}
+</script>
+<p>I would check each email individually when I needed to, and it was nice. However, as you may guess, I eventually have a few dozen emails sitting around and end up getting in a state where I have to check them periodically. This was too much work, so I ended up creating a single master email to which all other emails forward their mail:</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} };
+  \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} };
+  \end{tikzpicture}
+</script>
+<p>Not bad, now I can read all my emails from <code>A</code>. Furthermore, I specifically don't sign up for anything that I believe to be shady with this email just to keep things nice and neat. And this is the only email that I use info close to my real info with. The main issue now is that sometimes I have to reply to an email, and that gets annoying. Fortunately this can be done through SMTP. But I don't do this because I would have to add a ton of emails every time I set up a new master and I don't have to reply too often from a non master email.</p>
+<p>One day, I learned about the + trick, where you can add a + at the end of an email like <code>me+something@gmail.com</code> and most services will think it's a new email. This is nice and I used it for a while, but I realized that it doesn't really protect you from having your email leaked online because it's pretty straightforward to find the actual email. After doing this practice too much, I lost track of what email did what and couldn't figure out how some emails were receiving certain messages.</p>
+<p>I eventually turned to making a new email for most services - which is not too bad. In fact, I like it because I can determine what leaked my email, although sometimes I set up an email for a specific purpose rather than a specific service e.g. job search and when that gets leaked I have to figure out which job site leaked it.</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]
+    \node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} }
+      child{ node {e} edge from parent node[draw=none]{} }
+      child{ node {f} edge from parent node[draw=none]{} }
+      child{ node {g} edge from parent node[draw=none]{} };
+  \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]
+    \node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} }
+      child{ node {e} edge from parent node[draw=none]{} }
+      child{ node {f} edge from parent node[draw=none]{} }
+      child{ node {g} edge from parent node[draw=none]{} };
+  \end{tikzpicture}
+</script>
+<p>But one day I decided I didn't want to use a certain email anymore because it was spammed to hell, so I created a new master email and had <code>A</code> forward everything but the unwanted emails.</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle}, -]
+  \node{B}
+    child {
+      node{A}
+        child{ node {a} edge from parent node[draw=none]{} }
+        child{ node {b} edge from parent node[draw=none]{} }
+        child{ node {c} edge from parent node[draw=none]{} }
+        child{ node {d} edge from parent node[draw=none]{} }
+        child{ node {e} edge from parent node[draw=none]{} }
+        child{ node {f} edge from parent node[draw=none]{} }
+        child{ node {g} edge from parent node[draw=none]{} }
+      edge from parent node[right, draw=none]{filter}
+    };
+  \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle}, -]
+  \node{B}
+    child {
+      node{A}
+        child{ node {a} edge from parent node[draw=none]{} }
+        child{ node {b} edge from parent node[draw=none]{} }
+        child{ node {c} edge from parent node[draw=none]{} }
+        child{ node {d} edge from parent node[draw=none]{} }
+        child{ node {e} edge from parent node[draw=none]{} }
+        child{ node {f} edge from parent node[draw=none]{} }
+        child{ node {g} edge from parent node[draw=none]{} }
+      edge from parent node[right, draw=none]{filter}
+    };
+  \end{tikzpicture}
+</script>
+<p>And now when I create new emails for services, I nest them under the latest master rather than at the bottom. This just means theres less forwarding done.</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle}, -]
+  \node{B}
+    child { node {h} edge from parent node[draw=none]{} }
+    child { node {i} edge from parent node[draw=none]{} }
+    child {
+      node{A}
+        child{ node {a} edge from parent node[draw=none]{} }
+        child{ node {b} edge from parent node[draw=none]{} }
+        child{ node {c} edge from parent node[draw=none]{} }
+        child{ node {d} edge from parent node[draw=none]{} }
+        child{ node {e} edge from parent node[draw=none]{} }
+        child{ node {f} edge from parent node[draw=none]{} }
+        child{ node {g} edge from parent node[draw=none]{} }
+      edge from parent node[right, draw=none]{filter}
+    };
+  \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle}, -]
+  \node{B}
+    child { node {h} edge from parent node[draw=none]{} }
+    child { node {i} edge from parent node[draw=none]{} }
+    child {
+      node{A}
+        child{ node {a} edge from parent node[draw=none]{} }
+        child{ node {b} edge from parent node[draw=none]{} }
+        child{ node {c} edge from parent node[draw=none]{} }
+        child{ node {d} edge from parent node[draw=none]{} }
+        child{ node {e} edge from parent node[draw=none]{} }
+        child{ node {f} edge from parent node[draw=none]{} }
+        child{ node {g} edge from parent node[draw=none]{} }
+      edge from parent node[right, draw=none]{filter}
+    };
+  \end{tikzpicture}
+</script>
+<p>Now and then, I'll nest things under a new master email just to keep things fresh, but usually only after a certain period of time has passed or I want to "deprecate" one of my emails through a filter.</p>
+<p>I did start having a few reservations about this setup though. The first one is that access to a master email gives insight to a non-trivial part of my activities because some of my emails flow through it. Although, arguably it gives less insight than if you had everything in one account. Another problem is that with this setup, one service going down means I lose emails from all the ones nested below it - I haven't actually mapped out my tree of emails so I'm not exactly sure what would be lost at a glance. Then again, losing a node in this tree means losing less than if you lost your only email. Hmm, maybe it is good after all.</p>
+<p>What I've been thinking of recently is somehow encrypting the received emails so access to any inbox wouldn't yield any information. Unfortunately this requires the services to send the email encrypted which isn't possible in most cases, so I've been thinking of somehow making each node encrypt the message before forwarding it to its parent. For example if <code>c</code> received a message it would be encrypted like <code>B(A(c(message)))</code> and I'd have to decrypt it using those keys. But that requires having the tree mapped out. Which is actually one of my projects that I think I'll never get around to doing, as I looked at some email implementation details it it was pretty complex.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/42>&lt; another sudoku solver</a></div> <div style=text-align:end><a href=/./posts/44>the worst projects make for the best stories &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-11-02 - add post 43</summary>
+<pre class=code-block><input id=code-block-5aa09c74302fe86ad3def5ca802f143ac7b2785e-1 type=checkbox><label for=code-block-5aa09c74302fe86ad3def5ca802f143ac7b2785e-1></label><code><span class=hljs-meta>@@ -0,0 +1,151 @@</span>
+<span class=hljs-addition>+# email organization for privacy enthusiasts</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Me, I&#x27;m the privacy enthusiast. I originally wanted to say paranoid people but I</span>
+<span class=hljs-addition>+figured calling myself paranoid wasn&#x27;t an good look for me.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think the first personal email I had was back around 2005. It was one in a group</span>
+<span class=hljs-addition>+of emails provided to my family by our then internet provider, as it was hosted</span>
+<span class=hljs-addition>+on under their domain. I didn&#x27;t really use it at the time, as I was too young to</span>
+<span class=hljs-addition>+really know how important it could be. My main memory of using that email is when</span>
+<span class=hljs-addition>+a good friend of mine started sending me spam, and I had the audacity to (jokingly)</span>
+<span class=hljs-addition>+type loudly at him in a reply. Back then I wasn&#x27;t really aware of people getting</span>
+<span class=hljs-addition>+hacked and stuff.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, once I got into the seedy side of gaming, I realized I needed more emails</span>
+<span class=hljs-addition>+when I received my first ban. This is when I came across the concept of disposable/</span>
+<span class=hljs-addition>+temporary emails. This was quite useful as most services at the time didn&#x27;t seem</span>
+<span class=hljs-addition>+to have white/blacklists that prevented you from signing up with a shady looking</span>
+<span class=hljs-addition>+address. I must&#x27;ve made a few hundred emails this way and used them for various reasons,</span>
+<span class=hljs-addition>+but I eventually came to the conclusion this wasn&#x27;t ideal as the emails were public</span>
+<span class=hljs-addition>+as long as anyone knew the username and they couldn&#x27;t be used reliably - numerous</span>
+<span class=hljs-addition>+times I tried to work around various game account issues only to be shut down because</span>
+<span class=hljs-addition>+the email used to register the account was no longer accessible to me.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Then, I turned to Big Tech. Ehh, just hotmail, gmail, and yahoo. I had the ability</span>
+<span class=hljs-addition>+to create persistent personal emails at virtually no cost - quite amazing really.</span>
+<span class=hljs-addition>+I originally started out with several indepenedent emails on these services like</span>
+<span class=hljs-addition>+so:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]</span>
+<span class=hljs-addition>+    \node [] (a) {a};</span>
+<span class=hljs-addition>+    \node [right of = a] (b) {b};</span>
+<span class=hljs-addition>+    \node [right of = b] (c) {c};</span>
+<span class=hljs-addition>+    \node [right of = c] (d) {d};</span>
+<span class=hljs-addition>+  \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I would check each email individually when I needed to, and it was nice. However,</span>
+<span class=hljs-addition>+as you may guess, I eventually have a few dozen emails sitting around and end up</span>
+<span class=hljs-addition>+getting in a state where I have to check them periodically. This was too much work,</span>
+<span class=hljs-addition>+so I ended up creating a single master email to which all other emails forward their</span>
+<span class=hljs-addition>+mail:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+    \node{A}</span>
+<span class=hljs-addition>+      child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {d} edge from parent node[draw=none]{} };</span>
+<span class=hljs-addition>+  \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Not bad, now I can read all my emails from `A`. Furthermore, I specifically don&#x27;t</span>
+<span class=hljs-addition>+sign up for anything that I believe to be shady with this email just to keep things</span>
+<span class=hljs-addition>+nice and neat. And this is the only email that I use info close to my real info with.</span>
+<span class=hljs-addition>+The main issue now is that sometimes I have to reply to an email, and that gets</span>
+<span class=hljs-addition>+annoying. Fortunately this can be done through SMTP. But I don&#x27;t do this because</span>
+<span class=hljs-addition>+I would have to add a ton of emails everytime I set up a new master and I don&#x27;t have</span>
+<span class=hljs-addition>+to reply too often from a non master email.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One day, I learned about the + trick, where you can add a + at the end of an email</span>
+<span class=hljs-addition>+like `me+something@gmail.com` and most services will think it&#x27;s a new email. This</span>
+<span class=hljs-addition>+is nice and I used it for a while, but I realized that it doesn&#x27;t really protect</span>
+<span class=hljs-addition>+you from having your email leaked online because it&#x27;s pretty straightforward to</span>
+<span class=hljs-addition>+find the actual email. After doing this practice too much, I lost track of what</span>
+<span class=hljs-addition>+email did what and couldn&#x27;t figure out how some emails were receiving certain messages.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I eventually turned to making a new email for most services - which is not too bad.</span>
+<span class=hljs-addition>+In fact, I like it because I can determine what leaked my email, although sometimes</span>
+<span class=hljs-addition>+I set up an email for a specific purpose rather than a specific service e.g. job</span>
+<span class=hljs-addition>+search and when that gets leaked I have to figure out which job site leaked it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]</span>
+<span class=hljs-addition>+    \node{A}</span>
+<span class=hljs-addition>+      child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {d} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {e} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {f} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {g} edge from parent node[draw=none]{} };</span>
+<span class=hljs-addition>+  \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But one day I decided I didn&#x27;t want to use a certain email anymore because it was</span>
+<span class=hljs-addition>+spammed to hell, so I created a new master email and had `A` forward everything but</span>
+<span class=hljs-addition>+the unwanted emails.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle}, -]</span>
+<span class=hljs-addition>+  \node{B}</span>
+<span class=hljs-addition>+    child {</span>
+<span class=hljs-addition>+      node{A}</span>
+<span class=hljs-addition>+        child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {d} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {e} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {f} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {g} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      edge from parent node[right, draw=none]{filter}</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+  \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And now when I create new emails for services, I nest them under the latest master</span>
+<span class=hljs-addition>+rather than at the bottom. This just means theres less forwarding done.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle}, -]</span>
+<span class=hljs-addition>+  \node{B}</span>
+<span class=hljs-addition>+    child { node {h} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child { node {i} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child {</span>
+<span class=hljs-addition>+      node{A}</span>
+<span class=hljs-addition>+        child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {d} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {e} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {f} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+        child{ node {g} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      edge from parent node[right, draw=none]{filter}</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+  \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now and then, I&#x27;ll nest things under a new master email just to keep things fresh,</span>
+<span class=hljs-addition>+but usually only after a certain period of time has passed or I want to &quot;deprecate&quot;</span>
+<span class=hljs-addition>+one of my emails through a filter.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I did start having a few reservations about this setup though. The first one is that</span>
+<span class=hljs-addition>+access to a master email gives insight to a non-trivial part of my activities because</span>
+<span class=hljs-addition>+some of my emails flow through it. Although, arguably it gives less insight than</span>
+<span class=hljs-addition>+if you had everything in one account. Another problem is that with this setup, one</span>
+<span class=hljs-addition>+service going down means I lose emails from all the ones nested below it - I haven&#x27;t</span>
+<span class=hljs-addition>+actually mapped out my tree of emails so I&#x27;m not exactly sure what would be lost</span>
+<span class=hljs-addition>+at a glance. Then again, losing a node in this tree means losing less than if you</span>
+<span class=hljs-addition>+lost your only email. Hmm, maybe it is good after all.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What I&#x27;ve been thinking of recently is somehow encrypting the received emails so</span>
+<span class=hljs-addition>+access to any inbox wouldn&#x27;t yield any information. Unfortunately this requires</span>
+<span class=hljs-addition>+the services to send the email encryped which isn&#x27;t possible in most cases, so</span>
+<span class=hljs-addition>+I&#x27;ve been thinking of somehow making each node encrypt the message before forwarding</span>
+<span class=hljs-addition>+it to its parent. For example if `c` received a message it would be encrypted like</span>
+<span class=hljs-addition>+`B(A(c(message)))` and I&#x27;d have to decrypt it using those keys. But that requires</span>
+<span class=hljs-addition>+having the tree mapped out. Which is actually one of my projects that I think I&#x27;ll</span>
+<span class=hljs-addition>+never get around to doing, as I looked at some email implementation details it it</span>
+<span class=hljs-addition>+was pretty complex.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

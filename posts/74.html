@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>brute force compression idea</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/73>&lt; pollution control in factorio</a></div> <div style=text-align:end><a href=/./posts/75>failing to gather requirements &gt;</a></div>
+</nav>
+<h1 id=brute-force-compression-idea>brute force compression idea</h1>
+<p>This randomly popped into my head as I was thinking of compression algorithms; How efficient would it be to compress data by:</p>
+<ol>
+<li>Calculating a hash for the original data</li>
+<li>Removing parts of the data and mark them as missing</li>
+</ol>
+<p>I'll talk about it in the context of compressing strings because it's easier for me to use terminology, but I don't see why it's not applicable to any kind of data.</p>
+<p>The decoding process would be done through brute force, and its run-time would depend on two things; the character dictionary - how many valid possibilities go in a single spot - the number of removed characters, and the hash function itself.</p>
+<p>I'm not competent enough to do any kind of analysis on this idea, but the things to ask yourself would be:</p>
+<ol>
+<li>What are the chances two pieces of data with the same length and same parts in various positions can cause a collision e.g. could AB_ have two values for _ that hash to <code>902fbdd2b1df0c4f70b4a5d23525e932</code>? (that's the md5 for ABC). The chance does increase with length of data, so one way to lower the risk would be to chunk the data and apply it to each chunk.</li>
+<li>How do we signify where characters are removed? Replacing them with a "blank" won't do much for compression, so ideally we remove various ranges in the data and mark them somehow.</li>
+<li>How can we find "ideal" solutions? We can speed up decoding if we lower the amount of unique characters that are removed, which may require including the character dictionary in the data or by lowering the amount of overall characters removed. On the other hand, we can increase compression by removing more characters. Various hashing functions also have benefits compared to others for example, in general, a rolling hash may help when decoding.</li>
+</ol>
+<p>I do think that storage is cheaper than compute, and that the unreliable nature of this idea is so bad that it's probably not worth it.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/73>&lt; pollution control in factorio</a></div> <div style=text-align:end><a href=/./posts/75>failing to gather requirements &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-04-02 - add post 74</summary>
+<pre class=code-block><input id=code-block-5ab0af9ebedc360ac117a61da1ace53d4ebac74e-1 type=checkbox><label for=code-block-5ab0af9ebedc360ac117a61da1ace53d4ebac74e-1></label><code><span class=hljs-meta>@@ -0,0 +1,38 @@</span>
+<span class=hljs-addition>+# brute force compression idea</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This randomly popped into my head as I was thinking of compression algorithms;</span>
+<span class=hljs-addition>+How efficient would it be to compress data by:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Calculating a hash for the original data</span>
+<span class=hljs-addition>+2. Removing parts of the data and mark them as missing</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll talk about it in the context of compressing strings because it&#x27;s easier for</span>
+<span class=hljs-addition>+me to use terminology, but I don&#x27;t see why it&#x27;s not applicable to any kind of</span>
+<span class=hljs-addition>+data.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The decoding process would be done through brute force, and its run-time would</span>
+<span class=hljs-addition>+depend on two things; the character dictionary - how many valid possibilities go</span>
+<span class=hljs-addition>+in a single spot - the number of removed characters, and the hash function</span>
+<span class=hljs-addition>+itself.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not competent enough to do any kind of analysis on this idea, but the things</span>
+<span class=hljs-addition>+to ask yourself would be:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. What are the chances two pieces of data with the same length and same parts</span>
+<span class=hljs-addition>+   in various positions can cause a collision e.g. could AB\_ have two values</span>
+<span class=hljs-addition>+   for \_ that hash to `902fbdd2b1df0c4f70b4a5d23525e932`? (that&#x27;s the md5 for</span>
+<span class=hljs-addition>+   ABC). The chance does increase with length of data, so one way to lower the</span>
+<span class=hljs-addition>+   risk would be to chunk the data and apply it to each chunk.</span>
+<span class=hljs-addition>+2. How do we signify where characters are removed? Replacing them with a &quot;blank&quot;</span>
+<span class=hljs-addition>+   won&#x27;t do much for compression, so ideally we remove various ranges in the</span>
+<span class=hljs-addition>+   data and mark them somehow.</span>
+<span class=hljs-addition>+3. How can we find &quot;ideal&quot; solutions? We can speed up decoding if we lower the</span>
+<span class=hljs-addition>+   amount of unique characters that are removed, which may require including the</span>
+<span class=hljs-addition>+   character dictionary in the data or by lowering the amount of overall</span>
+<span class=hljs-addition>+   characters removed. On the other hand, we can increase compression by</span>
+<span class=hljs-addition>+   removing more characters. Various hashing functions also have benefits</span>
+<span class=hljs-addition>+   compared to others for example, in general, a rolling hash may help when</span>
+<span class=hljs-addition>+   decoding.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I do think that storage is cheaper than compute, and that the unreliable nature</span>
+<span class=hljs-addition>+of this idea is so bad that it&#x27;s probably not worth it.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

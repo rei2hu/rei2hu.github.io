@@ -1,0 +1,1717 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>docs gen for rocket_rs websites</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/23>&lt; random requests to my aws application</a></div> <div style=text-align:end><a href=/./posts/25>errata 1-24 &gt;</a></div>
+</nav>
+<h1 id=docs-gen-for-rocketrs-websites>docs gen for rocket.rs websites</h1>
+<p>So over the past couple of weeks I've been putting together a simple website with no actual purpose to refresh/learn a few things:</p>
+<ol>
+<li>Rust</li>
+<li>rocket</li>
+<li>Deploying to AWS</li>
+<li>syn</li>
+</ol>
+<h2 id=rocket>rocket</h2>
+<p><code>Rocket</code> is a framework for rust. In my opinion, it was quite easy to work with and had many useful features - at least for the simple stuff I did.</p>
+<h3 id=route-attributes>route attributes</h3>
+<p>A lot of the simplicity is due to the route attributes whose purpose can be found in other web frameworks. This cuts down on manually writing code to check the method, url, and even data that is passed to your route.</p>
+<p>Let's say you wanted to handle a <code>post</code> request to <code>/game/(dynamic_id)/move</code>.</p>
+<p>In <code>Express</code>, you might have something like (double check usage here because I haven't dealt with <code>Express</code> code in like 2 years.):</p>
+<pre class=code-block><input id=code-block-24-1 type=checkbox><label for=code-block-24-1></label><code>app.<span class="hljs-title function_">post</span>(<span class=hljs-string>&quot;/game/:gameId/move&quot;</span>, <span class=hljs-function>(<span class=hljs-params>req, res</span>) =&gt;</span> {
+    <span class=hljs-comment>// use req.params.gameId</span>
+    <span class=hljs-comment>// check req.body</span>
+});
+</code></pre>
+<p>In <code>rocket</code>, you could do something like this:</p>
+<pre class=code-block><input id=code-block-24-2 type=checkbox><label for=code-block-24-2></label><code><span class=hljs-meta>#[post(<span class=hljs-string>&quot;/game/&lt;game_id&gt;/move, data = &quot;</span>&lt;data&gt;<span class=hljs-string>&quot;)]
+pub fn move_piece(game_id: u32, data: MoveData) -&gt; String {
+    // use game_id and data
+}
+</span></span></code></pre>
+<p>The interesting thing here to note is that we actually have types for <code>game_id</code>
+and <code>data</code> in the rust version. This is pretty cool because now we can take advantage of types to verify things. If someone made the request to
+<code>/game/notanid/move</code>, the error is caught just through the type when for Express you still need to write code to check the game id. Admittedly you still need to check whether the id itself is a valid one which means both frameworks would still require code to do that.</p>
+<p>The same thing is done for data - <code>MoveData</code> is a struct that defines certain fields and can be somehow (may require a separate implementation but there are also helpers that simplify this) extracted from the request. If the body doesn't match, then <code>rocket</code> won't run this function.</p>
+<p>Maybe you want to accept multiple types for a single parameter; you can do this by having multiple functions with different type signatures.</p>
+<pre class=code-block><input id=code-block-24-3 type=checkbox><label for=code-block-24-3></label><code><span class=hljs-meta>#[get(<span class=hljs-string>&quot;/data/&lt;value&gt;&quot;</span>)]</span>
+<span class=hljs-keyword>pub</span> <span class=hljs-keyword>fn</span> <span class="hljs-title function_">its_a_string</span>(value: <span class=hljs-type>String</span>) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>String</span> {}
+
+<span class=hljs-meta>#[get(<span class=hljs-string>&quot;/data/&lt;value&gt;&quot;</span>)]</span>
+<span class=hljs-keyword>pub</span> <span class=hljs-keyword>fn</span> <span class="hljs-title function_">its_a_i32</span>(value: <span class=hljs-type>i32</span>) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>String</span> {}
+</code></pre>
+<p>Pretty useful.</p>
+<h3 id=guards>guards</h3>
+<p>So all of this type stuff in the arguments falls under "Request Guards" for
+<code>rocket</code>. Any guard needs to implement <code>FromRequest</code> which is to say that it is a type that can be constructed from a <code>Request</code>.</p>
+<p>In this way, you can implement this for your own needs. For example, maybe you have endpoints that require a valid authorization header set. You can just create a new type and implement <code>FromRequest</code> for it like so:</p>
+<pre class=code-block><input id=code-block-24-4 type=checkbox><label for=code-block-24-4></label><code><span class=hljs-keyword>struct</span> <span class="hljs-title class_">AuthorizedUser</span>(<span class=hljs-type>i32</span>);
+<span class=hljs-keyword>impl</span>&lt;<span class=hljs-symbol>&#x27;a</span>, <span class=hljs-symbol>&#x27;r</span>&gt; FromRequest&lt;<span class=hljs-symbol>&#x27;a</span>, <span class=hljs-symbol>&#x27;r</span>&gt; <span class=hljs-keyword>for</span> <span class="hljs-title class_">AuthorizedUser</span> {
+    <span class=hljs-keyword>type</span> <span class="hljs-title class_">Error</span> = !;
+    <span class=hljs-keyword>fn</span> <span class="hljs-title function_">from_request</span>(request: &amp;<span class=hljs-symbol>&#x27;a</span> Request&lt;<span class=hljs-symbol>&#x27;r</span>&gt;) <span class=hljs-punctuation>-&gt;</span> Outcome&lt;<span class=hljs-keyword>Self</span>, <span class=hljs-keyword>Self</span>::Error&gt; {
+        <span class=hljs-comment>// don&#x27;t follow this implementation please</span>
+        <span class=hljs-keyword>match</span> request.headers.<span class="hljs-title function_ invoke__">get</span>(<span class=hljs-string>&quot;authorization&quot;</span>).<span class="hljs-title function_ invoke__">find_map</span>(|key| {
+            <span class=hljs-keyword>if</span> <span class="hljs-title function_ invoke__">is_valid_key</span>(key) {
+                <span class="hljs-title function_ invoke__">Some</span>(<span class="hljs-title function_ invoke__">AuthorizerUser</span>(<span class=hljs-number>123</span>))
+            } <span class=hljs-keyword>else</span> {
+                <span class=hljs-literal>None</span>
+            }
+        }) {
+            <span class="hljs-title function_ invoke__">Some</span>(user) =&gt; Outcome::<span class="hljs-title function_ invoke__">Success</span>(user),
+            <span class=hljs-literal>None</span> =&gt; Outcome::<span class="hljs-title function_ invoke__">Forward</span>(),
+        }
+    }
+}
+
+<span class=hljs-meta>#[get(<span class=hljs-string>&quot;/my_info&quot;</span>, rank = 1)]</span>
+<span class=hljs-keyword>pub</span> <span class=hljs-keyword>fn</span> <span class="hljs-title function_">requires_auth</span>(user: AuthorizedUser) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>String</span> {}
+
+<span class=hljs-meta>#[get(<span class=hljs-string>&quot;my_info&quot;</span>, rank = 2)]</span>
+<span class=hljs-keyword>pub</span> <span class=hljs-keyword>fn</span> <span class="hljs-title function_">no_auth</span>() <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>String</span> {}
+</code></pre>
+<p>If an <code>AuthorizedUser</code> can be created from the request, then <code>requires_auth</code> is run. If not, then <code>no_auth</code> is run. The rank determines the order the routes are attempted in. Unfortunately, the <code>Request</code> type doesn't include the body so processing the body has to be done within the actual function.</p>
+<h3 id=other>other</h3>
+<p>The return type of the function also has a similar feature, where it has to implement <code>Responder</code>.</p>
+<p>There is also a ton of useful stuff for dealing with cookies/databases/state/etc. I ended up only going over the guards because they will come up later.</p>
+<h2 id=deploying-to-aws>deploying to AWS</h2>
+<p>Deploying to aws was also pretty simple - I just ssh'd into an EC2 instance, cloned, built, and ran. I ended up not using docker because the project was simple enough to not need control the environment and I only plan to run/develop it on that single instance.</p>
+<p>I did run into a couple of snags though; the main one being actually being able to get ssh access. I don't know the exact steps I took to get to the point, but I was in a situation where there were no entries in the route table so the EC2 instance couldn't be accessed through the internet.</p>
+<p>Setting up a domain name, nginx, and certbot for LetsEncrypt certificates was also straightforward and relatively hassle free.</p>
+<p>I'm not sure how I'd compare this deployment to Heroku because they do seem to be fundamentally different - Procfile vs actual ssh control. I do prefer being able to ssh in to the (virtual) machine though.</p>
+<h2 id=docs-gen>docs gen</h2>
+<p>So this is probably the actual crux of the project - I've built too many websites for me to call the actual website its own project because learning a new web framework really doesn't mean much to me anymore.</p>
+<p>As explained earlier, a lot of rocket is dependent on attributes - the routes use route attributes and a lot of the types can also be set up without having to write entire implementations by using attributes. Naturally, given this, it should be possible to automatically generate some kind of file with information on what a route takes/returns.</p>
+<p>For example:</p>
+<pre class=code-block><input id=code-block-24-5 type=checkbox><label for=code-block-24-5></label><code><span class=hljs-meta>#[derive(Responder)]</span>
+<span class=hljs-keyword>enum</span> <span class="hljs-title class_">MyResponseEnum</span> {
+    <span class=hljs-meta>#[response(status = 200, content_type = <span class=hljs-string>&quot;application/json&quot;</span>)]</span>
+    <span class="hljs-title function_ invoke__">GoodStuff</span>(<span class=hljs-type>i32</span>, <span class=hljs-type>String</span>),
+    <span class=hljs-meta>#[response(status = 400)]</span>
+    <span class="hljs-title function_ invoke__">BadRequest</span>(<span class=hljs-type>i32</span>, <span class=hljs-type>i32</span>),
+    <span class=hljs-meta>#[response(status = 500, content_type = <span class=hljs-string>&quot;text&quot;</span>)]</span>
+    InternalError { body: <span class=hljs-type>String</span>, header1: <span class=hljs-type>i32</span> },
+}
+
+<span class=hljs-meta>#[derive(Deserialize)]</span>
+<span class=hljs-keyword>struct</span> <span class="hljs-title class_">LoginData</span> {
+    username: <span class=hljs-type>String</span>,
+    password: <span class=hljs-type>String</span>,
+}
+
+<span class=hljs-meta>#[post(<span class=hljs-string>&quot;/login&quot;</span>, data=&lt;login_data&gt;, content_type = <span class=hljs-string>&quot;application/json&quot;</span>)]</span>
+<span class=hljs-keyword>pub</span> <span class=hljs-keyword>fn</span> <span class="hljs-title function_">login</span>(data: Json&lt;LoginData&gt;) <span class=hljs-punctuation>-&gt;</span> Login {}
+</code></pre>
+<p>It looks like there is a <code>/login</code> endpoint which takes a <code>Json&lt;LoginData&gt;</code> which means an object like <code>{ username: "", string: "" }</code> and returns a <code>Login</code>
+variant which is either a 200 or 401 response code.</p>
+<p>Based on the attributes we can determine a lot of the information for the route, and if we could extract that, maybe generate documentation for it automatically.</p>
+<h3 id=syn>syn</h3>
+<p>What <code>syn</code> can do is transform valid Rust code (provided as a <code>String</code> or
+<code>TokenStream</code>) into an abstract syntax tree. And then we just need to extract the various bits from the tree to help generate our documentation.</p>
+<p>Consider the enum in the above snippet. We can have <code>syn</code> parse it like so.</p>
+<pre class=code-block><input id=code-block-24-6 type=checkbox><label for=code-block-24-6></label><code>&amp;syn::<span class="hljs-title function_ invoke__">parse_str</span>(
+<span class=hljs-string>&quot;
+#[derive(Responder)]
+enum MyResponseEnum {
+    #[response(status = 200, content_type = \&quot;application/json\&quot;)]
+    GoodStuff(i32, String),
+    #[response(status = 400)]
+    BadRequest(i32, i32),
+    #[response(status = 500, content_type = \&quot;text\&quot;)]
+    InternalError { body: String, header1: i32 },
+}
+&quot;</span>,
+)
+.<span class="hljs-title function_ invoke__">unwrap</span>()
+</code></pre>
+<p>This generates a huge syntax tree (looks like I should add some collapsible thing for code blocks… also feel free to skip because I'll point out the important parts):</p>
+<pre class=code-block><input id=code-block-24-7 type=checkbox><label for=code-block-24-7></label><code>ItemEnum {
+    attrs: [
+        Attribute {
+            pound_token: Pound,
+            style: Outer,
+            bracket_token: Bracket,
+            path: Path {
+                leading_colon: <span class=hljs-literal>None</span>,
+                segments: [
+                    PathSegment {
+                        ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                            derive,
+                        ),
+                        arguments: <span class=hljs-literal>None</span>,
+                    },
+                ],
+            },
+            tokens: TokenStream [
+                Group {
+                    delimiter: Parenthesis,
+                    stream: TokenStream [
+                        Ident {
+                            sym: Responder,
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+    vis: Inherited,
+    enum_token: Enum,
+    ident: <span class="hljs-title function_ invoke__">Ident</span>(
+        MyResponseEnum,
+    ),
+    generics: Generics {
+        lt_token: <span class=hljs-literal>None</span>,
+        params: [],
+        gt_token: <span class=hljs-literal>None</span>,
+        where_clause: <span class=hljs-literal>None</span>,
+    },
+    brace_token: Brace,
+    variants: [
+        Variant {
+            attrs: [
+                Attribute {
+                    pound_token: Pound,
+                    style: Outer,
+                    bracket_token: Bracket,
+                    path: Path {
+                        leading_colon: <span class=hljs-literal>None</span>,
+                        segments: [
+                            PathSegment {
+                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                    response,
+                                ),
+                                arguments: <span class=hljs-literal>None</span>,
+                            },
+                        ],
+                    },
+                    tokens: TokenStream [
+                        Group {
+                            delimiter: Parenthesis,
+                            stream: TokenStream [
+                                Ident {
+                                    sym: status,
+                                },
+                                Punct {
+                                    <span class=hljs-type>char</span>: <span class=hljs-string>&#x27;=&#x27;</span>,
+                                    spacing: Alone,
+                                },
+                                Literal {
+                                    lit: <span class=hljs-number>200</span>,
+                                },
+                                Punct {
+                                    <span class=hljs-type>char</span>: <span class=hljs-string>&#x27;,&#x27;</span>,
+                                    spacing: Alone,
+                                },
+                                Ident {
+                                    sym: content_type,
+                                },
+                                Punct {
+                                    <span class=hljs-type>char</span>: <span class=hljs-string>&#x27;=&#x27;</span>,
+                                    spacing: Alone,
+                                },
+                                Literal {
+                                    lit: <span class=hljs-string>&quot;application/json&quot;</span>,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                GoodStuff,
+            ),
+            fields: <span class="hljs-title function_ invoke__">Unnamed</span>(
+                FieldsUnnamed {
+                    paren_token: Paren,
+                    unnamed: [
+                        Field {
+                            attrs: [],
+                            vis: Inherited,
+                            ident: <span class=hljs-literal>None</span>,
+                            colon_token: <span class=hljs-literal>None</span>,
+                            ty: <span class="hljs-title function_ invoke__">Path</span>(
+                                TypePath {
+                                    qself: <span class=hljs-literal>None</span>,
+                                    path: Path {
+                                        leading_colon: <span class=hljs-literal>None</span>,
+                                        segments: [
+                                            PathSegment {
+                                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                                    <span class=hljs-type>i32</span>,
+                                                ),
+                                                arguments: <span class=hljs-literal>None</span>,
+                                            },
+                                        ],
+                                    },
+                                },
+                            ),
+                        },
+                        Comma,
+                        Field {
+                            attrs: [],
+                            vis: Inherited,
+                            ident: <span class=hljs-literal>None</span>,
+                            colon_token: <span class=hljs-literal>None</span>,
+                            ty: <span class="hljs-title function_ invoke__">Path</span>(
+                                TypePath {
+                                    qself: <span class=hljs-literal>None</span>,
+                                    path: Path {
+                                        leading_colon: <span class=hljs-literal>None</span>,
+                                        segments: [
+                                            PathSegment {
+                                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                                    <span class=hljs-type>String</span>,
+                                                ),
+                                                arguments: <span class=hljs-literal>None</span>,
+                                            },
+                                        ],
+                                    },
+                                },
+                            ),
+                        },
+                    ],
+                },
+            ),
+            discriminant: <span class=hljs-literal>None</span>,
+        },
+        Comma,
+        Variant {
+            attrs: [
+                Attribute {
+                    pound_token: Pound,
+                    style: Outer,
+                    bracket_token: Bracket,
+                    path: Path {
+                        leading_colon: <span class=hljs-literal>None</span>,
+                        segments: [
+                            PathSegment {
+                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                    response,
+                                ),
+                                arguments: <span class=hljs-literal>None</span>,
+                            },
+                        ],
+                    },
+                    tokens: TokenStream [
+                        Group {
+                            delimiter: Parenthesis,
+                            stream: TokenStream [
+                                Ident {
+                                    sym: status,
+                                },
+                                Punct {
+                                    <span class=hljs-type>char</span>: <span class=hljs-string>&#x27;=&#x27;</span>,
+                                    spacing: Alone,
+                                },
+                                Literal {
+                                    lit: <span class=hljs-number>400</span>,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                BadRequest,
+            ),
+            fields: <span class="hljs-title function_ invoke__">Unnamed</span>(
+                FieldsUnnamed {
+                    paren_token: Paren,
+                    unnamed: [
+                        Field {
+                            attrs: [],
+                            vis: Inherited,
+                            ident: <span class=hljs-literal>None</span>,
+                            colon_token: <span class=hljs-literal>None</span>,
+                            ty: <span class="hljs-title function_ invoke__">Path</span>(
+                                TypePath {
+                                    qself: <span class=hljs-literal>None</span>,
+                                    path: Path {
+                                        leading_colon: <span class=hljs-literal>None</span>,
+                                        segments: [
+                                            PathSegment {
+                                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                                    <span class=hljs-type>i32</span>,
+                                                ),
+                                                arguments: <span class=hljs-literal>None</span>,
+                                            },
+                                        ],
+                                    },
+                                },
+                            ),
+                        },
+                        Comma,
+                        Field {
+                            attrs: [],
+                            vis: Inherited,
+                            ident: <span class=hljs-literal>None</span>,
+                            colon_token: <span class=hljs-literal>None</span>,
+                            ty: <span class="hljs-title function_ invoke__">Path</span>(
+                                TypePath {
+                                    qself: <span class=hljs-literal>None</span>,
+                                    path: Path {
+                                        leading_colon: <span class=hljs-literal>None</span>,
+                                        segments: [
+                                            PathSegment {
+                                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                                    <span class=hljs-type>i32</span>,
+                                                ),
+                                                arguments: <span class=hljs-literal>None</span>,
+                                            },
+                                        ],
+                                    },
+                                },
+                            ),
+                        },
+                    ],
+                },
+            ),
+            discriminant: <span class=hljs-literal>None</span>,
+        },
+        Comma,
+        Variant {
+            attrs: [
+                Attribute {
+                    pound_token: Pound,
+                    style: Outer,
+                    bracket_token: Bracket,
+                    path: Path {
+                        leading_colon: <span class=hljs-literal>None</span>,
+                        segments: [
+                            PathSegment {
+                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                    response,
+                                ),
+                                arguments: <span class=hljs-literal>None</span>,
+                            },
+                        ],
+                    },
+                    tokens: TokenStream [
+                        Group {
+                            delimiter: Parenthesis,
+                            stream: TokenStream [
+                                Ident {
+                                    sym: status,
+                                },
+                                Punct {
+                                    <span class=hljs-type>char</span>: <span class=hljs-string>&#x27;=&#x27;</span>,
+                                    spacing: Alone,
+                                },
+                                Literal {
+                                    lit: <span class=hljs-number>500</span>,
+                                },
+                                Punct {
+                                    <span class=hljs-type>char</span>: <span class=hljs-string>&#x27;,&#x27;</span>,
+                                    spacing: Alone,
+                                },
+                                Ident {
+                                    sym: content_type,
+                                },
+                                Punct {
+                                    <span class=hljs-type>char</span>: <span class=hljs-string>&#x27;=&#x27;</span>,
+                                    spacing: Alone,
+                                },
+                                Literal {
+                                    lit: <span class=hljs-string>&quot;text&quot;</span>,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                InternalError,
+            ),
+            fields: <span class="hljs-title function_ invoke__">Named</span>(
+                FieldsNamed {
+                    brace_token: Brace,
+                    named: [
+                        Field {
+                            attrs: [],
+                            vis: Inherited,
+                            ident: <span class="hljs-title function_ invoke__">Some</span>(
+                                <span class="hljs-title function_ invoke__">Ident</span>(
+                                    body,
+                                ),
+                            ),
+                            colon_token: <span class="hljs-title function_ invoke__">Some</span>(
+                                Colon,
+                            ),
+                            ty: <span class="hljs-title function_ invoke__">Path</span>(
+                                TypePath {
+                                    qself: <span class=hljs-literal>None</span>,
+                                    path: Path {
+                                        leading_colon: <span class=hljs-literal>None</span>,
+                                        segments: [
+                                            PathSegment {
+                                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                                    <span class=hljs-type>String</span>,
+                                                ),
+                                                arguments: <span class=hljs-literal>None</span>,
+                                            },
+                                        ],
+                                    },
+                                },
+                            ),
+                        },
+                        Comma,
+                        Field {
+                            attrs: [],
+                            vis: Inherited,
+                            ident: <span class="hljs-title function_ invoke__">Some</span>(
+                                <span class="hljs-title function_ invoke__">Ident</span>(
+                                    header1,
+                                ),
+                            ),
+                            colon_token: <span class="hljs-title function_ invoke__">Some</span>(
+                                Colon,
+                            ),
+                            ty: <span class="hljs-title function_ invoke__">Path</span>(
+                                TypePath {
+                                    qself: <span class=hljs-literal>None</span>,
+                                    path: Path {
+                                        leading_colon: <span class=hljs-literal>None</span>,
+                                        segments: [
+                                            PathSegment {
+                                                ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                                    <span class=hljs-type>i32</span>,
+                                                ),
+                                                arguments: <span class=hljs-literal>None</span>,
+                                            },
+                                        ],
+                                    },
+                                },
+                            ),
+                        },
+                    ],
+                },
+            ),
+            discriminant: <span class=hljs-literal>None</span>,
+        },
+        Comma,
+    ],
+}
+</code></pre>
+<p>This is nice, but the first thing we actually want is to check if the enum derives <code>Responder</code>. Here is the interesting stuff below:</p>
+<pre class=code-block><input id=code-block-24-8 type=checkbox><label for=code-block-24-8></label><code>ItemEnum {
+    attrs: [
+        Attribute {
+            path: Path {
+                leading_colon: <span class=hljs-literal>None</span>,
+                segments: [
+                    PathSegment {
+                        ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                            derive,
+                        ),
+                        arguments: <span class=hljs-literal>None</span>,
+                    },
+                ],
+            },
+            tokens: TokenStream [
+                Group {
+                    delimiter: Parenthesis,
+                    stream: TokenStream [
+                        Ident {
+                            sym: Responder,
+                        },
+                    ],
+                },
+            ],
+            ..
+        },
+    ],
+</code></pre>
+<p>We want an <code>ItemEnum</code> where an element of <code>attrs</code> is an <code>Attribute</code> whose which has a <code>path</code> whose first <code>segment</code>'s <code>ident</code> is <code>derive</code>. This tells us that there is a derive macro. But wait, that's not all - we still need to check for
+<code>Responder</code>.</p>
+<p>Unfortunately at this point, the ast turns back into a <code>TokenStream</code> which is not ideal for us. Fortunately, there is a
+<a href=https://docs.rs/syn/0.15.26/syn/struct.Attribute.html#method.parse_meta><code>parse_meta</code></a>
+method for attributes which we can use here.</p>
+<p>Once we run something like
+<code>enum.attrs.iter().map(|attr| attr.parse_meta().unwrap()).collect::&lt;Vec&lt;syn::Meta&gt;&gt;()</code>, we end up with an array of nodes - in this case:</p>
+<pre class=code-block><input id=code-block-24-9 type=checkbox><label for=code-block-24-9></label><code>[
+    <span class="hljs-title function_ invoke__">List</span>(
+        MetaList {
+            path: Path {
+                leading_colon: <span class=hljs-literal>None</span>,
+                segments: [
+                    PathSegment {
+                        ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                            derive,
+                        ),
+                        arguments: <span class=hljs-literal>None</span>,
+                    },
+                ],
+            },
+            paren_token: Paren,
+            nested: [
+                <span class="hljs-title function_ invoke__">Meta</span>(
+                    <span class="hljs-title function_ invoke__">Path</span>(
+                        Path {
+                            leading_colon: <span class=hljs-literal>None</span>,
+                            segments: [
+                                PathSegment {
+                                    ident: <span class="hljs-title function_ invoke__">Ident</span>(
+                                        Responder,
+                                    ),
+                                    arguments: <span class=hljs-literal>None</span>,
+                                },
+                            ],
+                        },
+                    ),
+                ),
+            ],
+        },
+    ),
+]
+</code></pre>
+<p>By using <code>parse_meta</code>, we end up with a more straightforward representation which allows us to find what we are looking for more easily. <code>derive</code> is still there normally, but now we see that there is a <code>Path</code> with 1 segment with
+<code>Responder</code>. So now we know a simple way to figure out if something derives responder:</p>
+<pre class=code-block><input id=code-block-24-10 type=checkbox><label for=code-block-24-10></label><code><span class=hljs-keyword>fn</span> <span class="hljs-title function_">derives_responder</span>(enm: syn::ItemEnum) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>bool</span> {
+    enm.attrs.<span class="hljs-title function_ invoke__">iter</span>().<span class="hljs-title function_ invoke__">any</span>(|attr| {
+        attr.<span class="hljs-title function_ invoke__">parse_meta</span>()
+            .<span class="hljs-title function_ invoke__">ok</span>()
+            .<span class="hljs-title function_ invoke__">and_then</span>(|meta| {
+                <span class=hljs-keyword>match</span> meta {
+                    <span class=hljs-comment>// check for derive</span>
+                    syn::Meta::<span class="hljs-title function_ invoke__">List</span>(meta_list @ syn::MetaList { path, nested, .. })
+                        <span class=hljs-keyword>if</span> path
+                            .<span class="hljs-title function_ invoke__">get_ident</span>()
+                            .<span class="hljs-title function_ invoke__">map_or</span>(<span class=hljs-literal>false</span>, |ident| ident.<span class="hljs-title function_ invoke__">to_string</span>() == <span class=hljs-string>&quot;derive&quot;</span>) =&gt;
+                    {
+                        <span class=hljs-comment>// check for Responder</span>
+                        nested.<span class="hljs-title function_ invoke__">any</span>(|meta| <span class=hljs-keyword>match</span> meta {
+                            syn::NestedMeta::<span class="hljs-title function_ invoke__">Meta</span>(syn::Meta::<span class="hljs-title function_ invoke__">Path</span>(path)) =&gt; {
+                                <span class="hljs-title function_ invoke__">Some</span>(path.segments.<span class="hljs-title function_ invoke__">pairs</span>().<span class="hljs-title function_ invoke__">any</span>(|segment| {
+                                    segment.<span class="hljs-title function_ invoke__">value</span>().ident.<span class="hljs-title function_ invoke__">to_string</span>() == <span class=hljs-string>&quot;Responder&quot;</span>
+                                }))
+                            }
+                            _ =&gt; <span class=hljs-literal>None</span>,
+                        })
+                    }
+                    _ =&gt; <span class=hljs-literal>None</span>,
+                }
+            })
+            .<span class="hljs-title function_ invoke__">unwrap_or</span>(<span class=hljs-literal>false</span>)
+    })
+}
+</code></pre>
+<p>This the exact code I wrote (and I'm not fully sure if this works because I'm just typing this up on the go, like most of my "examples"), because attributes are a large part of this so I ended up moving attribute extraction to its own thing. But hopefully it looks ok.</p>
+<p>This example really encompasses most of the logic that is necessary to get things rolling - whether it be an attribute or function return types, I was able to use similar approaches for extracting or determining what data I wanted to use.</p>
+<h3 id=current-inputoutput-example>current input/output example</h3>
+<p>The example I run for in the main file for the generator itself is this:</p>
+<pre class=code-block><input id=code-block-24-11 type=checkbox><label for=code-block-24-11></label><code><span class=hljs-meta>#![feature(proc_macro_hygiene, decl_macro)]</span>
+<span class=hljs-meta>#[macro_use]</span> <span class=hljs-keyword>extern</span> <span class=hljs-keyword>crate</span> rocket;
+
+<span class=hljs-meta>#[get(<span class=hljs-string>&quot;/hello/&lt;name&gt;/&lt;age&gt;&quot;</span>)]</span>
+<span class=hljs-keyword>fn</span> <span class="hljs-title function_">hello</span>(name: <span class=hljs-type>String</span>, age: <span class=hljs-type>u8</span>) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>String</span> {
+    <span class=hljs-built_in>format!</span>(<span class=hljs-string>&quot;Hello, {} year old named {}!&quot;</span>, age, name)
+}
+
+<span class=hljs-meta>#[derive(Responder)]</span>
+<span class=hljs-keyword>pub</span> <span class=hljs-keyword>enum</span> <span class="hljs-title class_">LoginResponse</span> {
+    <span class=hljs-meta>#[response(status = 200, content_type = <span class=hljs-string>&quot;text/plain&quot;</span>)]</span>
+    <span class="hljs-title function_ invoke__">Success</span>(<span class=hljs-type>i32</span>),
+    <span class=hljs-meta>#[response(status = 401, content_type = <span class=hljs-string>&quot;text/plain&quot;</span>)]</span>
+    <span class="hljs-title function_ invoke__">Failure</span>(<span class=hljs-type>String</span>),
+}
+
+<span class=hljs-keyword>struct</span> <span class="hljs-title class_">LoginData</span> {
+    username: <span class=hljs-type>String</span>,
+    password: <span class=hljs-type>String</span>,
+}
+
+<span class=hljs-meta>#[post(<span class=hljs-string>&quot;/login&quot;</span>, format=<span class=hljs-string>&quot;application/json&quot;</span>, data = <span class=hljs-string>&quot;&lt;data&gt;&quot;</span>)]</span>
+<span class=hljs-keyword>fn</span> <span class="hljs-title function_">login</span>(user: User, data: LoginData) <span class=hljs-punctuation>-&gt;</span> LoginResponse {
+    <span class=hljs-keyword>if</span> username == <span class=hljs-string>&quot;a&quot;</span> &amp;&amp; password == <span class=hljs-string>&quot;b&quot;</span> {
+        LoginResponse::<span class="hljs-title function_ invoke__">Success</span>(user.id)
+    } <span class=hljs-keyword>else</span> {
+        LoginResponse::<span class="hljs-title function_ invoke__">Failure</span>(<span class=hljs-string>&quot;Bad login&quot;</span>)
+    }
+}
+
+<span class=hljs-meta>#[derive(Responder)]</span>
+<span class=hljs-meta>#[response(status=200)]</span>
+<span class=hljs-keyword>struct</span> <span class="hljs-title class_">LogoutResponse</span> {
+    body: <span class=hljs-type>String</span>
+}
+
+<span class=hljs-meta>#[post(<span class=hljs-string>&quot;/logout&quot;</span>, format=<span class=hljs-string>&quot;text&quot;</span>)]</span>
+<span class=hljs-keyword>fn</span> <span class="hljs-title function_">logout</span>(user: User) <span class=hljs-punctuation>-&gt;</span> LogoutResponse {
+    LogoutResponse {
+        body: <span class=hljs-string>&quot;you&#x27;re out&quot;</span>.<span class="hljs-title function_ invoke__">to_string</span>()
+    }
+}
+
+<span class=hljs-keyword>fn</span> <span class="hljs-title function_">main</span>() {
+    rocket::<span class="hljs-title function_ invoke__">ignite</span>().<span class="hljs-title function_ invoke__">mount</span>(<span class=hljs-string>&quot;/&quot;</span>, routes![hello]).<span class="hljs-title function_ invoke__">launch</span>();
+}
+</code></pre>
+<p>The output is this (with a few tweaks):</p>
+<pre class=code-block><input id=code-block-24-12 type=checkbox><label for=code-block-24-12></label><code>[
+    {
+        <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;hello&quot;</span>,
+        <span class=hljs-attr>handler</span>: {
+            <span class=hljs-attr>args</span>: [
+                [<span class=hljs-string>&quot;name&quot;</span>, <span class=hljs-string>&quot;String&quot;</span>],
+                [<span class=hljs-string>&quot;age&quot;</span>, <span class=hljs-string>&quot;u8&quot;</span>],
+            ],
+            <span class=hljs-attr>ret</span>: <span class=hljs-string>&quot;String&quot;</span>,
+        },
+        <span class=hljs-attr>route</span>: {
+            <span class=hljs-attr>method</span>: <span class=hljs-string>&quot;get&quot;</span>,
+            <span class=hljs-attr>path</span>: <span class=hljs-string>&quot;/hello/&lt;name&gt;/&lt;age&gt;&quot;</span>,
+            <span class=hljs-attr>rank</span>: <span class=hljs-literal>null</span>,
+            <span class=hljs-attr>format</span>: <span class=hljs-literal>null</span>,
+            <span class=hljs-attr>data</span>: <span class=hljs-literal>null</span>,
+        },
+    },
+    {
+        <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;LoginResponse&quot;</span>,
+        <span class=hljs-attr>variants</span>: [
+            {
+                <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;Success&quot;</span>,
+                <span class=hljs-attr>response</span>: {
+                    <span class=hljs-attr>status</span>: <span class=hljs-number>200</span>,
+                    <span class=hljs-attr>content_type</span>: <span class=hljs-string>&quot;text/plain&quot;</span>,
+                },
+                <span class=hljs-attr>fields</span>: [[<span class=hljs-string>&quot;0&quot;</span>, <span class=hljs-string>&quot;i32&quot;</span>]],
+            },
+            {
+                <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;Failure&quot;</span>,
+                <span class=hljs-attr>response</span>: {
+                    <span class=hljs-attr>status</span>: <span class=hljs-number>401</span>,
+                    <span class=hljs-attr>content_type</span>: <span class=hljs-string>&quot;text/plain&quot;</span>,
+                },
+                <span class=hljs-attr>fields</span>: [[<span class=hljs-string>&quot;0&quot;</span>, <span class=hljs-string>&quot;String&quot;</span>]],
+            },
+        ],
+    },
+    {
+        <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;LoginData&quot;</span>,
+        <span class=hljs-attr>fields</span>: [
+            [<span class=hljs-string>&quot;username&quot;</span>, <span class=hljs-string>&quot;String&quot;</span>],
+            [<span class=hljs-string>&quot;password&quot;</span>, <span class=hljs-string>&quot;String&quot;</span>],
+        ],
+        <span class=hljs-attr>response</span>: <span class=hljs-literal>null</span>,
+    },
+    {
+        <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;login&quot;</span>,
+        <span class=hljs-attr>handler</span>: {
+            <span class=hljs-attr>args</span>: [
+                [<span class=hljs-string>&quot;user&quot;</span>, <span class=hljs-string>&quot;User&quot;</span>],
+                [<span class=hljs-string>&quot;data&quot;</span>, <span class=hljs-string>&quot;LoginData&quot;</span>],
+            ],
+            <span class=hljs-attr>ret</span>: <span class=hljs-string>&quot;LoginResponse&quot;</span>,
+        },
+        <span class=hljs-attr>route</span>: {
+            <span class=hljs-attr>method</span>: <span class=hljs-string>&quot;post&quot;</span>,
+            <span class=hljs-attr>path</span>: <span class=hljs-string>&quot;/login&quot;</span>,
+            <span class=hljs-attr>rank</span>: <span class=hljs-literal>null</span>,
+            <span class=hljs-attr>format</span>: <span class=hljs-string>&quot;application/json&quot;</span>,
+            <span class=hljs-attr>data</span>: <span class=hljs-string>&quot;&lt;data&gt;&quot;</span>,
+        },
+    },
+    {
+        <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;LogoutResponse&quot;</span>,
+        <span class=hljs-attr>fields</span>: [[<span class=hljs-string>&quot;body&quot;</span>, <span class=hljs-string>&quot;String&quot;</span>]],
+        <span class=hljs-attr>response</span>: {
+            <span class=hljs-attr>status</span>: <span class=hljs-number>200</span>,
+            <span class=hljs-attr>content_type</span>: <span class=hljs-literal>null</span>,
+        },
+    },
+    {
+        <span class=hljs-attr>ident</span>: <span class=hljs-string>&quot;logout&quot;</span>,
+        <span class=hljs-attr>handler</span>: {
+            <span class=hljs-attr>args</span>: [[<span class=hljs-string>&quot;user&quot;</span>, <span class=hljs-string>&quot;User&quot;</span>]],
+            <span class=hljs-attr>ret</span>: <span class=hljs-string>&quot;LogoutResponse&quot;</span>,
+        },
+        <span class=hljs-attr>route</span>: {
+            <span class=hljs-attr>method</span>: <span class=hljs-string>&quot;post&quot;</span>,
+            <span class=hljs-attr>path</span>: <span class=hljs-string>&quot;/logout&quot;</span>,
+            <span class=hljs-attr>rank</span>: <span class=hljs-literal>null</span>,
+            <span class=hljs-attr>format</span>: <span class=hljs-string>&quot;text&quot;</span>,
+            <span class=hljs-attr>data</span>: <span class=hljs-literal>null</span>,
+        },
+    },
+];
+</code></pre>
+<p>I think it's not bad so far - it captures all structs, and information about functions/enums if they have <code>rocket</code> attributes. The plan is this json blob can be used to then generate a docs page.</p>
+<h3 id=limitations>limitations</h3>
+<p>A lot of functionality in <code>rocket</code> can be done through these attribute macros, but as mentioned earlier, sometimes you want to implement traits manually… which is a lot more work to figure out.</p>
+<p>Fortunately, for me, I did end up using attributes and derive macros more or less everywhere. In certain parts, I might have implemented <code>FromRequest</code> a few times. For this stuff, I end up just writing things manually for explanation.</p>
+<p>Another issue is that the path does not determine the full path because it's also dependent on where the routes are mounted. I think this starts to step outside of just parsing because we start getting into actually having to go through the body of the code which is actually interpreting and running it. For example:</p>
+<pre class=code-block><input id=code-block-24-13 type=checkbox><label for=code-block-24-13></label><code><span class=hljs-keyword>mod</span> routes;
+
+<span class=hljs-keyword>fn</span> <span class="hljs-title function_">my_routes</span>() <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>Vec</span>&lt;Route&gt; {
+    <span class=hljs-built_in>vec!</span>[routes::login]
+}
+
+<span class=hljs-comment>// ...</span>
+<span class=hljs-keyword>let</span> <span class=hljs-variable>url</span> = env::<span class="hljs-title function_ invoke__">var</span>(URL_MOUNT_POINT);
+rocket.<span class="hljs-title function_ invoke__">ignite</span>().<span class="hljs-title function_ invoke__">mount</span>(url, <span class="hljs-title function_ invoke__">my_routes</span>());
+</code></pre>
+<p>No real idea to figure out where this stuff goes, but at least we can more or less glean some information about <code>routes::login</code> from the attribute and types on it.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/23>&lt; random requests to my aws application</a></div> <div style=text-align:end><a href=/./posts/25>errata 1-24 &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-11-18 - add 24</summary>
+<pre class=code-block><input id=code-block-b38739003f8ad4f4e0717195ebb4d2365e4c265b-1 type=checkbox><label for=code-block-b38739003f8ad4f4e0717195ebb4d2365e4c265b-1></label><code><span class=hljs-meta>@@ -0,0 +1,918 @@</span>
+<span class=hljs-addition>+# docs gen for rocket.rs websites</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So over the past couple of weeks I&#x27;ve been putting together a simple website with</span>
+<span class=hljs-addition>+no actual purpose to refresh/learn a few things:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Rust</span>
+<span class=hljs-addition>+2. rocket</span>
+<span class=hljs-addition>+3. Deploying to AWS</span>
+<span class=hljs-addition>+4. syn</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## rocket</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+`Rocket` is a framework for rust. In my opinion, it was quite easy to work with and</span>
+<span class=hljs-addition>+had many useful features - at least for the simple stuff I did.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### route attributes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A lot of the simplicity is due to the route attributes whose purpose can be found</span>
+<span class=hljs-addition>+in other web frameworks. This cuts down on manually writing code to check the method,</span>
+<span class=hljs-addition>+url, and even data that is passed to your route.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Let&#x27;s say you wanted to handle a `post` request to `/game/(dynamic_id)/move`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In `Express`, you might have something like (double check usage here because I haven&#x27;t</span>
+<span class=hljs-addition>+dealt with `Express` code in like 2 years.):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+app.post(&quot;/game/:gameId/move&quot;, (req, res) =&gt; {</span>
+<span class=hljs-addition>+    // use req.params.gameId</span>
+<span class=hljs-addition>+    // check req.body</span>
+<span class=hljs-addition>+})</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In `rocket`, you could do something like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+#[post(&quot;/game/&lt;game_id&gt;/move, data = &quot;&lt;data&gt;&quot;)]</span>
+<span class=hljs-addition>+pub fn move_piece(game_id: u32, data: MoveData) -&gt; String {</span>
+<span class=hljs-addition>+    // use game_id and data</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The interesting thing here to note is that we actually have types for `game_id`</span>
+<span class=hljs-addition>+and `data` in the rust version. This is pretty cool because now we can take advantage</span>
+<span class=hljs-addition>+of types to verify things. If someone made the request to `/game/notanid/move`,</span>
+<span class=hljs-addition>+the error is caught just through the type when for Express you still need to write</span>
+<span class=hljs-addition>+code to check the game id. Admittedly you still need to check whether the id itself</span>
+<span class=hljs-addition>+is a valid one which means both frameworks would still require code to do that.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The same thing is done for data - `MoveData` is a struct that defines certain fields</span>
+<span class=hljs-addition>+and can be somehow (may require a seperate implementation but there are also helpers</span>
+<span class=hljs-addition>+that simplify this) extracted from the request. If the body doesn&#x27;t match, then `rocket`</span>
+<span class=hljs-addition>+won&#x27;t run this function.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Maybe you want to accept multiple types for a single parameter; you can do this by</span>
+<span class=hljs-addition>+having multiple functions with different type signatures.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+#[get(&quot;/data/&lt;value&gt;&quot;)]</span>
+<span class=hljs-addition>+pub fn its_a_string(value: String) -&gt; String {}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[get(&quot;/data/&lt;value&gt;&quot;)]</span>
+<span class=hljs-addition>+pub fn its_a_i32(value: i32) -&gt; String {}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Pretty useful.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### guards</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So all of this type stuff in the arguments falls under &quot;Request Guards&quot; for `rocket`.</span>
+<span class=hljs-addition>+Any guard needs to implement `FromRequest` which is to say that it is a type that</span>
+<span class=hljs-addition>+can be constructed from a `Request`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In this way, you can implement this for your own needs. For example, maybe you have</span>
+<span class=hljs-addition>+endpoints that require a valid authorization header set. You can just create a new</span>
+<span class=hljs-addition>+type and implement `FromRequest` for it like so:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+struct AuthorizedUser(i32);</span>
+<span class=hljs-addition>+impl&lt;&#x27;a, &#x27;r&gt; FromRequest&lt;&#x27;a, &#x27;r&gt; for AuthorizedUser {</span>
+<span class=hljs-addition>+    type Error = !;</span>
+<span class=hljs-addition>+    fn from_request(request: &amp;amp;&#x27;a Request&lt;&#x27;r&gt;) -&gt; Outcome&lt;Self, Self::Error&gt; {</span>
+<span class=hljs-addition>+        // dont follow this implementation please</span>
+<span class=hljs-addition>+        match request.headers.get(&quot;authorization&quot;).find_map(|key| {</span>
+<span class=hljs-addition>+            if is_valid_key(key) {</span>
+<span class=hljs-addition>+                Some(AuthorizerUser(123))</span>
+<span class=hljs-addition>+            } else {</span>
+<span class=hljs-addition>+                None</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }) {</span>
+<span class=hljs-addition>+            Some(user) =&gt; Outcome::Success(user),</span>
+<span class=hljs-addition>+            None =&gt; Outcome::Forward(),</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[get(&quot;/my_info&quot;, rank = 1)]</span>
+<span class=hljs-addition>+pub fn requires_auth(user: AuthorizedUser) -&gt; String {}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[get(&quot;my_info&quot;, rank = 2)]</span>
+<span class=hljs-addition>+pub fn no_auth() -&gt; String {}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If an `AuthorizedUser` can be created from the request, then `requires_auth` is</span>
+<span class=hljs-addition>+run. If not, then `no_auth` is run. The rank determines the order the routes are</span>
+<span class=hljs-addition>+attempted in. Unforunately, the `Request` type doesn&#x27;t include the body so processing</span>
+<span class=hljs-addition>+the body has to be done within the actual function.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### other</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The return type of the function also has a similar feature, where it has to implement</span>
+<span class=hljs-addition>+`Responder`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is also a ton of useful stuff for dealing with cookies/databases/state/etc.</span>
+<span class=hljs-addition>+I ended up only going over the guards because they will come up later.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## deploying to AWS</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Deploying to aws was also pretty simple - I just ssh&#x27;d into an EC2 instance, cloned,</span>
+<span class=hljs-addition>+built, and ran. I ended up not using docker because the project was simple enough</span>
+<span class=hljs-addition>+to not need control the environment and I only plan to run/develop it on that single</span>
+<span class=hljs-addition>+instance.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I did run into a couple of snags though; the main one being actually being able</span>
+<span class=hljs-addition>+to get ssh access. I don&#x27;t know the exact steps I took to get to the point, but</span>
+<span class=hljs-addition>+I was in a situation where there were no entries in the route table so the EC2</span>
+<span class=hljs-addition>+instance couldn&#x27;t be accessed through the internet.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Setting up a domain name, nginx, and certbot for LetsEncrypt certificates was also</span>
+<span class=hljs-addition>+straightforward and relatively hassle free.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not sure how I&#x27;d compare this deployment to Heroku because they do seem to be</span>
+<span class=hljs-addition>+fundamentally different - Procfile vs actual ssh control. I do prefer being able</span>
+<span class=hljs-addition>+to ssh in to the (virtual) machine though.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## docs gen</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So this is probably the actual crux of the project - I&#x27;ve built too many websites</span>
+<span class=hljs-addition>+for me to call the actual website its own project because learning a new web framework</span>
+<span class=hljs-addition>+really doesn&#x27;t mean much to me anymore.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As explained earlier, a lot of rocket is dependent on attributes - the routes use</span>
+<span class=hljs-addition>+route attributes and a lot of the types can also be set up without having to write</span>
+<span class=hljs-addition>+entire implementations by using attributes. Naturally, given this, it should be possible</span>
+<span class=hljs-addition>+to automatically generate some kind of file with information on what a route takes/returns.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+#[derive(Responder)]</span>
+<span class=hljs-addition>+enum MyResponseEnum {</span>
+<span class=hljs-addition>+    #[response(status = 200, content_type = &quot;application/json&quot;)]</span>
+<span class=hljs-addition>+    GoodStuff(i32, String),</span>
+<span class=hljs-addition>+    #[response(status = 400)]</span>
+<span class=hljs-addition>+    BadRequest(i32, i32),</span>
+<span class=hljs-addition>+    #[response(status = 500, content_type = &quot;text&quot;)]</span>
+<span class=hljs-addition>+    InternalError { body: String, header1: i32 },</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[derive(Deserialize)]</span>
+<span class=hljs-addition>+struct LoginData {</span>
+<span class=hljs-addition>+    username: String,</span>
+<span class=hljs-addition>+    password: String,</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[post(&quot;/login&quot;, data=&lt;login_data&gt;, content_type = &quot;application/json&quot;)]</span>
+<span class=hljs-addition>+pub fn login(data: Json&lt;LoginData&gt;) -&gt; Login {}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It looks like there is a `/login` endpoint which takes a `Json&lt;LoginData&gt;` which</span>
+<span class=hljs-addition>+means an object like `{ username: &quot;&quot;, string: &quot;&quot; }` and returns a `Login` variant</span>
+<span class=hljs-addition>+which is either a 200 or 401 response code.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Based on the attributes we can determine a lot of the information for the route,</span>
+<span class=hljs-addition>+and if we could extract that, maybe generate documentation for it automatically.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### syn</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What `syn` can do is transform valid Rust code (provided as a `String` or `TokenStream`)</span>
+<span class=hljs-addition>+into an abstract syntax tree. And then we just need to extract the various bits</span>
+<span class=hljs-addition>+from the tree to help generate our documentation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Consider the enum in the above snippet. We can have `syn` parse it like so.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+&amp;amp;syn::parse_str(</span>
+<span class=hljs-addition>+&quot;</span>
+<span class=hljs-addition>+#[derive(Responder)]</span>
+<span class=hljs-addition>+enum MyResponseEnum {</span>
+<span class=hljs-addition>+    #[response(status = 200, content_type = \&quot;application/json\&quot;)]</span>
+<span class=hljs-addition>+    GoodStuff(i32, String),</span>
+<span class=hljs-addition>+    #[response(status = 400)]</span>
+<span class=hljs-addition>+    BadRequest(i32, i32),</span>
+<span class=hljs-addition>+    #[response(status = 500, content_type = \&quot;text\&quot;)]</span>
+<span class=hljs-addition>+    InternalError { body: String, header1: i32 },</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+&quot;,</span>
+<span class=hljs-addition>+)</span>
+<span class=hljs-addition>+.unwrap()</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This generates a huge syntax tree (looks like I should add some collapsable thing</span>
+<span class=hljs-addition>+for code blocks... also feel free to skip because I&#x27;ll point out the important parts):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+ItemEnum {</span>
+<span class=hljs-addition>+    attrs: [</span>
+<span class=hljs-addition>+        Attribute {</span>
+<span class=hljs-addition>+            pound_token: Pound,</span>
+<span class=hljs-addition>+            style: Outer,</span>
+<span class=hljs-addition>+            bracket_token: Bracket,</span>
+<span class=hljs-addition>+            path: Path {</span>
+<span class=hljs-addition>+                leading_colon: None,</span>
+<span class=hljs-addition>+                segments: [</span>
+<span class=hljs-addition>+                    PathSegment {</span>
+<span class=hljs-addition>+                        ident: Ident(</span>
+<span class=hljs-addition>+                            derive,</span>
+<span class=hljs-addition>+                        ),</span>
+<span class=hljs-addition>+                        arguments: None,</span>
+<span class=hljs-addition>+                    },</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+            },</span>
+<span class=hljs-addition>+            tokens: TokenStream [</span>
+<span class=hljs-addition>+                Group {</span>
+<span class=hljs-addition>+                    delimiter: Parenthesis,</span>
+<span class=hljs-addition>+                    stream: TokenStream [</span>
+<span class=hljs-addition>+                        Ident {</span>
+<span class=hljs-addition>+                            sym: Responder,</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+    ],</span>
+<span class=hljs-addition>+    vis: Inherited,</span>
+<span class=hljs-addition>+    enum_token: Enum,</span>
+<span class=hljs-addition>+    ident: Ident(</span>
+<span class=hljs-addition>+        MyResponseEnum,</span>
+<span class=hljs-addition>+    ),</span>
+<span class=hljs-addition>+    generics: Generics {</span>
+<span class=hljs-addition>+        lt_token: None,</span>
+<span class=hljs-addition>+        params: [],</span>
+<span class=hljs-addition>+        gt_token: None,</span>
+<span class=hljs-addition>+        where_clause: None,</span>
+<span class=hljs-addition>+    },</span>
+<span class=hljs-addition>+    brace_token: Brace,</span>
+<span class=hljs-addition>+    variants: [</span>
+<span class=hljs-addition>+        Variant {</span>
+<span class=hljs-addition>+            attrs: [</span>
+<span class=hljs-addition>+                Attribute {</span>
+<span class=hljs-addition>+                    pound_token: Pound,</span>
+<span class=hljs-addition>+                    style: Outer,</span>
+<span class=hljs-addition>+                    bracket_token: Bracket,</span>
+<span class=hljs-addition>+                    path: Path {</span>
+<span class=hljs-addition>+                        leading_colon: None,</span>
+<span class=hljs-addition>+                        segments: [</span>
+<span class=hljs-addition>+                            PathSegment {</span>
+<span class=hljs-addition>+                                ident: Ident(</span>
+<span class=hljs-addition>+                                    response,</span>
+<span class=hljs-addition>+                                ),</span>
+<span class=hljs-addition>+                                arguments: None,</span>
+<span class=hljs-addition>+                            },</span>
+<span class=hljs-addition>+                        ],</span>
+<span class=hljs-addition>+                    },</span>
+<span class=hljs-addition>+                    tokens: TokenStream [</span>
+<span class=hljs-addition>+                        Group {</span>
+<span class=hljs-addition>+                            delimiter: Parenthesis,</span>
+<span class=hljs-addition>+                            stream: TokenStream [</span>
+<span class=hljs-addition>+                                Ident {</span>
+<span class=hljs-addition>+                                    sym: status,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Punct {</span>
+<span class=hljs-addition>+                                    char: &#x27;=&#x27;,</span>
+<span class=hljs-addition>+                                    spacing: Alone,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Literal {</span>
+<span class=hljs-addition>+                                    lit: 200,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Punct {</span>
+<span class=hljs-addition>+                                    char: &#x27;,&#x27;,</span>
+<span class=hljs-addition>+                                    spacing: Alone,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Ident {</span>
+<span class=hljs-addition>+                                    sym: content_type,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Punct {</span>
+<span class=hljs-addition>+                                    char: &#x27;=&#x27;,</span>
+<span class=hljs-addition>+                                    spacing: Alone,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Literal {</span>
+<span class=hljs-addition>+                                    lit: &quot;application/json&quot;,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ],</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            ident: Ident(</span>
+<span class=hljs-addition>+                GoodStuff,</span>
+<span class=hljs-addition>+            ),</span>
+<span class=hljs-addition>+            fields: Unnamed(</span>
+<span class=hljs-addition>+                FieldsUnnamed {</span>
+<span class=hljs-addition>+                    paren_token: Paren,</span>
+<span class=hljs-addition>+                    unnamed: [</span>
+<span class=hljs-addition>+                        Field {</span>
+<span class=hljs-addition>+                            attrs: [],</span>
+<span class=hljs-addition>+                            vis: Inherited,</span>
+<span class=hljs-addition>+                            ident: None,</span>
+<span class=hljs-addition>+                            colon_token: None,</span>
+<span class=hljs-addition>+                            ty: Path(</span>
+<span class=hljs-addition>+                                TypePath {</span>
+<span class=hljs-addition>+                                    qself: None,</span>
+<span class=hljs-addition>+                                    path: Path {</span>
+<span class=hljs-addition>+                                        leading_colon: None,</span>
+<span class=hljs-addition>+                                        segments: [</span>
+<span class=hljs-addition>+                                            PathSegment {</span>
+<span class=hljs-addition>+                                                ident: Ident(</span>
+<span class=hljs-addition>+                                                    i32,</span>
+<span class=hljs-addition>+                                                ),</span>
+<span class=hljs-addition>+                                                arguments: None,</span>
+<span class=hljs-addition>+                                            },</span>
+<span class=hljs-addition>+                                        ],</span>
+<span class=hljs-addition>+                                    },</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                        Comma,</span>
+<span class=hljs-addition>+                        Field {</span>
+<span class=hljs-addition>+                            attrs: [],</span>
+<span class=hljs-addition>+                            vis: Inherited,</span>
+<span class=hljs-addition>+                            ident: None,</span>
+<span class=hljs-addition>+                            colon_token: None,</span>
+<span class=hljs-addition>+                            ty: Path(</span>
+<span class=hljs-addition>+                                TypePath {</span>
+<span class=hljs-addition>+                                    qself: None,</span>
+<span class=hljs-addition>+                                    path: Path {</span>
+<span class=hljs-addition>+                                        leading_colon: None,</span>
+<span class=hljs-addition>+                                        segments: [</span>
+<span class=hljs-addition>+                                            PathSegment {</span>
+<span class=hljs-addition>+                                                ident: Ident(</span>
+<span class=hljs-addition>+                                                    String,</span>
+<span class=hljs-addition>+                                                ),</span>
+<span class=hljs-addition>+                                                arguments: None,</span>
+<span class=hljs-addition>+                                            },</span>
+<span class=hljs-addition>+                                        ],</span>
+<span class=hljs-addition>+                                    },</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ),</span>
+<span class=hljs-addition>+            discriminant: None,</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+        Comma,</span>
+<span class=hljs-addition>+        Variant {</span>
+<span class=hljs-addition>+            attrs: [</span>
+<span class=hljs-addition>+                Attribute {</span>
+<span class=hljs-addition>+                    pound_token: Pound,</span>
+<span class=hljs-addition>+                    style: Outer,</span>
+<span class=hljs-addition>+                    bracket_token: Bracket,</span>
+<span class=hljs-addition>+                    path: Path {</span>
+<span class=hljs-addition>+                        leading_colon: None,</span>
+<span class=hljs-addition>+                        segments: [</span>
+<span class=hljs-addition>+                            PathSegment {</span>
+<span class=hljs-addition>+                                ident: Ident(</span>
+<span class=hljs-addition>+                                    response,</span>
+<span class=hljs-addition>+                                ),</span>
+<span class=hljs-addition>+                                arguments: None,</span>
+<span class=hljs-addition>+                            },</span>
+<span class=hljs-addition>+                        ],</span>
+<span class=hljs-addition>+                    },</span>
+<span class=hljs-addition>+                    tokens: TokenStream [</span>
+<span class=hljs-addition>+                        Group {</span>
+<span class=hljs-addition>+                            delimiter: Parenthesis,</span>
+<span class=hljs-addition>+                            stream: TokenStream [</span>
+<span class=hljs-addition>+                                Ident {</span>
+<span class=hljs-addition>+                                    sym: status,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Punct {</span>
+<span class=hljs-addition>+                                    char: &#x27;=&#x27;,</span>
+<span class=hljs-addition>+                                    spacing: Alone,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Literal {</span>
+<span class=hljs-addition>+                                    lit: 400,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ],</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            ident: Ident(</span>
+<span class=hljs-addition>+                BadRequest,</span>
+<span class=hljs-addition>+            ),</span>
+<span class=hljs-addition>+            fields: Unnamed(</span>
+<span class=hljs-addition>+                FieldsUnnamed {</span>
+<span class=hljs-addition>+                    paren_token: Paren,</span>
+<span class=hljs-addition>+                    unnamed: [</span>
+<span class=hljs-addition>+                        Field {</span>
+<span class=hljs-addition>+                            attrs: [],</span>
+<span class=hljs-addition>+                            vis: Inherited,</span>
+<span class=hljs-addition>+                            ident: None,</span>
+<span class=hljs-addition>+                            colon_token: None,</span>
+<span class=hljs-addition>+                            ty: Path(</span>
+<span class=hljs-addition>+                                TypePath {</span>
+<span class=hljs-addition>+                                    qself: None,</span>
+<span class=hljs-addition>+                                    path: Path {</span>
+<span class=hljs-addition>+                                        leading_colon: None,</span>
+<span class=hljs-addition>+                                        segments: [</span>
+<span class=hljs-addition>+                                            PathSegment {</span>
+<span class=hljs-addition>+                                                ident: Ident(</span>
+<span class=hljs-addition>+                                                    i32,</span>
+<span class=hljs-addition>+                                                ),</span>
+<span class=hljs-addition>+                                                arguments: None,</span>
+<span class=hljs-addition>+                                            },</span>
+<span class=hljs-addition>+                                        ],</span>
+<span class=hljs-addition>+                                    },</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                        Comma,</span>
+<span class=hljs-addition>+                        Field {</span>
+<span class=hljs-addition>+                            attrs: [],</span>
+<span class=hljs-addition>+                            vis: Inherited,</span>
+<span class=hljs-addition>+                            ident: None,</span>
+<span class=hljs-addition>+                            colon_token: None,</span>
+<span class=hljs-addition>+                            ty: Path(</span>
+<span class=hljs-addition>+                                TypePath {</span>
+<span class=hljs-addition>+                                    qself: None,</span>
+<span class=hljs-addition>+                                    path: Path {</span>
+<span class=hljs-addition>+                                        leading_colon: None,</span>
+<span class=hljs-addition>+                                        segments: [</span>
+<span class=hljs-addition>+                                            PathSegment {</span>
+<span class=hljs-addition>+                                                ident: Ident(</span>
+<span class=hljs-addition>+                                                    i32,</span>
+<span class=hljs-addition>+                                                ),</span>
+<span class=hljs-addition>+                                                arguments: None,</span>
+<span class=hljs-addition>+                                            },</span>
+<span class=hljs-addition>+                                        ],</span>
+<span class=hljs-addition>+                                    },</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ),</span>
+<span class=hljs-addition>+            discriminant: None,</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+        Comma,</span>
+<span class=hljs-addition>+        Variant {</span>
+<span class=hljs-addition>+            attrs: [</span>
+<span class=hljs-addition>+                Attribute {</span>
+<span class=hljs-addition>+                    pound_token: Pound,</span>
+<span class=hljs-addition>+                    style: Outer,</span>
+<span class=hljs-addition>+                    bracket_token: Bracket,</span>
+<span class=hljs-addition>+                    path: Path {</span>
+<span class=hljs-addition>+                        leading_colon: None,</span>
+<span class=hljs-addition>+                        segments: [</span>
+<span class=hljs-addition>+                            PathSegment {</span>
+<span class=hljs-addition>+                                ident: Ident(</span>
+<span class=hljs-addition>+                                    response,</span>
+<span class=hljs-addition>+                                ),</span>
+<span class=hljs-addition>+                                arguments: None,</span>
+<span class=hljs-addition>+                            },</span>
+<span class=hljs-addition>+                        ],</span>
+<span class=hljs-addition>+                    },</span>
+<span class=hljs-addition>+                    tokens: TokenStream [</span>
+<span class=hljs-addition>+                        Group {</span>
+<span class=hljs-addition>+                            delimiter: Parenthesis,</span>
+<span class=hljs-addition>+                            stream: TokenStream [</span>
+<span class=hljs-addition>+                                Ident {</span>
+<span class=hljs-addition>+                                    sym: status,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Punct {</span>
+<span class=hljs-addition>+                                    char: &#x27;=&#x27;,</span>
+<span class=hljs-addition>+                                    spacing: Alone,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Literal {</span>
+<span class=hljs-addition>+                                    lit: 500,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Punct {</span>
+<span class=hljs-addition>+                                    char: &#x27;,&#x27;,</span>
+<span class=hljs-addition>+                                    spacing: Alone,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Ident {</span>
+<span class=hljs-addition>+                                    sym: content_type,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Punct {</span>
+<span class=hljs-addition>+                                    char: &#x27;=&#x27;,</span>
+<span class=hljs-addition>+                                    spacing: Alone,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                                Literal {</span>
+<span class=hljs-addition>+                                    lit: &quot;text&quot;,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ],</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            ident: Ident(</span>
+<span class=hljs-addition>+                InternalError,</span>
+<span class=hljs-addition>+            ),</span>
+<span class=hljs-addition>+            fields: Named(</span>
+<span class=hljs-addition>+                FieldsNamed {</span>
+<span class=hljs-addition>+                    brace_token: Brace,</span>
+<span class=hljs-addition>+                    named: [</span>
+<span class=hljs-addition>+                        Field {</span>
+<span class=hljs-addition>+                            attrs: [],</span>
+<span class=hljs-addition>+                            vis: Inherited,</span>
+<span class=hljs-addition>+                            ident: Some(</span>
+<span class=hljs-addition>+                                Ident(</span>
+<span class=hljs-addition>+                                    body,</span>
+<span class=hljs-addition>+                                ),</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                            colon_token: Some(</span>
+<span class=hljs-addition>+                                Colon,</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                            ty: Path(</span>
+<span class=hljs-addition>+                                TypePath {</span>
+<span class=hljs-addition>+                                    qself: None,</span>
+<span class=hljs-addition>+                                    path: Path {</span>
+<span class=hljs-addition>+                                        leading_colon: None,</span>
+<span class=hljs-addition>+                                        segments: [</span>
+<span class=hljs-addition>+                                            PathSegment {</span>
+<span class=hljs-addition>+                                                ident: Ident(</span>
+<span class=hljs-addition>+                                                    String,</span>
+<span class=hljs-addition>+                                                ),</span>
+<span class=hljs-addition>+                                                arguments: None,</span>
+<span class=hljs-addition>+                                            },</span>
+<span class=hljs-addition>+                                        ],</span>
+<span class=hljs-addition>+                                    },</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                        Comma,</span>
+<span class=hljs-addition>+                        Field {</span>
+<span class=hljs-addition>+                            attrs: [],</span>
+<span class=hljs-addition>+                            vis: Inherited,</span>
+<span class=hljs-addition>+                            ident: Some(</span>
+<span class=hljs-addition>+                                Ident(</span>
+<span class=hljs-addition>+                                    header1,</span>
+<span class=hljs-addition>+                                ),</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                            colon_token: Some(</span>
+<span class=hljs-addition>+                                Colon,</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                            ty: Path(</span>
+<span class=hljs-addition>+                                TypePath {</span>
+<span class=hljs-addition>+                                    qself: None,</span>
+<span class=hljs-addition>+                                    path: Path {</span>
+<span class=hljs-addition>+                                        leading_colon: None,</span>
+<span class=hljs-addition>+                                        segments: [</span>
+<span class=hljs-addition>+                                            PathSegment {</span>
+<span class=hljs-addition>+                                                ident: Ident(</span>
+<span class=hljs-addition>+                                                    i32,</span>
+<span class=hljs-addition>+                                                ),</span>
+<span class=hljs-addition>+                                                arguments: None,</span>
+<span class=hljs-addition>+                                            },</span>
+<span class=hljs-addition>+                                        ],</span>
+<span class=hljs-addition>+                                    },</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ),</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ),</span>
+<span class=hljs-addition>+            discriminant: None,</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+        Comma,</span>
+<span class=hljs-addition>+    ],</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is nice, but the first thing we actually want is to check if the enum derives</span>
+<span class=hljs-addition>+`Responder`. Here is the interesting stuff below:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rust</span>
+<span class=hljs-addition>+ItemEnum {</span>
+<span class=hljs-addition>+    attrs: [</span>
+<span class=hljs-addition>+        Attribute {</span>
+<span class=hljs-addition>+            path: Path {</span>
+<span class=hljs-addition>+                leading_colon: None,</span>
+<span class=hljs-addition>+                segments: [</span>
+<span class=hljs-addition>+                    PathSegment {</span>
+<span class=hljs-addition>+                        ident: Ident(</span>
+<span class=hljs-addition>+                            derive,</span>
+<span class=hljs-addition>+                        ),</span>
+<span class=hljs-addition>+                        arguments: None,</span>
+<span class=hljs-addition>+                    },</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+            },</span>
+<span class=hljs-addition>+            tokens: TokenStream [</span>
+<span class=hljs-addition>+                Group {</span>
+<span class=hljs-addition>+                    delimiter: Parenthesis,</span>
+<span class=hljs-addition>+                    stream: TokenStream [</span>
+<span class=hljs-addition>+                        Ident {</span>
+<span class=hljs-addition>+                            sym: Responder,</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ],</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            ..</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+    ],</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We want an `ItemEnum` where an element of `attrs` is an `Attribute` whose which</span>
+<span class=hljs-addition>+has a `path` whose first `segment`&#x27;s `ident` is `derive`. This tells us that there</span>
+<span class=hljs-addition>+is a derive macro. But wait, that&#x27;s not all - we still need to check for `Responder`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unfortunately at this point, the ast turns back into a `TokenStream` which is not</span>
+<span class=hljs-addition>+ideal for us. Fortunately, there is a [`parse_meta`](https://docs.rs/syn/0.15.26/syn/struct.Attribute.html#method.parse_meta)</span>
+<span class=hljs-addition>+method for attributes which we can use here.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Once we run something like `enum.attrs.iter().map(|attr| attr.parse_meta().unwrap()).collect::&lt;Vec&lt;syn::Meta&gt;&gt;()`,</span>
+<span class=hljs-addition>+we end up with an array of nodes - in this case:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+[</span>
+<span class=hljs-addition>+    List(</span>
+<span class=hljs-addition>+        MetaList {</span>
+<span class=hljs-addition>+            path: Path {</span>
+<span class=hljs-addition>+                leading_colon: None,</span>
+<span class=hljs-addition>+                segments: [</span>
+<span class=hljs-addition>+                    PathSegment {</span>
+<span class=hljs-addition>+                        ident: Ident(</span>
+<span class=hljs-addition>+                            derive,</span>
+<span class=hljs-addition>+                        ),</span>
+<span class=hljs-addition>+                        arguments: None,</span>
+<span class=hljs-addition>+                    },</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+            },</span>
+<span class=hljs-addition>+            paren_token: Paren,</span>
+<span class=hljs-addition>+            nested: [</span>
+<span class=hljs-addition>+                Meta(</span>
+<span class=hljs-addition>+                    Path(</span>
+<span class=hljs-addition>+                        Path {</span>
+<span class=hljs-addition>+                            leading_colon: None,</span>
+<span class=hljs-addition>+                            segments: [</span>
+<span class=hljs-addition>+                                PathSegment {</span>
+<span class=hljs-addition>+                                    ident: Ident(</span>
+<span class=hljs-addition>+                                        Responder,</span>
+<span class=hljs-addition>+                                    ),</span>
+<span class=hljs-addition>+                                    arguments: None,</span>
+<span class=hljs-addition>+                                },</span>
+<span class=hljs-addition>+                            ],</span>
+<span class=hljs-addition>+                        },</span>
+<span class=hljs-addition>+                    ),</span>
+<span class=hljs-addition>+                ),</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+    ),</span>
+<span class=hljs-addition>+]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+By using `parse_meta`, we end up with a more straightforward representation which</span>
+<span class=hljs-addition>+allows us to find what we are looking for more easily. `derive` is still there normally,</span>
+<span class=hljs-addition>+but now we see that there is a `Path` with 1 segment with `Responder`. So now we</span>
+<span class=hljs-addition>+know a simple way to figure out if something derives responder:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+fn derives_responder(enm: syn::ItemEnum) -&gt; bool {</span>
+<span class=hljs-addition>+    enm.attrs.iter().any(|attr| {</span>
+<span class=hljs-addition>+        attr.parse_meta()</span>
+<span class=hljs-addition>+            .ok()</span>
+<span class=hljs-addition>+            .and_then(|meta| {</span>
+<span class=hljs-addition>+                match meta {</span>
+<span class=hljs-addition>+                    // check for derive</span>
+<span class=hljs-addition>+                    syn::Meta::List(meta_list @ syn::MetaList { path, nested, .. })</span>
+<span class=hljs-addition>+                        if path</span>
+<span class=hljs-addition>+                            .get_ident()</span>
+<span class=hljs-addition>+                            .map_or(false, |ident| ident.to_string() == &quot;derive&quot;) =&gt;</span>
+<span class=hljs-addition>+                    {</span>
+<span class=hljs-addition>+                        // check for Responder</span>
+<span class=hljs-addition>+                        nested.any(|meta| match meta {</span>
+<span class=hljs-addition>+                            syn::NestedMeta::Meta(syn::Meta::Path(path)) =&gt; {</span>
+<span class=hljs-addition>+                                Some(path.segments.pairs().any(|segment| {</span>
+<span class=hljs-addition>+                                    segment.value().ident.to_string() == &quot;Responder&quot;</span>
+<span class=hljs-addition>+                                }))</span>
+<span class=hljs-addition>+                            }</span>
+<span class=hljs-addition>+                            _ =&gt; None,</span>
+<span class=hljs-addition>+                        })</span>
+<span class=hljs-addition>+                    }</span>
+<span class=hljs-addition>+                    _ =&gt; None,</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+            })</span>
+<span class=hljs-addition>+            .unwrap_or(false)</span>
+<span class=hljs-addition>+    })</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This the exact code I wrote (and I&#x27;m not fully sure if this works because I&#x27;m just</span>
+<span class=hljs-addition>+typing this up on the go, like most of my &quot;examples&quot;), because attributes are a</span>
+<span class=hljs-addition>+large part of this so I ended up moving attribute extraction to its own thing. But</span>
+<span class=hljs-addition>+hopefully it looks ok.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This example really encompasses most of the logic that is necessary to get things</span>
+<span class=hljs-addition>+rolling - whether it be an attribute or function return types, I was able to use</span>
+<span class=hljs-addition>+similar approaches for extracting or determining what data I wanted to use.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### current input/output example</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The example I run for in the main file for the generator itself is this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+#![feature(proc_macro_hygiene, decl_macro)]</span>
+<span class=hljs-addition>+#[macro_use] extern crate rocket;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[get(&quot;/hello/&lt;name&gt;/&lt;age&gt;&quot;)]</span>
+<span class=hljs-addition>+fn hello(name: String, age: u8) -&gt; String {</span>
+<span class=hljs-addition>+    format!(&quot;Hello, {} year old named {}!&quot;, age, name)</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[derive(Responder)]</span>
+<span class=hljs-addition>+pub enum LoginResponse {</span>
+<span class=hljs-addition>+    #[response(status = 200, content_type = &quot;text/plain&quot;)]</span>
+<span class=hljs-addition>+    Success(i32),</span>
+<span class=hljs-addition>+    #[response(status = 401, content_type = &quot;text/plain&quot;)]</span>
+<span class=hljs-addition>+    Failure(String),</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+struct LoginData {</span>
+<span class=hljs-addition>+    username: String,</span>
+<span class=hljs-addition>+    password: String,</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[post(&quot;/login&quot;, format=&quot;application/json&quot;, data = &quot;&lt;data&gt;&quot;)]</span>
+<span class=hljs-addition>+fn login(user: User, data: LoginData) -&gt; LoginResponse {</span>
+<span class=hljs-addition>+    if username == &quot;a&quot; &amp;amp;&amp;amp; password == &quot;b&quot; {</span>
+<span class=hljs-addition>+        LoginResponse::Success(user.id)</span>
+<span class=hljs-addition>+    } else {</span>
+<span class=hljs-addition>+        LoginResponse::Failure(&quot;Bad login&quot;)</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[derive(Responder)]</span>
+<span class=hljs-addition>+#[response(status=200)]</span>
+<span class=hljs-addition>+struct LogoutResponse {</span>
+<span class=hljs-addition>+    body: String</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#[post(&quot;/logout&quot;, format=&quot;text&quot;)]</span>
+<span class=hljs-addition>+fn logout(user: User) -&gt; LogoutResponse {</span>
+<span class=hljs-addition>+    LogoutResponse {</span>
+<span class=hljs-addition>+        body: &quot;you&#x27;re out&quot;.to_string()</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+fn main() {</span>
+<span class=hljs-addition>+    rocket::ignite().mount(&quot;/&quot;, routes![hello]).launch();</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The output is this (with a few tweaks):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+[</span>
+<span class=hljs-addition>+    {</span>
+<span class=hljs-addition>+        &quot;ident&quot;: &quot;hello&quot;,</span>
+<span class=hljs-addition>+        &quot;handler&quot;: {</span>
+<span class=hljs-addition>+            &quot;args&quot;: [</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    &quot;name&quot;,</span>
+<span class=hljs-addition>+                    &quot;String&quot;</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    &quot;age&quot;,</span>
+<span class=hljs-addition>+                    &quot;u8&quot;</span>
+<span class=hljs-addition>+                ]</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            &quot;ret&quot;: &quot;String&quot;</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+        &quot;route&quot;: {</span>
+<span class=hljs-addition>+            &quot;method&quot;: &quot;get&quot;,</span>
+<span class=hljs-addition>+            &quot;path&quot;: &quot;/hello/&lt;name&gt;/&lt;age&gt;&quot;,</span>
+<span class=hljs-addition>+            &quot;rank&quot;: null,</span>
+<span class=hljs-addition>+            &quot;format&quot;: null,</span>
+<span class=hljs-addition>+            &quot;data&quot;: null</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    },</span>
+<span class=hljs-addition>+    {</span>
+<span class=hljs-addition>+        &quot;ident&quot;: &quot;LoginResponse&quot;,</span>
+<span class=hljs-addition>+        &quot;variants&quot;: [</span>
+<span class=hljs-addition>+            {</span>
+<span class=hljs-addition>+                &quot;ident&quot;: &quot;Success&quot;,</span>
+<span class=hljs-addition>+                &quot;response&quot;: {</span>
+<span class=hljs-addition>+                    &quot;status&quot;: 200,</span>
+<span class=hljs-addition>+                    &quot;content_type&quot;: &quot;text/plain&quot;</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+                &quot;fields&quot;: [</span>
+<span class=hljs-addition>+                    [</span>
+<span class=hljs-addition>+                        &quot;0&quot;,</span>
+<span class=hljs-addition>+                        &quot;i32&quot;</span>
+<span class=hljs-addition>+                    ]</span>
+<span class=hljs-addition>+                ]</span>
+<span class=hljs-addition>+            },</span>
+<span class=hljs-addition>+            {</span>
+<span class=hljs-addition>+                &quot;ident&quot;: &quot;Failure&quot;,</span>
+<span class=hljs-addition>+                &quot;response&quot;: {</span>
+<span class=hljs-addition>+                    &quot;status&quot;: 401,</span>
+<span class=hljs-addition>+                    &quot;content_type&quot;: &quot;text/plain&quot;</span>
+<span class=hljs-addition>+                },</span>
+<span class=hljs-addition>+                &quot;fields&quot;: [</span>
+<span class=hljs-addition>+                    [</span>
+<span class=hljs-addition>+                        &quot;0&quot;,</span>
+<span class=hljs-addition>+                        &quot;String&quot;</span>
+<span class=hljs-addition>+                    ]</span>
+<span class=hljs-addition>+                ]</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        ]</span>
+<span class=hljs-addition>+    },</span>
+<span class=hljs-addition>+    {</span>
+<span class=hljs-addition>+        &quot;ident&quot;: &quot;LoginData&quot;,</span>
+<span class=hljs-addition>+        &quot;fields&quot;: [</span>
+<span class=hljs-addition>+            [</span>
+<span class=hljs-addition>+                &quot;username&quot;,</span>
+<span class=hljs-addition>+                &quot;String&quot;</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            [</span>
+<span class=hljs-addition>+                &quot;password&quot;,</span>
+<span class=hljs-addition>+                &quot;String&quot;</span>
+<span class=hljs-addition>+            ]</span>
+<span class=hljs-addition>+        ],</span>
+<span class=hljs-addition>+        &quot;response&quot;: null</span>
+<span class=hljs-addition>+    },</span>
+<span class=hljs-addition>+    {</span>
+<span class=hljs-addition>+        &quot;ident&quot;: &quot;login&quot;,</span>
+<span class=hljs-addition>+        &quot;handler&quot;: {</span>
+<span class=hljs-addition>+            &quot;args&quot;: [</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    &quot;user&quot;,</span>
+<span class=hljs-addition>+                    &quot;User&quot;</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    &quot;data&quot;,</span>
+<span class=hljs-addition>+                    &quot;LoginData&quot;</span>
+<span class=hljs-addition>+                ]</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            &quot;ret&quot;: &quot;LoginResponse&quot;</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+        &quot;route&quot;: {</span>
+<span class=hljs-addition>+            &quot;method&quot;: &quot;post&quot;,</span>
+<span class=hljs-addition>+            &quot;path&quot;: &quot;/login&quot;,</span>
+<span class=hljs-addition>+            &quot;rank&quot;: null,</span>
+<span class=hljs-addition>+            &quot;format&quot;: &quot;application/json&quot;,</span>
+<span class=hljs-addition>+            &quot;data&quot;: &quot;&lt;data&gt;&quot;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    },</span>
+<span class=hljs-addition>+    {</span>
+<span class=hljs-addition>+        &quot;ident&quot;: &quot;LogoutResponse&quot;,</span>
+<span class=hljs-addition>+        &quot;fields&quot;: [</span>
+<span class=hljs-addition>+            [</span>
+<span class=hljs-addition>+                &quot;body&quot;,</span>
+<span class=hljs-addition>+                &quot;String&quot;</span>
+<span class=hljs-addition>+            ]</span>
+<span class=hljs-addition>+        ],</span>
+<span class=hljs-addition>+        &quot;response&quot;: {</span>
+<span class=hljs-addition>+            &quot;status&quot;: 200,</span>
+<span class=hljs-addition>+            &quot;content_type&quot;: null</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    },</span>
+<span class=hljs-addition>+    {</span>
+<span class=hljs-addition>+        &quot;ident&quot;: &quot;logout&quot;,</span>
+<span class=hljs-addition>+        &quot;handler&quot;: {</span>
+<span class=hljs-addition>+            &quot;args&quot;: [</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    &quot;user&quot;,</span>
+<span class=hljs-addition>+                    &quot;User&quot;</span>
+<span class=hljs-addition>+                ]</span>
+<span class=hljs-addition>+            ],</span>
+<span class=hljs-addition>+            &quot;ret&quot;: &quot;LogoutResponse&quot;</span>
+<span class=hljs-addition>+        },</span>
+<span class=hljs-addition>+        &quot;route&quot;: {</span>
+<span class=hljs-addition>+            &quot;method&quot;: &quot;post&quot;,</span>
+<span class=hljs-addition>+            &quot;path&quot;: &quot;/logout&quot;,</span>
+<span class=hljs-addition>+            &quot;rank&quot;: null,</span>
+<span class=hljs-addition>+            &quot;format&quot;: &quot;text&quot;,</span>
+<span class=hljs-addition>+            &quot;data&quot;: null</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think it&#x27;s not bad so far - it captures all structs, and information about functions/enums</span>
+<span class=hljs-addition>+if they have `rocket` attributes. The plan is this json blob can be used to then</span>
+<span class=hljs-addition>+generate a docs page.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### limitations</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A lot of functionality in `rocket` can be done through these attribute macros, but</span>
+<span class=hljs-addition>+as mentioned earlier, sometimes you want to implement traits manually... which is</span>
+<span class=hljs-addition>+a lot more work to figure out.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Fortunately, for me, I did end up using attributes and derive macros more or less</span>
+<span class=hljs-addition>+everywhere. In certain parts, I might have implemented `FromRequest` a few times.</span>
+<span class=hljs-addition>+For this stuff, I end up just writing things manually for explanation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another issue is that the path does not determine the full path because it&#x27;s also</span>
+<span class=hljs-addition>+dependent on where the routes are mounted. I think this starts to step outside of</span>
+<span class=hljs-addition>+just parsing because we start getting into actually having to go through the body</span>
+<span class=hljs-addition>+of the code which is actually interpreting and running it. For example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+mod routes;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+fn my_routes() -&gt; Vec&lt;Route&gt; {</span>
+<span class=hljs-addition>+    vec![routes::login]</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// ...</span>
+<span class=hljs-addition>+let url = env::var(URL_MOUNT_POINT);</span>
+<span class=hljs-addition>+rocket.ignite().mount(url, my_routes());</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+No real idea to figure out where this stuff goes, but at least we can more or less</span>
+<span class=hljs-addition>+glean some information about `routes::login` from the attribute and types on it.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

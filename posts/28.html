@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>file transfer through webrtc</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/27>&lt; personal yearly reflection 1</a></div> <div style=text-align:end><a href=/./posts/29>wrangling with a PaaS provider &gt;</a></div>
+</nav>
+<h1 id=file-transfer-through-webrtc>file transfer through webrtc</h1>
+<p>Recently, I've been trying out writing some simple webapps that take advantage of WebRTC. What I had written was a simple file sharing application. Naturally, one observation is that there is no need for the server once the peer connection is made so the files can be transferred outside of the server so that's pretty cool.</p>
+<p>Files are chunked and sent through an
+<a href=https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel>RTCDataChannel</a>. According to
+<a href=https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Using_data_channels#Understanding____message_size_limits>understanding message size limits</a>,</p>
+<blockquote>
+<p>Messages smaller than 16kiB can be sent without concern, as all major user agents handle them the same way. Beyond that, things get more complicated.</p>
+</blockquote>
+<p>However, there are also references to 64kiB and higher, but I stuck with sending (approximately) 16kiB chunks. It seemed decently quick, but then I imagined I could speed things up by creating multiple channels.</p>
+<pre class=code-block><input id=code-block-28-1 type=checkbox><label for=code-block-28-1></label><code><span class=hljs-keyword>for</span> (<span class=hljs-keyword>let</span> i = <span class=hljs-number>0</span>; i &lt; chunks; i++) {
+    <span class=hljs-keyword>const</span> reader = <span class=hljs-keyword>new</span> <span class="hljs-title class_">FileReader</span>();
+    <span class=hljs-keyword>const</span> start = i * <span class="constant_ hljs-variable">CHUNK_SIZE</span>;
+    reader.<span class="hljs-title function_">readAsArrayBuffer</span>(
+        file.<span class="hljs-title function_">slice</span>(start, <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">min</span>(start + <span class="constant_ hljs-variable">CHUNK_SIZE</span>, file.<span class=hljs-property>size</span>))
+    );
+    reader.<span class="hljs-title function_">addEventListener</span>(<span class=hljs-string>&quot;loadend&quot;</span>, <span class=hljs-function>() =&gt;</span> {
+        <span class="hljs-title function_">nextChannel</span>().<span class="hljs-title function_">send</span>(reader.<span class=hljs-property>result</span>);
+    });
+}
+</code></pre>
+<p>This seemed to work ok, but this means the chunks are sent out of order. Well, I actually already had engineered around that since I assumed the messages could arrive out of order since during my first tests I would get corrupted images and a diff of the binary content showed that one chunk was swapped with the other.</p>
+<p>This isn't actually the case as there is an ordered option for the
+<a href=https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel#rtcdatachannelinit_dictionary>channel's options</a>
+so it must have been an async error. I just worked around it by sending additional data with the chunk like so:</p>
+<pre class=code-block><input id=code-block-28-2 type=checkbox><label for=code-block-28-2></label><code><span class="hljs-title function_">nextChannel</span>().<span class="hljs-title function_">send</span>(
+    <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
+        <span class=hljs-attr>name</span>: file.<span class=hljs-property>name</span>,
+        <span class=hljs-attr>chunk</span>: i,
+        chunks,
+        <span class=hljs-attr>buffer</span>: <span class="hljs-title class_">Array</span>.<span class="hljs-title function_">from</span>(<span class=hljs-keyword>new</span> <span class="hljs-title class_">Uint8Array</span>(reader.<span class=hljs-property>result</span>)),
+    })
+);
+</code></pre>
+<p>Which can be stitched together on the remote peer's side.</p>
+<p>This was great, but I would run into seemingly random scenarios where messages just stopped sending. Checking <code>channel.bufferedAmount</code> showed that there was data queued to be sent, but the <code>message</code> event was not firing for the remote peer's data channel. I tried debugging it simply through what can be done in the browser, but to no avail. Considering this is a peer connection, I probably need some tools that work closer to the wire like Wireshark. My only guess is that there is too much data in the buffer as this only happened when I would try queuing a ton of files at once. Some kind of overflow or what?</p>
+<p>I ended up doing a bit of synchronizing and taking advantage of the
+<code>bufferedamountlow</code> event and <code>bufferedAmount</code> property to avoid queuing up too much data and things seem to work out. I'm not sure if using multiple channels is even faster because I feel like the bottleneck is on the remote peer's processing side, although the speed might not have increased because of how I did the synchronization.</p>
+<p>A side benefit of allowing this out of order transfer is that all the files being sent show up at once rather than files showing up one at a time. Well this could also be done by sending file data separately from the buffer buuuttt…</p>
+<p>Looks good (as in it works well, the actual UI leaves much to be desired but that's not really the point of the project.)</p>
+<p><img alt=file-transfer src=/blobs/28/file-transfer.png></p>
+<p>You can even guess at the sizes of the files below a certain threshold by the amount of bars on the receiver's side. Unfortunately I was too lazy to do the same for the sender.</p>
+<p>If interested, the source is kind of clean so I did make a public repository for it <a href=https://github.com/rei2hu/peer>here</a>.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/27>&lt; personal yearly reflection 1</a></div> <div style=text-align:end><a href=/./posts/29>wrangling with a PaaS provider &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-01-28 - rename 28</summary>
+<pre class=code-block><input id=code-block-0e655295b4dda3253d6e3e6ff4be0a60135f1d99-1 type=checkbox><label for=code-block-0e655295b4dda3253d6e3e6ff4be0a60135f1d99-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-# rtcdatachannel stopped sending</span>
+<span class=hljs-addition>+# file transfer through webrtc</span>
+</code></pre>
+</details>
+<details>
+<summary>2021-01-28 - add post 28</summary>
+<pre class=code-block><input id=code-block-ea7cee9e7bf8da661fce6f7f856a4588e5775dd3-1 type=checkbox><label for=code-block-ea7cee9e7bf8da661fce6f7f856a4588e5775dd3-1></label><code><span class=hljs-meta>@@ -0,0 +1,78 @@</span>
+<span class=hljs-addition>+# rtcdatachannel stopped sending</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I&#x27;ve been trying out writing some simple webapps that take advantage of</span>
+<span class=hljs-addition>+WebRTC. What I had written was a simple file sharing application. Naturally, one</span>
+<span class=hljs-addition>+observation is that there is no need for the server once the peer connection is made</span>
+<span class=hljs-addition>+so the files can be transferred outside of the server so that&#x27;s pretty cool.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Files are chunked and sent through an [RTCDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel).</span>
+<span class=hljs-addition>+According to [understanding message size limits](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Using_data_channels#Understanding____message_size_limits),</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Messages smaller than 16kiB can be sent without concern, as all major user agents</span>
+<span class=hljs-addition>+&gt; handle them the same way. Beyond that, things get more complicated.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, there are also references to 64kiB and higher, but I stuck with sending</span>
+<span class=hljs-addition>+(approximately) 16kiB chunks. It seemed decently quick, but then I imagined I could</span>
+<span class=hljs-addition>+speed things up by creating multiple channels.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+for (let i = 0; i &lt; chunks; i++) {</span>
+<span class=hljs-addition>+    const reader = new FileReader();</span>
+<span class=hljs-addition>+    const start = i * CHUNK_SIZE;</span>
+<span class=hljs-addition>+    reader.readAsArrayBuffer(file.slice(start, Math.min(start + CHUNK_SIZE, file.size)));</span>
+<span class=hljs-addition>+    reader.addEventListner(&quot;loadend&quot;, () =&gt; {</span>
+<span class=hljs-addition>+        nextChannel().send(reader.result);</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This seemed to work ok, but this means the chunks are sent out of order. Well, I</span>
+<span class=hljs-addition>+actually already had engineered around that since I assumed the messages could arrive</span>
+<span class=hljs-addition>+out of order since during my first tests I would get corrupted images and a diff</span>
+<span class=hljs-addition>+of the binary content showed that one chunk was swapped with the other.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This isn&#x27;t actually the case as there is an ordered option for the [channel&#x27;s options](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel#rtcdatachannelinit_dictionary)</span>
+<span class=hljs-addition>+so it must have been an async error. I just worked around it by sending additional</span>
+<span class=hljs-addition>+data with the chunk like so:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+nextChannel().send(JSON.stringify({</span>
+<span class=hljs-addition>+    name: file.name,</span>
+<span class=hljs-addition>+    chunk: i,</span>
+<span class=hljs-addition>+    chunks,</span>
+<span class=hljs-addition>+    buffer: Array.from(new Uint8Array(reader.result))</span>
+<span class=hljs-addition>+}));</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Which can be stitched together on the remote peer&#x27;s side.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This was great, but I would run into seemingly random scenarios where messages</span>
+<span class=hljs-addition>+just stopped sending. Checking `channel.bufferedAmount` showed that there was data</span>
+<span class=hljs-addition>+queued to be sent, but the `message` event was not firing for the remote peer&#x27;s</span>
+<span class=hljs-addition>+data channel. I tried debugging it simply through what can be done in the browser,</span>
+<span class=hljs-addition>+but to no avail. Considering this is a peer connection, I probably need some tools</span>
+<span class=hljs-addition>+that work closer to the wire like Wireshark. My only guess is that there is too much</span>
+<span class=hljs-addition>+data in the buffer as this only happened when I would try queuing a ton of files</span>
+<span class=hljs-addition>+at once. Some kind of overflow or what?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ended up doing a bit of synchronizing and taking advantage of the `bufferedamountlow`</span>
+<span class=hljs-addition>+event and `bufferedAmount` property to avoid queuing up too much data and things</span>
+<span class=hljs-addition>+seem to work out. I&#x27;m not sure if using multiple channels is even faster because</span>
+<span class=hljs-addition>+I feel like the bottleneck is on the remote peer&#x27;s processing side, although the</span>
+<span class=hljs-addition>+speed might not have increased because of how I did the synchronization.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A side benefit of allowing this out of order transfer is that all the files being</span>
+<span class=hljs-addition>+sent show up at once rather than files showing up one at a time. Well this could</span>
+<span class=hljs-addition>+also be done by sending file data separately from the buffer buuuttt...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Looks good (as in it works well, the actual UI leaves much to be desired but that&#x27;s</span>
+<span class=hljs-addition>+not really the point of the project.)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;img src=&quot;/blobs/28/file-transfer.png&quot; /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You can even guess at the sizes of the files below a certain threshold by the amount</span>
+<span class=hljs-addition>+of bars on the receiver&#x27;s side. Unfortunately I was too lazy to do the same for</span>
+<span class=hljs-addition>+the sender.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If interested, the source is kind of clean so I did make a public repository for</span>
+<span class=hljs-addition>+it [here](https://github.com/rei2hu/peer).</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

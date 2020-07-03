@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>witnessed my first set of layoffs</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/63>&lt; on my laptop usage</a></div> <div style=text-align:end><a href=/./posts/65>setting up an os on removable media &gt;</a></div>
+</nav>
+<h1 id=witnessed-my-first-set-of-layoffs>witnessed my first set of layoffs</h1>
+<p>This was the year I saw layoffs occur for the first time in my life. I'd say there was about a 10% reduction in the total employee count. I say witnessed because I was not in that 10%.</p>
+<p>I don't know where all of the cuts were, but there were some people on the engineering/product side which I can somewhat comment about. I'd like to think that this is just a set of general observations of who got cut and do not wish to come across as harsh or uncaring.</p>
+<p>The first thing is that several ML engineers were cut; in fact I would say our ML team was gutted, leaving only a few. I'm not too familiar what their responsibilities cover so I can't say much there, but this also triggered the product owner of the ML team to get cut (leave amicably) because they had put a lot of emphasis on rolling ML features on to our products, which would now be much tougher. I'd say at a high level I know of only one feature they've put out, which I worked with them on, and after that nothing concrete had made it onto the platform; at the moment I know that their remaining attention has been shifted towards some analytics related project which had just started recently while other in-the-works projects seem to now be on hold. Our remaining ML engineers are mainly more of the more recent hires, but we also still have our long time data scientist that started at around the same time as me.</p>
+<p>We also lost a recently turned product manager (who was a former engineer) that had been at the company for several years although based on code they've written in the past I don't think they were very good when it came to engineering. From a product feature perspective I guess they did fine though but didn't seem to handle too much. We also had another engineer turned product manager who was not cut - I don't think I've come across their code much (at all) in the codebase weirdly enough. This person seems to be in a much more authoritative position that I'd call much more experienced. We also have other pure product managers of which I believe none were cut.</p>
+<p>There were some software engineers cut, too. One of them started at a similar time as I did - we were in the same onboarding sessions but worked on a different part of the product as I did. I don't think they were too productive based on the amount of pull requests they were making (no, not in a LOC way but rather in an impact way). The other was a senior software engineer who we had hired halfway through the year who also had little impact - I actually forgot they existed until I heard their name in the list of layoffs. I saw maybe 2 of their pull requests early on; both very simple bug fixes that seemed to take them forever to do, and in one of those when I suggested a change to leverage existing functionality in a framework we used they kind of did not know how to work around a null pointer issue… a null pointer issue that they worked around in the equivalent non-framework leveraging version of the code (think if html element exists then do something). The other change they introduced had some (in my opinion) perplexing syntax use in javascript to avoid setting a property to an object if a variable was truthy.</p>
+<pre class=code-block><input id=code-block-64-1 type=checkbox><label for=code-block-64-1></label><code>{
+    ...(field &amp;&amp; { field }),
+}
+<span class=hljs-comment>// felt like the weird part was { ...falsy value } which works because of some</span>
+<span class=hljs-comment>// reasoning that can be found in the language spec; object transformation then</span>
+<span class=hljs-comment>// key enumeration</span>
+
+<span class=hljs-comment>// if (field) obj.field = field;</span>
+<span class=hljs-comment>// if (field) obj = { ...obj, field };</span>
+</code></pre>
+<p>It was cool to see and I gave them the benefit of the doubt because they have the title so I assumed it was a common thing although left a comment on it during review. Perhaps it's a thing that is commonly used with React props, but as I haven't used React for a while I'm not sure. I'm also not sure what they would be doing if they're not working on fixes/features or doing code reviews as this is a company that has very very little meetings for software engineers; I don't believe they were involved with any serious projects either. As a reference point, we had hired some other senior software engineers who started both before and after who have had much larger impacts and are still here. I'll also note these two people did a very small small amount of code reviews, which seems to be a common problem in every company I've worked for. It is possible that there just weren't enough projects to go around and they were taskless for a while.</p>
+<p>We also lost our technical writer, who seemed like a pretty chill person who was always asking questions about the products to get a better sense of them - they were actually in my periodic meetings for my first big project here. That was kind of saddening. But I'm not familiar with their work, in fact I'm not sure where I would go to read what they've written!</p>
+<p>SRE people were also cut, one similar to the senior software engineer whom I barely knew existed in the idea that I also barely knew this SRE person existed, and another, who I definitely knew existed but was kind of opinionated and a little abrasive; there was a scenario where they wrote a script in Go and someone suggested that our scripts should be in Python - we already had tones of scripts all written in Python - so we wouldn't have to cover so many languages and sometime later they typed "dOnT uSe GoLaNg". That person also played pretty fast and loose with our production environment; they performed an accidental partial update of part of our production systems which made them not work well with the unupdated part and caused a little outage, among other things. In a sense it was a blessing because we were forced to upgrade the rest of the system which somewhat smoothed things out but found another issue around our configuration of the new machines that they also introduced.</p>
+<p>Overall, in our smaller engineering/product department meeting that we had after the everyone in the company meeting that announced the cuts, it was claimed that the people who were cut were mainly less experienced folk, which seemed true for only some of the cuts from departments I had visibilty into. I'd augment that explanation to cutting folk who were not being utilized well either due to lack of expertise or overhiring. Again, I hope these come across as unbiased observations but my opinion probably snuck in here or there.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/63>&lt; on my laptop usage</a></div> <div style=text-align:end><a href=/./posts/65>setting up an os on removable media &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-12-15 - add post 64</summary>
+<pre class=code-block><input id=code-block-7b8415ff349a6c342c179996cf7898f961624cf0-1 type=checkbox><label for=code-block-7b8415ff349a6c342c179996cf7898f961624cf0-1></label><code><span class=hljs-meta>@@ -0,0 +1,102 @@</span>
+<span class=hljs-addition>+# witnessed my first set of layoffs</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This was the year I saw layoffs occur for the first time in my life. I&#x27;d say</span>
+<span class=hljs-addition>+there was about a 10% reduction in the total employee count. I say witnessed</span>
+<span class=hljs-addition>+because I was not in that 10%.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I don&#x27;t know where all of the cuts were, but there were some people on the</span>
+<span class=hljs-addition>+engineering/product side which I can somewhat comment about. I&#x27;d like to think</span>
+<span class=hljs-addition>+that this is just a set of general observations of who got cut and do not wish</span>
+<span class=hljs-addition>+to come across as harsh or uncaring.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first thing is that several ML engineers were cut; in fact I would say our</span>
+<span class=hljs-addition>+ML team was gutted, leaving only a few. I&#x27;m not too familiar what their</span>
+<span class=hljs-addition>+responsibilities cover so I can&#x27;t say much there, but this also triggered the</span>
+<span class=hljs-addition>+product owner of the ML team to get cut (leave amicably) because they had put a</span>
+<span class=hljs-addition>+lot of emphasis on rolling ML features on to our products, which would now be</span>
+<span class=hljs-addition>+much tougher. I&#x27;d say at a high level I know of only one feature they&#x27;ve put</span>
+<span class=hljs-addition>+out, which I worked with them on, and after that nothing concrete had made it</span>
+<span class=hljs-addition>+onto the platform; at the moment I know that their remaining attention has been</span>
+<span class=hljs-addition>+shifted towards some analytics related project which had just started recently</span>
+<span class=hljs-addition>+while other in-the-works projects seem to now be on hold. Our remaining ML</span>
+<span class=hljs-addition>+engineers are mainly more of the more recent hires, but we also still have our</span>
+<span class=hljs-addition>+long time data scientist that started at around the same time as me.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We also lost a recently turned product manager (who was a former engineer) that</span>
+<span class=hljs-addition>+had been at the company for several years although based on code they&#x27;ve written</span>
+<span class=hljs-addition>+in the past I don&#x27;t think they were very good when it came to engineering. From</span>
+<span class=hljs-addition>+a product feature perspective I guess they did fine though but didn&#x27;t seem to</span>
+<span class=hljs-addition>+handle too much. We also had another engineer turned product manager who was not</span>
+<span class=hljs-addition>+cut - I don&#x27;t think I&#x27;ve come across their code much (at all) in the codebase</span>
+<span class=hljs-addition>+weirdly enough. This person seems to be in a much more authoritative position</span>
+<span class=hljs-addition>+that I&#x27;d call much more experienced. We also have other pure product managers</span>
+<span class=hljs-addition>+of which I believe none were cut.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There were some software engineers cut, too. One of them started at a similar time</span>
+<span class=hljs-addition>+as I did - we were in the same onboarding sessions but worked on a different</span>
+<span class=hljs-addition>+part of the product as I did. I don&#x27;t think they were too productive based on</span>
+<span class=hljs-addition>+the amount of pull requests they were making (no, not in a LOC way but rather in</span>
+<span class=hljs-addition>+an impact way). The other was a senior software engineer who we had hired</span>
+<span class=hljs-addition>+halfway through the year who also had little impact - I actually forgot they</span>
+<span class=hljs-addition>+existed until I heard their name in the list of layoffs. I saw maybe 2 of</span>
+<span class=hljs-addition>+their pull requests early on; both very simple bug fixes that seemed to take</span>
+<span class=hljs-addition>+them forever to do, and in one of those when I suggested a change to leverage</span>
+<span class=hljs-addition>+existing functionality in a framework we used they kind of did not know how to</span>
+<span class=hljs-addition>+work around a null pointer issue... a null pointer issue that they worked around</span>
+<span class=hljs-addition>+in the equivalent non-framework leveraging version of the code (think if html</span>
+<span class=hljs-addition>+element exists then do something). The other change they introduced had some (in</span>
+<span class=hljs-addition>+my opinion) perplexing syntax use in javascript to avoid setting a property</span>
+<span class=hljs-addition>+to an object if a variable was truthy.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+{</span>
+<span class=hljs-addition>+    ...(field &amp;amp;&amp;amp; { field }),</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+// felt like the weird part was { ...falsy value } which works because of some</span>
+<span class=hljs-addition>+// reasoning that can be found in the language spec; object transformation then</span>
+<span class=hljs-addition>+// key enumeration</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// if (field) obj.field = field;</span>
+<span class=hljs-addition>+// if (field) obj = { ...obj, field };</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It was cool to see and I gave them the benefit of the doubt because they have</span>
+<span class=hljs-addition>+the title so I assumed it was a common thing although left a comment on it</span>
+<span class=hljs-addition>+during review. Perhaps it&#x27;s a thing that is commonly used with React props, but</span>
+<span class=hljs-addition>+as I haven&#x27;t used React for a while I&#x27;m not sure. I&#x27;m also not sure what they</span>
+<span class=hljs-addition>+would be doing if they&#x27;re not working on fixes/features or doing code reviews as</span>
+<span class=hljs-addition>+this is a company that has very very little meetings for software engineers; I</span>
+<span class=hljs-addition>+don&#x27;t believe they were involved with any serious projects either. As a reference</span>
+<span class=hljs-addition>+point, we had hired some other senior software engineers who started both before</span>
+<span class=hljs-addition>+and after who have had much larger impacts and are still here. I&#x27;ll also note</span>
+<span class=hljs-addition>+these two people did a very small small amount of code reviews, which seems to be</span>
+<span class=hljs-addition>+a common problem in every company I&#x27;ve worked for. It is possible that there just</span>
+<span class=hljs-addition>+weren&#x27;t enough projects to go around and they were taskless for a while.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We also lost our technical writer, who seemed like a pretty chill person who was</span>
+<span class=hljs-addition>+always asking questions about the products to get a better sense of them - they</span>
+<span class=hljs-addition>+were actually in my periodic meetings for my first big project here. That was</span>
+<span class=hljs-addition>+kind of saddening. But I&#x27;m not familiar with their work, in fact I&#x27;m not sure</span>
+<span class=hljs-addition>+where I would go to read what they&#x27;ve written!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+SRE people were also cut, one similar to the senior software engineer whom I</span>
+<span class=hljs-addition>+barely knew existed in the idea that I also barely knew this SRE person existed,</span>
+<span class=hljs-addition>+and another, who I definitely knew existed but was kind of opinionated and a</span>
+<span class=hljs-addition>+little abrasive; there was a scenario where they wrote a script in Go and someone</span>
+<span class=hljs-addition>+suggested that our scripts should be in Python - we already had tones of scripts</span>
+<span class=hljs-addition>+all written in Python - so we wouldn&#x27;t have to cover so many languages and</span>
+<span class=hljs-addition>+sometime later they typed &quot;dOnT uSe GoLaNg&quot;. That person also played pretty fast</span>
+<span class=hljs-addition>+and loose with our production environment; they performed an accidental partial</span>
+<span class=hljs-addition>+update of part of our production systems which made them not work well with the</span>
+<span class=hljs-addition>+unupdated part and caused a little outage, among other things. In a sense it was</span>
+<span class=hljs-addition>+a blessing because we were forced to upgrade the rest of the system which</span>
+<span class=hljs-addition>+somewhat smoothed things out but found another issue around our configuration of</span>
+<span class=hljs-addition>+the new machines that they also introduced.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Overall, in our smaller engineering/product department meeting that we had after</span>
+<span class=hljs-addition>+the everyone in the company meeting that announced the cuts, it was claimed that</span>
+<span class=hljs-addition>+the people who were cut were mainly less experienced folk, which seemed true for</span>
+<span class=hljs-addition>+only some of the cuts from departments I had visibilty into. I&#x27;d augment that</span>
+<span class=hljs-addition>+explanation to cutting folk who were not being utilized well either due to lack</span>
+<span class=hljs-addition>+of expertise or overhiring. Again, I hope these come across as unbiased</span>
+<span class=hljs-addition>+observations but my opinion probably snuck in here or there.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

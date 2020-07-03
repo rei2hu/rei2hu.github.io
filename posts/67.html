@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>positioning and filters</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/66>&lt; a godot game</a></div> <div style=text-align:end><a href=/./posts/68>use (and abuse) of pseudo-classes &gt;</a></div>
+</nav>
+<h1 id=positioning-and-filters>positioning and filters</h1>
+<style>#_67_block{color:#000;background-color:#fff;height:100px;width:100px;border:1px solid #000}#_67_toggle_filter+#_67_block{filter:none}#_67_toggle_filter:checked+#_67_block{filter:invert(.5)}#block_24{position:fixed;top:100px;left:100px;background-color:red;height:30px;width:30px}</style>
+<div style=display:flex;justify-content:center>
+<div>
+<input id=_67_toggle_filter type=checkbox>Apply filter
+<div id=_67_block>
+<div id=block_24>
+</div>
+</div>
+</div>
+</div>
+<p>An interesting behavior I came across recently was the interaction between filters and positioning. On this page is a red square with <code>fixed</code> position in the top left. When applying a filter to its parent element by toggling the checkbox, the element is suddenly positioned relative to the block.</p>
+<p>The reason for this is because the <code>filter</code> property (among others) will create a new "containing block" that determines the position of <code>absolute</code> and <code>fixed</code>
+elements. This behaviour is document in the specification so is not a bug. The discussion where the idea originated is around
+<a href=https://www.w3.org/2015/02/10-fx-minutes.html#action02>here</a>. Unfortunately the jsfiddle in the recording does not exist anymore, but based on the conversation, the idea is for solving another issue.</p>
+<p>In my case, I was using a combination of a filter as highlighting and creating a child element as a tooltip. The tooltip was position by the mouse coordinates and when a filter was applied, it was no longer by the mouse. I was able to append the tooltip element to the document body instead as a workaround.</p>
+<p>Interestingly enough, this does not seem to be an issue on Safari. Or rather Safari is not spec compliant because it does not exhibit this behavior; but we've always known it wasn't, haven't we.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/66>&lt; a godot game</a></div> <div style=text-align:end><a href=/./posts/68>use (and abuse) of pseudo-classes &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-01-13 - update post 67</summary>
+<pre class=code-block><input id=code-block-35efea05be90a7072b0bf901019d9fc808948630-1 type=checkbox><label for=code-block-35efea05be90a7072b0bf901019d9fc808948630-1></label><code>@@ -53 +53,5 @@ and when a filter was applied, it was no longer by the mouse. I was able to
+ append the tooltip element to the document body instead as a workaround.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Interestingly enough, this does not seem to be an issue on Safari. Or rather</span>
+<span class=hljs-addition>+Safari is not spec compliant because it does not exhibit this behavior; but</span>
+<span class=hljs-addition>+we&#x27;ve always known it wasn&#x27;t, haven&#x27;t we.</span>
+</code></pre>
+</details>
+<details>
+<summary>2023-01-13 - add post 67</summary>
+<pre class=code-block><input id=code-block-c4c2035bfa7458e6dc275a137111b82116faf05d-1 type=checkbox><label for=code-block-c4c2035bfa7458e6dc275a137111b82116faf05d-1></label><code><span class=hljs-meta>@@ -0,0 +1,53 @@</span>
+<span class=hljs-addition>+# positioning and filters</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    #_67_block {</span>
+<span class=hljs-addition>+        color: black;</span>
+<span class=hljs-addition>+        background-color: white;</span>
+<span class=hljs-addition>+        height: 100px;</span>
+<span class=hljs-addition>+        width: 100px;</span>
+<span class=hljs-addition>+        border: 1px solid black;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    #_67_toggle_filter + #_67_block {</span>
+<span class=hljs-addition>+        filter: none;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    #_67_toggle_filter:checked + #_67_block {</span>
+<span class=hljs-addition>+        filter: invert(.5);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    #block_24 {</span>
+<span class=hljs-addition>+        position: fixed;</span>
+<span class=hljs-addition>+        top: 100px;</span>
+<span class=hljs-addition>+        left: 100px;</span>
+<span class=hljs-addition>+        background-color: red;</span>
+<span class=hljs-addition>+        height: 30px;</span>
+<span class=hljs-addition>+        width: 30px;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div style=&quot;display: flex; justify-content: center&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;div&gt;</span>
+<span class=hljs-addition>+        &lt;input id=&quot;_67_toggle_filter&quot; type=&quot;checkbox&quot;&gt;Apply filter</span>
+<span class=hljs-addition>+        &lt;div id=&quot;_67_block&quot;&gt;</span>
+<span class=hljs-addition>+            &lt;div id=&quot;block_24&quot;&gt;</span>
+<span class=hljs-addition>+            &lt;/div&gt;</span>
+<span class=hljs-addition>+        &lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+An interesting behavior I came across recently was the interaction between</span>
+<span class=hljs-addition>+filters and positioning. On this page is a red square with `fixed` position in</span>
+<span class=hljs-addition>+the top left. When applying a filter to its parent element by toggling the</span>
+<span class=hljs-addition>+checkbox, the element is suddenly positioned relative to the block.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The reason for this is because the `filter` property (among others) will create</span>
+<span class=hljs-addition>+a new &quot;containing block&quot; that determines the position of `absolute` and `fixed`</span>
+<span class=hljs-addition>+elements. This behaviour is document in the specification so is not a bug. The</span>
+<span class=hljs-addition>+discussion where the idea originated is around</span>
+<span class=hljs-addition>+[here](https://www.w3.org/2015/02/10-fx-minutes.html#action02). Unfortunately</span>
+<span class=hljs-addition>+the jsfiddle in the recording does not exist anymore, but based on the</span>
+<span class=hljs-addition>+conversation, the idea is for solving another issue.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In my case, I was using a combination of a filter as highlighting and creating a</span>
+<span class=hljs-addition>+child element as a tooltip. The tooltip was position by the mouse coordinates</span>
+<span class=hljs-addition>+and when a filter was applied, it was no longer by the mouse. I was able to</span>
+<span class=hljs-addition>+append the tooltip element to the document body instead as a workaround.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

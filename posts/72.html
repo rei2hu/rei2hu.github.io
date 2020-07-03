@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>i enjoy helping others run my software</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/71>&lt; my time on mmos</a></div> <div style=text-align:end><a href=/./posts/73>pollution control in factorio &gt;</a></div>
+</nav>
+<h1 id=i-enjoy-helping-others-run-my-software>i enjoy helping others run my software</h1>
+<p>I've been sitting on this post for a bit, and recently someone did reach out to me for help about running something I was working on so I decided to bash this out now.</p>
+<p>There are several smaller private correspondences that I'll skip over, so the first one I'd like to start at is
+<a href=https://github.com/rei2hu/MultiplayerPianoKeysScript/issues/1>this somewhat old issue that was made 3 years after I made the repo's last commit</a>.</p>
+<p>To give the script a quick backstory, there are apps out there that map computer keyboard keys to piano keys and sites that allow you to "play" piano with other people through this - multiplayerpiano is one of these sites. Unfortunately, their mapping did not match what my friends and I were familiar with, so I made an edit to their script to update it… and then added a ton of random features like custom sounds and other things like a good dev.</p>
+<p>Because the script relied on the site's original script due to being a copy and paste + modification, when the site updates how it works, the modified script no longer works as it's based on and old version. I do not know how many people were using it between 2017 and 2020, but I'll assume it worked up until then. Considering this, and that the website is bound to update its script in the future, I decided to provide some detailed instructions on generating the script manually in addition to an up-to-date version to compare against for longevity.</p>
+<p>But looking at the website now, they have a vastly different setup which is minified and spread across several different files, but also have an unminified version published and editable on GitHub, so the longevity I was aiming for didn't end up being very long. I'm just not sure how it can be hooked into easily without making change requests against the official repository, but could probably figure something out.</p>
+<p>There are also several longer correspondences, where the most recent one was related to the hosting of a GMTower server. The backstory for this is that GM(od)Tower was a huge gamemode in Garry's Mod which was eventually shut down/replaced by Tower Unite due to technical constraints blocking more complex development efforts. The developers were supposed to open source the code but hadn't gotten around to it yet (still). Some drama occurred, unofficial servers were hosted, and eventually some code that seemed legitimate was released, so I got my hands on it, made
+<a href=https://github.com/touhou-towers>an org and several repositories</a>, hosted a server, and started modding. Well, half a week in and I decided the code was too low quality to work with and gave up but left the repositories public. I do not know if the code is official or if it's some kind of reverse engineered backend; I'd hope it was the latter as it was <em>extrememly</em> terri-bad quality. But it worked.</p>
+<p>Cue 3 years later, someone reached out to me through email to figure out how to host a server, as they figured I was able to do it based on how I was actively making changes at the time. I initially approached it lazily, as I thought figuring it out from scratch again would take some time, and only troubleshooted the individual errors sent to me. 2 days in and I decided this was going too slowly and eventually tried setting it up myself - doing so, un-archiving the repository to update the README with instructions, then re-archiving it. Our last email exchange went like</p>
+<blockquote>
+<p>me: I've updated the README with specific instructions, let me know if they work</p>
+<p>them: and then all I have to do is update the MySQL credentials and create the tables?</p>
+<p>me: yes</p>
+</blockquote>
+<p>And that was the end.</p>
+<p>In all cases, it is nice to know that there are people out there using things I've had a hand in writing - especially since I don't really write with the focus of getting users, but rather just open source things because of the small chance that people can derive some value from my work.</p>
+<p>My main gripe would be that there is never really full closure; it seems that after I pass along enough instructions then I never get confirmation whether or not things worked - I assume they are not replying because things <em>did</em> work, but the follow-up confirmation would be nice.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/71>&lt; my time on mmos</a></div> <div style=text-align:end><a href=/./posts/73>pollution control in factorio &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-02-27 - add post 72</summary>
+<pre class=code-block><input id=code-block-2b02b102e57a4dda6a072cf1be6483237a9095e8-1 type=checkbox><label for=code-block-2b02b102e57a4dda6a072cf1be6483237a9095e8-1></label><code><span class=hljs-meta>@@ -0,0 +1,75 @@</span>
+<span class=hljs-addition>+# i enjoy helping others run my software</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve been sitting on this post for a bit, and recently someone did reach out to</span>
+<span class=hljs-addition>+me for help about running something I was working on so I decided to bash this</span>
+<span class=hljs-addition>+out now.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There are several smaller private correspondences that I&#x27;ll skip over, so the</span>
+<span class=hljs-addition>+first one I&#x27;d like to start at is</span>
+<span class=hljs-addition>+[this somewhat old issue that was made 3 years after I made the repo&#x27;s last commit](https://github.com/rei2hu/MultiplayerPianoKeysScript/issues/1).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To give the script a quick backstory, there are apps out there that map computer</span>
+<span class=hljs-addition>+keyboard keys to piano keys and sites that allow you to &quot;play&quot; piano with other</span>
+<span class=hljs-addition>+people through this - multiplayerpiano is one of these sites. Unfortunately,</span>
+<span class=hljs-addition>+their mapping did not match what my friends and I were familiar with, so I made</span>
+<span class=hljs-addition>+an edit to their script to update it... and then added a ton of random features</span>
+<span class=hljs-addition>+like custom sounds and other things like a good dev.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Because the script relied on the site&#x27;s original script due to being a copy and</span>
+<span class=hljs-addition>+paste + modification, when the site updates how it works, the modified script no</span>
+<span class=hljs-addition>+longer works as it&#x27;s based on and old version. I do not know how many people</span>
+<span class=hljs-addition>+were using it between 2017 and 2020, but I&#x27;ll assume it worked up until then.</span>
+<span class=hljs-addition>+Considering this, and that the website is bound to update its script in the</span>
+<span class=hljs-addition>+future, I decided to provide some detailed instructions on generating the script</span>
+<span class=hljs-addition>+manually in addition to an up-to-date version to compare against for longevity.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But looking at the website now, they have a vastly different setup which is</span>
+<span class=hljs-addition>+minified and spread across several different files, but also have an unminified</span>
+<span class=hljs-addition>+version published and editable on GitHub, so the longevity I was aiming for</span>
+<span class=hljs-addition>+didn&#x27;t end up being very long. I&#x27;m just not sure how it can be hooked into</span>
+<span class=hljs-addition>+easily without making change requests against the official repository, but could</span>
+<span class=hljs-addition>+probably figure something out.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There are also several longer correspondences, where the most recent one was</span>
+<span class=hljs-addition>+related to the hosting of a GMTower server. The backstory for this is that</span>
+<span class=hljs-addition>+GM(od)Tower was a huge gamemode in Garry&#x27;s Mod which was eventually shut</span>
+<span class=hljs-addition>+down/replaced by Tower Unite due to technical constraints blocking more complex</span>
+<span class=hljs-addition>+development efforts. The developers were supposed to open source the code but</span>
+<span class=hljs-addition>+hadn&#x27;t gotten around to it yet (still). Some drama occurred, unofficial servers</span>
+<span class=hljs-addition>+were hosted, and eventually some code that seemed legitimate was released, so I</span>
+<span class=hljs-addition>+got my hands on it, made</span>
+<span class=hljs-addition>+[an org and several repositories](https://github.com/touhou-towers), hosted a</span>
+<span class=hljs-addition>+server, and started modding. Well, half a week in and I decided the code was too</span>
+<span class=hljs-addition>+low quality to work with and gave up but left the repositories public. I do not</span>
+<span class=hljs-addition>+know if the code is official or if it&#x27;s some kind of reverse engineered backend;</span>
+<span class=hljs-addition>+I&#x27;d hope it was the latter as it was _extrememly_ terri-bad quality. But it</span>
+<span class=hljs-addition>+worked.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Cue 3 years later, someone reached out to me through email to figure out how to</span>
+<span class=hljs-addition>+host a server, as they figured I was able to do it based on how I was actively</span>
+<span class=hljs-addition>+making changes at the time. I initially approached it lazily, as I thought</span>
+<span class=hljs-addition>+figuring it out from scratch again would take some time, and only troubleshooted</span>
+<span class=hljs-addition>+the individual errors sent to me. 2 days in and I decided this was going too</span>
+<span class=hljs-addition>+slowly and eventually tried setting it up myself - doing so, un-archiving the</span>
+<span class=hljs-addition>+repository to update the README with instructions, then re-archiving it. Our</span>
+<span class=hljs-addition>+last email exchange went like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; me: I&#x27;ve updated the README with specific instructions, let me know if they</span>
+<span class=hljs-addition>+&gt; work</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; them: and then all I have to do is update the MySQL credentials and create the</span>
+<span class=hljs-addition>+&gt; tables?</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; me: yes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And that was the end.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In all cases, it is nice to know that there are people out there using things</span>
+<span class=hljs-addition>+I&#x27;ve had a hand in writing - especially since I don&#x27;t really write with the</span>
+<span class=hljs-addition>+focus of getting users, but rather just open source things because of the small</span>
+<span class=hljs-addition>+chance that people can derive some value from my work.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My main gripe would be that there is never really full closure; it seems that</span>
+<span class=hljs-addition>+after I pass along enough instructions then I never get confirmation whether or</span>
+<span class=hljs-addition>+not things worked - I assume they are not replying because things _did_ work,</span>
+<span class=hljs-addition>+but the follow-up confirmation would be nice.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

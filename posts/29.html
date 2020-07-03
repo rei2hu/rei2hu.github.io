@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>wrangling with a PaaS provider</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/28>&lt; file transfer through webrtc</a></div> <div style=text-align:end><a href=/./posts/30>no motivation &gt;</a></div>
+</nav>
+<h1 id=wrangling-with-a-paas-provider>wrangling with a PaaS provider</h1>
+<p>I've wanted to write this one for a while but never found the time until now. Dates, quotes, names, and other things are anonymized.</p>
+<h2 id=background>background</h2>
+<p>One of the projects I've worked on previously was something that's developed for ServiceNow, a platform as a service provider. We had a moderately complex application for healthcare systems management that was used by various organizations. Depending on the customer, was either <em>sideloaded</em> (basically deploying the code to the customer's servers manually) or through the app store.</p>
+<h2 id=intro>intro</h2>
+<p>One day, I get a dm on Teams that one of our customers, let's call them CU, is having a major problem with one of our application's workflows - they can't close work orders when clicking a button. They were sideloaded so it was possible that something messed up during the upgrade, which was not uncommon. They claimed that there were no recent updates or changes to their system aside from a couple that they determined were not the cause. To semi-quote the initial email on Jan 2021:</p>
+<blockquote>
+<p>There were several other minor updates that is for SecOp VR applicaton, that were non-global changes. The other that is one global property change related to performance issue that is changed as HI suggested, but reverting the property did not fix the problem so it wasn't related either.</p>
+</blockquote>
+<p>HI is like ServiceNow's support team or something. It was escalated to engineering (me) after 3 days and I set out to find the problem.</p>
+<h2 id=initial-investigation>initial investigation</h2>
+<p>For most customer specific issues for our ServiceNow application, we would work on the customer's instance as it was usually caused by some custom configuration that they applied.</p>
+<p>Troubleshooting this was interesting as CU made a clone of their production environment to a separate instance that they used for development testing. A support engineer had admin credentials to this instance and we ended up screen sharing where I was basically guiding him to do all the stuff that I would do for troubleshooting.</p>
+<p>We were able to confirm the issue on their environment and I started looking at the code - the button made a GlideAjax call (basically a request from client side to call server side code and return the result) but does not receive a proper response. The response should be some xml with an answer attribute, but it was not there and this suggests that the server side code is throwing (and swallowing) an error.</p>
+<p>GlideAjax is poorly designed and always returns a 200 with some xml in all scenarios.</p>
+<p>Because I've run into this issue before (also why I know what a missing answer attribute means), I tell the support engineer to modify the server side code to wrap the entire function in a try catch so it looked like this</p>
+<pre class=code-block><input id=code-block-29-1 type=checkbox><label for=code-block-29-1></label><code><span class=hljs-keyword>function</span> <span class="hljs-title function_">closeThing</span>(<span class=hljs-params>a, b</span>) {
+    <span class=hljs-keyword>try</span> {
+        <span class=hljs-comment>// ...</span>
+    } <span class=hljs-keyword>catch</span> (e) {
+        <span class=hljs-keyword>return</span> e;
+    }
+}
+</code></pre>
+<p>It's ugly but it worked. GlideAjax sets the answer attribute to the stringified version of whatever is returned, even if it's undefined or null (again, great design). After clicking the button to call the upgraded server side code, the answer attribute was there with the value</p>
+<pre class=code-block><input id=code-block-29-2 type=checkbox><label for=code-block-29-2></label><code>InternalError: Invalid JavaScript value of type com.sun.proxy.$Proxy66
+(sys_script_include.someuuidthatisprivate.script; line 10)`.
+</code></pre>
+<p>What a weird error. We then took the liberty of determining the specific expression that caused the error and it came out to <code>typeof specialVariable</code>.</p>
+<p>Would anyone ever expect this code to throw that kind of error? Most likely not. One thing to know is that ServiceNow has it's own special closed source javascript compiler/interpreter and this is where I assume the error is coming from. At this point, I let the support engineer know that this is most likely out of our hands and help him write an email to CU with the root (at least as root as we can go) cause of the issue and to contact ServiceNow if to look deeper into it. What a good days work.</p>
+<h2 id=responses>responses</h2>
+<p>The day after, we get an email from the a technical lead from CU who was highly skeptical that the error comes from <code>typeof specialVariable</code> because it's native javascript code. But he tested it himself and agrees this was not working, but still did not believe it was the root cause and we had to do more investigation. I ended up putting together what I believe was a minimal working example:</p>
+<pre class=code-block><input id=code-block-29-3 type=checkbox><label for=code-block-29-3></label><code><span class=hljs-comment>// server</span>
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">example</span>(<span class=hljs-params></span>) {
+    <span class=hljs-keyword>try</span> {
+        <span class=hljs-keyword>typeof</span> variable;
+    } <span class=hljs-keyword>catch</span> (e) {
+        <span class=hljs-keyword>return</span> e;
+    }
+}
+
+<span class=hljs-comment>// client</span>
+<span class=hljs-keyword>var</span> g = <span class=hljs-keyword>new</span> <span class="hljs-title class_">GlideAjax</span>(<span class=hljs-string>&quot;some_name&quot;</span>);
+g.<span class="hljs-title function_">addParam</span>(<span class=hljs-string>&quot;sysparm_name&quot;</span>, <span class=hljs-string>&quot;example&quot;</span>);
+g.<span class="hljs-title function_">getXmlAnswer</span>(<span class="hljs-variable language_">console</span>.<span class=hljs-property>log</span>);
+</code></pre>
+<p>and sent it over. I also took the liberty of explaining how ServiceNow's code is what processes all the javascript and the error we're seeing is from them. At this point, we are 2 days in and everything seems to be up to ServiceNow to handle as CU was also engaging ServiceNow support while we investigated the issue. Unfortunately it took their support team 2 weeks to get back to CU and even then they had no real answers - they did not dig deep enough to find what we had found. If I had to put down a few levels of depth, they would be:</p>
+<ol>
+<li>Client side code checks response's answer</li>
+<li>Client side code receives undefined</li>
+<li>Server side code throws an error</li>
+<li>Server side code errors at <code>typeof specialVariable</code></li>
+</ol>
+<p>and ServiceNow support only hit level 1 and suggested updating the condition of an if statement for the client side code. Blegh. CU keeps trying to get someone on the more technical side of ServiceNow while we look at possible temporary remediations.</p>
+<h2 id=shooting-in-the-dark-and-a-solution>shooting in the dark and a solution?</h2>
+<p>CU sets up another clone of their instance but which is then rolled back and they note that the error is not present there. They are able to demo it to ServiceNow support and they finally admit this is most likely their issue as the code is identical on both instances. At this point it's already February and it's been an entire month since the problem showed up.</p>
+<p>At this point I am also back on diagnosing the true root cause, but the problem is that I don't have as much insight into the system as someone who actually works at ServiceNow. I start running scripts I threw together to compare the difference between the instances and there are a ton. Too many to be honest, and flipping things just don't seem to work.</p>
+<p>However, a couple of days later, ServiceNow gets back and says that the issue is due to one of the system properties
+<code>com.glide.script.interpret.short.expressions.threshold</code> being set to 3800. I haven't read about this one before so I try looking it up, no information. Did I mention ServiceNow documentation is terrible? ServiceNow says it is a known issue, linking to a non-existent or private issue page, and will be fixed in <strong>2 major releases</strong>… Well, since it was discovered by ServiceNow, I assume they know what they're doing.</p>
+<p>7 hours later, the CU technical lead gets back and says the fix didn't work. Meanwhile, we have the temporary fix in place so things are at least working.</p>
+<p>I don't know what the suggested fix was, but I end up deciding to test the system property out myself. I set the property on one of our development instances to see if I can reproduce the issue but nothing happens. Turns out, you have to restart the instance for the change to go through, and to restart the instance, you have to contact ServiceNow to restart it manually. Crazy. After 2 or 3 days, I was able to confirm this undocumented property was the cause of the issue as I had to wait for ServiceNow to restart the instance multiple times for things to take effect. We let CU know of this.</p>
+<p>At this point, I was excluded from the rest of the email chain as my work was done.</p>
+<p>By the way, do you know the reason the property was turned on and had that value? Because of this:</p>
+<blockquote>
+<p>The other that is one global property change related to performance issue that is changed as HI suggested, but reverting the property did not fix the problem</p>
+</blockquote>
+<p>They just had to restart the instance. Interesting to see see HI support turning on a property with known issues.</p>
+<h2 id=conclusion>conclusion</h2>
+<p>Being a good cloud provider requires good support and documentation. ServiceNow has neither of these and that's why I hate it.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/28>&lt; file transfer through webrtc</a></div> <div style=text-align:end><a href=/./posts/30>no motivation &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-07-05 - add post 29</summary>
+<pre class=code-block><input id=code-block-6f82b6247e56bb9a048ec5365b345bd3c9cccd4a-1 type=checkbox><label for=code-block-6f82b6247e56bb9a048ec5365b345bd3c9cccd4a-1></label><code><span class=hljs-meta>@@ -0,0 +1,169 @@</span>
+<span class=hljs-addition>+# wrangling with a PaaS provider</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve wanted to write this one for a while but never found the time until now. Dates,</span>
+<span class=hljs-addition>+quotes, names, and other things are anonymized.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## background</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One of the projects I&#x27;ve worked on previously was something that&#x27;s developed for</span>
+<span class=hljs-addition>+ServiceNow, a platform as a service provider. We had a moderately complex application</span>
+<span class=hljs-addition>+for healthcare systems management that was used by various organizations. Depending</span>
+<span class=hljs-addition>+on the customer, was either *sideloaded* (basically deploying the code to the customer&#x27;s</span>
+<span class=hljs-addition>+servers manually) or through the app store.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## intro</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One day, I get a dm on Teams that one of our customers, let&#x27;s call them CU, is having</span>
+<span class=hljs-addition>+a major problem with one of our application&#x27;s workflows - they can&#x27;t close work</span>
+<span class=hljs-addition>+orders when clicking a button. They were sideloaded so it was possible that something</span>
+<span class=hljs-addition>+messed up during the upgrade, which was not uncommon. They claimed that there were</span>
+<span class=hljs-addition>+no recent updates or changes to their system aside from a couple that they determined</span>
+<span class=hljs-addition>+were not the cause. To semi-quote the initial email on Jan 2021:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; There were several other minor updates that is for SecOp VR applicaton, that were</span>
+<span class=hljs-addition>+&gt; non-global changes. The other that is one global property change related to performance</span>
+<span class=hljs-addition>+&gt; issue that is changed as HI suggested, but reverting the property did not fix the</span>
+<span class=hljs-addition>+&gt; problem so it wasn&#x27;t related either.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+HI is like ServiceNow&#x27;s support team or something. It was escalated to engineering</span>
+<span class=hljs-addition>+(me) after 3 days and I set out to find the problem.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## initial investigation</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For most customer specific issues for our ServiceNow application, we would work</span>
+<span class=hljs-addition>+on the customer&#x27;s instance as it was usually caused by some custom configuration</span>
+<span class=hljs-addition>+that they applied.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Troubleshooting this was interesting as CU made a clone of their production environment</span>
+<span class=hljs-addition>+to a separate instance that they used for development testing. A support engineer</span>
+<span class=hljs-addition>+had admin credentials to this instance and we ended up screen sharing where I was</span>
+<span class=hljs-addition>+basically guiding him to do all the stuff that I would do for troubleshooting.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We were able to confirm the issue on their environment and I started looking at</span>
+<span class=hljs-addition>+the code - the button made a GlideAjax call (basically a request from client side</span>
+<span class=hljs-addition>+to call server side code and return the result) but does not receive a proper response.</span>
+<span class=hljs-addition>+The respose should be some xml with an answer attribute, but it was not there and</span>
+<span class=hljs-addition>+this suggests that the server side code is throwing (and swallowing) an error.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+GlideAjax is poorly designed and always returns a 200 with some xml in all scenarios.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Because I&#x27;ve run into this issue before (also why I know what a missing answer attribute</span>
+<span class=hljs-addition>+means), I tell the support engineer to modify the server side code to wrap the entire</span>
+<span class=hljs-addition>+function in a try catch so it looked like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+function closeThing(a, b) {</span>
+<span class=hljs-addition>+    try {</span>
+<span class=hljs-addition>+        // ...</span>
+<span class=hljs-addition>+    } catch(e) {</span>
+<span class=hljs-addition>+        return e;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s ugly but it worked. GlideAjax sets the answer attribute to the stringified version</span>
+<span class=hljs-addition>+of whatever is returned, even if it&#x27;s undefined or null (again, great design). After</span>
+<span class=hljs-addition>+clicking the button to call the upgraded server side code, the answer attribute</span>
+<span class=hljs-addition>+was there with the value `InternalError: Invalid JavaScript value of type com.sun.proxy.$Proxy66</span>
+<span class=hljs-addition>+(sys_script_include.someuuidthatisprivate.script; line 10)`. What a weird error.</span>
+<span class=hljs-addition>+We then took the liberty of determining the specific expression that caused the</span>
+<span class=hljs-addition>+error and it came out to `typeof specialVariable`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Would anyone ever expect this code to throw that kind of error? Most likely not.</span>
+<span class=hljs-addition>+One thing to know is that ServiceNow has it&#x27;s own special closed source javascript</span>
+<span class=hljs-addition>+compiler/interpreter and this is where I assume the error is coming from. At this</span>
+<span class=hljs-addition>+point, I let the support engineer know that this is most likely out of our hands</span>
+<span class=hljs-addition>+and help him write an email to CU with the root (at least as root as we can go)</span>
+<span class=hljs-addition>+cause of the issue and to contact ServiceNow if to look deeper into it. What a good</span>
+<span class=hljs-addition>+days work.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## responses</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The day after, we get an email from the a technical lead from CU who was highly skeptical</span>
+<span class=hljs-addition>+that the error comes from `typeof specialVariable` because it&#x27;s native javascript</span>
+<span class=hljs-addition>+code. But he tested it himself and agrees this was not working, but still did not</span>
+<span class=hljs-addition>+believe it was the root cause and we had to do more investigation. I ended up putting</span>
+<span class=hljs-addition>+together what I believe was a minimal working example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+// server</span>
+<span class=hljs-addition>+function example() {</span>
+<span class=hljs-addition>+    try {</span>
+<span class=hljs-addition>+        typeof variable</span>
+<span class=hljs-addition>+    } catch(e) {</span>
+<span class=hljs-addition>+        return e;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// client</span>
+<span class=hljs-addition>+var g = new GlideAjax(&quot;some_name&quot;);</span>
+<span class=hljs-addition>+g.addParam(&quot;sysparm_name&quot;, &quot;example&quot;);</span>
+<span class=hljs-addition>+g.getXmlAnswer(console.log);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+and sent it over. I also took the liberty of explaining how ServiceNow&#x27;s code is</span>
+<span class=hljs-addition>+what processes all the javascript and the error we&#x27;re seeing is from them. At this</span>
+<span class=hljs-addition>+point, we are 2 days in and everything seems to be up to ServiceNow to handle as</span>
+<span class=hljs-addition>+CU was also engaging ServiceNow support while we investigated the issue. Unfortunately</span>
+<span class=hljs-addition>+it took their support team 2 weeks to get back to CU and even then they had no real</span>
+<span class=hljs-addition>+answers - they did not dig deep enough to find what we had found. If I had to put</span>
+<span class=hljs-addition>+down a few levels of depth, they would be:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Client side code checks response&#x27;s answer</span>
+<span class=hljs-addition>+2. Client side code receives undefined</span>
+<span class=hljs-addition>+3. Server side code throws an error</span>
+<span class=hljs-addition>+4. Server side code errors at `typeof specialVariable`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+and ServiceNow support only hit level 1 and suggested updating the condition of</span>
+<span class=hljs-addition>+an if statement for the client side code. Blegh. CU keeps trying to get someone on</span>
+<span class=hljs-addition>+the more technical side of ServiceNow while we look at possible temporary remediations.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## shooting in the dark and a solution?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+CU sets up another clone of their instance but which is then rolled back and they</span>
+<span class=hljs-addition>+note that the error is not present there. They are able to demo it to ServiceNow</span>
+<span class=hljs-addition>+support and they finally admit this is most likely their issue as the code is identical</span>
+<span class=hljs-addition>+on both instances. At this point it&#x27;s already February and it&#x27;s been an entire month</span>
+<span class=hljs-addition>+since the problem showed up.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At this point I am also back on diagnosing the true root cause, but the problem</span>
+<span class=hljs-addition>+is that I don&#x27;t have as much insight into the system as someone who actually works</span>
+<span class=hljs-addition>+at ServiceNow. I start running scripts I threw together to compare the difference</span>
+<span class=hljs-addition>+between the instances and there are a ton. Too many to be honest, and flipping things</span>
+<span class=hljs-addition>+just don&#x27;t seem to work.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, a couple of days later, ServiceNow gets back and says that the issue is</span>
+<span class=hljs-addition>+due to one of the system properties `com.glide.script.interpret.short.expressions.threshold`</span>
+<span class=hljs-addition>+being set to 3800. I haven&#x27;t read about this one before so I try looking it up,</span>
+<span class=hljs-addition>+no information. Did I mention ServiceNow documentation is terrible? ServiceNow says</span>
+<span class=hljs-addition>+it is a known issue, linking to a non-existant or private issue page, and will be</span>
+<span class=hljs-addition>+fixed in **2 major releases**... Well, since it was discovered by ServiceNow, I</span>
+<span class=hljs-addition>+assume they know what they&#x27;re doing.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+7 hours later, the CU technical lead gets back and says the fix didn&#x27;t work. Meanwhile,</span>
+<span class=hljs-addition>+we have the temporary fix in place so things are at least working.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I don&#x27;t know what the suggested fix was, but I end up deciding to test the system</span>
+<span class=hljs-addition>+property out myself. I set the property on one of our development instances to see</span>
+<span class=hljs-addition>+if I can reproduce the issue but nothing happens. Turns out, you have to restart</span>
+<span class=hljs-addition>+the instance for the change to go through, and to restart the instance, you have</span>
+<span class=hljs-addition>+to contact ServiceNow to restart it manually. Crazy. After 2 or 3 days, I was able</span>
+<span class=hljs-addition>+to confirm this undocumented property was the cause of the issue as I had to wait</span>
+<span class=hljs-addition>+for ServiceNow to restart the instance multiple times for things to take effect.</span>
+<span class=hljs-addition>+We let CU know of this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At this pont, I was excluded from the rest of the email chain as my work was done.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+By the way, do you know the reason the property was turned on and had that value?</span>
+<span class=hljs-addition>+Because of this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; The other that is one global property change related to performance issue that</span>
+<span class=hljs-addition>+&gt; is changed as HI suggested, but reverting the property did not fix the problem</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+They just had to restart the instance. Interesting to see see HI support turning</span>
+<span class=hljs-addition>+on a property with known issues.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Being a good cloud provider requires good support and documentation. ServiceNow</span>
+<span class=hljs-addition>+has neither of these and that&#x27;s why I hate it.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

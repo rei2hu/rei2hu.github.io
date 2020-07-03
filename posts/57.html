@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>writing a browser extension</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/56>&lt; a quick hobby project</a></div> <div style=text-align:end><a href=/./posts/58>a little append only ds idea &gt;</a></div>
+</nav>
+<h1 id=writing-a-browser-extension>writing a browser extension</h1>
+<p>So one of the initiatives I've recently taken was to switch the language of things I use to Spanish in an attempt to passively pick up some vocabulary. This included my browser which makes some websites also display in Spanish. Long story short, I needed a browser extension to perform translations. I read about Mozilla developing some ML models to perform client side translations a while back and was able to find <a href=https://browser.mt/ >the project</a> and
+<a href=https://addons.mozilla.org/en-US/firefox/addon/firefox-translations/ >the extension</a>.</p>
+<p>After a short trial period of using the extension, I realized it didn't fit my use case. Specifically:</p>
+<ul>
+<li>It translated the entire page and couldn't show the original text without refreshing</li>
+<li>It did not let me choose the languages to translate from but instead tried to detect it automatically</li>
+</ul>
+<p>Also, when I looked closely, it ended up downloading models off of a cloud bucket when needed. This happened to be a Google Cloud bucket; possibly not ideal from a privacy or even availability standpoint.</p>
+<p>So I thought I could contribute a few features and headed over to
+<a href=https://github.com/mozilla-extensions/firefox-translations/tree/1.1.4-build2>the repo</a>
+(this isn't the actual repo but this contains the code I was looking at). A few minutes of browsing later, I decided this code was overly complex and kind of messy by my own standards (so many abstractions were forcing me to jump between various parts of the repository, compounded by the fact that I haven't even developed a browser extension before) for what the extension did and decided to write my own extension leveraging Bergamot from scratch.</p>
+<p>I'll skip over the details, as this isn't a browser extension developer tutorial (spoiler alert, it's basically web development with some unique apis), interfacing with bergamot and some other wasm modules, and just talk about a few specific problems I ran into.</p>
+<p>The first one was logging - I use print statements a lot to just check that a certain branch of code is running and it just so happens that there are at least 2 output streams (consoles) to look at; the one for your current page and also a debug one for the extension. I say at least 2 because I couldn't figure out where logs were printing for the settings page, browser action popup, and other things. I ended up implementing the user facing error display and using that as the print statement for execution feedback.</p>
+<p>The second issue was figuring out how I could let the user manage the language models themselves; this implied that my extension needed the ability to read files on the local computer somehow, which has been a big no-no in web development for quite some time due to security concerns. Knowing this, I looked for a way to store the file in the extension itself bu looking at the
+<a href=https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage>storage api</a>. I reasoned that I would be able to store the file contents in storage keyed by whatever. It seemed non-hacky until I read the following:</p>
+<blockquote>
+<p>The values stored can be any JSON-ifiable value</p>
+</blockquote>
+<p>My code leveraged array buffers which aren't exactly "JSON-ifiable" without a few transformations, but it turned out storage has no problem saving array buffers without needing any intermediate operations. Also, I ended up storing them as top level objects instead of nesting them under a key like models as the way the storage api was designed suggested that replacing a key would add/delete everything within it, and I didn't want to make some kind of unnecessary copy operation for every model when only modifying one, but the quote from the docs</p>
+<blockquote>
+<p>You don't need to convert your values to JSON Strings prior to storing them, but they are represented as JSON internally, thus the requirement that they be JSON-ifiable</p>
+</blockquote>
+<p>may suggest that it happens either way. Overall, I was able to write the core logic of the extension in a couple of days, and then spent a bit more time polishing the UI.</p>
+<p>In my totally unbiased opinion, my extension is better (from a UX, code, and privacy perspective; if you think having users manually upload models is better than downloading from Google Cloud) than the official one at the moment, and suits my needs perfectly.</p>
+<p>All I need to do to use it aside from the model configuration is select some text, right click, then translate; a pop-up with the translation will show up, and if anything is wrong with the languages, I can modify them in the popup. Interestingly enough, I ended up taking a look at some translation extensions after the fact and noticed that the translation in a popup idea is pretty common.</p>
+<p>I do hope that others will find this extension useful, but, probably, in the end I'll be the only one using it as I don't market much. In fact, I'm strictly against doing so because I believe in things like a meritocracy or if the extension is good, people will find and use it without me having to shove it in their faces. Well, I know this is in general untrue but it's one of those hills I'll die on. That was a random turn in topics.</p>
+<p>Extension source can be found
+<a href=https://github.com/rei2hu/berga-translator>here</a>. Extension download can be found <a href=https://addons.mozilla.org/en-US/firefox/addon/berga-translator/ >here</a>.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/56>&lt; a quick hobby project</a></div> <div style=text-align:end><a href=/./posts/58>a little append only ds idea &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-09-02 - add post 57</summary>
+<pre class=code-block><input id=code-block-d004d3794ec2ce681057d0b7379672dd1385ebdf-1 type=checkbox><label for=code-block-d004d3794ec2ce681057d0b7379672dd1385ebdf-1></label><code><span class=hljs-meta>@@ -0,0 +1,83 @@</span>
+<span class=hljs-addition>+# writing a browser extension</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So one of the initiatives I&#x27;ve recently taken was to switch the language of things</span>
+<span class=hljs-addition>+I use to Spanish in an attempt to passively pick up some vocabulary. This included</span>
+<span class=hljs-addition>+my browser which makes some websites also display in Spanish. Long story short,</span>
+<span class=hljs-addition>+I needed a browser extension to perform translations. I read about Mozilla</span>
+<span class=hljs-addition>+developing some ML models to perform client side translations a while back and was</span>
+<span class=hljs-addition>+able to find [the project](https://browser.mt/) and [the extension](https://addons.mozilla.org/en-US/firefox/addon/firefox-translations/).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+After a short trial period of using the extension, I realized it didn&#x27;t fit my use</span>
+<span class=hljs-addition>+case. Specifically:</span>
+<span class=hljs-addition>+- It translated the entire page and couldn&#x27;t show the original text without refreshing</span>
+<span class=hljs-addition>+- It did not let me choose the languages to translate from but instead tried to</span>
+<span class=hljs-addition>+  detect it automatically</span>
+<span class=hljs-addition>+Also, when I looked closely, it ended up downloading models off of a cloud bucket</span>
+<span class=hljs-addition>+when needed. This happened to be a Google Cloud bucket; possibly not ideal from</span>
+<span class=hljs-addition>+a privacy or even availability standpoint.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I thought I could contribute a few features and headed over to [the repo](https://github.com/mozilla-extensions/firefox-translations/tree/1.1.4-build2)</span>
+<span class=hljs-addition>+(this isn&#x27;t the actual repo but this contains the code I was looking at).</span>
+<span class=hljs-addition>+A few minutes of browsing later, I decided this code was overly complex and kind</span>
+<span class=hljs-addition>+of messy by my own standards (so many abstractions were forcing me to jump between</span>
+<span class=hljs-addition>+various parts of the repository, compounded by the fact that I haven&#x27;t even developed</span>
+<span class=hljs-addition>+a browser extension before) for what the extension did and decided to write my own</span>
+<span class=hljs-addition>+extension leveraging Bergamot from scratch.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll skip over the details, as this isn&#x27;t a browser extension developer tutorial</span>
+<span class=hljs-addition>+(spoiler alert, it&#x27;s basically web development with some unique apis), interfacing</span>
+<span class=hljs-addition>+with bergamot and some other wasm modules, and just talk about a few specific problems</span>
+<span class=hljs-addition>+I ran into.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first one was logging - I use print statements a lot to just check that a certain</span>
+<span class=hljs-addition>+branch of code is running and it just so happens that there are at least 2 output</span>
+<span class=hljs-addition>+streams (consoles) to look at; the one for your current page and also a debug one</span>
+<span class=hljs-addition>+for the extension. I say at least 2 because I couldn&#x27;t figure out where logs were</span>
+<span class=hljs-addition>+printing for the settings page, browser action popup, and other things. I ended</span>
+<span class=hljs-addition>+up implementing the user facing error display and using that as the print statement</span>
+<span class=hljs-addition>+for execution feedback.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The second issue was figuring out how I could let the user manage the language models</span>
+<span class=hljs-addition>+themselves; this implied that my extension needed the ability to read files on the</span>
+<span class=hljs-addition>+local computer somehow, which has been a big no-no in web development for quite</span>
+<span class=hljs-addition>+some time due to security concerns. Knowing this, I looked for a way to store the</span>
+<span class=hljs-addition>+file in the extension itself bu looking at the [storage api](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage).</span>
+<span class=hljs-addition>+I reasoned that I would be able to store the file contents in storage keyed by whatever.</span>
+<span class=hljs-addition>+It seemed non-hacky until I read the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; The values stored can be any JSON-ifiable value</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My code leveraged array buffers which aren&#x27;t exactly &quot;JSON-ifiable&quot; without a few</span>
+<span class=hljs-addition>+transformations, but it turned out storage has no problem saving array buffers without</span>
+<span class=hljs-addition>+needing any intermediate operations. Also, I ended up storing them as top level</span>
+<span class=hljs-addition>+objects instead of nesting them under a key like models as the way the storage api</span>
+<span class=hljs-addition>+was designed suggested that replacing a key would add/delete everything within it,</span>
+<span class=hljs-addition>+and I didn&#x27;t want to make some kind of unnecessary copy operation for every model</span>
+<span class=hljs-addition>+when only modifying one, but the quote from the docs</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; You don&#x27;t need to convert your values to JSON Strings prior to storing them, but</span>
+<span class=hljs-addition>+&gt; they are represented as JSON internally, thus the requirement that they be JSON-ifiable</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+may suggest that it happens either way. Overall, I was able to write the core logic</span>
+<span class=hljs-addition>+of the extension in a couple of days, and then spent a bit more time polishing the</span>
+<span class=hljs-addition>+UI.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In my totally unbiased opinion, my extension is better (from a UX, code, and privacy</span>
+<span class=hljs-addition>+perspective; if you think having users manually upload models is better than downloading</span>
+<span class=hljs-addition>+from Google Cloud) than the official one at the moment, and suits my needs perfectly.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+All I need to do to use it aside from the model configuration is select some text,</span>
+<span class=hljs-addition>+right click, then translate; a pop-up with the translation will show up, and if</span>
+<span class=hljs-addition>+anything is wrong with the languages, I can modify them in the popup. Interestingly</span>
+<span class=hljs-addition>+enough, I ended up taking a look at some translation extensions after the fact and</span>
+<span class=hljs-addition>+noticed that the translation in a popup idea is pretty common.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I do hope that others will find this extension useful, but, probably, in the end</span>
+<span class=hljs-addition>+I&#x27;ll be the only one using it as I don&#x27;t market much. In fact, I&#x27;m strictly against</span>
+<span class=hljs-addition>+doing so because I believe in things like a meritocracy or if the extension is good,</span>
+<span class=hljs-addition>+people will find and use it without me having to shove it in their faces. Well,</span>
+<span class=hljs-addition>+I know this is in general untrue but it&#x27;s one of those hills I&#x27;ll die on. That was</span>
+<span class=hljs-addition>+a random turn in topics.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Extension source can be found [here](https://github.com/rei2hu/berga-translator).</span>
+<span class=hljs-addition>+Extension download can be found [here](https://addons.mozilla.org/en-US/firefox/addon/berga-translator/).</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

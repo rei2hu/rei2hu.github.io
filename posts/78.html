@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>tera mods</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/77>&lt; framework gaming and menma's tera</a></div> <div style=text-align:end><a href=/./posts/79>framework gaming and baldur's gate 3 &gt;</a></div>
+</nav>
+<h1 id=tera-mods>tera mods</h1>
+<p>So recently I've been playing on Menma's TERA with dxvk as a performance boost. When playing a game like TERA, it's useful to have tools that can give you detailed information on your in-game performance like DPS meters. For TERA, this comes in the form of ShinraMeter, which basically intercepts packets between the game and you to record various statistics of your in-game actions.</p>
+<p>The only issue with this program is that it's UI is external, and using dxvk (in my case) forces the game window to stay on top. Also it requires installing packet inspection drivers and whatnot which is kind of a pain.</p>
+<p>Fortunately, for a while, some developers ended up being able to proxy the game connection which allows for a lot of quality of life (and more controversial) mods. This has since been packaged into a nice mod loader called tera-toolbox. So with this in mind, I thought I'd try writing a simple dps report kind of mod.</p>
+<p>Navigating to the <a href=https://github.com/tera-toolbox/tera-toolbox>repository</a>
+greets you with:</p>
+<blockquote>
+<p>Please check out
+<a href=https://github.com/tera-toolbox/tera-toolbox/blob/master/doc/main.md>the documentation</a>
+(especially if you want to develop your own modules)!</p>
+</blockquote>
+<p>Ignoring the fact that most of this is filled with TBD and hasn't been updated for years, the actual specifics are lacking. Fortunately, for the simplest functionality, not much has to be done except for intercepting the correct packets via <code>mod.hook</code>, and I'm pretty familiar with how things work due to experience on other games.</p>
+<p>The big missing chunk of documentation revolves around the
+<a href=https://github.com/tera-toolbox/tera-toolbox/blob/master/doc/mod/client-interface.md#querying-data-from-the-game-clients-datacenter-tbd-further-documentation>Querying Data from the Game Client's DataCenter</a>
+functionality. I was looking to transform ids into names and fortunately there was an example that does exactly what I wanted to there.</p>
+<pre class=code-block><input id=code-block-78-1 type=checkbox><label for=code-block-78-1></label><code>mod.<span class="function_ hljs-title">hook</span>(<span class=hljs-string>&quot;S_SPAWN_NPC&quot;</span>, <span class=hljs-number>11</span>, <span class=hljs-function>(<span class=hljs-params>event</span>) =&gt;</span> {
+    <span class=hljs-comment>// Note: you can also use async/await here, obviously</span>
+    mod.<span class="function_ hljs-title">queryData</span>(<span class=hljs-string>&quot;/StrSheet_Creature/HuntingZone@id=?/String@templateId=?&quot;</span>, [
+        event.<span class=hljs-property>huntingZoneId</span>,
+        event.<span class=hljs-property>templateId</span>,
+    ]).<span class="function_ hljs-title">then</span>(<span class=hljs-function>(<span class=hljs-params>result</span>) =&gt;</span> {
+        mod.<span class="function_ hljs-title">log</span>(
+            <span class=hljs-string>`Spawned NPC &quot;<span class=hljs-subst>${result.attributes.name}</span>&quot; (<span class=hljs-subst>${event.huntingZoneId}</span>,<span class=hljs-subst>${event.templateId}</span>)!`</span>
+        );
+    });
+});
+</code></pre>
+<p>Where does that string passed to <code>queryData</code> come from? It's not explained anywhere but after some sleuthing, I eventually figured out that it had to do with an unpacked version of <code>Client/S1Game/S1Data/DataCenter_Final_x.dat</code>. There are various unpackers online, but in short it seems to contain multiple files, one of which is called StrSheet_Creature and contains data like</p>
+<pre class=code-block><input id=code-block-78-2 type=checkbox><label for=code-block-78-2></label><code><span class=hljs-attr>&quot;HuntingZone&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span>
+        <span class=hljs-punctuation>{</span>
+            <span class=hljs-attr>&quot;id&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-number>0</span><span class=hljs-punctuation>,</span>
+            <span class=hljs-attr>&quot;String&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-punctuation>[</span>
+                <span class=hljs-punctuation>{</span>
+                    <span class=hljs-attr>&quot;name&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-string>&quot;Human Male Warrior&quot;</span><span class=hljs-punctuation>,</span>
+                    <span class=hljs-attr>&quot;templateId&quot;</span><span class=hljs-punctuation>:</span> <span class=hljs-number>10101</span><span class=hljs-punctuation>,</span>
+</code></pre>
+<p>I still don't know how the syntax for the query itself works, though. Anyways, I ended up trying to fetch npc names like</p>
+<pre class=code-block><input id=code-block-78-3 type=checkbox><label for=code-block-78-3></label><code>mod.<span class="function_ hljs-title">hook</span>(<span class=hljs-string>&#x27;S_SPAWN_NPC&#x27;</span>, <span class=hljs-number>12</span>, <span class=hljs-keyword>async</span> ({ huntingZoneId, templateId }) =&gt; {
+    <span class=hljs-keyword>const</span> result = <span class=hljs-keyword>await</span> mod.<span class="function_ hljs-title">queryData</span>(...);
+    mod.<span class="function_ hljs-title">log</span>(result.<span class=hljs-property>attributes</span>.<span class=hljs-property>name</span>);
+});
+</code></pre>
+<p>By following the example and the latest <code>S_SPAWN_NPC</code> definition, and it didn't work. I also started getting some out of bounds error from, I believe, the packet parser. I then tried copying the example verbatim and it worked. The difference? The packet version number. However, sometimes it just doesn't work (the query returns null) and I have no idea why - the values look correct and there is a corresponding entry in the data files.</p>
+<p>As for the UI, currently I only have it sending a message in chat after the fight but I have some ideas to hijack some in-game UI for display purposes. We'll see!</p>
+<p>It didn't work out. In short, I knew that TERA had a built-in dps meter which can be seen when accessing the training grounds, and I looked for a way to leverage that.</p>
+<p><img alt=meter src=/blobs/78/meter.png></p>
+<p>A few hours of testing later and all I learned was that it relied directly on the same packets I was intercepting i.e. <code>S_EACH_SKILL_RESULT</code> and did all the calculations client side. I figured this out by blocking the packets, which made the client think nothing was happening and consequently made it not update that dps meter.</p>
+<pre class=code-block><input id=code-block-78-4 type=checkbox><label for=code-block-78-4></label><code>mod.<span class="function_ hljs-title">hook</span>(<span class=hljs-string>&quot;S_EACH_SKILL_RESULT&quot;</span>, <span class=hljs-number>14</span>, <span class=hljs-function>() =&gt;</span> <span class=hljs-literal>false</span>);
+</code></pre>
+<p>I made no progress with figuring out how to make it show up outside the training dungeon, and I was not too invested in this path forward so didn't bother disassembling the client to figure out more.</p>
+<p>At the end of the day, I just went through existing packets and found one called
+<code>S_CUSTOM_STYLE_SYSTEM_MESSAGE</code> which could open a textarea like thing which worked well enough for a custom UI section when called on an interval.</p>
+<pre class=code-block><input id=code-block-78-5 type=checkbox><label for=code-block-78-5></label><code>mod.<span class="function_ hljs-title">send</span>(<span class=hljs-string>&quot;S_CUSTOM_STYLE_SYSTEM_MESSAGE&quot;</span>, <span class=hljs-number>1</span>, {
+    <span class=hljs-attr>style</span>: <span class=hljs-number>49</span>, <span class=hljs-comment>// box on side of window</span>
+    <span class=hljs-attr>message</span>: dpsInfo.<span class="function_ hljs-title">map</span>(<span class=hljs-function>(<span class=hljs-params>info</span>) =&gt;</span> <span class="function_ hljs-title">formatDpsInfo</span>(info)).<span class="function_ hljs-title">join</span>(<span class=hljs-string>&quot;\n&quot;</span>),
+});
+</code></pre>
+<p><img alt=chat-meter src=/blobs/78/chat-meter.png></p>
+<p>It does flash now and then because it's not meant to stay up there permanently, though I'm not sure what the reason is as the interval should be short enough to keep it on screen permanently.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/77>&lt; framework gaming and menma's tera</a></div> <div style=text-align:end><a href=/./posts/79>framework gaming and baldur's gate 3 &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-08-08 - update post 78</summary>
+<pre class=code-block><input id=code-block-a5e7398ad148c5138150f0306bb394431c0336f4-1 type=checkbox><label for=code-block-a5e7398ad148c5138150f0306bb394431c0336f4-1></label><code><span class=hljs-meta>@@ -51,5 +51,5 @@</span> Where does that string passed to `queryData` come from? It&#x27;s not explained
+ anywhere but after some sleuthing, I eventually figured out that it had to do
+<span class=hljs-deletion>-with an unpacked version of `Client/S1Game/S1Data/DataCenter_Final_x.dat`.</span>
+<span class=hljs-deletion>-There are various unpackers online, but in short it seems to contain multiple</span>
+<span class=hljs-deletion>-files, one of which is called StrSheet_Creature and contains data like</span>
+<span class=hljs-addition>+with an unpacked version of `Client/S1Game/S1Data/DataCenter_Final_x.dat`. There</span>
+<span class=hljs-addition>+are various unpackers online, but in short it seems to contain multiple files,</span>
+<span class=hljs-addition>+one of which is called StrSheet_Creature and contains data like</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a5e7398ad148c5138150f0306bb394431c0336f4-2 type=checkbox><label for=code-block-a5e7398ad148c5138150f0306bb394431c0336f4-2></label><code><span class=hljs-meta>@@ -78,3 +78,5 @@</span> work. I also started getting some out of bounds error from, I believe, the
+ packet parser. I then tried copying the example verbatim and it worked. The
+<span class=hljs-deletion>-difference? The packet version number.</span>
+<span class=hljs-addition>+difference? The packet version number. However, sometimes it just doesn&#x27;t work</span>
+<span class=hljs-addition>+(the query returns null) and I have no idea why - the values look correct and</span>
+<span class=hljs-addition>+there is a corresponding entry in the data files.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a5e7398ad148c5138150f0306bb394431c0336f4-3 type=checkbox><label for=code-block-a5e7398ad148c5138150f0306bb394431c0336f4-3></label><code>@@ -83 +85,38 @@ fight but I have some ideas to hijack some in-game UI for display purposes.
+ We&#x27;ll see!
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It didn&#x27;t work out. In short, I knew that TERA had a built-in dps meter which</span>
+<span class=hljs-addition>+can be seen when accessing the training grounds, and I looked for a way to</span>
+<span class=hljs-addition>+leverage that.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![meter](/blobs/78/meter.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A few hours of testing later and all I learned was that it relied directly on</span>
+<span class=hljs-addition>+the same packets I was intercepting i.e. `S_EACH_SKILL_RESULT` and did all the</span>
+<span class=hljs-addition>+calculations client side. I figured this out by blocking the packets, which made</span>
+<span class=hljs-addition>+the client think nothing was happening and consequently made it not update that</span>
+<span class=hljs-addition>+dps meter.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+mod.hook(&quot;S_EACH_SKILL_RESULT&quot;, 14, () =&gt; false);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I made no progress with figuring out how to make it show up outside the training</span>
+<span class=hljs-addition>+dungeon, and I was not too invested in this path forward so didn&#x27;t bother</span>
+<span class=hljs-addition>+disassembling the client to figure out more.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At the end of the day, I just went through existing packets and found one called</span>
+<span class=hljs-addition>+`S_CUSTOM_STYLE_SYSTEM_MESSAGE` which could open a textarea like thing which</span>
+<span class=hljs-addition>+worked well enough for a custom UI section when called on an interval.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+mod.send(&quot;S_CUSTOM_STYLE_SYSTEM_MESSAGE&quot;, 1, {</span>
+<span class=hljs-addition>+    style: 49, // box on side of window</span>
+<span class=hljs-addition>+    message: dpsInfo.map((info) =&gt; formatDpsInfo(info)).join(&quot;\n&quot;),</span>
+<span class=hljs-addition>+});</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![chat-meter](/blobs/78/chat-meter.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It does flash now and then because it&#x27;s not meant to stay up there permanently,</span>
+<span class=hljs-addition>+though I&#x27;m not sure what the reason is as the interval should be short enough to</span>
+<span class=hljs-addition>+keep it on screen permanently.</span>
+</code></pre>
+</details>
+<details>
+<summary>2023-08-03 - add post 78</summary>
+<pre class=code-block><input id=code-block-54cc87abd590cf566bd5490ff88a83acc701f927-1 type=checkbox><label for=code-block-54cc87abd590cf566bd5490ff88a83acc701f927-1></label><code><span class=hljs-meta>@@ -0,0 +1,83 @@</span>
+<span class=hljs-addition>+# tera mods</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So recently I&#x27;ve been playing on Menma&#x27;s TERA with dxvk as a performance boost.</span>
+<span class=hljs-addition>+When playing a game like TERA, it&#x27;s useful to have tools that can give you</span>
+<span class=hljs-addition>+detailed information on your in-game performance like DPS meters. For TERA, this</span>
+<span class=hljs-addition>+comes in the form of ShinraMeter, which basically intercepts packets between the</span>
+<span class=hljs-addition>+game and you to record various statistics of your in-game actions.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The only issue with this program is that it&#x27;s UI is external, and using dxvk (in</span>
+<span class=hljs-addition>+my case) forces the game window to stay on top. Also it requires installing</span>
+<span class=hljs-addition>+packet inspection drivers and whatnot which is kind of a pain.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Fortunately, for a while, some developers ended up being able to proxy the game</span>
+<span class=hljs-addition>+connection which allows for a lot of quality of life (and more controversial)</span>
+<span class=hljs-addition>+mods. This has since been packaged into a nice mod loader called tera-toolbox.</span>
+<span class=hljs-addition>+So with this in mind, I thought I&#x27;d try writing a simple dps report kind of mod.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Navigating to the [repository](https://github.com/tera-toolbox/tera-toolbox)</span>
+<span class=hljs-addition>+greets you with:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Please check out</span>
+<span class=hljs-addition>+&gt; [the documentation](https://github.com/tera-toolbox/tera-toolbox/blob/master/doc/main.md)</span>
+<span class=hljs-addition>+&gt; (especially if you want to develop your own modules)!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ignoring the fact that most of this is filled with TBD and hasn&#x27;t been updated</span>
+<span class=hljs-addition>+for years, the actual specifics are lacking. Fortunately, for the simplest</span>
+<span class=hljs-addition>+functionality, not much has to be done except for intercepting the correct</span>
+<span class=hljs-addition>+packets via `mod.hook`, and I&#x27;m pretty familiar with how things work due to</span>
+<span class=hljs-addition>+experience on other games.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The big missing chunk of documentation revolves around the</span>
+<span class=hljs-addition>+[Querying Data from the Game Client&#x27;s DataCenter](https://github.com/tera-toolbox/tera-toolbox/blob/master/doc/mod/client-interface.md#querying-data-from-the-game-clients-datacenter-tbd-further-documentation)</span>
+<span class=hljs-addition>+functionality. I was looking to transform ids into names and fortunately there</span>
+<span class=hljs-addition>+was an example that does exactly what I wanted to there.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+mod.hook(&quot;S_SPAWN_NPC&quot;, 11, (event) =&gt; {</span>
+<span class=hljs-addition>+    // Note: you can also use async/await here, obviously</span>
+<span class=hljs-addition>+    mod.queryData(&quot;/StrSheet_Creature/HuntingZone@id=?/String@templateId=?&quot;, [</span>
+<span class=hljs-addition>+        event.huntingZoneId,</span>
+<span class=hljs-addition>+        event.templateId,</span>
+<span class=hljs-addition>+    ]).then((result) =&gt; {</span>
+<span class=hljs-addition>+        mod.log(</span>
+<span class=hljs-addition>+            `Spawned NPC &quot;${result.attributes.name}&quot; (${event.huntingZoneId},${event.templateId})!`</span>
+<span class=hljs-addition>+        );</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+});</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Where does that string passed to `queryData` come from? It&#x27;s not explained</span>
+<span class=hljs-addition>+anywhere but after some sleuthing, I eventually figured out that it had to do</span>
+<span class=hljs-addition>+with an unpacked version of `Client/S1Game/S1Data/DataCenter_Final_x.dat`.</span>
+<span class=hljs-addition>+There are various unpackers online, but in short it seems to contain multiple</span>
+<span class=hljs-addition>+files, one of which is called StrSheet_Creature and contains data like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```json</span>
+<span class=hljs-addition>+&quot;HuntingZone&quot;: [</span>
+<span class=hljs-addition>+        {</span>
+<span class=hljs-addition>+            &quot;id&quot;: 0,</span>
+<span class=hljs-addition>+            &quot;String&quot;: [</span>
+<span class=hljs-addition>+                {</span>
+<span class=hljs-addition>+                    &quot;name&quot;: &quot;Human Male Warrior&quot;,</span>
+<span class=hljs-addition>+                    &quot;templateId&quot;: 10101,</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I still don&#x27;t know how the syntax for the query itself works, though. Anyways, I</span>
+<span class=hljs-addition>+ended up trying to fetch npc names like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+mod.hook(&#x27;S_SPAWN_NPC&#x27;, 12, async ({ huntingZoneId, templateId }) =&gt; {</span>
+<span class=hljs-addition>+    const result = await mod.queryData(...);</span>
+<span class=hljs-addition>+    mod.log(result.attributes.name);</span>
+<span class=hljs-addition>+});</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+By following the example and the latest `S_SPAWN_NPC` definition, and it didn&#x27;t</span>
+<span class=hljs-addition>+work. I also started getting some out of bounds error from, I believe, the</span>
+<span class=hljs-addition>+packet parser. I then tried copying the example verbatim and it worked. The</span>
+<span class=hljs-addition>+difference? The packet version number.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As for the UI, currently I only have it sending a message in chat after the</span>
+<span class=hljs-addition>+fight but I have some ideas to hijack some in-game UI for display purposes.</span>
+<span class=hljs-addition>+We&#x27;ll see!</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>attempting to fingerprint audio</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/19>&lt; calculating average lifetime</a></div> <div style=text-align:end><a href=/./posts/21>nested results and options in rust &gt;</a></div>
+</nav>
+<h1 id=attempting-to-fingerprint-audio>attempting to fingerprint audio</h1>
+<p>So I've been spending some time working on identifying audio from smaller clips and I've finally gotten something that kind of works. The below is a short recap of what I've tried going through. I believe I used
+<a href="https://www.youtube.com/watch?v=EDjYDfRunUk">Otome Dissection Remix</a> as a previous example so I will use that here, along with the original 2 clips/songs that made me start this project which are the following:</p>
+<ol>
+<li><a href="https://www.youtube.com/watch?v=grdy6rLbQ-c">Dear Doppelganger</a></li>
+<li>This video</li>
+</ol>
+<p><video controls src=/blobs/20/stickbugged.mp4></p>
+<h2 id=analyzing-the-frequencies>analyzing the frequencies</h2>
+<p>I spent a lot of time in <a href=https://www.audacityteam.org/ >Audacity</a> looking at the spectrogram view for songs. Here is an example:</p>
+<p><img alt=otome-dissection-spectrogram src=/blobs/20/otome-dissection-spectrogram-0-10.png></p>
+<p>This is the spectrograph for the first 10 seconds of Otome Dissection Remix and you can (more or less) clearly see how it corresponds to the initial (piano?) notes. Of course, it gets a lot more complex past the 7 second mark.</p>
+<p>However, seeing this, it looks like one approach might just be to find how well one audio sample's graph can be fit on top of another one.</p>
+<h2 id=cross-correlation-approach>cross correlation approach</h2>
+<p>I find the explanation on Wikipedia for how a cross correlation works to be very understandable.</p>
+<blockquote>
+<p>As an example, consider two real valued functions $f$ and $g$ differing only by an unknown shift along the x-axis. One can use the cross-correlation to find how much $g$ must be shifted along the x-axis to make it identical to $f$. The formula essentially slides the $g$ function along the x-axis, calculating the integral of their product at each position. When the functions match, the value of $(f \star g)$ is maximized.</p>
+</blockquote>
+<p>This basically means if one audio clip starts earlier or later than the other, the cross correlation will be able to determine what the delay is.</p>
+<p>Before checking out this approach, I already knew it most likely would not be the correct approach. The issues that could make this not work that I came up with were:</p>
+<ol>
+<li>Audio samples need to be more or less perfect clones of each other</li>
+<li>Only good for checking if one audio sample matches another audio sample when what I want is to find the closest matching audio sample from several</li>
+</ol>
+<p>If we look at a comparison between the remix and a cover of the remix, we can see they line up quite similarly.</p>
+<p><img alt=spectrogram-comparison-otome src=/blobs/20/giga-otome-dissection-remix-spectrogram-0-12.png></p>
+<p>However, I did mark one small spot on the bottom half that differs, and eventually, due to different vocalists, there are a lot more differences. If I was to try this with the two audio clips I am looking to compare:</p>
+<p><img alt=spectrogram-comparison-doppel src=/blobs/20/doppel-stick-56-58.png></p>
+<p>There are some glaring issues. I've actually lined the samples up so they do look similar, but the entire missing chunk (i.e. comparing a 30 second clip to a 5 minute clip) makes cross correlation not work out well at all. Furthermore, we see that there is a lot more white in the top sample. This just means that those frequencies are played at higher amplifications (the clip does seem a lot more muted compared to the youtube video). As such, I had to think of some solutions to overcome this.</p>
+<h2 id=dealing-with-different-clip-sizes>dealing with different clip sizes</h2>
+<p>This one came almost immediately and, while I think it was a good idea, still requires manual tinkering here and there.</p>
+<p>I ended up cutting clips down to their own mini-clips to compare each other with. Specifically for testing I went with 0.5 seconds like so:</p>
+<p><img alt=spectrogram-intervals src=/blobs/20/doppel-stick-intervals.png></p>
+<p>I thought of this idea considering the fact that a lot of songs have a few second clip that a lot of people would recognize.</p>
+<p>Changing the length of the mini-clips does have both costs and benefits and this is where manual adjustment needs to come into play. Longer intervals are faster to compare because there are less to compare against, but may also sacrifice accuracy.</p>
+<p>You could say before I went with the mini-clip idea I was using mini-clips with lengths as long as the original clip. If the intervals are too short, then you start getting too many false positives - this 0.001s of a song sounds like the same as a ton of other songs.</p>
+<p>However, this brings up another question which is what if the clips are not aligned properly and our intervals end up not matching at all like this:</p>
+<p><img alt=spectrogram-unaligned src=/blobs/20/doppel-stick-displaced.png></p>
+<p>We see that the bottom clip is around 0.5 seconds behind the top clip so taking the interval from 57s - 57.5s results in entirely different clips from the top and bottom.</p>
+<p>Fortunately, we can use the cross correlation when comparing mini-clips and if all of them are maximized at the same or similar values, we can assume that the intervals themselves are misaligned and recreate mini-clips with an offset of that value.</p>
+<h2 id=dealing-with-imperfect-pitch>dealing with (im)perfect pitch</h2>
+<p>Because the amplification of the tones played at frequencies did not match up, the resulting data that was pulled from the audio clips do not exactly match up. So I ended up borrowing an idea from something I heard of long ago.</p>
+<p>I believe there is an audio identifying service where all you input is whether or not the next "note" is a higher frequency, lower frequency, or the same frequency. As such I applied this to my idea also. Within each mini-clip I checked the frequency at fixed intervals and tracked whether it went up, down, or was similar.</p>
+<p>I'm not too sure this was a good approach because it tosses away a lot of data. I think there are definitely some ways to refine this.</p>
+<h2 id=conclusion>conclusion</h2>
+<p>So in all, I was able to (kind of) fingerprint audio clips by doing the following:</p>
+<ol>
+<li>Cutting down the clips themselves to their own 0.5 second clips</li>
+<li>Dealing with change in frequency rather than actual frequency</li>
+</ol>
+<p>In short, we could run a database with numerous audio clips where each audio clip is split into its own "mini-clips" and those "mini-clips" are fingerprinted by checking their change in frequency over time. These smaller finger prints are what make up the fingerprint of the actual audio clip.</p>
+<p>Admittedly it's extremely slow right now…</p>
+<h2 id=a-bonus-idea>a bonus idea</h2>
+<p>One problem with directly dealing with frequencies is that there's a ton of extra "noise" that contributes to it. I have thought about trying to extract the melody of songs so I would work with "cleaner" data and I am aware of several papers regarding the topic. I think inserting that as a step before breaking up into miniclips could definitely improve the accuracy of matching audio clips.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/19>&lt; calculating average lifetime</a></div> <div style=text-align:end><a href=/./posts/21>nested results and options in rust &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-10-19 - add a missing part to 20</summary>
+<pre class=code-block><input id=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-1 type=checkbox><label for=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-1></label><code><span class=hljs-meta>@@ -75,2 +75,5 @@</span> Specifically for testing I went with 0.5 seconds like so:
+
+<span class=hljs-addition>+I thought of this idea considering the fact that a lot of songs have a few second</span>
+<span class=hljs-addition>+clip that a lot of people would recognize.</span>
+<span class=hljs-addition>+</span>
+ Changing the length of the mini-clips does have both costs and benefits and this
+</code></pre>
+<pre class=code-block><input id=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-2 type=checkbox><label for=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-2></label><code><span class=hljs-meta>@@ -78,2 +81,3 @@</span> is where manual adjustment needs to come into play. Longer intervals are faster
+ compare because there are less to compare against, but may also sacrifice accuracy.
+<span class=hljs-addition>+</span>
+ You could say before I went with the mini-clip idea I was using mini-clips with
+</code></pre>
+<pre class=code-block><input id=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-3 type=checkbox><label for=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-3></label><code><span class=hljs-meta>@@ -83,2 +87,15 @@</span> a ton of other songs.
+
+<span class=hljs-addition>+However, this brings up another question which is what if the clips are not aligned</span>
+<span class=hljs-addition>+properly and our intervals end up not matching at all like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![spectrogram-unaligned](/blobs/20/doppel-stick-displaced.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We see that the bottom clip is around 0.5 seconds behind the top clip so taking</span>
+<span class=hljs-addition>+the interval from 57s - 57.5s results in entirely different clips from the top and</span>
+<span class=hljs-addition>+bottom.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Fortunately, we can use the cross correlation when comparing mini-clips and if all</span>
+<span class=hljs-addition>+of them are maximized at the same or similar values, we can assume that the intervals</span>
+<span class=hljs-addition>+themselves are misaligned and recreate mini-clips with an offset of that value.</span>
+<span class=hljs-addition>+</span>
+ ## dealing with (im)perfect pitch
+</code></pre>
+<pre class=code-block><input id=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-4 type=checkbox><label for=code-block-c7b5ee485612b9627b3b77e1a59eb9d03f3ed5ae-4></label><code><span class=hljs-meta>@@ -109,2 +126,4 @@</span> the fingerprint of the actual audio clip.
+
+<span class=hljs-addition>+Admittedly it&#x27;s extremely slow right now...</span>
+<span class=hljs-addition>+</span>
+ ## a bonus idea
+</code></pre>
+</details>
+<details>
+<summary>2020-10-17 - add a post</summary>
+<pre class=code-block><input id=code-block-7254bd921ead658e3b146b8e930af8dd9cabfe4b-1 type=checkbox><label for=code-block-7254bd921ead658e3b146b8e930af8dd9cabfe4b-1></label><code><span class=hljs-meta>@@ -0,0 +1,116 @@</span>
+<span class=hljs-addition>+# attempting to fingerprint audio</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I&#x27;ve been spending some time working on identifying audio from smaller clips</span>
+<span class=hljs-addition>+and I&#x27;ve finally gotten something that kind of works. The below is a short recap</span>
+<span class=hljs-addition>+of what I&#x27;ve tried going through. I believe I used [Otome Dissection Remix](https://www.youtube.com/watch?v=EDjYDfRunUk)</span>
+<span class=hljs-addition>+as a previous example so I will use that here, along with the original 2 clips/songs</span>
+<span class=hljs-addition>+that made me start this project which are the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. [Dear Doppelganger](https://www.youtube.com/watch?v=grdy6rLbQ-c)</span>
+<span class=hljs-addition>+2. This video &lt;video controls src=&quot;/blobs/20/stickbugged.mp4&quot; /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## analyzing the frequencies</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I spent a lot of time in [Audacity](https://www.audacityteam.org/) looking at the</span>
+<span class=hljs-addition>+spectrogram view for songs. Here is an example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;img src=&quot;/blobs/20/otome-dissection-spectrogram-0-10.png&quot; /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is the spectrograph for the first 10 seconds of Otome Dissection Remix and</span>
+<span class=hljs-addition>+you can (more or less) clearly see how it corresponds to the initial (piano?) notes.</span>
+<span class=hljs-addition>+Of course, it gets a lot more complex past the 7 second mark.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, seeing this, it looks like one approach might just be to find how well</span>
+<span class=hljs-addition>+one audio sample&#x27;s graph can be fit on top of another one.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## cross correlation approach</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I find the explanation on Wikipedia for how a cross correlation works to be very</span>
+<span class=hljs-addition>+understandable.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; As an example, consider two real valued functions $f$ and $g$ differing only by</span>
+<span class=hljs-addition>+&gt; an unknown shift along the x-axis. One can use the cross-correlation to find</span>
+<span class=hljs-addition>+&gt; how much $g$ must be shifted along the x-axis to make it identical to $f$. The</span>
+<span class=hljs-addition>+&gt; formula essentially slides the $g$ function along the x-axis, calculating the</span>
+<span class=hljs-addition>+&gt; integral of their product at each position. When the functions match, the value</span>
+<span class=hljs-addition>+&gt; of $(f \star g)$ is maximized.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This basically means if one audio clip starts earlier or later than the other,</span>
+<span class=hljs-addition>+the cross correlation will be able to determine what the delay is.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Before checking out this approach, I already knew it most likely would not be the</span>
+<span class=hljs-addition>+correct approach. The issues that could make this not work that I came up with were:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Audio samples need to be more or less perfect clones of each other</span>
+<span class=hljs-addition>+2. Only good for checking if one audio sample matches another audio sample when</span>
+<span class=hljs-addition>+   what I want is to find the closest matching audio sample from several</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If we look at a comparison between the remix and a cover of the remix, we can see</span>
+<span class=hljs-addition>+they line up quite similarly.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![spectrogram-comparison-otome](/blobs/20/giga-otome-dissection-remix-spectrogram-0-12.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, I did mark one small spot on the bottom half that differs, and eventually,</span>
+<span class=hljs-addition>+due to different vocalists, there are a lot more differences. If I was to try this</span>
+<span class=hljs-addition>+with the two audio clips I am looking to compare:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![spectrogram-comparison-doppel](/blobs/20/doppel-stick-56-58.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There are some glaring issues. I&#x27;ve actually lined the samples up so they do look</span>
+<span class=hljs-addition>+similar, but the entire missing chunk (i.e. comparing a 30 second clip to a 5 minute</span>
+<span class=hljs-addition>+clip) makes cross correlation not work out well at all. Furthermore, we see that</span>
+<span class=hljs-addition>+there is a lot more white in the top sample. This just means that those frequencies</span>
+<span class=hljs-addition>+are played at higher amplifications (the clip does seem a lot more muted compared</span>
+<span class=hljs-addition>+to the youtube video). As such, I had to think of some solutions to overcome this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## dealing with different clip sizes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This one came almost immediately and, while I think it was a good idea, still requires</span>
+<span class=hljs-addition>+manual tinkering here and there.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ended up cutting clips down to their own mini-clips to compare each other with.</span>
+<span class=hljs-addition>+Specifically for testing I went with 0.5 seconds like so:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![spectrogram-intervals](/blobs/20/doppel-stick-intervals.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Changing the length of the mini-clips does have both costs and benefits and this</span>
+<span class=hljs-addition>+is where manual adjustment needs to come into play. Longer intervals are faster to</span>
+<span class=hljs-addition>+compare because there are less to compare against, but may also sacrifice accuracy.</span>
+<span class=hljs-addition>+You could say before I went with the mini-clip idea I was using mini-clips with</span>
+<span class=hljs-addition>+lengths as long as the original clip. If the intervals are too short, then you start</span>
+<span class=hljs-addition>+getting too many false positives - this 0.001s of a song sounds like the same as</span>
+<span class=hljs-addition>+a ton of other songs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## dealing with (im)perfect pitch</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Because the amplification of the tones played at frequencies did not match up, the</span>
+<span class=hljs-addition>+resulting data that was pulled from the audio clips do not exactly match up. So</span>
+<span class=hljs-addition>+I ended up borrowing an idea from something I heard of long ago.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I believe there is an audio identifying service where all you input is whether or</span>
+<span class=hljs-addition>+not the next &quot;note&quot; is a higher frequency, lower frequency, or the same frequency.</span>
+<span class=hljs-addition>+As such I applied this to my idea also. Within each mini-clip I checked the frequency</span>
+<span class=hljs-addition>+at fixed intervals and tracked whether it went up, down, or was similar.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not too sure this was a good approach because it tosses away a lot of data.</span>
+<span class=hljs-addition>+I think there are definitely some ways to refine this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So in all, I was able to (kind of) fingerprint audio clips by doing the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Cutting down the clips themselves to their own 0.5 second clips</span>
+<span class=hljs-addition>+2. Dealing with change in frequency rather than actual frequency</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In short, we could run a database with numerous audio clips where each audio clip</span>
+<span class=hljs-addition>+is split into its own &quot;mini-clips&quot; and those &quot;mini-clips&quot; are fingerprinted by checking</span>
+<span class=hljs-addition>+their change in frequency over time. These smaller finger prints are what make up</span>
+<span class=hljs-addition>+the fingerprint of the actual audio clip.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## a bonus idea</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One problem with directly dealing with frequencies is that there&#x27;s a ton of extra</span>
+<span class=hljs-addition>+&quot;noise&quot; that contributes to it. I have thought about trying to extract the melody</span>
+<span class=hljs-addition>+of songs so I would work with &quot;cleaner&quot; data and I am aware of several papers regarding</span>
+<span class=hljs-addition>+the topic. I think inserting that as a step before breaking up into miniclips could</span>
+<span class=hljs-addition>+definitely improve the accuracy of matching audio clips.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>copy and paste interview questions</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/53>&lt; crypto implosion brewing</a></div> <div style=text-align:end><a href=/./posts/55>a half baked replacement for angular js' $compile &gt;</a></div>
+</nav>
+<h1 id=copy-and-paste-interview-questions>copy and paste interview questions</h1>
+<p>A few weeks ago, I was doing a bit of interviewing to get a sense of the general landscape of the job market available to me and I had probably my poorest technical assessment experience yet.</p>
+<p>It started out normally, phone call, introductions, and we get on some shared coding thing and a question gets pasted in. I don't remember the exact details but the gist is:</p>
+<blockquote>
+<p>You are given an array that shows an NFT's price over the next few days. What is the maximum amount of money you can make from buying and selling the NFT?</p>
+</blockquote>
+<p>So the first mistake I make is a somewhat unrelated question - once you buy the NFT don't you set the price to sell it as? I honestly just wanted to poke fun at the idea of NFTs but for some reason the guy goes on a 5 minute tirade defending NFTs. Uh ok I guess not all engineers laught at NFTs.</p>
+<p>Carrying on, I note that this is a dynamic programming problem, and fortunately I have a general understanding of how it works because I practiced it a while back, I type the following into the editor:</p>
+<pre class=code-block><input id=code-block-54-1 type=checkbox><label for=code-block-54-1></label><code>// let maxProfit(d, nft) be the maximum amount of profit you can make on day
+// d and nft determines if you still own the nft
+// maxProfit(0, false) = 0
+// maxProfit(0, true) = -profit(day)
+// maxProfit(day, true) = max(maxProfit(day - 1, true),
+//                            maxProfit(day - 1, false) - profit(day))
+// maxProfit(day, false) = max(maxProfit(day - 1, true) + profit(day),
+//                             maxProfit(day - 1, false))
+</code></pre>
+<p>I also explain it; the maximum profit you can make on a day and own the nft is the max of either you holding from the previous day or buying it today. The maximum profit you can make on a day and not own the nft is the max of either you not buying it and not owning it yesterday or having owned it yesterday but selling it today. I ask if this sounds good and if there are any flaws with this reasoning (because I'm not sure if there's some kind of edge case yet) and get basically radio silence.</p>
+<p>Ok… so I go on to write the solution, which I'll leave as an exercise to the reader :). I run the test cases and they all succeed. At this point I say looks like it all works and the engineer looks over my code. For some reason he doesn't understand why I have two parameters to my function despite the fact that I explained it - you need to know whether you own the NFT on the day to see if you can sell or buy.</p>
+<p>He then asks why didn't I write the recursive solution first, and I point out that I have defined the problem recursively but already realized that there would be a lot of duplicated recursive calls and solved it iteratively. He mentions something about showing my process, but I didn't fully follow what he was getting at.</p>
+<p>After some back and forth, he ends up pasting some code which I assume is the book solution for the question and I note that it does only have one parameters. However inside the for loops there's an if statement which does more or less the same thing as the second parameter So after a few moments of looking at his solution I understand why I could drop the second parameter, but still argue that I think it's not a big deal. Then he asks what if I change the question and say you can buy <code>X</code> amount of NFTs.</p>
+<p>And then I made my second mistake and joked that NFTs are unique so this wouldn't be an issue, but pointed out instead of the second parameter being a boolean we could make it an integer i.e. <code>numNFTs</code> and edit our
+<code>maxProfit(day, numNFTs)</code> to consider <code>numNFTs - 1</code> and <code>numNFTs + 1</code>. He then asks, would it be something like this, and pastes another block of code which I assume is the other solution and I say yes.</p>
+<p>Well, my 30 minutes are up due to all the discussion and we end the call. A few days later hours later I get the message that I didn't pass that assessment unfortunately (or fortunately?).</p>
+<p>I did a bit of research later about some things and found out that there's basically a "process" for solving dynamic programming problems in interviews where you start out by coding the naive recursive solution and move on to optimize it. So that's probably what the guy was talking about… Oh well.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/53>&lt; crypto implosion brewing</a></div> <div style=text-align:end><a href=/./posts/55>a half baked replacement for angular js' $compile &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-05-12 - add post 54</summary>
+<pre class=code-block><input id=code-block-dbf5eaff899576071a154620b38e6b515c318cf5-1 type=checkbox><label for=code-block-dbf5eaff899576071a154620b38e6b515c318cf5-1></label><code><span class=hljs-meta>@@ -0,0 +1,74 @@</span>
+<span class=hljs-addition>+# copy and paste interview questions</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A few weeks ago, I was doing a bit of interviewing to get a sense of the general</span>
+<span class=hljs-addition>+landscape of the job market available to me and I had probably my poorest technical</span>
+<span class=hljs-addition>+assessment experience yet.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It started out normally, phone call, introductions, and we get on some shared coding</span>
+<span class=hljs-addition>+thing and a question gets pasted in. I don&#x27;t remeber the exact details but the gist</span>
+<span class=hljs-addition>+is:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; You are given an array that shows an NFT&#x27;s price over the next few days. What</span>
+<span class=hljs-addition>+&gt; is the maximum amount of money you can make from buying and selling the NFT?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So the first mistake I make is a somewhat unrelated question - once you buy the</span>
+<span class=hljs-addition>+NFT don&#x27;t you set the price to sell it as? I honestly just wanted to poke fun at</span>
+<span class=hljs-addition>+the idea of NFTs but for some reason the guy goes on a 5 minute tirade defending</span>
+<span class=hljs-addition>+NFTs. Uh ok I guess not all engineers laught at NFTs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Carrying on, I note that this is a dynamic programming problem, and fortunately I</span>
+<span class=hljs-addition>+have a general understanding of how it works because I practiced it a while back,</span>
+<span class=hljs-addition>+I type the following into the editor:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+// let maxProfit(d, nft) be the maximum amount of profit you can make on day</span>
+<span class=hljs-addition>+// d and nft determines if you still own the nft</span>
+<span class=hljs-addition>+// maxProfit(0, false) = 0</span>
+<span class=hljs-addition>+// maxProfit(0, true) = -profit(day)</span>
+<span class=hljs-addition>+// maxProfit(day, true) = max(maxProfit(day - 1, true),</span>
+<span class=hljs-addition>+//                            maxProfit(day - 1, false) - profit(day))</span>
+<span class=hljs-addition>+// maxProfit(day, false) = max(maxProfit(day - 1, true) + profit(day),</span>
+<span class=hljs-addition>+//                             maxProfit(day - 1, false))</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I also explain it; the maximum profit you can make on a day and own the nft is the</span>
+<span class=hljs-addition>+max of either you holding from the previous day or buying it today. The maximum</span>
+<span class=hljs-addition>+profit you can make on a day and not own the nft is the max of either you not buying</span>
+<span class=hljs-addition>+it and not owning it yesterday or having owned it yesterday but selling it today.</span>
+<span class=hljs-addition>+I ask if this sounds good and if there are any flaws with this reasoning (because</span>
+<span class=hljs-addition>+I&#x27;m not sure if there&#x27;s some kind of edge case yet) and get basically radio silence.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ok... so I go on to write the solution, which I&#x27;ll leave as an exercise to the reader</span>
+<span class=hljs-addition>+:). I run the test cases and they all succeed. At this point I say looks like it</span>
+<span class=hljs-addition>+all works and the engineer looks over my code. For some reason he doesn&#x27;t understand</span>
+<span class=hljs-addition>+why I have two parameters to my function despite the fact that I explained it -</span>
+<span class=hljs-addition>+you need to know whether you own the NFT on the day to see if you can sell or buy.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+He then asks why didn&#x27;t I write the recursive solution first, and I point out that</span>
+<span class=hljs-addition>+I have defined the problem recursively but already realized that there would be a</span>
+<span class=hljs-addition>+lot of duplicated recursive calls and solved it iteratively. He mentions something</span>
+<span class=hljs-addition>+about showing my process, but I didn&#x27;t fully follow what he was getting at.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+After some back and forth, he ends up pasting some code which I assume is the book</span>
+<span class=hljs-addition>+solution for the question and I note that it does only have one parameters. However</span>
+<span class=hljs-addition>+inside the for loops there&#x27;s an if statement which does more or less the same thing</span>
+<span class=hljs-addition>+as the second parameter So after a few moments of looking at his solution I understand</span>
+<span class=hljs-addition>+why I could drop the second prameter, but still argue that I think it&#x27;s not a big</span>
+<span class=hljs-addition>+deal. Then he asks what if I change the question and say you can buy `X` amount</span>
+<span class=hljs-addition>+of NFTs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then I made my second mistake and joked that NFTs are unique so this wouldn&#x27;t</span>
+<span class=hljs-addition>+be an issue, but pointed out instead of the second parameter being a boolean we could</span>
+<span class=hljs-addition>+make it an integer i.e. `numNFTs` and edit our `maxProfit(day, numNFTs)` to consider</span>
+<span class=hljs-addition>+`numNFTs - 1` and `numNFTs + 1`. He then asks, would it be something like this,</span>
+<span class=hljs-addition>+and pastes another block of code which I assume is the other solution and I say yes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, my 30 minutes are up due to all the discussion and we end the call. A few</span>
+<span class=hljs-addition>+days later hours later I get the message that I didn&#x27;t pass that assessment unfortunately</span>
+<span class=hljs-addition>+(or fortunately?).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I did a bit of research later about some things and found out that there&#x27;s basically</span>
+<span class=hljs-addition>+a &quot;process&quot; for solving dynamic programming problems in interviews where you start</span>
+<span class=hljs-addition>+out by coding the naive recursive solution and move on to optimize it. So that&#x27;s</span>
+<span class=hljs-addition>+probably what the guy was talking about... Oh well.</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

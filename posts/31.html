@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>thoughts on angular, react, frameworks and libraries</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/30>&lt; no motivation</a></div> <div style=text-align:end><a href=/./posts/32>electron memory usage &gt;</a></div>
+</nav>
+<h1 id=thoughts-on-angular-react-frameworks-and-libraries>thoughts on angular, react, frameworks and libraries</h1>
+<p>Oxford comma anyone?</p>
+<p>Recently I've been using Angular and I have to say I'm not a big fan of it. To be fair, I used React first so that could influence my preferences on ui stuff. I'll be talking about React before hooks were introduced as that was when I used it.</p>
+<p>As far as I'm aware, React is only used for building components while Angular does that and much more (routing, forms, i18n, etc.), so I'll only be comparing this feature. They both support using classes, however one immediate difference is how the templates are defined. In Angular, it can either be a string in the
+<code>@Component</code> decorator or a reference to an external file</p>
+<pre class=code-block><input id=code-block-31-1 type=checkbox><label for=code-block-31-1></label><code>@<span class="hljs-title class_">Component</span>({
+    <span class=hljs-attr>selector</span>: <span class=hljs-string>&quot;some-selector&quot;</span>,
+    <span class=hljs-attr>templateUrl</span>: <span class=hljs-string>&quot;./some-file.html&quot;</span>,
+    <span class=hljs-comment>// alternatively template: &#x27;&lt;div&gt; hello &lt;/div&gt;&#x27;</span>
+})
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">AngularComponent</span> {}
+</code></pre>
+<p>While in React the elements are actually part of the code thanks to jsx, which basically adds some custom syntax to javascript.</p>
+<pre class=code-block><input id=code-block-31-2 type=checkbox><label for=code-block-31-2></label><code><span class=hljs-keyword>class</span> <span class="hljs-title class_">ReactComponent</span> {
+    <span class="hljs-title function_">render</span>(<span class=hljs-params></span>) {
+        <span class=hljs-keyword>return</span> <span class=language-xml><span class=hljs-tag>&lt;<span class=hljs-name>div</span>&gt;</span> hello <span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span></span>;
+    }
+}
+</code></pre>
+<p>For me, jsx is a lot more easier to develop with. In Angular, if the template is defined in an external file, then I end up having to flip back and forth. If the template is defined within the file itself… well it's actually just a string so good luck working with that. In fact, the first time someone showed me Angular it was on a paste and this was the first thing I noticed - if it's just a string then it must be hard to check against errors and things. Turns out there are plugins and other tools built to help with this so it's not too bad but still.</p>
+<p>On the other hand, because jsx extends the javascript syntax, we have actual language constructs to support the interaction between templates and code. Although arguably you could say now you need an environment that supports jsx for a good dev experience, similar to the plugins for Angular. But really, if I remember correctly, jsx just boils down to <code>React.createElement</code> calls so I guess you don't even need jsx if you want to write that.</p>
+<pre class=code-block><input id=code-block-31-3 type=checkbox><label for=code-block-31-3></label><code>@<span class="hljs-title class_">Component</span>({
+    <span class=hljs-comment>// accidentally misspelled name, but who cares it&#x27;s just a string</span>
+    <span class=hljs-attr>template</span>: <span class=hljs-string>&quot;&lt;div&gt; hello {{ nme }} &lt;/div&gt;&quot;</span>,
+})
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">AngularComponent</span> {
+    name = <span class=hljs-string>&quot;reimu&quot;</span>;
+}
+</code></pre>
+<pre class=code-block><input id=code-block-31-4 type=checkbox><label for=code-block-31-4></label><code><span class=hljs-keyword>class</span> <span class="hljs-title class_">ReactComponent</span> {
+    <span class="hljs-title function_">render</span>(<span class=hljs-params></span>) {
+        <span class=hljs-keyword>const</span> name = <span class=hljs-string>&quot;reimu&quot;</span>;
+        <span class=hljs-comment>// variable undefined error or something</span>
+        <span class=hljs-keyword>return</span> <span class=language-xml><span class=hljs-tag>&lt;<span class=hljs-name>div</span>&gt;</span> hello {nme} <span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span></span>;
+    }
+}
+</code></pre>
+<p>One other benefit of how React does it is that the elements are first-class which means you can pass them around. This allows easy composition of things. Say you want to conditionally render part of the page? All you need is an if statement</p>
+<pre class=code-block><input id=code-block-31-5 type=checkbox><label for=code-block-31-5></label><code><span class=hljs-tag>&lt;<span class=hljs-name>div</span>&gt;</span>bool &amp;&amp; <span class=hljs-tag>&lt;<span class=hljs-name>span</span>&gt;</span> hi <span class=hljs-tag>&lt;/<span class=hljs-name>span</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<p>And in Angular? Oh there's this thing called a directive</p>
+<pre class=code-block><input id=code-block-31-6 type=checkbox><label for=code-block-31-6></label><code><span class=hljs-tag>&lt;<span class=hljs-name>div</span>&gt;</span><span class=hljs-tag>&lt;<span class=hljs-name>span</span> *<span class=hljs-attr>ngIf</span>=<span class=hljs-string>&quot;bool&quot;</span>&gt;</span> hi <span class=hljs-tag>&lt;/<span class=hljs-name>span</span>&gt;</span>`<span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<p>What about loops and other things? Well there's <code>*ngFor</code>… but in React you can just use existing array methods like <code>map</code> and return elements. What if you want to pass the type of the component to be created? No luck in Angular.</p>
+<p>Also the syntax allowed in Angular templates is extremely limited. You can't even use ternaries.</p>
+<p>Another thing that both Angular and React allow is passing data as props or inputs. I think either way is fine, although React's jsx allows some interesting things with the spread operator and stuff but that's because of jsx. Oh right did I mention that Angular's input syntax can sometimes clash with actual html attributes? I think in our case we had an <code>@Input</code> called align and it worked on Chrome but not Firefox as Firefox interpreted it as the attribute rather than the input. Then again, name clashes being a problem aren't too uncommon.</p>
+<p>One thing unique to Angular is that components can also have their own outputs by decorating an instance variable with <code>@Output</code> instead of <code>@Input</code>. It sounds like a good idea at first but then I realized it was a lot more trouble than it was worth. You get the same functionality in React by taking advantage of the expected behavior when passing a function through <code>props</code>. And for Angular you have to redo your thinking.</p>
+<pre class=code-block><input id=code-block-31-7 type=checkbox><label for=code-block-31-7></label><code><span class=hljs-comment>// usage</span>
+&lt;<span class="hljs-title class_">ReactComponent</span> fn={myFunction}&gt;&lt;/<span class="hljs-title class_">ReactComponent</span>&gt;
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">ReactComponent</span> {
+    <span class=hljs-comment>// ...</span>
+    <span class=hljs-comment>// watch out for binding issues :)</span>
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>props</span>.<span class="hljs-title function_">fn</span>();
+}
+</code></pre>
+<pre class=code-block><input id=code-block-31-8 type=checkbox><label for=code-block-31-8></label><code><span class=hljs-comment>// usage</span>
+&lt;some-selector    (outputVar)=<span class=hljs-string>&quot;myFunction($event)&quot;</span>&gt;
+&lt;/some-selector&gt;
+
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">AngularComponent</span> {
+    @<span class="hljs-title class_">Output</span>() outputVar;
+    <span class=hljs-comment>// ...</span>
+    outputVar.<span class="hljs-title function_">emit</span>(<span class=hljs-number>2</span>);
+}
+</code></pre>
+<p>Is <code>myFunction($event)</code> the result of <code>myFunction</code> being called? No, actually it's the expression that will be executed when the <code>@Output()</code> variable emits something. In this case, it will run <code>myFunction(2)</code>. Well it makes sense because the entire template a string, right…? Basically I see this as overcomplicating something that could already be done - you technically could pass the function in as an <code>@Input</code> to be called. I'm sure I'm missing something here though so maybe someone will correct me.</p>
+<p>Another issue I have with <code>@Output</code> is that it promotes stateful components, and I'm just not a big fan of state as it complicates logic and boy have some of the Angular components I've seen been complicated.</p>
+<p>Change detection is another big one. Again, I think React has it very well defined while Angular… hmm yes I'm sure you recognize the common theme here. React components define state through <code>this.state</code> and <code>this.setState</code>. When something in <code>this.state</code> or <code>this.props</code> is updated, then update the rendered template. If you want more functionality, hook into <code>shouldComponentUpdate</code> if you dare. Angular? Well there are <code>@Input</code>s so it stands to reason that changing the <code>@Input</code>s should trigger a re-render. What else? Maybe when instance variables change? Actually no, the rest of Angular's change detection is based on every expression in the template. That makes sense, as the template should only update when one of the expressions in it changes. But as someone who was originally unaware of this, I ended up shooting myself due to it.</p>
+<p>Angular has something called pipes - more fancy syntax for their templates. One is an async pipe which is actually pretty nice. I ended up writing something like this:</p>
+<pre class=code-block><input id=code-block-31-9 type=checkbox><label for=code-block-31-9></label><code>&lt;div&gt;hello, {{ <span class="hljs-title function_">getNameFromInternet</span>(name) | <span class=hljs-keyword>async</span> }}&lt;/div&gt;
+</code></pre>
+<p>A function that makes a request to get data, which is piped to async to print the final name. Straightforward and makes sense, right? It worked, but I noticed I was making numerous requests per second. This is because change detection in Angular runs every single expression in the template to see if it was changed before performing any updates so it was running <code>getNameFromInternet(name)</code> many times. The workaround is just to assign the result of the function and use that in the template</p>
+<pre class=code-block><input id=code-block-31-10 type=checkbox><label for=code-block-31-10></label><code>&lt;div&gt;hello, {{ namePromise | <span class=hljs-keyword>async</span> }}&lt;/div&gt;
+<span class=hljs-comment>// ...</span>
+<span class="hljs-variable language_">this</span>.<span class=hljs-property>namePromise</span> = <span class="hljs-title function_">getNameFromInternet</span>(name);
+</code></pre>
+<p>A little annoying - all because Angular was trying to cover all cases of updating the rendered template. In fact, this means you shouldn't try to have any costly functions in the template as they get executed per change detection cycle. This means you need to keep state in the component and make sure it's updated promptly and properly (uh oh).</p>
+<p>Overall, I think Angular tries to present itself as easy to use, and initially looks so, but then quickly ramps up in terms of difficulty for anything moderately complex. Meanwhile, React is simple and things that are moderately complex in Angular are simple in React.</p>
+<p>Of course, this is just about ease of use. I haven't done any comparisons in things like performance, which both React and Angular have claim to. Perhaps a later time.</p>
+<p>To tie this back to frameworks and libraries in general, I think each one has a kind of honeymoon phase - where you're picking it up, learning everything, and thinking "hey that's cool" - after which you've gotten deep enough to notice its various problems. Better frameworks/libraries = longer honeymoon phases. In general, I believe that the less magic a framework has, the better it is as it's much more straightforward to understand.</p>
+<p>Oh right did I mention the Angular documentation is pretty lacking, too?</p>
+<p>unrelated: Hey wait! I noticed you generate your site using some of the same ideas you're complaining about here! You store your template as an html file, read it with javascript then replace values in <code>{{ value }}</code>. It's true, but this setup isn't meant to be very useful or complex.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/30>&lt; no motivation</a></div> <div style=text-align:end><a href=/./posts/32>electron memory usage &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-08-17 - add post 31</summary>
+<pre class=code-block><input id=code-block-38eed34b6bd40193282d460ac20744a9d4526f83-1 type=checkbox><label for=code-block-38eed34b6bd40193282d460ac20744a9d4526f83-1></label><code><span class=hljs-meta>@@ -0,0 +1,204 @@</span>
+<span class=hljs-addition>+# thoughts on angular, react, frameworks and libraries</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Oxford comma anyone?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently I&#x27;ve been using Angular and I have to say I&#x27;m not a big fan of it. To be</span>
+<span class=hljs-addition>+fair, I used React first so that could influence my preferences on ui stuff. I&#x27;ll</span>
+<span class=hljs-addition>+be talking about React before hooks were introduced as that was when I used it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As far as I&#x27;m aware, React is only used for building components while Angular does</span>
+<span class=hljs-addition>+that and much more (routing, forms, i18n, etc.), so I&#x27;ll only be comparing this feature.</span>
+<span class=hljs-addition>+They both support using classes, however one immediate difference is how the templates</span>
+<span class=hljs-addition>+are defined. In Angular, it can either be a string in the `@Component` decorator</span>
+<span class=hljs-addition>+or a reference to an external file</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+@Component({</span>
+<span class=hljs-addition>+    selector: &#x27;some-selector&#x27;,</span>
+<span class=hljs-addition>+    templateUrl: &#x27;./some-file.html&#x27;,</span>
+<span class=hljs-addition>+    // alternatively template: &#x27;&lt;div&gt; hello &lt;/div&gt;&#x27;</span>
+<span class=hljs-addition>+})</span>
+<span class=hljs-addition>+class AngularComponent {</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While in React the elements are actually part of the code thanks to jsx, which basically</span>
+<span class=hljs-addition>+adds some custom syntax to javascript.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+class ReactComponent {</span>
+<span class=hljs-addition>+    render() {</span>
+<span class=hljs-addition>+        return &lt;div&gt; hello &lt;/div&gt;;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For me, jsx is a lot more easier to develop with. In Angular, if the template is</span>
+<span class=hljs-addition>+defined in an external file, then I end up having to flip back and forth. If the</span>
+<span class=hljs-addition>+template is defined within the file itself... well it&#x27;s actually just a string so</span>
+<span class=hljs-addition>+good luck working with that. In fact, the first time someone showed me Angular it</span>
+<span class=hljs-addition>+was on a paste and this was the first thing I noticed - if it&#x27;s just a string then</span>
+<span class=hljs-addition>+it must be hard to check against errors and things. Turns out there are plugins</span>
+<span class=hljs-addition>+and other tools built to help with this so it&#x27;s not too bad but still.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On the other hand, because jsx extends the javascript syntax, we have actual language</span>
+<span class=hljs-addition>+constructs to support the interaction between templates and code. Although arguably</span>
+<span class=hljs-addition>+you could say now you need an environment that supports jsx for a good dev experience,</span>
+<span class=hljs-addition>+similar to the plugins for Angular. But really, if I remember correctly, jsx just</span>
+<span class=hljs-addition>+boils down to `React.createElement` calls so I guess you don&#x27;t even need jsx if</span>
+<span class=hljs-addition>+you want to write that.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+@Component({</span>
+<span class=hljs-addition>+    // accidentally mispelled name, but who cares it&#x27;s just a string</span>
+<span class=hljs-addition>+    template: &#x27;&lt;div&gt; hello {{ nme }} &lt;/div&gt;&#x27;,</span>
+<span class=hljs-addition>+})</span>
+<span class=hljs-addition>+class AngularComponent {</span>
+<span class=hljs-addition>+    name = &quot;reimu&quot;;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+class ReactComponent {</span>
+<span class=hljs-addition>+    render() {</span>
+<span class=hljs-addition>+        const name = &quot;reimu&quot;;</span>
+<span class=hljs-addition>+        // variable undefined error or something</span>
+<span class=hljs-addition>+        return &lt;div&gt; hello { nme } &lt;/div&gt;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One other benefit of how React does it is that the elements are first-class which</span>
+<span class=hljs-addition>+means you can pass them around. This allows easy composition of things. Say you want</span>
+<span class=hljs-addition>+to conditionally render part of the page? All you need is an if statement</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;div&gt;</span>
+<span class=hljs-addition>+    bool &amp;amp;&amp;amp; &lt;span&gt; hi &lt;/span&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And in Angular? Oh there&#x27;s this thing called a directive</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;div&gt;</span>
+<span class=hljs-addition>+    &lt;span *ngIf=&quot;bool&quot;&gt; hi &lt;/span&gt;`</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What about loops and other things? Well there&#x27;s `*ngFor`... but in React you can</span>
+<span class=hljs-addition>+just use existing array methods like `map` and return elements. What if you want</span>
+<span class=hljs-addition>+to pass the type of the component to be created? No luck in Angular.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also the syntax allowed in Angular templates is extremely limited. You can&#x27;t even</span>
+<span class=hljs-addition>+use ternaries.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another thing that both Angular and React allow is passing data as props or inputs.</span>
+<span class=hljs-addition>+I think either way is fine, although React&#x27;s jsx allows some interesting things</span>
+<span class=hljs-addition>+with the spread operator and stuff but that&#x27;s because of jsx. Oh right did I mention</span>
+<span class=hljs-addition>+that Angular&#x27;s input syntax can sometimes clash with actual html attributes? I think</span>
+<span class=hljs-addition>+in our case we had an `@Input` called align and it worked on Chrome but not</span>
+<span class=hljs-addition>+Firefox as Firefox interpreted it as the attribute rather than the input. Then</span>
+<span class=hljs-addition>+again, name clashes being a problem aren&#x27;t too uncommon.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One thing unique to Angular is that components can also have their own outputs</span>
+<span class=hljs-addition>+by decorating an instance variable with `@Output` instead of `@Input`. It sounds</span>
+<span class=hljs-addition>+like a good idea at first but then I realized it was a lot more trouble than it</span>
+<span class=hljs-addition>+was worth. You get the same functionality in React by taking advantage of the expected</span>
+<span class=hljs-addition>+behavior when passing a function through `props`. And for Angular you have to redo</span>
+<span class=hljs-addition>+your thinking.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+// usage</span>
+<span class=hljs-addition>+&lt;ReactComponent fn={myFunction}&gt;&lt;/ReactComponent&gt;</span>
+<span class=hljs-addition>+class ReactComponent {</span>
+<span class=hljs-addition>+    // ...</span>
+<span class=hljs-addition>+    // watch out for binding issues :)</span>
+<span class=hljs-addition>+    this.props.fn();</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+// usage</span>
+<span class=hljs-addition>+&lt;some-selector    (outputVar)=&quot;myFunction($event)&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/some-selector&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+class AngularComponent {</span>
+<span class=hljs-addition>+    @Output() outputVar;</span>
+<span class=hljs-addition>+    // ...</span>
+<span class=hljs-addition>+    outputVar.emit(2);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Is `myFunction($event)` the result of `myFunction` being called? No, actually it&#x27;s</span>
+<span class=hljs-addition>+the expression that will be executed when the `@Output()` variable emits something.</span>
+<span class=hljs-addition>+In this case, it will run `myFunction(2)`. Well it makes sense because the entire</span>
+<span class=hljs-addition>+template a string, right...? Basically I see this as overcomplicating something</span>
+<span class=hljs-addition>+that could already be done - you technically could pass the function in as an</span>
+<span class=hljs-addition>+`@Input` to be called. I&#x27;m sure I&#x27;m missing something here though so maybe someone</span>
+<span class=hljs-addition>+will correct me.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another issue I have with `@Output` is that it promotes stateful components, and</span>
+<span class=hljs-addition>+I&#x27;m just not a big fan of state as it complicates logic and boy have some of the</span>
+<span class=hljs-addition>+Angular components I&#x27;ve seen been complicated.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Change detection is another big one. Again, I think React has it very well defined</span>
+<span class=hljs-addition>+while Angular... hmm yes I&#x27;m sure you recognize the common theme here. React components</span>
+<span class=hljs-addition>+define state through `this.state` and `this.setState`. When something in `this.state`</span>
+<span class=hljs-addition>+or `this.props` is updated, then update the rendered template. If you want more functionality,</span>
+<span class=hljs-addition>+hook into `shouldComponentUpdate` if you dare. Angular? Well there are `@Input`s</span>
+<span class=hljs-addition>+so it stands to reason that changing the `@Input`s should trigger a re-render. What</span>
+<span class=hljs-addition>+else? Maybe when instance variables change? Actually no, the rest of Angular&#x27;s change</span>
+<span class=hljs-addition>+detection is based on every expression in the template. That makes sense, as the</span>
+<span class=hljs-addition>+template should only update when one of the expressions in it changes. But as someone</span>
+<span class=hljs-addition>+who was originally unaware of this, I ended up shooting myself due to it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Angular has something called pipes - more fancy syntax for their templates. One</span>
+<span class=hljs-addition>+is an async pipe which is actually pretty nice. I ended up writing something like</span>
+<span class=hljs-addition>+this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+&lt;div&gt;hello, {{ getNameFromInternet(name) | async }}&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A function that makes a request to get data, which is piped to async to print the</span>
+<span class=hljs-addition>+final name. Straightforward and makes sense, right? It worked, but I noticed I was</span>
+<span class=hljs-addition>+making numerous requests per second. This is because change detection in Angular</span>
+<span class=hljs-addition>+runs every single expression in the template to see if it was changed before performing</span>
+<span class=hljs-addition>+any updates so it was running `getNameFromInternet(name)` many times. The workaround</span>
+<span class=hljs-addition>+is just to assign the result of the function and use that in the template</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+&lt;div&gt;hello, {{ namePromise | async }}&lt;/div&gt;</span>
+<span class=hljs-addition>+// ...</span>
+<span class=hljs-addition>+this.namePromise = getNameFromInternet(name);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A little annoying - all because Angular was trying to cover all cases of updating</span>
+<span class=hljs-addition>+the rendered template. In fact, this means you shouldn&#x27;t try to have any costly</span>
+<span class=hljs-addition>+functions in the template as they get executed per change detection cycle. This</span>
+<span class=hljs-addition>+means you need to keep state in the component and make sure it&#x27;s updated promptly</span>
+<span class=hljs-addition>+and properly (uh oh).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Overall, I think Angular tries to present itself as easy to use, and initially looks</span>
+<span class=hljs-addition>+so, but then quickly ramps up in terms of difficutly for anything moderately complex.</span>
+<span class=hljs-addition>+Meanwhile, React is simple and things that are moderately complex in Angular are</span>
+<span class=hljs-addition>+simple in React.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Of course, this is just about ease of use. I haven&#x27;t done any comparisons in things</span>
+<span class=hljs-addition>+like performance, which both React and Angular have claim to. Perhaps a later time.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To tie this back to frameworks and libraries in general, I think each one has a</span>
+<span class=hljs-addition>+kind of honeymoon phase - where you&#x27;re picking it up, learning everything, and thinking</span>
+<span class=hljs-addition>+&quot;hey that&#x27;s cool&quot; - after which you&#x27;ve gotten deep enough to notice its various problems.</span>
+<span class=hljs-addition>+Better frameworks/libraries = longer honeymoon phases. In general, I believe that</span>
+<span class=hljs-addition>+the less magic a framework has, the better it is as it&#x27;s much more straightforward</span>
+<span class=hljs-addition>+to understand.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Oh right did I mention the Angular documentation is pretty lacking, too?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+unrelated: Hey wait! I noticed you generate your site using some of the same ideas</span>
+<span class=hljs-addition>+you&#x27;re complaining about here! You store your template as an html file, read it</span>
+<span class=hljs-addition>+with javascript then replace values in `{{ value }}`. It&#x27;s true, but this setup isn&#x27;t</span>
+<span class=hljs-addition>+meant to be very useful or complex.</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

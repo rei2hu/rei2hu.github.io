@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>calculating average lifetime</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/18>&lt; too young for nostalgia</a></div> <div style=text-align:end><a href=/./posts/20>attempting to fingerprint audio &gt;</a></div>
+</nav>
+<h1 id=calculating-average-lifetime>calculating average lifetime</h1>
+<p>Recently I came across a simple problem which was to get the average time something lived given it's replacement schedule. For example we might be given a data like this:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Part</th>
+<th>Replaced On</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>something</td>
+<td>Part A</td>
+<td>Oct 1</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part A</td>
+<td>Oct 3</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part A</td>
+<td>Oct 4</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part A</td>
+<td>Oct 5</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part A</td>
+<td>Oct 5</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part A</td>
+<td>Oct 6</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part A</td>
+<td>Oct 7</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part B</td>
+<td>Oct 1</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part B</td>
+<td>Oct 4</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part B</td>
+<td>Oct 6</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part B</td>
+<td>Oct 9</td>
+</tr>
+<tr>
+<td>something</td>
+<td>Part B</td>
+<td>Oct 12</td>
+</tr>
+</tbody>
+</table>
+<p>If we were to calculate the average time for Part A, we would calculate the time between each replacement for a specific part, add them up, and divide by the number of those values. This ends up being an average of 1 day because</p>
+<table>
+<thead>
+<tr>
+<th>Range</th>
+<th>Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Oct 1 - Oct 3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Oct 3 - Oct 4</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Oct 4 - Oct 5</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Oct 5 - Oct 5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Oct 5 - Oct 6</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Oct 6 - Oct 7</td>
+<td>1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>total:</td>
+<td>6</td>
+</tr>
+<tr>
+<td>average:</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>This is great and all but then I realized the basic formula to get the sum of the intervals in between the values is something like</p>
+<p>
+$(x_2 - x_1) + (x_3 - x_2) + ... + (x_n - x_{n - 1}) = (x_n - x_1)$ <br>
+where $x_n$ is the value of the $n$th entry
+</p>
+<p>If we apply that to the above, we get Oct 7 - Oct 1 which is 6, the sum we got earlier, which we then divide by $n - 1$ for the average of 1. Weirdly enough, I think I was lucky to realize this as the original formula is simple enough to write and I wouldn't have bothered looking for any optimizations.</p>
+<p>Even at first glance, it was interesting that it boiled down to this but after a quick visualization it makes perfect sense. Here is what it might look like for Part B.</p>
+<pre class=code-block><input id=code-block-19-1 type=checkbox><label for=code-block-19-1></label><code>Oct 1
+|           Oct 12
+|###        |
+    ##      |
+      ###   |
+         ###|
+</code></pre>
+<p>We see that the length of the intervals in between ends up being the length between the start and end (again, very obvious now but I don't know how I never realized it before). And then we can get the average which is 11 / 4.</p>
+<h2 id=conclusion>conclusion</h2>
+<p>I'm pretty sure I've come across similar problems about the sum of intervals in a set of numbers but I never actually had this realization because I wasn't looking closely.</p>
+<p>It's interesting how things like this might be overlooked when something already start out looking simple.</p>
+<p>And then I realized that the easiest way to think about this is to just say you replaced an item x times over a period of time, so that just means that on average each item lasted for $(\text{period of time}) / (\text{times replaced} + 1)$.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/18>&lt; too young for nostalgia</a></div> <div style=text-align:end><a href=/./posts/20>attempting to fingerprint audio &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-10-20 - update post 19</summary>
+<pre class=code-block><input id=code-block-b2fbdd9d3ec7a5bf461dadb9632259ce1c1d1d2b-1 type=checkbox><label for=code-block-b2fbdd9d3ec7a5bf461dadb9632259ce1c1d1d2b-1></label><code>@@ -75 +75,5 @@ It&#x27;s interesting how things like this might be overlooked when something already
+ start out looking simple.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then I realized that the easiest way to think about this is to just say you</span>
+<span class=hljs-addition>+replaced an item x times over a period of time, so that just means that on average</span>
+<span class=hljs-addition>+each item lasted for $(\text{period of time}) / (\text{times replaced} + 1)$.</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-10-15 - add a post</summary>
+<pre class=code-block><input id=code-block-3ba8e124fa1873a13220eab5eb0efd87edb8d84d-1 type=checkbox><label for=code-block-3ba8e124fa1873a13220eab5eb0efd87edb8d84d-1></label><code><span class=hljs-meta>@@ -0,0 +1,75 @@</span>
+<span class=hljs-addition>+# calculating average lifetime</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently I came across a simple problem which was to get the average time something</span>
+<span class=hljs-addition>+lived given it&#x27;s replacement schedule. For example we might be given a data like</span>
+<span class=hljs-addition>+this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Item      | Part   | Replaced On |</span>
+<span class=hljs-addition>+| --------- | ------ | ----------- |</span>
+<span class=hljs-addition>+| something | Part A | Oct 1       |</span>
+<span class=hljs-addition>+| something | Part A | Oct 3       |</span>
+<span class=hljs-addition>+| something | Part A | Oct 4       |</span>
+<span class=hljs-addition>+| something | Part A | Oct 5       |</span>
+<span class=hljs-addition>+| something | Part A | Oct 5       |</span>
+<span class=hljs-addition>+| something | Part A | Oct 6       |</span>
+<span class=hljs-addition>+| something | Part A | Oct 7       |</span>
+<span class=hljs-addition>+| something | Part B | Oct 1       |</span>
+<span class=hljs-addition>+| something | Part B | Oct 4       |</span>
+<span class=hljs-addition>+| something | Part B | Oct 6       |</span>
+<span class=hljs-addition>+| something | Part B | Oct 9       |</span>
+<span class=hljs-addition>+| something | Part B | Oct 12      |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If we were to calculate the average time for Part A, we would calculate the time</span>
+<span class=hljs-addition>+between each replacement for a specific part, add them up, and divide by the number</span>
+<span class=hljs-addition>+of those values. This ends up being an average of 1 day because</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Range         | Duration |</span>
+<span class=hljs-addition>+| ------------- | -------- |</span>
+<span class=hljs-addition>+| Oct 1 - Oct 3 | 2        |</span>
+<span class=hljs-addition>+| Oct 3 - Oct 4 | 1        |</span>
+<span class=hljs-addition>+| Oct 4 - Oct 5 | 1        |</span>
+<span class=hljs-addition>+| Oct 5 - Oct 5 | 0        |</span>
+<span class=hljs-addition>+| Oct 5 - Oct 6 | 1        |</span>
+<span class=hljs-addition>+| Oct 6 - Oct 7 | 1        |</span>
+<span class=hljs-addition>+|               |          |</span>
+<span class=hljs-addition>+| total:        | 6        |</span>
+<span class=hljs-addition>+| average:      | 1        |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is great and all but then I realized the basic formula to get the sum of the</span>
+<span class=hljs-addition>+intervals in between the values is something like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+$(x_2 - x_1) + (x_3 - x_2) + ... + (x_n - x_{n - 1}) = (x_n - x_1)$ &lt;br /&gt;</span>
+<span class=hljs-addition>+where $x_n$ is the value of the $n$th entry</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If we apply that to the above, we get Oct 7 - Oct 1 which is 6, the sum we got</span>
+<span class=hljs-addition>+earlier, which we then divide by $n - 1$ for the average of 1. Weirdly enough, I</span>
+<span class=hljs-addition>+think I was lucky to realize this as the original formula is simple enough to write</span>
+<span class=hljs-addition>+and I would&#x27;nt have bothered looking for any optimizations.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Even at first glance, it was interesting that it boiled down to this but after a</span>
+<span class=hljs-addition>+quick visualization it makes perfect sense. Here is what it might look like for</span>
+<span class=hljs-addition>+Part B.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```text</span>
+<span class=hljs-addition>+Oct 1</span>
+<span class=hljs-addition>+|           Oct 12</span>
+<span class=hljs-addition>+|###        |</span>
+<span class=hljs-addition>+    ##      |</span>
+<span class=hljs-addition>+      ###   |</span>
+<span class=hljs-addition>+         ###|</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We see that the length of the intervals in between ends up being the length between</span>
+<span class=hljs-addition>+the start and end (again, very obvious now but I don&#x27;t know how I never realized</span>
+<span class=hljs-addition>+it before). And then we can get the average which is 11 / 4.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m pretty sure I&#x27;ve come across similar problems about the sum of intervals in</span>
+<span class=hljs-addition>+a set of numbers but I never actually had this realization because I wasn&#x27;t looking</span>
+<span class=hljs-addition>+closely.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s interesting how things like this might be overlooked when something already</span>
+<span class=hljs-addition>+start out looking simple.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

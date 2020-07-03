@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>framework gaming and menma's tera</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/76>&lt; menma's tera cease&desist</a></div> <div style=text-align:end><a href=/./posts/78>tera mods &gt;</a></div>
+</nav>
+<h1 id=framework-gaming-and-menmas-tera>framework gaming and menma's tera</h1>
+<p>Recently Framework announced the Framework 16 laptop which comes with an upgradeable graphics module. This would be perfect for me except I happened to purchase a Framework 13 late last year and am too cheap to purchase a new laptop just because. My hope is that they offer some kind of upgrade kit that would allow me to transform my existing Framework components into one that supports the modifiable graphics module, though I assume that's very difficult because of hardware limitations or something. Unfortunate.</p>
+<p>Anyways, recently I have been looking for something to do and I decided to try out Menma's TERA as I have a friend that did play it. I was afraid it would not run well on a laptop that only had integrated graphics, but it was able to work well reaching over 100 fps after tweaking config settings and applying dxvk.However, after a few days of playing, the laptop was prone to overheating after a few minutes of gameplay. A log of the temperature sensors showed that the CPU and GPU were both reaching temperatures of 100C which caused them to throttle themselves.</p>
+<p>A closer observation of the temperature trends and previous experience lead me to believe the problem mainly had to do with the CPU. I took a random shot in the dark by searching for 0.4GHz online and it ended up yielding some good information - it was a thermal issue. Turns out Intel CPUs have something called Turbo Boost technology which does the following:</p>
+<blockquote>
+<p>Intel® Turbo Boost Technology can potentially increase CPU speeds up to the Max Turbo Frequency while staying within safe temperature and power limits. This can increase performance in both single-threaded and multi-threaded applications (programs that utilize several processor cores).</p>
+</blockquote>
+<p>I believe the solution would be disabling this, which can be done through the BIOS. I also knew that I could sacrifice performance because the game performance was already above standards (when things weren't overheating). Turning off the option worked. I'm able to play at a consistent 45 fps.</p>
+<p>It turns out that there is also another way to disable turbo boost, which is setting the maximum processor state for advanced power options to something less than 100%, like 99%. I guess it makes sense but is weirdly not officially documented anywhere. Also trying to reach those settings is a little chore on Windows navigation menus as I had to go through the control panel.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/76>&lt; menma's tera cease&desist</a></div> <div style=text-align:end><a href=/./posts/78>tera mods &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-08-01 - add post 77</summary>
+<pre class=code-block><input id=code-block-eeb3f5d495277563140fe6f8a17a02ade0dcec50-1 type=checkbox><label for=code-block-eeb3f5d495277563140fe6f8a17a02ade0dcec50-1></label><code><span class=hljs-meta>@@ -0,0 +1,40 @@</span>
+<span class=hljs-addition>+# framework gaming and menma&#x27;s tera</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently Framework announced the Framework 16 laptop which comes with an</span>
+<span class=hljs-addition>+upgradeable graphics module. This would be perfect for me except I happened to</span>
+<span class=hljs-addition>+purchase a Framework 13 late last year and am too cheap to purchase a new laptop</span>
+<span class=hljs-addition>+just because. My hope is that they offer some kind of upgrade kit that would</span>
+<span class=hljs-addition>+allow me to transform my existing Framework components into one that supports</span>
+<span class=hljs-addition>+the modifiable graphics module, though I assume that&#x27;s very difficult because of</span>
+<span class=hljs-addition>+hardware limitations or something. Unfortunate.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, recently I have been looking for something to do and I decided to try</span>
+<span class=hljs-addition>+out Menma&#x27;s TERA as I have a friend that did play it. I was afraid it would not</span>
+<span class=hljs-addition>+run well on a laptop that only had integrated graphics, but it was able to work</span>
+<span class=hljs-addition>+well reaching over 100 fps after tweaking config settings and applying</span>
+<span class=hljs-addition>+dxvk.However, after a few days of playing, the laptop was prone to overheating</span>
+<span class=hljs-addition>+after a few minutes of gameplay. A log of the temperature sensors showed that</span>
+<span class=hljs-addition>+the CPU and GPU were both reaching temperatures of 100C which caused them to</span>
+<span class=hljs-addition>+throttle themselves.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A closer observation of the temperature trends and previous experience lead me</span>
+<span class=hljs-addition>+to believe the problem mainly had to do with the CPU. I took a random shot in</span>
+<span class=hljs-addition>+the dark by searching for 0.4GHz online and it ended up yielding some good</span>
+<span class=hljs-addition>+information - it was a thermal issue. Turns out Intel CPUs have something called</span>
+<span class=hljs-addition>+Turbo Boost technology which does the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Intel® Turbo Boost Technology can potentially increase CPU speeds up to the</span>
+<span class=hljs-addition>+&gt; Max Turbo Frequency while staying within safe temperature and power limits.</span>
+<span class=hljs-addition>+&gt; This can increase performance in both single-threaded and multi-threaded</span>
+<span class=hljs-addition>+&gt; applications (programs that utilize several processor cores).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I believe the solution would be disabling this, which can be done through the</span>
+<span class=hljs-addition>+BIOS. I also knew that I could sacrifice performance because the game</span>
+<span class=hljs-addition>+performance was already above standards (when things weren&#x27;t overheating).</span>
+<span class=hljs-addition>+Turning off the option worked. I&#x27;m able to play at a consistent 45 fps.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It turns out that there is also another way to disable turbo boost, which is</span>
+<span class=hljs-addition>+setting the maximum processor state for advanced power options to something less</span>
+<span class=hljs-addition>+than 100%, like 99%. I guess it makes sense but is weirdly not officially</span>
+<span class=hljs-addition>+documented anywhere. Also trying to reach those settings is a little chore on</span>
+<span class=hljs-addition>+Windows navigation menus as I had to go through the control panel.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

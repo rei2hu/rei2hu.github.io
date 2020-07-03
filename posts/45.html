@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>attempts to randomize things with pure css</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/44>&lt; the worst projects make for the best stories</a></div> <div style=text-align:end><a href=/./posts/46>personal yearly reflection 2 &gt;</a></div>
+</nav>
+<h1 id=attempts-to-randomize-things-with-pure-css>attempts to randomize things with pure css</h1>
+<p>I was adding some simple things to my site and I ended up wanting to add some animations. Of course, I don't want the same animation to play every time you visit, but a random one. Since I try to keep the javascript low on this sight so I thought I'd try to get it done with pure css. For some reason I thought there was a <code>rand()</code> function because I swear I used it a long time ago but it looks like I was mistaken. I ended up spending all of my time trying to generate a semblance of randomness somehow. So what other sources of randomness are there? This is all tested on Firefox.</p>
+<p>Css is pretty limited in what it can do so this would be difficult. My first idea was just to take advantage of time - I could create various images and flip through them by animating the z-indices. Once something happens, I stop animating. I ended up with something like this:</p>
+<pre class=code-block><input id=code-block-45-1 type=checkbox><label for=code-block-45-1></label><code><span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;container-45&quot;</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+        <span class=hljs-selector-class>.container-45</span> {
+            <span class=hljs-attr>--height</span>: <span class=hljs-number>100px</span>;
+            <span class=hljs-attr>--width</span>: <span class=hljs-number>100px</span>;
+            <span class=hljs-attribute>position</span>: relative;
+            <span class=hljs-attribute>height</span>: <span class=hljs-built_in>var</span>(--height);
+            <span class=hljs-attribute>width</span>: <span class=hljs-built_in>var</span>(--width);
+            <span class=hljs-attribute>overflow</span>: hidden;
+        }
+
+        <span class=hljs-selector-class>.box</span> {
+            <span class=hljs-attribute>position</span>: absolute;
+            <span class=hljs-attribute>top</span>: <span class=hljs-number>0px</span>;
+            <span class=hljs-attribute>width</span>: <span class=hljs-built_in>var</span>(--width);
+            <span class=hljs-attribute>height</span>: <span class=hljs-built_in>var</span>(--height);
+            <span class=hljs-attribute>animation</span>: flicker <span class=hljs-number>1s</span> running infinite <span class=hljs-built_in>steps</span>(<span class=hljs-number>4</span>, end);
+        }
+
+        <span class=hljs-keyword>@keyframes</span> flicker {
+            <span class=hljs-selector-tag>from</span> {
+                <span class=hljs-attribute>z-index</span>: <span class=hljs-number>1</span>;
+            }
+            <span class=hljs-selector-tag>to</span> {
+                <span class=hljs-attribute>z-index</span>: <span class=hljs-number>3</span>;
+            }
+        }
+
+        <span class=hljs-selector-class>.container-45</span> <span class=hljs-selector-class>.box</span><span class=hljs-selector-pseudo>:nth-child</span>(<span class=hljs-number>1</span>n) {
+            <span class=hljs-attribute>animation-delay</span>: <span class=hljs-number>0s</span>;
+            <span class=hljs-attribute>background-color</span>: red;
+        }
+        <span class=hljs-selector-class>.container-45</span> <span class=hljs-selector-class>.box</span><span class=hljs-selector-pseudo>:nth-child</span>(<span class=hljs-number>2</span>n) {
+            <span class=hljs-attribute>animation-delay</span>: -<span class=hljs-number>0.33s</span>;
+            <span class=hljs-attribute>background-color</span>: blue;
+        }
+        <span class=hljs-selector-class>.container-45</span> <span class=hljs-selector-class>.box</span><span class=hljs-selector-pseudo>:nth-child</span>(<span class=hljs-number>3</span>n) {
+            <span class=hljs-attribute>animation-delay</span>: -<span class=hljs-number>0.66s</span>;
+            <span class=hljs-attribute>background-color</span>: green;
+        }
+    </span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<div class=container-45>
+<style>.container-45{--height:100px;--width:100px;position:relative;height:var(--height);width:var(--width);overflow:hidden}.box{position:absolute;top:0;width:var(--width);height:var(--height);animation:flicker 1s running infinite steps(4,end)}@keyframes flicker{from{z-index:1}to{z-index:3}}.container-45 .box:nth-child(1n){animation-delay:0s;background-color:red}.container-45 .box:nth-child(2n){animation-delay:-.33s;background-color:#00f}.container-45 .box:nth-child(3n){animation-delay:-.66s;background-color:green}</style>
+<div class=box></div>
+<div class=box></div>
+<div class=box></div>
+</div>
+<p>Not bad, now I just need some way to stop the animation based on a random user action. Like every other css hack out there, I ended up using
+<a href=https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes>pseudoclasses</a>
+to do the hard lifting - in this case <code>:hover</code>. Unfortunately there is no way to select all siblings of an element and I can only use the general sibling combinator <code>~</code> to select elements after one. This means if I hover over an element, I can only then apply states to the elements after it. Well, no matter because I ended up coming with another idea: another animated element that moves around the screen that then pauses all the animation when it is hovered. I ended up just having a window wiper move across the screen kind of. It shouldn't be visible but I'll show it because it's a demo.</p>
+<pre class=code-block><input id=code-block-45-2 type=checkbox><label for=code-block-45-2></label><code><span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;container-45&quot;</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+        <span class=hljs-selector-id>#wiper</span> {
+            <span class=hljs-attribute>transform-origin</span>: <span class=hljs-number>0</span> <span class=hljs-number>0</span>;
+            <span class=hljs-attribute>position</span>: absolute;
+            <span class=hljs-attribute>top</span>: -<span class=hljs-number>5px</span>;
+            <span class=hljs-attribute>left</span>: <span class=hljs-number>0px</span>;
+            <span class=hljs-attribute>width</span>: <span class=hljs-built_in>calc</span>(<span class=hljs-built_in>var</span>(--height) + <span class=hljs-built_in>var</span>(--width));
+            <span class=hljs-attribute>height</span>: <span class=hljs-number>10px</span>;
+            <span class=hljs-attribute>background-color</span>: black;
+            <span class=hljs-attribute>animation</span>: wipe <span class=hljs-number>3s</span> running infinite linear alternate;
+            <span class=hljs-attribute>z-index</span>: <span class=hljs-number>10</span>;
+        }
+
+        <span class=hljs-selector-id>#wiper</span><span class=hljs-selector-pseudo>:hover</span> {
+            <span class=hljs-attribute>animation-play-state</span>: paused;
+        }
+
+        <span class=hljs-selector-id>#wiper</span><span class=hljs-selector-pseudo>:hover</span> ~ <span class=hljs-selector-class>.box</span> {
+            <span class=hljs-attribute>animation-play-state</span>: paused;
+        }
+
+        <span class=hljs-keyword>@keyframes</span> wipe {
+            <span class=hljs-selector-tag>to</span> {
+                <span class=hljs-attribute>transform</span>: <span class=hljs-built_in>rotate</span>(<span class=hljs-number>90deg</span>);
+            }
+        }
+    </span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>id</span>=<span class=hljs-string>&quot;wiper&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<div class=container-45>
+<style>#wiper{transform-origin:0 0;position:absolute;top:-5px;left:0;width:calc(var(--height) + var(--width));height:10px;background-color:#000;animation:wipe 3s running infinite linear alternate;z-index:10}#wiper:hover{animation-play-state:paused}#wiper:hover~.box{animation-play-state:paused}@keyframes wipe{to{transform:rotate(90deg)}}</style>
+<div id=wiper></div>
+<div class=box></div>
+<div class=box></div>
+<div class=box></div>
+</div>
+<p>Note how once you hover over the wiper the animation stops! Now the issue is that once you move off the wiper it continues. This might be what you want but maybe you want to freeze the behavior. What I came up with was to expand the wiper once it gets hovered - if it takes up the entire screen then it's constantly hovered! I'm lowering the opacity just so we can see the color behind it.</p>
+<pre class=code-block><input id=code-block-45-3 type=checkbox><label for=code-block-45-3></label><code><span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;container-45&quot;</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+        <span class=hljs-selector-id>#wiper</span><span class=hljs-selector-class>.wiper-2</span><span class=hljs-selector-pseudo>:hover</span> {
+            <span class=hljs-attribute>animation-name</span>: none;
+            <span class=hljs-attribute>height</span>: <span class=hljs-built_in>calc</span>(<span class=hljs-built_in>var</span>(--height) + <span class=hljs-number>5px</span>);
+            <span class=hljs-attribute>width</span>: <span class=hljs-built_in>var</span>(--width);
+            <span class=hljs-attribute>opacity</span>: <span class=hljs-number>25%</span>;
+        }
+    </span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>id</span>=<span class=hljs-string>&quot;wiper&quot;</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;wiper-2&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<div class=container-45>
+<style>#wiper.wiper-2:hover{animation-name:none;height:calc(var(--height) + 5px);width:var(--width);opacity:25%}</style>
+<div class=wiper-2 id=wiper></div>
+<div class=box></div>
+<div class=box></div>
+<div class=box></div>
+</div>
+<p>This works great! Just remember this will take up the entire page rather than the small 100x100 in these demos! Until you realize that moving your mouse outside the browser breaks the behavior. Well, that's what we get for relying on hover! Is there maybe another way to do things?</p>
+<p>Basically the issue we're having is somehow keeping a consistent state - when we use <code>:hover</code> we're counting on the user to stay hovering until we want them to stop. Looking through the other pseudoclasses, I came across <code>:focus</code>. What if we leveraged <code>input</code>, <code>focus</code>, and <code>autofocus</code>? It looks something like this:</p>
+<pre class=code-block><input id=code-block-45-4 type=checkbox><label for=code-block-45-4></label><code><span class=hljs-tag>&lt;<span class=hljs-name>style</span>&gt;</span><span class=language-css>
+    <span class=hljs-selector-id>#click-listener</span> {
+        <span class=hljs-attribute>position</span>: absolute;
+        <span class=hljs-attribute>top</span>: -<span class=hljs-number>100px</span>;
+        <span class=hljs-attribute>opacity</span>: <span class=hljs-number>0</span>;
+    }
+
+    <span class=hljs-selector-id>#click-listener</span><span class=hljs-selector-pseudo>:not</span>(<span class=hljs-selector-pseudo>:focus</span>) ~ <span class=hljs-selector-class>.box</span> {
+        <span class=hljs-attribute>animation-play-state</span>: paused;
+    }
+</span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+
+<span class=hljs-tag>&lt;<span class=hljs-name>input</span> <span class=hljs-attr>id</span>=<span class=hljs-string>&quot;click-listener&quot;</span> <span class=hljs-attr>autofocus</span> <span class=hljs-attr>tabindex</span>=<span class=hljs-string>&quot;-1&quot;</span> /&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;box&quot;</span>&gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+</code></pre>
+<div class=container-45>
+<style>#click-listener{position:absolute;top:-100px;opacity:0}#click-listener:not(:focus)~.box{animation-play-state:paused}</style>
+<input id=click-listener autofocus tabindex=-1>
+<div class=box></div>
+<div class=box></div>
+<div class=box></div>
+</div>
+<p>If you've already clicked elsewhere on the page, then the animation would've stopped. Go ahead, refresh the page, and scroll down here and you can see the animation continuing as long as you haven't clicked off of anything!</p>
+<p>One interesting thing is that the reason I used <code>opacity: 0</code> instead of something like <code>display: none</code> is because even with <code>autofocus</code>, I think
+<code>display: none</code> gets applied initially and then the element isn't focused. I had though this meant <code>display: none</code> automatically unfocuses the element but this isn't the case. It would've been great because we could combine <code>:hover</code> and
+<code>autofocus</code>; hovering an element would set <code>display: none</code> and unfocus the input then we base things on if the element is focused or not.</p>
+<p>So overall I haven't really found a solution I like, but these are some interesting ideas. This is less of a random number generation and more like get a random element from my pre-generated list of things.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/44>&lt; the worst projects make for the best stories</a></div> <div style=text-align:end><a href=/./posts/46>personal yearly reflection 2 &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-11-29 - add post 45</summary>
+<pre class=code-block><input id=code-block-ea2d133319a2fcd8536705da8c7e28a614cdff3c-1 type=checkbox><label for=code-block-ea2d133319a2fcd8536705da8c7e28a614cdff3c-1></label><code><span class=hljs-meta>@@ -0,0 +1,269 @@</span>
+<span class=hljs-addition>+# attempts to randomize things with pure css</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was adding some simple things to my site and I ended up wanting to add some animations.</span>
+<span class=hljs-addition>+Of course, I don&#x27;t want the same animation to play every time you visit, but a random</span>
+<span class=hljs-addition>+one. Since I try to keep the javascript low on this sight so I thought I&#x27;d try to</span>
+<span class=hljs-addition>+get it done with pure css. For some reason I thought there was a `rand()` function</span>
+<span class=hljs-addition>+because I swear I used it a long time ago but it looks like I was mistaken. I ended</span>
+<span class=hljs-addition>+up spending all of my time trying to generate a semblance of randomness somehow.</span>
+<span class=hljs-addition>+So what other sources of randomness are there? This is all tested on Firefox.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Css is pretty limited in what it can do so this would be difficult. My first idea</span>
+<span class=hljs-addition>+was just to take advantage of time - I could create various images and flip through</span>
+<span class=hljs-addition>+them by animating the z-indices. Once something happens, I stop animating. I ended</span>
+<span class=hljs-addition>+up with something like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length--&gt;</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;div class=&quot;container-45&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        .container-45 {</span>
+<span class=hljs-addition>+            --height: 100px;</span>
+<span class=hljs-addition>+            --width: 100px;</span>
+<span class=hljs-addition>+            position: relative;</span>
+<span class=hljs-addition>+            height: var(--height);</span>
+<span class=hljs-addition>+            width: var(--width);</span>
+<span class=hljs-addition>+            overflow: hidden;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        .box {</span>
+<span class=hljs-addition>+            position: absolute;</span>
+<span class=hljs-addition>+            top: 0px;</span>
+<span class=hljs-addition>+            width: var(--width);</span>
+<span class=hljs-addition>+            height: var(--height);</span>
+<span class=hljs-addition>+            animation: flicker 1s running infinite steps(4, end);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        @keyframes flicker {</span>
+<span class=hljs-addition>+            from { z-index: 1; }</span>
+<span class=hljs-addition>+            to { z-index: 3; }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        .container-45 .box:nth-child(1n) { animation-delay: 0s; background-color: red; }</span>
+<span class=hljs-addition>+        .container-45 .box:nth-child(2n) { animation-delay: -0.33s; background-color: blue; }</span>
+<span class=hljs-addition>+        .container-45 .box:nth-child(3n) { animation-delay: -0.66s; background-color: green; }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;container-45&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        .container-45 {</span>
+<span class=hljs-addition>+            --height: 100px;</span>
+<span class=hljs-addition>+            --width: 100px;</span>
+<span class=hljs-addition>+            position: relative;</span>
+<span class=hljs-addition>+            height: var(--height);</span>
+<span class=hljs-addition>+            width: var(--width);</span>
+<span class=hljs-addition>+            overflow: hidden;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        .box {</span>
+<span class=hljs-addition>+            position: absolute;</span>
+<span class=hljs-addition>+            top: 0px;</span>
+<span class=hljs-addition>+            width: var(--width);</span>
+<span class=hljs-addition>+            height: var(--height);</span>
+<span class=hljs-addition>+            animation: flicker 1s running infinite steps(4, end);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        @keyframes flicker {</span>
+<span class=hljs-addition>+            from { z-index: 1; }</span>
+<span class=hljs-addition>+            to { z-index: 3; }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        .container-45 .box:nth-child(1n) { animation-delay: 0s; background-color: red; }</span>
+<span class=hljs-addition>+        .container-45 .box:nth-child(2n) { animation-delay: -0.33s; background-color: blue; }</span>
+<span class=hljs-addition>+        .container-45 .box:nth-child(3n) { animation-delay: -0.66s; background-color: green; }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length--&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Not bad, now I just need some way to stop the animation based on a random user action.</span>
+<span class=hljs-addition>+Like every other css hack out there, I ended up using [pseudoclasses](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes)</span>
+<span class=hljs-addition>+to do the hard lifting - in this case `:hover`. Unfortunately there is no way to</span>
+<span class=hljs-addition>+select all siblings of an element and I can only use the general sibling combinator</span>
+<span class=hljs-addition>+`~` to select elements after one. This means if I hover over an element, I can only</span>
+<span class=hljs-addition>+then apply states to the elements after it. Well, no matter because I ended up coming</span>
+<span class=hljs-addition>+with another idea: another animated element that moves around the screen that then</span>
+<span class=hljs-addition>+pauses all the animation when it is hovered. I ended up just having a window wiper</span>
+<span class=hljs-addition>+move across the screen kind of. It shouldn&#x27;t be visible but I&#x27;ll show it because</span>
+<span class=hljs-addition>+it&#x27;s a demo.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;div class=&quot;container-45&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        #wiper {</span>
+<span class=hljs-addition>+            transform-origin: 0 0;</span>
+<span class=hljs-addition>+            position: absolute;</span>
+<span class=hljs-addition>+            top: -5px;</span>
+<span class=hljs-addition>+            left: 0px;</span>
+<span class=hljs-addition>+            width: calc(var(--height) + var(--width));</span>
+<span class=hljs-addition>+            height: 10px;</span>
+<span class=hljs-addition>+            background-color: black;</span>
+<span class=hljs-addition>+            animation: wipe 3s running infinite linear alternate;</span>
+<span class=hljs-addition>+            z-index: 10;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        #wiper:hover {</span>
+<span class=hljs-addition>+            animation-play-state: paused;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        #wiper:hover ~ .box {</span>
+<span class=hljs-addition>+            animation-play-state: paused;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        @keyframes wipe {</span>
+<span class=hljs-addition>+            to { transform: rotate(90deg); }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;div id=&quot;wiper&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;container-45&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        #wiper {</span>
+<span class=hljs-addition>+            transform-origin: 0 0;</span>
+<span class=hljs-addition>+            position: absolute;</span>
+<span class=hljs-addition>+            top: -5px;</span>
+<span class=hljs-addition>+            left: 0px;</span>
+<span class=hljs-addition>+            width: calc(var(--height) + var(--width));</span>
+<span class=hljs-addition>+            height: 10px;</span>
+<span class=hljs-addition>+            background-color: black;</span>
+<span class=hljs-addition>+            animation: wipe 3s running infinite linear alternate;</span>
+<span class=hljs-addition>+            z-index: 10;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        #wiper:hover {</span>
+<span class=hljs-addition>+            animation-play-state: paused;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        #wiper:hover ~ .box {</span>
+<span class=hljs-addition>+            animation-play-state: paused;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        @keyframes wipe {</span>
+<span class=hljs-addition>+            to { transform: rotate(90deg); }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;div id=&quot;wiper&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Note how once you hover over the wiper the animation stops! Now the issue is that</span>
+<span class=hljs-addition>+once you move off the wiper it continues. This might be what you want but maybe you</span>
+<span class=hljs-addition>+want to freeze the behavior. What I came up with was to expand the wiper once it</span>
+<span class=hljs-addition>+gets hovered - if it takes up the entire screen then it&#x27;s constantly hovered! I&#x27;m</span>
+<span class=hljs-addition>+lowering the opacity just so we can see the color behind it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;div class=&quot;container-45&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        #wiper.wiper-2:hover {</span>
+<span class=hljs-addition>+            animation-name: none;</span>
+<span class=hljs-addition>+            height: calc(var(--height) + 5px);</span>
+<span class=hljs-addition>+            width: var(--width);</span>
+<span class=hljs-addition>+            opacity: 25%;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;div id=&quot;wiper&quot; class=&quot;wiper-2&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;container-45&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        #wiper.wiper-2:hover {</span>
+<span class=hljs-addition>+            animation-name: none;</span>
+<span class=hljs-addition>+            height: calc(var(--height) + 5px);</span>
+<span class=hljs-addition>+            width: var(--width);</span>
+<span class=hljs-addition>+            opacity: 25%;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;div id=&quot;wiper&quot; class=&quot;wiper-2&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This works great! Just remember this will take up the entire page rather than the</span>
+<span class=hljs-addition>+small 100x100 in these demos! Until you realize that moving your mouse outside the</span>
+<span class=hljs-addition>+browser breaks the behavior. Well, that&#x27;s what we get for relying on hover! Is there</span>
+<span class=hljs-addition>+maybe another way to do things?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Basically the issue we&#x27;re having is somehow keeping a consistent state - when we</span>
+<span class=hljs-addition>+use `:hover` we&#x27;re counting on the user to stay hovering until we want them to stop.</span>
+<span class=hljs-addition>+Looking through the other pseudoclasses, I came across `:focus`. What if we leveraged</span>
+<span class=hljs-addition>+`input`, `focus`, and `autofocus`? It looks something like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    #click-listener {</span>
+<span class=hljs-addition>+        position: absolute;</span>
+<span class=hljs-addition>+        top: -100px;</span>
+<span class=hljs-addition>+        opacity: 0;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    #click-listener:not(:focus) ~ .box {</span>
+<span class=hljs-addition>+        animation-play-state: paused;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;input id=&quot;click-listener&quot; autofocus tabindex=&quot;-1&quot; /&gt;</span>
+<span class=hljs-addition>+&lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;container-45&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;style&gt;</span>
+<span class=hljs-addition>+        #click-listener {</span>
+<span class=hljs-addition>+            position: absolute;</span>
+<span class=hljs-addition>+            top: -100px;</span>
+<span class=hljs-addition>+            opacity: 0;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        #click-listener:not(:focus) ~ .box {</span>
+<span class=hljs-addition>+            animation-play-state: paused;</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    &lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;input id=&quot;click-listener&quot; autofocus tabindex=&quot;-1&quot; /&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div class=&quot;box&quot;&gt;&lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If you&#x27;ve already clicked elsewhere on the page, then the animation would&#x27;ve stopped.</span>
+<span class=hljs-addition>+Go ahead, refresh the page, and scroll down here and you can see the animation continuing</span>
+<span class=hljs-addition>+as long as you haven&#x27;t clicked off of anything!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One interesting thing is that the reason I used `opacity: 0` instead of something</span>
+<span class=hljs-addition>+like `display: none` is because even with `autofocus`, I think `display: none` gets</span>
+<span class=hljs-addition>+applied initially and then the element isn&#x27;t focused. I had though this meant</span>
+<span class=hljs-addition>+`display: none` automatically unfocuses the element but this isn&#x27;t the case. It</span>
+<span class=hljs-addition>+would&#x27;ve been great because we could combine `:hover` and `autofocus`; hovering</span>
+<span class=hljs-addition>+an element would set `display: none` and unfocus the input then we base things on</span>
+<span class=hljs-addition>+if the element is focused or not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So overall I haven&#x27;t really found a solution I like, but these are some interesting</span>
+<span class=hljs-addition>+ideas. This is less of a random number generation and more like get a random element</span>
+<span class=hljs-addition>+from my pregenerated list of things.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

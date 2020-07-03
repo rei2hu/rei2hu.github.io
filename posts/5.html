@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>reducing a list of arguments</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/4>&lt; learning haskell</a></div> <div style=text-align:end><a href=/./posts/6>functors and applicatives &gt;</a></div>
+</nav>
+<h1 id=reduce-a-list-of-arguments>reduce a list of arguments</h1>
+<p>I've reached the part of <code>learnyouahaskell</code> about functionally solving problems. I noticed it started out with creating a RPN calculator. This is something I've never done before but I went ahead and did it without reading any further in order to compare my solution with the books. Here is mine:</p>
+<pre class=code-block><input id=code-block-5-1 type=checkbox><label for=code-block-5-1></label><code><span class=hljs-title>solveRPN</span> :: (<span class=hljs-type>Num</span> a, <span class=hljs-type>Read</span> a) =&gt; <span class=hljs-type>String</span> -&gt; a
+<span class=hljs-title>solveRPN</span> = (solve [<span class=hljs-number>0</span>]) .  words
+
+<span class=hljs-title>solve</span> :: (<span class=hljs-type>Num</span> a, <span class=hljs-type>Read</span> a) =&gt; [a] -&gt; [<span class=hljs-type>String</span>] -&gt; a
+<span class=hljs-title>solve</span> (a:b:st) (<span class=hljs-string>&quot;+&quot;</span>:xs) = solve ((b + a):st) xs
+<span class=hljs-title>solve</span> (a:b:st) (<span class=hljs-string>&quot;*&quot;</span>:xs) = solve ((b * a):st) xs
+<span class=hljs-title>solve</span> (a:b:st) (<span class=hljs-string>&quot;-&quot;</span>:xs) = solve ((b - a):st) xs
+<span class=hljs-title>solve</span> st (x:xs) = solve (read x:st) xs
+<span class=hljs-title>solve</span> st [] = head st
+</code></pre>
+<p>I spent a lot of time trying to get something else working to no avail - some kind of fancy reduce that would work like this:</p>
+<pre class=code-block><input id=code-block-5-2 type=checkbox><label for=code-block-5-2></label><code><span class=hljs-comment>-- (10 4 3 + 2 * -)</span>
+<span class=hljs-comment>-- =&gt; 10 (4 3 + 2 * -)</span>
+<span class=hljs-comment>-- =&gt; 10 4 (3 + 2 * -)</span>
+<span class=hljs-comment>-- =&gt; 10 4 3 (+ 2 * -)</span>
+<span class=hljs-comment>-- =&gt; 10 4 ((+ 3) 2 * -), the 3 and + get wrapped into a partially applied function</span>
+<span class=hljs-comment>-- =&gt; 10 7 (2 * -), maybe there&#x27;s an intermediate step of 10 (7 2 * -) but who knows</span>
+<span class=hljs-comment>--                  considering I cant even get it working</span>
+<span class=hljs-comment>-- =&gt; 10 7 2 (* -)</span>
+<span class=hljs-comment>-- =&gt; 10 7 ((* 2) -)</span>
+<span class=hljs-comment>-- =&gt; 10 14 (-)</span>
+<span class=hljs-comment>-- =&gt; 4</span>
+</code></pre>
+<p>I guess I'd call them dangling arguments or something if I had to give it a name. Who knows if that's possible? I'm pretty sure I tried something similar once a long time ago when doing something with trees, emphasis on tried.</p>
+<p>Anyways, it is interesting to see that the solution in <code>learnyouahaskell</code> ended up using <code>foldl</code> which is probably better.</p>
+<p>And then there's another problem that looks like Dijkstra's Algorithm which I didn't attempt. I'm really looking forward to the next section though because it looks like I'll start learning the fancy words (Functors, Applicative Functors, and Monoids).</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/4>&lt; learning haskell</a></div> <div style=text-align:end><a href=/./posts/6>functors and applicatives &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,47 @@</span>
+<span class=hljs-addition>+# reduce a list of arguments</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve reached the part of `learnyouahaskell` about functionally solving problems.</span>
+<span class=hljs-addition>+I noticed it started out with creating a RPN calculator. This is something I&#x27;ve</span>
+<span class=hljs-addition>+never done before but I went ahead and did it without reading any further in order</span>
+<span class=hljs-addition>+to compare my solution with the books. Here is mine:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+solveRPN :: (Num a, Read a) =&gt; String -&gt; a</span>
+<span class=hljs-addition>+solveRPN = (solve [0]) .  words</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+solve :: (Num a, Read a) =&gt; [a] -&gt; [String] -&gt; a</span>
+<span class=hljs-addition>+solve (a:b:st) (&quot;+&quot;:xs) = solve ((b + a):st) xs</span>
+<span class=hljs-addition>+solve (a:b:st) (&quot;*&quot;:xs) = solve ((b * a):st) xs</span>
+<span class=hljs-addition>+solve (a:b:st) (&quot;-&quot;:xs) = solve ((b - a):st) xs</span>
+<span class=hljs-addition>+solve st (x:xs) = solve (read x:st) xs</span>
+<span class=hljs-addition>+solve st [] = head st</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I spent a lot of time trying to get something else working to no avail - some kind</span>
+<span class=hljs-addition>+of fancy reduce that would work like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+-- (10 4 3 + 2 * -)</span>
+<span class=hljs-addition>+-- =&gt; 10 (4 3 + 2 * -)</span>
+<span class=hljs-addition>+-- =&gt; 10 4 (3 + 2 * -)</span>
+<span class=hljs-addition>+-- =&gt; 10 4 3 (+ 2 * -)</span>
+<span class=hljs-addition>+-- =&gt; 10 4 ((+ 3) 2 * -), the 3 and + get wrapped into a partially applied function</span>
+<span class=hljs-addition>+-- =&gt; 10 7 (2 * -), maybe there&#x27;s an intermediate step of 10 (7 2 * -) but who knows</span>
+<span class=hljs-addition>+--                  considering I cant even get it working</span>
+<span class=hljs-addition>+-- =&gt; 10 7 2 (* -)</span>
+<span class=hljs-addition>+-- =&gt; 10 7 ((* 2) -)</span>
+<span class=hljs-addition>+-- =&gt; 10 14 (-)</span>
+<span class=hljs-addition>+-- =&gt; 4</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I guess I&#x27;d call them dangling arguments or something if I had to give it a name.</span>
+<span class=hljs-addition>+Who knows if that&#x27;s possible? I&#x27;m pretty sure I tried something similar once a long</span>
+<span class=hljs-addition>+time ago when doing something with trees, emphasis on tried.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, it is interesting to see that the solution in `learnyouahaskell` ended</span>
+<span class=hljs-addition>+up using `foldl` which is probably better.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then there&#x27;s another problem that looks like Djikstra&#x27;s Algorithm which I</span>
+<span class=hljs-addition>+didn&#x27;t attempt. I&#x27;m really looking forward to the next section though because</span>
+<span class=hljs-addition>+it looks like I&#x27;ll start learning the fancy words (Functors, Applicative</span>
+<span class=hljs-addition>+Functors, and Monoids).</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

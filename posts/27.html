@@ -1,0 +1,427 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>personal yearly reflection 1</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/26>&lt; anonymous anti ddos ideas</a></div> <div style=text-align:end><a href=/./posts/28>file transfer through webrtc &gt;</a></div>
+</nav>
+<h1 id=personal-yearly-reflection>personal yearly reflection</h1>
+<h2 id=work>work</h2>
+<h3 id=remote-work>remote work</h3>
+<p>2020 has been quite a year, especially with the pandemic and everything else happening. Actually it hasn't really impacted me as I was fortunate to have started a remote friendly job since last year. Well, at least it is supposed to be remote friendly, but I'm not fully sure that is the case.</p>
+<p>There is a company office in the city so I went there a couple days a week when I started my job, however it was located in the cbd and took around an hour or so for a one way trip, so I didn't go every day. The issue here is that I would often be called out for not going to the office even though it was supposed to be a remote friendly job. One thing that is important to note is that no one on my team at the time was in that office as they were located in other places like Chicago or Canada. I chalked it up to me being somewhat entry level and the possible thought that if I'm not at the office I'm just being unproductive in my abode where no one can see me. Well, either way, I have a solid excuse for not going to the office now thanks to the pandemic, but I did find it kind of weird I was being singled out for not going to the office initially.</p>
+<h3 id=im-a-juniorearly-mid-level-engineer>im a junior/early mid level engineer</h3>
+<p>So I'm an SE1 at my current company, which uses a scale of associate, SE1, SE2, Sr, and finally Principal Engineer. As someone in this position, ideally I'm looking to pick up some interesting technical details that don't come across my radar when developing small web apps. At this time, the team I was on consisted of the following (I am A in the following tables):</p>
+<table>
+<thead>
+<tr>
+<th>Person</th>
+<th>Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>SE1</td>
+</tr>
+<tr>
+<td>B</td>
+<td>SE1</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Assoc</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Sr</td>
+</tr>
+</tbody>
+</table>
+<p>The senior engineer is mainly a front end person and was very knowledgeable in that area. I'd say the most interesting things he taught us were:
+<a href=https://www.w3.org/TR/CSS2/cascade.html#specificity>selector specificity</a> and how selectors are matched - right to left instead of left to right. These are the kinds of details I love to learn. Unfortunately, he ended up leaving for a startup halfway through the year.</p>
+<h3 id=but-am-i-really>but am i really</h3>
+<p>Actually a month before he left, management ended up adding a ton more people to the team and actually split us up into two pods. The teams looked like this:</p>
+<table>
+<thead>
+<tr>
+<th>Person</th>
+<th>Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>SE1</td>
+</tr>
+<tr>
+<td>E</td>
+<td>SE1</td>
+</tr>
+<tr>
+<td>F</td>
+<td>SE1</td>
+</tr>
+<tr>
+<td>G</td>
+<td>Assoc</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<table>
+<thead>
+<tr>
+<th>Person</th>
+<th>Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D</td>
+<td>Sr (leaving)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>SE1</td>
+</tr>
+<tr>
+<td>H</td>
+<td>SE2</td>
+</tr>
+<tr>
+<td>I</td>
+<td>SE2</td>
+</tr>
+<tr>
+<td>J</td>
+<td>Assoc</td>
+</tr>
+</tbody>
+</table>
+<p>Right now I am basically the senior on my team as everyone else is new. I also ended picking up a ton of responsibilities including but not limited to:</p>
+<ul>
+<li>engineering point of contact for customer support teams</li>
+<li>engineering point of contact for professional service teams</li>
+<li>engineering point of contact for external partners (eg for integrations and such)</li>
+<li>engineer that goes to customer calls with product manager if needed</li>
+<li>designing features</li>
+</ul>
+<p>These roles are not specific to the pods, but specific to the entire team (note that you would still usually have to go through the PM before I get anything). There was a noticeable jump in the amount of interruptions and meetings I have on a weekly basis. I didn't get any form of compensation increase for picking up all of these responsibilities - I don't really know what to think of this. Compensation-wise, I'm a junior but with no mentor, responsibility-wise I'm a mid or senior.</p>
+<h3 id=mentoring-realization>mentoring realization</h3>
+<p>As the "senior" on the team I also end up mentoring all the new people, and I think I've learned a few things about myself along the way. Previously, I thought I was willing and patient to answer most questions no matter how simple they are as I commonly do this online when I help others program. This ended up not being the same case here, as I got quite exasperated at explaining a few simple things (or at least I believe them to be simple for a beginner) to the associate on my pod. Things like function arguments and object properties. Weirdly enough, I do answer these questions without an issue online so what is the difference here?</p>
+<p>Perhaps it's because I'm in a call dedicated to spending time explaining things - I'll explain, watch them through a screen share and do nothing (because I explained it poorly or they didn't understand?) and then try explaining again. Meanwhile my online experience is to type a message that explains it, see if they get the gist, go off and do something else, and come back if they want me to double check their solution. It could also be because I just have higher expectations on what people (in a professional setting) should come in knowing. The professional setting would also explain why I didn't get annoyed when teaching concepts at my university as I wouldn't consider that a professional setting - more like an educational or academic one.</p>
+<h3 id=communication>communication</h3>
+<p>I really need to figure out how to do the senior thing. One thing I read was that I should have a recurring 1 on 1 with all the new team members. I'm not doing that right now and I don't see what it's necessary. I do let them all know I'm pretty open at all times to discussion when I'm not in a meeting. The thing is that no one really tries to talk to me - they'll bring something up in the daily standup and then we'll agree on them to ping me sometime after the meeting so we can get together but that actually never happens and I end up having to initiate the conversation. I'm not sure if that's on me or not. Anyways I have to try to show that I'm approachable somehow.</p>
+<p>I also have to communicate with other teams sometimes. I think that's fine, but sometimes I need to find ways to get technical details across in a non technical way. I'm not sure that's always possible. For example, I had to say that the average of averages is not necessarily the same as the average of the sum of values as it had to do with a calculation in a generated report. I'm not sure if there's another way to say it so I just included a simple example of them being different. Customer support was trying to get me to explain this another way to put in a response, but I couldn't.</p>
+<h3 id=the-product>the product</h3>
+<p>It's an acquired startup. The code quality sucks. Dealing with any of the old features is a nightmare. We've spent the last year rolling out a fix to customers regarding a single bug only to realize there is another problem that was missed or arose from the fix. One issue is code reviews - or the lack thereof. I used to whip out code extremely quickly, but the bottle neck came down to code reviews where no one would review things. Eventually people would just approve without even looking… And it still happens today. It's also hard to navigate around the code and changing one thing can end up cascading to a lot of other parts of the product in unknown ways.</p>
+<p>There is no documentation on a ton of features. Sometimes a customer comes to use and asks us how something works, then we have to send someone on an adventure to dig through code, figure it out, and document it. This really made me wonder what actually goes into the process of acquiring a startup. I've been told this acquisition was more to break into a market than to obtain a quality product…</p>
+<p>Anyways that's why I'm casually looking for a new job.</p>
+<h2 id=personal>personal</h2>
+<h3 id=what-i-want-in-a-new-job>what i want in a new job</h3>
+<p>If I get demoted back to a junior role, then I want mentorship. If I'm in a mid+ role, then I want to be able to control the quality of the product internals (code/tooling). These are things that I do not have at my current job.</p>
+<p>Ideally, I also want a job that deals with interesting/highly technical problems; networking, databases, graph theory, etc. are all good for me. The problem here is that applying to jobs that will use these things usually say you need to know the concepts ahead of time - which I kind of do as I spend most of my free time learning these things nowadays.</p>
+<h3 id=free-time>free time</h3>
+<p>I used to spend my time programming and playing video games in my (pre)teen years. Perhaps around 8 hours on week days and 12 hours on weekends with a 20/80 split between programming and games.</p>
+<p>Now, I read and program mainly, and for much less time - I'm not sure if it's because the pandemic is sucking out my energy or if it's just work. I also sometimes watch some streams or videos. Somehow this doesn't take up all of my time and I find myself lazing around doing nothing (no problem with that though).</p>
+<p>So I thought I would be able to fill my time with some grad school. It also intersects directly with my interest to learn the more technical things in computer science, which is ideal. I'm not sure if now is an ideal time with the pandemic going on and all the controversy around test taking monitors and stuff, but we'll see.</p>
+<p>Also it would depend on if any of the programs even accepted me. Well, my GRE scores are pretty average at 159/166/4.0 - but I think they're quite impressive if you consider the circumstances: no prep, took me 1 hour to complete compared to the 4 given, and the writing question was something I did not care to write about. So here's to hoping my applications are good enough. I mean I'm the one that's going to be paying for my courses so at the end of the day the university is the one making money by accepting me right? Well it's probably more complex than that like wanting to keep a good graduation rate (I promise I'll pass) and other things.</p>
+<p>In terms of programming, I've worked on a few personal projects - some simple websites, games, and the audio fingerprinting thing. Sometimes I wish I had the motivation to transform these learning projects into actual services. In fact, out of all of my personal projects I've created throughout my life, I'd say only 2 ever came to fruition - one was some hacks I helped make for a game which we then sold through a website, and another is a bot I have hosted on Heroku that provides notifications for ingame events. Well, right now I'm also working on a simple voting site with a separated frontend/backend to relearn docker. The actual concept for the site might actually have demand so something concrete may come out of it.</p>
+<h3 id=goal-summary>goal summary</h3>
+<ol>
+<li><p>Exercise</p>
+<ul>
+<li>Even before the pandemic I never really went out. Although, going to the office required a 20 minute walk as part of the commute so that could have been considered exercise</li></ul></li>
+<li><p>Drink water</p>
+<ul>
+<li>Common issue for me is that I go for days without directly drinking water. I don't die of dehydration because I probably get enough liquids from food/soup.</li></ul></li>
+<li><p>Sleep on time</p>
+<ul>
+<li>Before the pandemic, I would go to sleep sometime between 11-12. Now I go to sleep between 1-2. Well for now it's ok as long as I wake up in time for the standup right?</li></ul></li>
+<li><p>New job</p>
+<ul>
+<li>Current one is undervaluing me and I don't find work fulfilling. I want one that isn't like this.</li></ul></li>
+<li><p>Grad school</p>
+<ul>
+<li>Probably a good way to spend free time. Learn more technical stuff formally. Maybe get into research.</li></ul></li>
+<li><p>Improve networking</p>
+<ul>
+<li>I really wish this wasn't necessary, but networking just happens to be how the world works unfortunately. Step 1 is to keep in contact with sr engineer that left.</li></ul></li>
+<li><p>Improve communication</p>
+<ul>
+<li>The true difference between a mid level and senior level is not technical prowess but rather communication. That's something that the sr told me on his last day and also that I read in a ton of places. Naturally, this is something I need to work on.</li></ul></li>
+</ol>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/26>&lt; anonymous anti ddos ideas</a></div> <div style=text-align:end><a href=/./posts/28>file transfer through webrtc &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-12-01 - 27</summary>
+<pre class=code-block><input id=code-block-c279e1f1bd26f41f5a1c30387b55ee9bc58bd99d-1 type=checkbox><label for=code-block-c279e1f1bd26f41f5a1c30387b55ee9bc58bd99d-1></label><code><span class=hljs-meta>@@ -0,0 +1,227 @@</span>
+<span class=hljs-addition>+# personal yearly reflection</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## work</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### remote work</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+2020 has been quite a year, especially with the pandemic and everything else happening.</span>
+<span class=hljs-addition>+Actually it hasn&#x27;t really impacted me as I was fortunate to have started a remote</span>
+<span class=hljs-addition>+friendly job since last year. Well, at least it is supposed to be remote friendly,</span>
+<span class=hljs-addition>+but I&#x27;m not fully sure that is the case.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is a company office in the city so I went there a couple days a week when I</span>
+<span class=hljs-addition>+started my job, however it was located in the cbd and took around an hour or so for</span>
+<span class=hljs-addition>+a one way trip, so I didn&#x27;t go every day. The issue here is that I would often be</span>
+<span class=hljs-addition>+called out for not going to the office even though it was supposed to be a remote</span>
+<span class=hljs-addition>+friendly job. One thing that is important to note is that no one on my team at the</span>
+<span class=hljs-addition>+time was in that office as they were located in other places like Chicago or Canada.</span>
+<span class=hljs-addition>+I chalked it up to me being somewhat entry level and the possible thought that if</span>
+<span class=hljs-addition>+I&#x27;m not at the office I&#x27;m just being unproductive in my abode where no one can see</span>
+<span class=hljs-addition>+me. Well, either way, I have a solid excuse for not going to the office now thanks</span>
+<span class=hljs-addition>+to the pandemic, but I did find it kind of weird I was being singled out for not</span>
+<span class=hljs-addition>+going to the office initially.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### im a junior/early mid level engineer</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I&#x27;m an SE1 at my current company, which uses a scale of associate, SE1, SE2,</span>
+<span class=hljs-addition>+Sr, and finally Principal Engineer. As someone in this position, ideally I&#x27;m</span>
+<span class=hljs-addition>+looking to pick up some interesting technical details that don&#x27;t come across my radar</span>
+<span class=hljs-addition>+when developing small web apps. At this time, the team I was on consisted of the</span>
+<span class=hljs-addition>+following (I am A in the following tables):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Person | Position |</span>
+<span class=hljs-addition>+| ------ | -------- |</span>
+<span class=hljs-addition>+| A      | SE1      |</span>
+<span class=hljs-addition>+| B      | SE1      |</span>
+<span class=hljs-addition>+| C      | Assoc    |</span>
+<span class=hljs-addition>+| D      | Sr       |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The senior engineer is mainly a front end person and was very knowledgable in that</span>
+<span class=hljs-addition>+area. I&#x27;d say the most interesting things he taught us were: [selector specificity](https://www.w3.org/TR/CSS2/cascade.html#specificity)</span>
+<span class=hljs-addition>+and how selectors are matched - right to left instead of left to right. These are</span>
+<span class=hljs-addition>+the kinds of details I love to learn. Unfortunately, he ended up leaving for a startup</span>
+<span class=hljs-addition>+halfway through the year.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### but am i really</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Actually a month before he left, management ended up adding a ton more people to</span>
+<span class=hljs-addition>+the team and actually split us up into two pods. The teams looked like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Person | Position |</span>
+<span class=hljs-addition>+| ------ | -------- |</span>
+<span class=hljs-addition>+| A      | SE1      |</span>
+<span class=hljs-addition>+| E      | SE1      |</span>
+<span class=hljs-addition>+| F      | SE1      |</span>
+<span class=hljs-addition>+| G      | Assoc    |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Person | Position     |</span>
+<span class=hljs-addition>+| ------ | ------------ |</span>
+<span class=hljs-addition>+| D      | Sr (leaving) |</span>
+<span class=hljs-addition>+| B      | SE1          |</span>
+<span class=hljs-addition>+| H      | SE2          |</span>
+<span class=hljs-addition>+| I      | SE2          |</span>
+<span class=hljs-addition>+| J      | Assoc        |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Right now I am basically the senior on my team as everyone else is new. I also ended</span>
+<span class=hljs-addition>+picking up a ton of responsibilities including but not limited to:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- engineering point of contact for customer support teams</span>
+<span class=hljs-addition>+- engineering point of contact for professional service teams</span>
+<span class=hljs-addition>+- engineering point of contact for external partners (eg for integrations and such)</span>
+<span class=hljs-addition>+- engineer that goes to customer calls with product manager if needed</span>
+<span class=hljs-addition>+- designing features</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+These roles are not specific to the pods, but specific to the entire team (note</span>
+<span class=hljs-addition>+that you would still usually have to go through the PM before I get anything). There</span>
+<span class=hljs-addition>+was a noticeable jump in the amount of interruptions and meetings I have on a weekly</span>
+<span class=hljs-addition>+basis. I didn&#x27;t get any form of compensation increase for picking up all of these</span>
+<span class=hljs-addition>+responsibilities - I don&#x27;t really know what to think of this. Compensation-wisewise,</span>
+<span class=hljs-addition>+I&#x27;m a junior but with no mentor, responsibility-wise I&#x27;m a mid or senior.</span>
+<span class=hljs-addition>+  </span>
+<span class=hljs-addition>+### mentoring realization</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As the &quot;senior&quot; on the team I also end up mentoring all the new people, and I think</span>
+<span class=hljs-addition>+I&#x27;ve learned a few things about myself along the way. Previously, I thought I was</span>
+<span class=hljs-addition>+willing and patient to answer most questions no matter how simple they are as</span>
+<span class=hljs-addition>+I commonly do this online when I help others program. This ended up not being the</span>
+<span class=hljs-addition>+same case here, as I got quite exasperated at explaining a few simple things (or</span>
+<span class=hljs-addition>+at least I believe them to be simple for a beginner) to the associate on my pod.</span>
+<span class=hljs-addition>+Things like function arguments and object properties. Weirdly enough, I do answer</span>
+<span class=hljs-addition>+these questions without an issue online so what is the difference here?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Perhaps it&#x27;s because I&#x27;m in a call dedicated to spending time explaining things -</span>
+<span class=hljs-addition>+I&#x27;ll explain, watch them through a screen share and do nothing (because I explained</span>
+<span class=hljs-addition>+it poorly or they didn&#x27;t understand?) and then try explaining again. Meanwhile my</span>
+<span class=hljs-addition>+online experience is to type a message that explains it, see if they get the gist,</span>
+<span class=hljs-addition>+go off and do something else, and come back if they want me to double check their</span>
+<span class=hljs-addition>+solution. It could also be because I just have higher expectations on what people</span>
+<span class=hljs-addition>+(in a professional setting) should come in knowing. The professional setting would</span>
+<span class=hljs-addition>+also explain why I didn&#x27;t get annoyed when teaching concepts at my university as</span>
+<span class=hljs-addition>+I wouldn&#x27;t consider that a professional setting - more like an educational or academic</span>
+<span class=hljs-addition>+one.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### communication</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I really need to figure out how to do the senior thing. One thing I read was that</span>
+<span class=hljs-addition>+I should have a recurring 1 on 1 with all the new team members. I&#x27;m not doing that</span>
+<span class=hljs-addition>+right now and I don&#x27;t see what it&#x27;s necessary. I do let them all know I&#x27;m pretty</span>
+<span class=hljs-addition>+open at all times to discussion when I&#x27;m not in a meeting. The thing is that no one</span>
+<span class=hljs-addition>+really tries to talk to me - they&#x27;ll bring something up in the daily standup and</span>
+<span class=hljs-addition>+then we&#x27;ll agree on them to ping me sometime after the meeting so we can get together</span>
+<span class=hljs-addition>+but that actually never happens and I end up having to initiate the conversation.</span>
+<span class=hljs-addition>+I&#x27;m not sure if that&#x27;s on me or not. Anyways I have to try to show that I&#x27;m approachable</span>
+<span class=hljs-addition>+somehow.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I also have to communicate with other teams sometimes. I think that&#x27;s fine, but</span>
+<span class=hljs-addition>+sometimes I need to find ways to get technical details across in a non technical</span>
+<span class=hljs-addition>+way. I&#x27;m not sure that&#x27;s always possible. For example, I had to say that the</span>
+<span class=hljs-addition>+average of averages is not necessarily the same as the average of the sum of values</span>
+<span class=hljs-addition>+as it had to do with a calculation in a generated report. I&#x27;m not sure if there&#x27;s</span>
+<span class=hljs-addition>+another way to say it so I just included a simple example of them being different.</span>
+<span class=hljs-addition>+Customer support was trying to get me to explain this another way to put in a response,</span>
+<span class=hljs-addition>+but I couldn&#x27;t.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### the product</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s an acquired startup. The code quality sucks. Dealing with any of the old features</span>
+<span class=hljs-addition>+is a nightmare. We&#x27;ve spent the last year rolling out a fix to customers regarding</span>
+<span class=hljs-addition>+a single bug only to realize there is another problem that was missed or arose from</span>
+<span class=hljs-addition>+the fix. One issue is code reviews - or the lack thereof. I used to whip out code</span>
+<span class=hljs-addition>+extremely quickly, but the bottle neck came down to code reviews where no one would</span>
+<span class=hljs-addition>+review things. Eventually people would just approve without even looking... And it</span>
+<span class=hljs-addition>+still happens today. It&#x27;s also hard to navigate around the code and changing one</span>
+<span class=hljs-addition>+thing can end up cascading to a lot of other parts of the product in unknown ways.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is no documentation on a ton of features. Sometimes a customer comes to use</span>
+<span class=hljs-addition>+and asks us how something works, then we have to send someone on an adventure to</span>
+<span class=hljs-addition>+dig through code, figure it out, and document it. This really made me wonder what</span>
+<span class=hljs-addition>+actually goes into the process of acquiring a startup. I&#x27;ve been told this acquisition</span>
+<span class=hljs-addition>+was more to break into a market than to obtain a quality product...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways that&#x27;s why I&#x27;m casually looking for a new job.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## personal</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### what i want in a new job</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If I get demoted back to a junior role, then I want mentorship. If I&#x27;m in a mid+</span>
+<span class=hljs-addition>+role, then I want to be able to control the quality of the product internals (code/tooling).</span>
+<span class=hljs-addition>+These are things that I do not have at my current job.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ideally, I also want a job that deals with interesting/highly technical problems;</span>
+<span class=hljs-addition>+networking, databases, graph theory, etc. are all good for me. The problem here is</span>
+<span class=hljs-addition>+that applying to jobs that will use these things usually say you need to know the</span>
+<span class=hljs-addition>+concepts ahead of time - which I kind of do as I spend most of my free time learning</span>
+<span class=hljs-addition>+these things nowadays.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### free time</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I used to spend my time programming and playing video games in my (pre)teen years.</span>
+<span class=hljs-addition>+Perhaps around 8 hours on week days and 12 hours on weekends with a 20/80 split between</span>
+<span class=hljs-addition>+programming and games.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now, I read and program mainly, and for much less time - I&#x27;m not sure if it&#x27;s because</span>
+<span class=hljs-addition>+the pandemic is sucking out my energy or if it&#x27;s just work. I also sometimes watch</span>
+<span class=hljs-addition>+some streams or videos. Somehow this doesn&#x27;t take up all of my time and I find myself</span>
+<span class=hljs-addition>+lazing around doing nothing (no problem with that though).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I thought I would be able to fill my time with some grad school. It also intersects</span>
+<span class=hljs-addition>+directly with my interest to learn the more technical things in computer science,</span>
+<span class=hljs-addition>+which is ideal. I&#x27;m not sure if now is an ideal time with the panedmic going on and</span>
+<span class=hljs-addition>+all the controversy around test taking monitors and stuff, but we&#x27;ll see.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also it would depend on if any of the programs even accepted me. Well, my GRE scores</span>
+<span class=hljs-addition>+are pretty average at 159/166/4.0 - but I think they&#x27;re quite impressive if you consider</span>
+<span class=hljs-addition>+the circumstances: no prep, took me 1 hour to complete compared to the 4 given,</span>
+<span class=hljs-addition>+and the writing question was something I did not care to write about. So here&#x27;s</span>
+<span class=hljs-addition>+to hoping my applications are good enough. I mean I&#x27;m the one that&#x27;s going to be</span>
+<span class=hljs-addition>+paying for my courses so at the end of the day the university is the one making</span>
+<span class=hljs-addition>+money by accepting me right? Well it&#x27;s probably more complex than that like wanting</span>
+<span class=hljs-addition>+to keep a good graduation rate (I promise I&#x27;ll pass) and other things.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In terms of programming, I&#x27;ve worked on a few personal projects - some simple websites,</span>
+<span class=hljs-addition>+games, and the audio fingerprinting thing. Sometimes I wish I had the motivation</span>
+<span class=hljs-addition>+to transform these learning projects into actual services. In fact, out of all of</span>
+<span class=hljs-addition>+my personal projects I&#x27;ve created throughout my life, I&#x27;d say only 2 ever came to</span>
+<span class=hljs-addition>+fruition - one was some hacks I helped make for a game which we then sold through</span>
+<span class=hljs-addition>+a website, and another is a bot I have hosted on Heroku that provides notifications</span>
+<span class=hljs-addition>+for ingame events. Well, right now I&#x27;m also working on a simple voting site with</span>
+<span class=hljs-addition>+a seperated frontend/backend to relearn docker. The actual concept for the site might</span>
+<span class=hljs-addition>+actually have demand so something concrete may come out of it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### goal summary</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Exercise</span>
+<span class=hljs-addition>+    - Even before the pandemic I never really went out. Although, going to the office</span>
+<span class=hljs-addition>+    required a 20 minute walk as part of the commute so that could have been considered</span>
+<span class=hljs-addition>+    exercise</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+2. Drink water</span>
+<span class=hljs-addition>+    - Common issue for me is that I go for days without directly drinking water.</span>
+<span class=hljs-addition>+    I don&#x27;t die of dehydration because I probably get enough liquids from food/soup.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+3. Sleep on time</span>
+<span class=hljs-addition>+    - Before the pandemic, I would go to sleep sometime between 11-12. Now I go</span>
+<span class=hljs-addition>+    to sleep between 1-2. Well for now it&#x27;s ok as long as I wake up in time for</span>
+<span class=hljs-addition>+    the standup right?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+4. New job</span>
+<span class=hljs-addition>+    - Current one is undervaluing me and I don&#x27;t find work fulfilling. I want one</span>
+<span class=hljs-addition>+    that isn&#x27;t like this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+5. Grad school</span>
+<span class=hljs-addition>+    - Probably a good way to spend free time. Learn more technical stuff formally.</span>
+<span class=hljs-addition>+    Maybe get into research.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+6. Improve networking</span>
+<span class=hljs-addition>+    - I really wish this wasn&#x27;t necessary, but networking just happens to be how</span>
+<span class=hljs-addition>+    the world works unfortunately. Step 1 is to keep in contact with sr engineer</span>
+<span class=hljs-addition>+    that left.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+7. Improve communication</span>
+<span class=hljs-addition>+    - The true difference between a mid level and senior level is not technical</span>
+<span class=hljs-addition>+    prowess but rather communication. That&#x27;s something that the sr told me on his</span>
+<span class=hljs-addition>+    last day and also that I read in a ton of places. Naturally, this is something</span>
+<span class=hljs-addition>+    I need to work on.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

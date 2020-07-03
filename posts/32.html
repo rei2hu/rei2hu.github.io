@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>electron memory usage</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/31>&lt; thoughts on angular, react, frameworks and libraries</a></div> <div style=text-align:end><a href=/./posts/33>natural disasters &gt;</a></div>
+</nav>
+<h1 id=electron-memory-usage>electron memory usage</h1>
+<p>I decided to try out Electron to build an app. One common concern around Electron is its resource usage so I attempted to keep track of it. I set up their <a href=https://github.com/electron/electron-quick-start>quick-start</a> app and noted took a look at what the memory usage is like:</p>
+<p><img alt=quickstart-app-mem src=/blobs/32/quickstart-app-mem.png></p>
+<p>Around 60mb - arguably good by today's app standards but definitely much higher than something hand rolled.</p>
+<p>I planned to display some visuals about application usage for this app so I had to hook into the windows api with an addon. Once I wrote that along with some a very simple pie chart, I decided to take a look at the memory again:</p>
+<p><img alt=fake-app-mem src=/blobs/32/fake-app-mem.png></p>
+<p>Wow! Did it really just jump 20-30mb because of my addon? You may note that there is a <code>(5)</code> in this screenshot when previously there was a <code>(4)</code>. This is where all the extra memory was being used. Initially I thought it was my addon as it ran its own thread to hook into windows events… but it wasn't.</p>
+<p>It was DevTools.</p>
+<p>I added a line to open up DevTools to help debugging when I ran the app and that is what the new sub-process was. It turns out that not opening DevTools gave me a much nicer number.</p>
+<p><img alt=true-app-mem src=/blobs/32/true-app-mem.png></p>
+<p>The great thing is you can see this behavior in any Electron app. We can observe similar behavior with Discord's app.</p>
+<p><img alt=discord-mem src=/blobs/32/discord-mem.png></p>
+<p>Why was it +80mb this time? Who knows - maybe they do a lot of stuff with it. Really, I should be taking the average increase over several opens. Frankly speaking, the extreme memory usage really dissuades me from using it to develop my own apps. I think I'm done with this project and I'll just share the addon by itself without the Electron component.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/31>&lt; thoughts on angular, react, frameworks and libraries</a></div> <div style=text-align:end><a href=/./posts/33>natural disasters &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-08-23 - add post 32</summary>
+<pre class=code-block><input id=code-block-4fafa5e242987566dc5dd00ac365fd207608ad2b-1 type=checkbox><label for=code-block-4fafa5e242987566dc5dd00ac365fd207608ad2b-1></label><code><span class=hljs-meta>@@ -0,0 +1,40 @@</span>
+<span class=hljs-addition>+# electron memory usage</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I decided to try out Electron to build an app. One common concern around Electron</span>
+<span class=hljs-addition>+is its resource usage so I attempted to keep track of it. I set up their [quick-start](https://github.com/electron/electron-quick-start)</span>
+<span class=hljs-addition>+app and noted took a look at what the memory usage is like:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;img src=&quot;/blobs/32/quickstart-app-mem.png&quot; /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Around 60mb - arguably good by today&#x27;s app standards but definitely much higher</span>
+<span class=hljs-addition>+than something hand rolled.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I planned to display some visuals about application usage for this app so I had</span>
+<span class=hljs-addition>+to hook into the windows api with an addon. Once I wrote that along with some a</span>
+<span class=hljs-addition>+very simple pie chart, I decided to take a look at the memory again:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;img src=&quot;/blobs/32/fake-app-mem.png&quot; /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Wow! Did it really just jump 20-30mb because of my addon? You may note that there</span>
+<span class=hljs-addition>+is a `(5)` in this screenshot when previously there was a `(4)`. This is where</span>
+<span class=hljs-addition>+all the extra memory was being used. Initially I thought it was my addon as it ran</span>
+<span class=hljs-addition>+its own thread to hook into windows events... but it wasn&#x27;t.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It was DevTools.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I added a line to open up DevTools to help debugging when I ran the app and that</span>
+<span class=hljs-addition>+is what the new sub-process was. It turns out that not opening DevTools gave me</span>
+<span class=hljs-addition>+a much nicer number.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;img src=&quot;/blobs/32/true-app-mem.png&quot; /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The great thing is you can see this behavior in any Electron app. We can observe</span>
+<span class=hljs-addition>+similar behavior with Discord&#x27;s app.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;img src=&quot;/blobs/32/discord-mem.png&quot; /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Why was it +80mb this time? Who knows - maybe they do a lot of stuff with it. Really,</span>
+<span class=hljs-addition>+I should be taking the average increase over several opens. Frankly speaking, the</span>
+<span class=hljs-addition>+extreme memory usage really disuades me from using it to develop my own apps. I</span>
+<span class=hljs-addition>+think I&#x27;m done with this project and I&#x27;ll just share the addon by itself without</span>
+<span class=hljs-addition>+the Electron component.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

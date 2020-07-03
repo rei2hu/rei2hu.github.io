@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>the worst projects make for the best stories</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/43>&lt; email organization for privacy enthusiasts</a></div> <div style=text-align:end><a href=/./posts/45>attempts to randomize things with pure css &gt;</a></div>
+</nav>
+<h1 id=the-worst-projects-make-for-the-best-stories>the worst projects make for the best stories</h1>
+<p>Alternative title: this writer only bitches when things go wrong.</p>
+<p>Recently, I've been thinking of experiences I can share about working as an software engineer. I couldn't come up with anything good and decided to take a look back at what I've written so far. I'd categorize my posts into 3 different categories: random experiments, random life blurbs, and work musings. I wanted to write about professional software engineering so I took a closer look at my work musings.</p>
+<p>Interestingly enough, most (if not all) of these posts are kind of negative in various ways. Is it the case that I've never had a <strong>good</strong> experience working before? Definitely not, so what's up? I thought back to some of my better projects, and realize I don't have much to actually say about them - kind of like another day at the (virtual) office. On the other hand, if you're fighting a fire, you come away with various lessons learned which make the experience memorable.</p>
+<p>One of my most impressive, smooth-sailing projects revolved around creating/training an ml model (<em>cough</em> basic statistics <em>cough</em>) with a few data scientists, then setting up backend/frontend things to let users interact with it. The project went well, we finished things ahead of deadline, released, and users were happy. I think I'm supposed to also have some lessons learned in this case - namely, what did we do right so that things went so smoothly. Unfortunately the truth is we did nothing remotely revolutionary in terms of planning or getting work done so I really can't point anything out - we just worked as usual and things… worked. Also as a lower level individual contributor I don't really make calls on overarching organization details usually.</p>
+<p>On the other hand, once I was stuck into the lead spot for a project where we had to build an integration with one of our vendors. This one wasn't very dumpster fire either, but there was 1 main road bump that stalled the project - the vendor was taking forever to provision us with test credentials for their product. And really it just required me to tell the pm the issue and she leaned on the vendor until they did their job. Lesson learned: escalate to the right people that can get the job done? Except that's what I did from the start, so not really a lesson learned.</p>
+<p>On the third hand, there are some true dumpster fires that I look back on and pull solid lessons from. Which is probably every other work related post you'll find here so far… although I think I never really explicitly state what the takeaways are.</p>
+<p>I think this is a result of my upbringing - I just don't get very excited about the good stuff. And I think conflict is more interesting anyways, but I'd like to emphasize that I mean it's more interesting for reading/writing - in work I'd prefer not to stir up unnecessary conflict for the sake of interesting stories. Perhaps these values are reflected in our society in various ways today, but that's too philosophical for this post.</p>
+<p>Although I did just have a pretty funny experience that I have a takeaway from that happened literally 5-10 minutes ago involving a code review with a feature but also a ton of random refactoring.</p>
+<blockquote>
+<p>person: you accepted with no comments or complaints on my pr?</p>
+<p>me: yep looks good, I just wish it wasn't 99% refactoring</p>
+<p><em>10 minutes later</em></p>
+<p>person: @me hey I found an issue in my pr, can you re-review it</p>
+<p>me: fffffffffffff (I let a bug through)</p>
+</blockquote>
+<p>I think I started glazing over because most things were space/variable changes. I already did know that it's best to separate changes with different purposes into different pull requests. I guess I just don't push back hard enough on small things, then again <code>person</code> is a sr engineer so maybe it's a hierarchical thing that I unconsciously follow, as I remember being pretty strict with some intern code a few months back…</p>
+<p>Yeah it's not unconscious because I'm aware that I do this - assume more senior people know what they're doing unless otherwise shown. The question is does sticking a bunch of refactoring to 20x the amount of changes in a pull request really worth lowering my evaluation of someone's technical skills? Maybe and maybe not, but that could be the bias speaking.</p>
+<p>Ok, revolution time, let's get rid of the hierarchy I guess.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/43>&lt; email organization for privacy enthusiasts</a></div> <div style=text-align:end><a href=/./posts/45>attempts to randomize things with pure css &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-11-12 - add post 44</summary>
+<pre class=code-block><input id=code-block-1e0b1423672073aa8858bd5ebe87ad2a9f464bb3-1 type=checkbox><label for=code-block-1e0b1423672073aa8858bd5ebe87ad2a9f464bb3-1></label><code><span class=hljs-meta>@@ -0,0 +1,74 @@</span>
+<span class=hljs-addition>+# the worst projects make for the best stories</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Alternative title: this writer only bitches when things go wrong.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I&#x27;ve been thinking of experiences I can share about working as an software</span>
+<span class=hljs-addition>+engineer. I couldn&#x27;t come up with anything good and decided to take a look back</span>
+<span class=hljs-addition>+at what I&#x27;ve written so far. I&#x27;d categorize my posts into 3 different categories:</span>
+<span class=hljs-addition>+random experiments, random life blurbs, and work musings. I wanted to write about</span>
+<span class=hljs-addition>+professional software engineering so I took a closer look at my work musings.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Interestingly enough, most (if not all) of these posts are kind of negative in various</span>
+<span class=hljs-addition>+ways. Is it the case that I&#x27;ve never had a **good** experience working before? Definitely</span>
+<span class=hljs-addition>+not, so what&#x27;s up? I thought back to some of my better projects, and realize I don&#x27;t</span>
+<span class=hljs-addition>+have much to actually say about them - kind of like another day at the (virtual)</span>
+<span class=hljs-addition>+office. On the other hand, if you&#x27;re fighting a fire, you come away with various</span>
+<span class=hljs-addition>+lessons learned which make the experience memorable.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One of my most impressive, smooth-sailing projects revolved around creating/training</span>
+<span class=hljs-addition>+an ml model (*cough* basic statistics *cough*) with a few data scientists, then</span>
+<span class=hljs-addition>+setting up backend/frontend things to let users interact with it. The project went</span>
+<span class=hljs-addition>+well, we finished things ahead of deadline, released, and users were happy. I think</span>
+<span class=hljs-addition>+I&#x27;m supposed to also have some lessons learned in this case - namely, what did we</span>
+<span class=hljs-addition>+do right so that things went so smoothly. Unfortunately the truth is we did nothing</span>
+<span class=hljs-addition>+remotely revolutionary in terms of planning or getting work done so I really can&#x27;t</span>
+<span class=hljs-addition>+point anything out - we just worked as usual and things... worked. Also as a lower</span>
+<span class=hljs-addition>+level individual contributor I don&#x27;t really make calls on overarching organization</span>
+<span class=hljs-addition>+details usually.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On the other hand, once I was stuck into the lead spot for a project where we had</span>
+<span class=hljs-addition>+to build an integration with one of our vendors. This one wasn&#x27;t very dumpster fire</span>
+<span class=hljs-addition>+either, but there was 1 main road bump that stalled the project - the vendor was</span>
+<span class=hljs-addition>+taking forever to provision us with test credentials for their product. And really</span>
+<span class=hljs-addition>+it just required me to tell the pm the issue and she leaned on the vendor until they</span>
+<span class=hljs-addition>+did their job. Lesson learned: escalate to the right people that can get the job</span>
+<span class=hljs-addition>+done? Except that&#x27;s what I did from the start, so not really a lesson learned.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On the third hand, there are some true dumpster fires that I look back on and pull</span>
+<span class=hljs-addition>+solid lessons from. Which is probably every other work related post you&#x27;ll find here</span>
+<span class=hljs-addition>+so far... although I think I never really explicitly state what the takeaways are.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think this is a result of my upbringing - I just don&#x27;t get very excited about</span>
+<span class=hljs-addition>+the good stuff. And I think conflict is more interesting anyways, but I&#x27;d like to</span>
+<span class=hljs-addition>+emphasize that I mean it&#x27;s more interesting for reading/writing - in work I&#x27;d prefer</span>
+<span class=hljs-addition>+not to stir up unnecessary conflict for the sake of interesting stories. Perhaps</span>
+<span class=hljs-addition>+these values are reflected in our society in various ways today, but that&#x27;s too</span>
+<span class=hljs-addition>+philosophical for this post.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Although I did just have a pretty funny experience that I have a takeaway from that</span>
+<span class=hljs-addition>+happened literally 5-10 minutes ago involving a code review with a feature but also</span>
+<span class=hljs-addition>+a ton of random refactoring.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; person: you accepted with no comments or complaints on my pr?</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; me: yep looks good, I just wish it wasn&#x27;t 99% refactoring</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; *10 minutes later*</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; person: @me hey I found an issue in my pr, can you re-review it</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; me: fffffffffffff (I let a bug through)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think I started glazing over because most things were space/variable changes.</span>
+<span class=hljs-addition>+I already did know that it&#x27;s best to separate changes with different purposes into</span>
+<span class=hljs-addition>+different pull requests. I guess I just don&#x27;t push back hard enough on small things,</span>
+<span class=hljs-addition>+then again `person` is a sr engineer so maybe it&#x27;s a hierarchical thing that I unconsciously</span>
+<span class=hljs-addition>+follow, as I remember being pretty strict with some intern code a few months back...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Yeah it&#x27;s not unconscious because I&#x27;m aware that I do this - assume more senior</span>
+<span class=hljs-addition>+people know what they&#x27;re doing unless otherwise shown. The question is does sticking</span>
+<span class=hljs-addition>+a bunch of refactoring to 20x the amount of changes in a pull request really worth</span>
+<span class=hljs-addition>+lowering my evaluation of someone&#x27;s technical skills? Maybe and maybe not, but that</span>
+<span class=hljs-addition>+could be the bias speaking.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ok, revolution time, let&#x27;s get rid of the hierarchy I guess.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

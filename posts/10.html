@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>importance of argument ordering in haskell</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/9>&lt; personal haskell project</a></div> <div style=text-align:end><a href=/./posts/11>review of my haskell project &gt;</a></div>
+</nav>
+<h1 id=importance-of-argument-ordering-in-haskell>importance of argument ordering in haskell</h1>
+<p>I think I've come across an important lesson in ordering the parameters for functions in Haskell. Originally, I wrote a lot of my functions following the idea that the first parameter to the function is the thing you want to "modify" (think about how Python/Rust has self as the first argument) For example:</p>
+<pre class=code-block><input id=code-block-10-1 type=checkbox><label for=code-block-10-1></label><code><span class=hljs-title>updateGame</span> :: <span class=hljs-type>Game</span> -&gt; ... -&gt; <span class=hljs-type>Game</span>
+<span class=hljs-title>setTiles</span> :: <span class=hljs-type>Game</span> -&gt; <span class=hljs-type>Tiles</span> -&gt; <span class=hljs-type>Game</span>
+</code></pre>
+<p>Recently, I've found out that this might not be the best idea. I've been using
+<code>let ... in</code> constructs as a crutch to avoid crazily nested parenthesis, but I realized that this is mainly due to my parameter order. For example, with the above typings if I wanted to use <code>setTiles</code> multiple times, I would have to do something like this</p>
+<pre class=code-block><input id=code-block-10-2 type=checkbox><label for=code-block-10-2></label><code><span class=hljs-title>let</span> g&#x27; = setTiles g ts1
+    g&#x27;&#x27; = setTiles g&#x27; ts2
+<span class=hljs-title>in</span> g&#x27;&#x27;
+<span class=hljs-comment>-- or</span>
+<span class=hljs-title>setTiles</span> (setTiles g ts1) ts2
+</code></pre>
+<p>This was fine for shorter lines, but as I progressed on my game, it got annoying. However, by switching the parameter order to take the thing you want to "modify" last, it becomes a lot more functional (style-wise):</p>
+<pre class=code-block><input id=code-block-10-3 type=checkbox><label for=code-block-10-3></label><code><span class=hljs-title>setTiles</span> :: <span class=hljs-type>Tiles</span> -&gt; <span class=hljs-type>Game</span> -&gt; <span class=hljs-type>Game</span>
+<span class=hljs-comment>-- amazing!</span>
+<span class=hljs-title>setTiles</span> ts2 . setTiles ts1 $ g
+</code></pre>
+<p>I think this is what people call point-free style.</p>
+<p>Eh I didn't test the code above but I assume that would be correct. Anyways, right now I'm in the process of reordering the parameters for like every single function so that's fun, but really I'm making the game to learn about Haskell and I think it's been going well so far (the learning part, but the game part, too).</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/9>&lt; personal haskell project</a></div> <div style=text-align:end><a href=/./posts/11>review of my haskell project &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,42 @@</span>
+<span class=hljs-addition>+# importance of argument orderin in haskell</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think I&#x27;ve come across an important lesson in ordering the parameters for functions</span>
+<span class=hljs-addition>+in Haskell. Originally, I wrote a lot of my functions following the idea that the</span>
+<span class=hljs-addition>+first parameter to the function is the thing you want to &quot;modify&quot; (think about how</span>
+<span class=hljs-addition>+Python/Rust has self as the first argument) For example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```hs</span>
+<span class=hljs-addition>+updateGame :: Game -&gt; ... -&gt; Game</span>
+<span class=hljs-addition>+setTiles :: Game -&gt; Tiles -&gt; Game</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I&#x27;ve found out that this might not be the best idea. I&#x27;ve been using</span>
+<span class=hljs-addition>+`let ... in` constructs as a crutch to avoid crazily nested parenthesis, but I</span>
+<span class=hljs-addition>+realized that this is mainly due to my parameter order. For example, with the above</span>
+<span class=hljs-addition>+typings if I wanted to use `setTiles` multiple times, I would have to do something</span>
+<span class=hljs-addition>+like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```hs</span>
+<span class=hljs-addition>+let g&#x27; = setTiles g ts1</span>
+<span class=hljs-addition>+    g&#x27;&#x27; = setTiles g&#x27; ts2</span>
+<span class=hljs-addition>+in g&#x27;&#x27;</span>
+<span class=hljs-addition>+-- or</span>
+<span class=hljs-addition>+setTiles (setTiles g ts1) ts2</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This was fine for shorter lines, but as I progressed on my game, it got annoying.</span>
+<span class=hljs-addition>+However, by switching the parameter order to take the thing you want to &quot;modify&quot;</span>
+<span class=hljs-addition>+last, it becomes a lot more functinal (stylewise):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```hs</span>
+<span class=hljs-addition>+setTiles :: Tiles -&gt; Game -&gt; Game</span>
+<span class=hljs-addition>+-- amazing!</span>
+<span class=hljs-addition>+setTiles ts2 . setTiles ts1 $ g</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think this is what people call point-free style.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Eh I didn&#x27;t test the code above but I assume that would be correct. Anyways, right</span>
+<span class=hljs-addition>+now I&#x27;m in the process of reordering the parameters for like every single function</span>
+<span class=hljs-addition>+so that&#x27;s fun, but really I&#x27;m making the game to learn about Haskell and I think</span>
+<span class=hljs-addition>+it&#x27;s been going well so far (the learning part, but the game part, too).</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

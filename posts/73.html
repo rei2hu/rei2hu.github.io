@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>pollution control in factorio</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/72>&lt; i enjoy helping others run my software</a></div> <div style=text-align:end><a href=/./posts/74>brute force compression idea &gt;</a></div>
+</nav>
+<h1 id=pollution-control-in-factorio>pollution control in factorio</h1>
+<p>Recently, I've gotten back into Factorio, and I've been playing on a server with a few friends. We are playing a modded version using
+<a href=https://mods.factorio.com/mod/Krastorio2>Krastorio 2</a> and
+<a href=https://mods.factorio.com/mod/space-exploration>Space Exploration</a>. After a bit of generic factory-setting-up work, I eventually took it upon myself to deal with pollution control.</p>
+<p>When it comes to Krastorio 2, there are several ways to reduce pollution:</p>
+<ol>
+<li>Trees<ul>
+<li>You can craft trees and plant them. Each tree removes pollution at around 0.06/minute.</li></ul></li>
+<li>Air purifiers<ul>
+<li>This is a more active way to remove pollution, and it requires pollution filters which can be crafted and renewed at a 90% rate. They reduce pollution at a rate of 75/minute.</li></ul></li>
+<li>Greenhouses<ul>
+<li>Greenhouses have recipes for wood and trees which remove pollution at a rate of 5/minute when crafting.</li></ul></li>
+</ol>
+<p>When evaluating these options, we should also familiarize ourselves with how pollution spreads in the game:</p>
+<ol>
+<li>Spreads between chunks (32x32 tiles in the game)</li>
+<li>Spreads when pollution value is over 15 at a rate of 2% per 64 ticks (a little over 1 second)</li>
+</ol>
+<p>Naturally, this means air purifiers are the best solution for removing pollution as they have advantages in taking up less space and removing more pollution, but require a somewhat steady stream of filters coming in in addition to needing power generation from other areas. Trees, on the other hand, are a plant and forget type of reduction and I initially went with that.</p>
+<p>We are able to fit 1024 trees in one chunk, which means with careful placement, we can remove a total of 61.44 pollution/minute.</p>
+<p><img alt=trees src=/blobs/73/trees.jpg></p>
+<p>The only issue is that trees are relatively expensive to craft, requiring 40 wood and 30 seconds, and a greenhouse can produce 20 wood every 120 seconds. Naturally, this means we need a lot of wood-producing greenhouses to supplement our tree-producing greenhouses to grow trees at a reasonable pace. For a while, my greenhouses were our highest power-consuming buildings attached to our energy grid - ironic, as at the time we were coal powered so I was increasing our energy needs, and therefore, pollution, in an attempt to reduce our pollution.</p>
+<p>So I thought: "what if we could power greenhouses with their own wood?" We can gather various conversions and machine statistics to see if this is possible. We'll calculate things in terms of 2 minutes to match the period wood is produced at.</p>
+<ul>
+<li>1 J/second = 1 W</li>
+<li>Greenhouse consumes 207 kW</li>
+<li>Greenhouse consumes 207,000 W</li>
+<li>Greenhouse consumes 207,000 J/second</li>
+<li>Greenhouse consumes 24,840,000 J/120 seconds</li>
+<li>Greenhouse produces 20 wood/120 seconds</li>
+<li>1 wood = 1.25 MJ</li>
+<li>Greenhouse produces 25 MJ/120 seconds</li>
+<li>Greenhouse produces 25,000,000 J/120 seconds</li>
+</ul>
+<p>So interestingly enough, a greenhouse produces just enough wood to power itself!</p>
+<p>Now we want to look at the boiler, which is where we can use wood to heat water into steam and run it through a steam engine to power the greenhouses. We don't really care about accidentally losing energy to entropy, because that doesn't seem to be a thing in Factorio, but what we will care about is the pollution.</p>
+<ul>
+<li>Boiler consumes fuel at 1.5 MJ/second Over a period of 120 seconds:</li>
+<li>Boiler consumes 25 MJ</li>
+<li>Boiler consumes fuel and pollutes for (25/1.5) seconds</li>
+<li>Boiler creates pollution at 20 pollution/60 seconds</li>
+<li>Boiler creates (20/60) * (25/1.5) pollution</li>
+<li>Boiler creates (550/99) or around ~5.556 pollution</li>
+<li>Greenhouse reduces pollution at 5 pollution/60 seconds</li>
+</ul>
+<p>So this also means that a greenhouse will offset a boiler's pollution after the initial burp! Specifically, with one greenhouse and one boiler, the pollution will rise to a cap of (25 / 1.5) * ((20 / 60) + ( -5 / 60)) = ~4.167 after which it will decrease to 0 after 50 seconds. This just means over that 120 second period, we can clean ~4.444 external pollution.</p>
+<p>Now… let's scale our greenhouses. How many greenhouses can be supported by 1 boiler?</p>
+<ul>
+<li>Boiler produces steam at 20 steam/60 seconds</li>
+<li>Steam engine consumes steam at 10 steam/60 seconds</li>
+<li>Boiler supports 2 steam engines</li>
+<li>Steam engine produces 750 kW</li>
+<li>2 Steam engines produce 1500 kW</li>
+<li>1500 kW is enough for 7 greenhouses.</li>
+</ul>
+<p>So this means our blueprint will consist of 7 greenhouses, 1 boiler, and 2 steam engines. We can update our formulas above to check how much pollution is handled or produced.</p>
+<ul>
+<li>Boiler consumes fuel at 1.5 MJ/second Over a period of 120 seconds:</li>
+<li>Boiler consumes 175 MJ</li>
+<li>Boiler consumes fuel and pollutes for (175/1.5) seconds</li>
+<li>Boiler creates pollution at 20 pollution/60 seconds</li>
+<li>Boiler creates (20/60) * (175/1.5) pollution</li>
+<li>Boiler creates (350/9) or around ~38.889 pollution</li>
+<li>Greenhouse reduces pollution at 5 pollution/60 seconds</li>
+<li>7 Greenhouses reduce pollution at 35 pollution/60 seconds</li>
+</ul>
+<p>In this case, the pollution never increases past 0, as the pollution reduction is always higher than the pollution creation. In this case, we can clean approximately 31.111 pollution over the 120 second period (that's just 4.444 * 7)</p>
+<p><img alt=wood-farm src=/blobs/73/wood-farm.jpg></p>
+<p>In fact, we can squeeze this into one chunk twice, which means 62.222 free pollution cleaning every chunk! per period… 120 seconds… 31.111 per minute… half as good as trees… and less than half as good as an air purifier.</p>
+<p><img alt=map src=/blobs/73/map-control.jpg></p>
+<p>But the plus side is that this can be placed and forgotten in addition to being fully mobile - you can't pick up trees so you can't replant them after you chop them down (everyone keeps cutting down my trees to expand the factory!) but you can pick up this setup and move it elsewhere.</p>
+<p>I also have a sneaking suspicion that the extra 0.16 wood may <em>eventually</em> back up the system. Once the greenhouses get filled up and stop crafting wood, then there is no more pollution reduction. That should take… several cycles? I'm sure I'll be working on air purifiers by then!</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/72>&lt; i enjoy helping others run my software</a></div> <div style=text-align:end><a href=/./posts/74>brute force compression idea &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-03-15 - add post 73</summary>
+<pre class=code-block><input id=code-block-a1dec4abedfb4bbd51e4015910cfa16439d29c13-1 type=checkbox><label for=code-block-a1dec4abedfb4bbd51e4015910cfa16439d29c13-1></label><code><span class=hljs-meta>@@ -0,0 +1,130 @@</span>
+<span class=hljs-addition>+# pollution control in factorio</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I&#x27;ve gotten back into Factorio, and I&#x27;ve been playing on a server with</span>
+<span class=hljs-addition>+a few friends. We are playing a modded version using</span>
+<span class=hljs-addition>+[Krastorio 2](https://mods.factorio.com/mod/Krastorio2) and</span>
+<span class=hljs-addition>+[Space Exploration](https://mods.factorio.com/mod/space-exploration). After a</span>
+<span class=hljs-addition>+bit of generic factory-setting-up work, I eventually took it upon myself to deal</span>
+<span class=hljs-addition>+with pollution control.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When it comes to Krastorio 2, there are several ways to reduce pollution:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Trees</span>
+<span class=hljs-addition>+    - You can craft trees and plant them. Each tree removes pollution at around</span>
+<span class=hljs-addition>+      0.06/minute.</span>
+<span class=hljs-addition>+2. Air purifiers</span>
+<span class=hljs-addition>+    - This is a more active way to remove pollution, and it requires pollution</span>
+<span class=hljs-addition>+      filters which can be crafted and renewed at a 90% rate. They reduce</span>
+<span class=hljs-addition>+      pollution at a rate of 75/minute.</span>
+<span class=hljs-addition>+3. Greenhouses</span>
+<span class=hljs-addition>+    - Greenhouses have recipes for wood and trees which remove pollution at a</span>
+<span class=hljs-addition>+      rate of 5/minute when crafting.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When evaluating these options, we should also familiarize ourselves with how</span>
+<span class=hljs-addition>+pollution spreads in the game:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Spreads between chunks (32x32 tiles in the game)</span>
+<span class=hljs-addition>+2. Spreads when pollution value is over 15 at a rate of 2% per 64 ticks (a</span>
+<span class=hljs-addition>+   little over 1 second)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Naturally, this means air purifiers are the best solution for removing pollution</span>
+<span class=hljs-addition>+as they have advantages in taking up less space and removing more pollution, but</span>
+<span class=hljs-addition>+require a somewhat steady stream of filters coming in in addition to needing</span>
+<span class=hljs-addition>+power generation from other areas. Trees, on the other hand, are a plant and</span>
+<span class=hljs-addition>+forget type of reduction and I initially went with that.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We are able to fit 1024 trees in one chunk, which means with careful placement,</span>
+<span class=hljs-addition>+we can remove a total of 61.44 pollution/minute.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![trees](/blobs/73/trees.jpg)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The only issue is that trees are relatively expensive to craft, requiring 40</span>
+<span class=hljs-addition>+wood and 30 seconds, and a greenhouse can produce 20 wood every 120 seconds.</span>
+<span class=hljs-addition>+Naturally, this means we need a lot of wood-producing greenhouses to supplement</span>
+<span class=hljs-addition>+our tree-producing greenhouses to grow trees at a reasonable pace. For a while,</span>
+<span class=hljs-addition>+my greenhouses were our highest power-consuming buildings attached to our energy</span>
+<span class=hljs-addition>+grid - ironic, as at the time we were coal powered so I was increasing our</span>
+<span class=hljs-addition>+energy needs, and therefore, pollution, in an attempt to reduce our pollution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I thought: &quot;what if we could power greenhouses with their own wood?&quot; We can</span>
+<span class=hljs-addition>+gather various conversions and machine statistics to see if this is possible.</span>
+<span class=hljs-addition>+We&#x27;ll calculate things in terms of 2 minutes to match the period wood is</span>
+<span class=hljs-addition>+produced at.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- 1 J/second = 1 W</span>
+<span class=hljs-addition>+- Greenhouse consumes 207 kW</span>
+<span class=hljs-addition>+- Greenhouse consumes 207,000 W</span>
+<span class=hljs-addition>+- Greenhouse consumes 207,000 J/second</span>
+<span class=hljs-addition>+- Greenhouse consumes 24,840,000 J/120 seconds</span>
+<span class=hljs-addition>+- Greenhouse produces 20 wood/120 seconds</span>
+<span class=hljs-addition>+- 1 wood = 1.25 MJ</span>
+<span class=hljs-addition>+- Greenhouse produces 25 MJ/120 seconds</span>
+<span class=hljs-addition>+- Greenhouse produces 25,000,000 J/120 seconds</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So interestingly enough, a greenhouse produces just enough wood to power itself!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now we want to look at the boiler, which is where we can use wood to heat water</span>
+<span class=hljs-addition>+into steam and run it through a steam engine to power the greenhouses. We don&#x27;t</span>
+<span class=hljs-addition>+really care about accidentally losing energy to entropy, because that doesn&#x27;t</span>
+<span class=hljs-addition>+seem to be a thing in Factorio, but what we will care about is the pollution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- Boiler consumes fuel at 1.5 MJ/second Over a period of 120 seconds:</span>
+<span class=hljs-addition>+- Boiler consumes 25 MJ</span>
+<span class=hljs-addition>+- Boiler consumes fuel and pollutes for (25/1.5) seconds</span>
+<span class=hljs-addition>+- Boiler creates pollution at 20 pollution/60 seconds</span>
+<span class=hljs-addition>+- Boiler creates (20/60) \* (25/1.5) pollution</span>
+<span class=hljs-addition>+- Boiler creates (550/99) or around ~5.556 pollution</span>
+<span class=hljs-addition>+- Greenhouse reduces pollution at 5 pollution/60 seconds</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So this also means that a greenhouse will offset a boiler&#x27;s pollution after the</span>
+<span class=hljs-addition>+initial burp! Specifically, with one greenhouse and one boiler, the pollution</span>
+<span class=hljs-addition>+will rise to a cap of (25 / 1.5) \* ((20 / 60) + ( -5 / 60)) = ~4.167 after</span>
+<span class=hljs-addition>+which it will decrease to 0 after 50 seconds. This just means over that 120</span>
+<span class=hljs-addition>+second period, we can clean ~4.444 external pollution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now... let&#x27;s scale our greenhouses. How many greenhouses can be supported by 1</span>
+<span class=hljs-addition>+boiler?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- Boiler produces steam at 20 steam/60 seconds</span>
+<span class=hljs-addition>+- Steam engine consumes steam at 10 steam/60 seconds</span>
+<span class=hljs-addition>+- Boiler supports 2 steam engines</span>
+<span class=hljs-addition>+- Steam engine produces 750 kW</span>
+<span class=hljs-addition>+- 2 Steam engines produce 1500 kW</span>
+<span class=hljs-addition>+- 1500 kW is enough for 7 greenhouses.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So this means our blueprint will consist of 7 greenhouses, 1 boiler, and 2 steam</span>
+<span class=hljs-addition>+engines. We can update our formulas above to check how much pollution is handled</span>
+<span class=hljs-addition>+or produced.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- Boiler consumes fuel at 1.5 MJ/second Over a period of 120 seconds:</span>
+<span class=hljs-addition>+- Boiler consumes 175 MJ</span>
+<span class=hljs-addition>+- Boiler consumes fuel and pollutes for (175/1.5) seconds</span>
+<span class=hljs-addition>+- Boiler creates pollution at 20 pollution/60 seconds</span>
+<span class=hljs-addition>+- Boiler creates (20/60) \* (175/1.5) pollution</span>
+<span class=hljs-addition>+- Boiler creates (350/9) or around ~38.889 pollution</span>
+<span class=hljs-addition>+- Greenhouse reduces pollution at 5 pollution/60 seconds</span>
+<span class=hljs-addition>+- 7 Greenhouses reduce pollution at 35 pollution/60 seconds</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In this case, the pollution never increases past 0, as the pollution reduction</span>
+<span class=hljs-addition>+is always higher than the pollution creation. In this case, we can clean</span>
+<span class=hljs-addition>+approximately 31.111 pollution over the 120 second period (that&#x27;s just</span>
+<span class=hljs-addition>+4.444 \* 7)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![wood-farm](/blobs/73/wood-farm.jpg)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In fact, we can squeeze this into one chunk twice, which means 62.222 free</span>
+<span class=hljs-addition>+pollution cleaning every chunk! per period... 120 seconds... 31.111 per</span>
+<span class=hljs-addition>+minute... half as good as trees... and less than half as good as an air</span>
+<span class=hljs-addition>+purifier.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![map](/blobs/73/map-control.jpg)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But the plus side is that this can be placed and forgotten in addition to being</span>
+<span class=hljs-addition>+fully mobile - you can&#x27;t pick up trees so you can&#x27;t replant them after you chop</span>
+<span class=hljs-addition>+them down (everyone keeps cutting down my trees to expand the factory!) but you</span>
+<span class=hljs-addition>+can pick up this setup and move it elsewhere.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I also have a sneaking suspicion that the extra 0.16 wood may _eventually_ back</span>
+<span class=hljs-addition>+up the system. Once the greenhouses get filled up and stop crafting wood, then</span>
+<span class=hljs-addition>+there is no more pollution reduction. That should take... several cycles? I&#x27;m</span>
+<span class=hljs-addition>+sure I&#x27;ll be working on air purifiers by then!</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>the coin flip example</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/7>&lt; monads</a></div> <div style=text-align:end><a href=/./posts/9>personal haskell project &gt;</a></div>
+</nav>
+<h1 id=the-coin-flip-example>the coin flip example</h1>
+<p>As I finish the monad section, I ran into a problem with the final coin flipping example. You are given instances for both <code>Functor</code> and <code>Monad</code> but are missing one for <code>Applicative</code> and I was unable to run the example without defining it first. And here came the first time I defined an instance myself.</p>
+<p>I'll just show the entire definition (I'm quite proud of it) and then explain how I arrived at it (the apply might not be the most proper implementation/idea for it):</p>
+<pre class=code-block><input id=code-block-8-1 type=checkbox><label for=code-block-8-1></label><code><span class=hljs-class><span class=hljs-keyword>instance</span> <span class=hljs-type>Applicative</span> <span class=hljs-type>Prob</span> <span class=hljs-keyword>where</span></span>
+    pure = return
+    (<span class=hljs-type>Prob</span> fs) &lt;*&gt; (<span class=hljs-type>Prob</span> xs) = <span class=hljs-type>Prob</span> $ getZipList $ <span class=hljs-type>ZipList</span> (map (first . fst) fs) &lt;*&gt; <span class=hljs-type>ZipList</span> xs
+</code></pre>
+<p>For <code>pure</code> it was pretty straightforward where I would do the same <code>return</code> for the <code>Monad</code> instance. However, <code>&lt;*&gt;</code> was much tougher to think of. I started working off the type:</p>
+<pre class=code-block><input id=code-block-8-2 type=checkbox><label for=code-block-8-2></label><code><span class=hljs-comment>-- (&lt;*&gt;) :: f (a -&gt; b) -&gt; f a -&gt; f b</span>
+<span class=hljs-comment>-- (&lt;*&gt;) :: Prob (a -&gt; b) -&gt; Prob a -&gt; Prob b</span>
+<span class=hljs-comment>-- example of Prob (a -&gt; b) is</span>
+<span class=hljs-comment>--  Prob [(\x -&gt; succ x, 1 % 1), (\x -&gt; pred x, 1 % 1)]</span>
+<span class=hljs-comment>-- example of Prob a is just the normal probabilities</span>
+</code></pre>
+<p>So I ended up interpreting this as just transform each possibility with a function without regard to the probability paired to the function (actually writing this now, I think I know a better interpretation). It just so happens that I remembered learning about ZipList earlier in <code>learnyouahaskell</code> and put them to work here. I started out with this:</p>
+<pre class=code-block><input id=code-block-8-3 type=checkbox><label for=code-block-8-3></label><code><span class=hljs-type>ZipList</span> (map fst fs) &lt;*&gt; <span class=hljs-type>ZipList</span> (map fst xs)
+</code></pre>
+<p>But then I realized I was tossing the probabilities. I didn't want to write something complicated to be able to apply the function to the first element of a tuple, so I went to hoogle and searched for <code>(a -&gt; b) -&gt; (a, c) -&gt; (b, c)</code> and surprisingly enough <code>first</code> came up. After a small amount of testing, it seemed to be what I wanted so I ended up modifying my implementation and tacking on the
+<code>Prob</code> constructor, giving what I ended up with:</p>
+<pre class=code-block><input id=code-block-8-4 type=checkbox><label for=code-block-8-4></label><code><span class=hljs-type>Prob</span> $ getZipList $ <span class=hljs-type>ZipList</span> (map (first . fs)) &lt;*&gt; <span class=hljs-type>ZipList</span> xs
+</code></pre>
+<p>Anyways, that worked out nicely and kind of makes sense although now I think the way it should've been implemented was to use the probability to calculate the chance it would've been applied to the possibility for example:</p>
+<pre class=code-block><input id=code-block-8-5 type=checkbox><label for=code-block-8-5></label><code><span class=hljs-type>Prelude</span>&gt; <span class=hljs-keyword>let</span> fs = <span class=hljs-type>Prob</span> [(\x -&gt; succ x, <span class=hljs-number>1</span> % <span class=hljs-number>4</span>), (\x -&gt; pred x, <span class=hljs-number>1</span> % <span class=hljs-number>4</span>), (id, <span class=hljs-number>1</span> % <span class=hljs-number>2</span>)]
+<span class=hljs-type>Prelude</span>&gt; <span class=hljs-keyword>let</span> xs = <span class=hljs-type>Prob</span> [(<span class=hljs-string>&#x27;a&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>2</span>), (<span class=hljs-string>&#x27;b&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>2</span>)]
+</code></pre>
+<p>We can see here that for <code>xs</code> there's a probability that you get <code>a</code> half the time and <code>b</code> the other half of the time. If you apply <code>fs</code> to <code>xs</code> you should end up with:</p>
+<pre class=code-block><input id=code-block-8-6 type=checkbox><label for=code-block-8-6></label><code><span class=hljs-type>Prelude</span>&gt; fs &lt;*&gt; xs
+<span class=hljs-type>Prob</span> [(<span class=hljs-string>&#x27;b&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>8</span>), (<span class=hljs-string>&#x27;c&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>8</span>),
+    (<span class=hljs-string>&#x27;`&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>8</span>), (<span class=hljs-string>&#x27;a&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>8</span>),
+    (<span class=hljs-string>&#x27;a&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>4</span>), (<span class=hljs-string>&#x27;b&#x27;</span>, <span class=hljs-number>1</span> % <span class=hljs-number>4</span>)]
+</code></pre>
+<p>I split it up into 3 lines just to show but basically it would be you have a chance to pick one of the functions and a chance to pick one of the elements and what is the chance you pick a pair of them. Well I already wrote the other one and that took me 30 minutes so who knows how long this one will take? I think it's very similar to <code>&gt;&gt;=</code> so some kind of shortcut could be used, similar to how I used <code>return</code> to define <code>pure</code>. Well I won't bother writing it anyways.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/7>&lt; monads</a></div> <div style=text-align:end><a href=/./posts/9>personal haskell project &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,76 @@</span>
+<span class=hljs-addition>+# the coin flip example</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As I finish the monad section, I ran into a problem with the final coin flipping</span>
+<span class=hljs-addition>+example. You are given instances for both `Functor` and `Monad` but are missing</span>
+<span class=hljs-addition>+one for `Applicative` and I was unable to run the example without defining it first.</span>
+<span class=hljs-addition>+And here came the first time I defined an instance myself.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll just show the entire definition (I&#x27;m quite proud of it) and then explain how</span>
+<span class=hljs-addition>+I arrived at it (the apply might not be the most proper implementation/idea for it):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+instance Applicative Prob where</span>
+<span class=hljs-addition>+    pure = return</span>
+<span class=hljs-addition>+    (Prob fs) &lt;*&gt; (Prob xs) = Prob $ getZipList $ ZipList (map (first . fst) fs) &lt;*&gt; ZipList xs</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For `pure` it was pretty straightforward where I would do the same `return` for</span>
+<span class=hljs-addition>+the `Monad` instance. However, `&lt;*&gt;` was much tougher to think of. I started working</span>
+<span class=hljs-addition>+off the type:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+-- (&lt;*&gt;) :: f (a -&gt; b) -&gt; f a -&gt; f b</span>
+<span class=hljs-addition>+-- (&lt;*&gt;) :: Prob (a -&gt; b) -&gt; Prob a -&gt; Prob b</span>
+<span class=hljs-addition>+-- example of Prob (a -&gt; b) is</span>
+<span class=hljs-addition>+--  Prob [(\x -&gt; succ x, 1 % 1), (\x -&gt; pred x, 1 % 1)]</span>
+<span class=hljs-addition>+-- example of Prob a is just the normal probabilities</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I ended up interpreting this as just transform each possibility with a function</span>
+<span class=hljs-addition>+without regard to the probability paired to the function (actually writing this</span>
+<span class=hljs-addition>+now, I think I know a better interpretation). It just so happens that I remembered</span>
+<span class=hljs-addition>+learning about ZipList earlier in `learnyouahaskell` and put them to work here.</span>
+<span class=hljs-addition>+I started out with this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+ZipList (map fst fs) &lt;*&gt; ZipList (map fst xs)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But then I realized I was tossing the probabilities. I didn&#x27;t want to write something</span>
+<span class=hljs-addition>+complicated to be able to apply the function to the first element of a tuple, so</span>
+<span class=hljs-addition>+I went to hoogle and searched for `(a -&gt; b) -&gt; (a, c) -&gt; (b, c)` and surprisingly</span>
+<span class=hljs-addition>+enough `first` came up. After a small amount of testing, it seemed to be what I</span>
+<span class=hljs-addition>+wanted so I ended up modifying my implementation</span>
+<span class=hljs-addition>+and tacking on the `Prob` constructor, giving what I ended up with:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+Prob $ getZipList $ ZipList (map (first . fs)) &lt;*&gt; ZipList xs</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, that worked out nicely and kind of makes sense although now I think the</span>
+<span class=hljs-addition>+way it should&#x27;ve been implemented was to use the probability to calculate the chance</span>
+<span class=hljs-addition>+it would&#x27;ve been applied to the possibility for example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+Prelude&gt; let fs = Prob [(\x -&gt; succ x, 1 % 4), (\x -&gt; pred x, 1 % 4), (id, 1 % 2)]</span>
+<span class=hljs-addition>+Prelude&gt; let xs = Prob [(&#x27;a&#x27;, 1 % 2), (&#x27;b&#x27;, 1 % 2)]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can see here that for `xs` there&#x27;s a probability that you get `a` half the time</span>
+<span class=hljs-addition>+and `b` the other half of the time. If you apply `fs` to `xs` you should end up with:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```haskell</span>
+<span class=hljs-addition>+Prelude&gt; fs &lt;*&gt; xs</span>
+<span class=hljs-addition>+Prob [(&#x27;b&#x27;, 1 % 8), (&#x27;c&#x27;, 1 % 8),</span>
+<span class=hljs-addition>+    (&#x27;`&#x27;, 1 % 8), (&#x27;a&#x27;, 1 % 8),</span>
+<span class=hljs-addition>+    (&#x27;a&#x27;, 1 % 4), (&#x27;b&#x27;, 1 % 4)]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I split it up into 3 lines just to show but basically it would be you have a chance</span>
+<span class=hljs-addition>+to pick one of the functions and a chance to pick one of the elements and what is</span>
+<span class=hljs-addition>+the chance you pick a pair of them. Well I already wrote the other one and that</span>
+<span class=hljs-addition>+took me 30 minutes so who knows how long this one will take? I think it&#x27;s very similar</span>
+<span class=hljs-addition>+to `&gt;&gt;=` so some kind of shortcut could be used, similar to how I used `return`</span>
+<span class=hljs-addition>+to define `pure`. Well I won&#x27;t bother writing it anyways.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

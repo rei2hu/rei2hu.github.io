@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>correlated queries and lateral joins</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/35>&lt; count elements in a list</a></div> <div style=text-align:end><a href=/./posts/37>figured out I have a facebook &gt;</a></div>
+</nav>
+<h1 id=correlated-queries-and-lateral-joins>correlated queries and lateral joins</h1>
+<p>Recently I was able to try my hand at improving a query's performance for loading some data. For the sake of anonymity, I'll rephrase the problem it was solving; imagine having a table of users and a table of comments and you want to get the top users based on the "max" comment - max in quotes because the ordering is one of the inputs.</p>
+<p>Here are some fake tables:</p>
+<pre class=code-block><input id=code-block-36-1 type=checkbox><label for=code-block-36-1></label><code><span class=hljs-keyword>create</span> <span class=hljs-keyword>table</span> person (id uuid <span class=hljs-keyword>primary</span> key);
+<span class=hljs-keyword>create</span> <span class=hljs-keyword>table</span> comment (id uuid <span class=hljs-keyword>primary</span> key, person_id uuid <span class=hljs-keyword>references</span> person(id), created_at <span class=hljs-type>date</span> <span class=hljs-keyword>not</span> <span class=hljs-keyword>null</span>, edited_at <span class=hljs-type>date</span>);
+</code></pre>
+<p>The query being run was used a correlated subquery like so</p>
+<pre class=code-block><input id=code-block-36-2 type=checkbox><label for=code-block-36-2></label><code><span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+<span class=hljs-keyword>from</span> person
+<span class=hljs-keyword>join</span> comment
+<span class=hljs-keyword>on</span> person.id <span class=hljs-operator>=</span> (<span class=hljs-keyword>select</span> id
+    <span class=hljs-keyword>from</span> comment
+    <span class=hljs-keyword>where</span> comment.person_id <span class=hljs-operator>=</span> person.id
+    <span class=hljs-keyword>and</span> created_at <span class=hljs-operator>&gt;</span> x
+    <span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> created_at
+    limit <span class=hljs-number>1</span>)
+<span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> created_at
+limit <span class=hljs-number>10</span>;
+</code></pre>
+<p>This isn't necessarily ideal because the subquery is executed each for each person, however for our case it was quite fine because the subquery was able to take advantage of an index to be fast and 10 fasts was still fast… most of the time.</p>
+<p>To rewind a bit, some "persons" happened to have around 8 million "comments", and because we had so many comments, we ended up partitioning the comment table on the <code>created_at</code> column. This means that Postgres is able to take advantage of this information and find the "max" of one partition and know its higher than any other entry in another partition via an <code>index only scan (backwards)</code>.</p>
+<pre class=code-block><input id=code-block-36-3 type=checkbox><label for=code-block-36-3></label><code><span class=hljs-operator>-</span><span class=hljs-operator>&gt;</span> Index <span class=hljs-keyword>Only</span> Scan Backward <span class=hljs-keyword>using</span> comment_202103_partition_person_id_created_at_idx
+     Index Cond: ((person_id <span class=hljs-operator>=</span> person.id) <span class=hljs-keyword>AND</span> ...)
+     ... (actual <span class=hljs-type>time</span><span class=hljs-operator>=</span><span class=hljs-number>0.002</span>.<span class=hljs-number>.0</span><span class=hljs-number>.002</span> <span class=hljs-keyword>rows</span><span class=hljs-operator>=</span><span class=hljs-number>0</span> loops<span class=hljs-operator>=</span><span class=hljs-number>15000</span>)
+</code></pre>
+<p>This query takes around 5-20 seconds to execute for us depending on another few inputs.</p>
+<p>The issue comes when we start sorting by another column, like <code>edited_at</code>.</p>
+<pre class=code-block><input id=code-block-36-4 type=checkbox><label for=code-block-36-4></label><code><span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+<span class=hljs-keyword>from</span> person
+<span class=hljs-keyword>join</span> comment
+<span class=hljs-keyword>on</span> person.id <span class=hljs-operator>=</span> (<span class=hljs-keyword>select</span> id
+    <span class=hljs-keyword>from</span> comment
+    <span class=hljs-keyword>where</span> user.person_id <span class=hljs-operator>=</span> person.id
+    <span class=hljs-keyword>and</span> created_at <span class=hljs-operator>&gt;</span> x
+    <span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> edited_at
+    limit <span class=hljs-number>1</span>)
+<span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> edited_at
+limit <span class=hljs-number>10</span>;
+</code></pre>
+<p>Now, postgres can't take advantage of the partition to find the "max" comment. All we really had noticed was that the query was timing out, and we had a 30 second timeout for it. The first thing I did was run it with <code>explain analyze</code>
+and it turns out it was taking between 8-10 minutes to complete (!).</p>
+<pre class=code-block><input id=code-block-36-5 type=checkbox><label for=code-block-36-5></label><code><span class=hljs-operator>-</span><span class=hljs-operator>&gt;</span> Index Scan Backward <span class=hljs-keyword>using</span> ...
+     Index Cond: ((person_id <span class=hljs-operator>=</span> person.id) <span class=hljs-keyword>AND</span> ...)
+     <span class=hljs-keyword>Filter</span>: (created_at <span class=hljs-operator>&gt;</span> x)
+     <span class=hljs-keyword>Rows</span> Removed <span class=hljs-keyword>by</span> <span class=hljs-keyword>filter</span>: <span class=hljs-number>50000</span>
+     ... (actual <span class=hljs-type>time</span><span class=hljs-operator>=</span><span class=hljs-number>24.229</span>.<span class=hljs-number>.24</span><span class=hljs-number>.229</span> <span class=hljs-keyword>rows</span><span class=hljs-operator>=</span><span class=hljs-number>0</span> loops<span class=hljs-operator>=</span><span class=hljs-number>15000</span>)
+</code></pre>
+<p>Now, it might have been possible to put another index that covers both all the relevant columns, but I figured it might just be simpler to rewrite the query. And also because indexes and partitioned tables are kind of a mess I believe and the tooling around testing indexes are not there - suggestion was to create index in transaction then analyze then remove. Because I knew the bulk of time for the query was due to the subquery, I tried rewriting it initially to first find max comments and then join with the person table.</p>
+<p>I had a couple of attempts:</p>
+<pre class=code-block><input id=code-block-36-6 type=checkbox><label for=code-block-36-6></label><code><span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+<span class=hljs-keyword>from</span> person
+<span class=hljs-keyword>join</span> (<span class=hljs-keyword>select</span> <span class=hljs-keyword>distinct</span> <span class=hljs-keyword>on</span>(person_id) <span class=hljs-operator>*</span>
+    <span class=hljs-keyword>from</span> comment
+    <span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> person_id, edited_at
+    ) <span class=hljs-keyword>as</span> x
+<span class=hljs-keyword>on</span> x.person_id <span class=hljs-operator>=</span> person.id
+<span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> edited_at
+limit <span class=hljs-number>10</span>;
+</code></pre>
+<pre class=code-block><input id=code-block-36-7 type=checkbox><label for=code-block-36-7></label><code><span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+<span class=hljs-keyword>from</span> person
+<span class=hljs-keyword>join</span> comment
+<span class=hljs-keyword>on</span> comment.person_id <span class=hljs-operator>=</span> person.id
+<span class=hljs-keyword>join</span> (<span class=hljs-keyword>select</span> id, <span class=hljs-built_in>max</span>(edited_at)
+    <span class=hljs-keyword>from</span> comment
+    <span class=hljs-keyword>group</span> <span class=hljs-keyword>by</span> person_id) <span class=hljs-keyword>as</span> x
+<span class=hljs-keyword>on</span> comment.id <span class=hljs-operator>=</span> x.id <span class=hljs-keyword>and</span> comment.edited_at <span class=hljs-operator>=</span> x.edited_at;
+</code></pre>
+<p>These are some rough approximations but ended up having some pretty good performance, down to 15-20 seconds from 8-10 minutes. Unfortunately it didn't really compare well for the <code>created_at</code> cases which went from a few seconds up to 1-2 minutes. Furthermore, we used jooq and I had trouble getting subquery columns to work nicely in it.</p>
+<p>I eventually settled on just replacing the correlated subquery with a lateral join, thinking that it should be a straight upgrade in all cases because its main effect would be to prevent unnecessary extra loops.</p>
+<pre class=code-block><input id=code-block-36-8 type=checkbox><label for=code-block-36-8></label><code><span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+<span class=hljs-keyword>from</span> person
+<span class=hljs-keyword>cross</span> <span class=hljs-keyword>join</span> <span class=hljs-keyword>lateral</span> (<span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+    <span class=hljs-keyword>from</span> comment
+    <span class=hljs-keyword>where</span> person.id <span class=hljs-operator>=</span> comment.person_id
+    <span class=hljs-keyword>and</span> created_at <span class=hljs-operator>&gt;</span> x
+    <span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> edited_at
+    limit <span class=hljs-number>1</span>)
+<span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> edited_at
+limit <span class=hljs-number>10</span>;
+</code></pre>
+<p>Note that I think the following is also possible due to the <code>limit 1</code></p>
+<pre class=code-block><input id=code-block-36-9 type=checkbox><label for=code-block-36-9></label><code><span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+<span class=hljs-keyword>from</span> person, <span class=hljs-keyword>lateral</span> (<span class=hljs-keyword>select</span> <span class=hljs-operator>*</span>
+    <span class=hljs-keyword>from</span> comment
+    <span class=hljs-keyword>where</span> person.id <span class=hljs-operator>=</span> comment.person_id
+    <span class=hljs-keyword>and</span> created_at <span class=hljs-operator>&gt;</span> x
+    <span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> edited_at
+    limit <span class=hljs-number>1</span>)
+<span class=hljs-keyword>order</span> <span class=hljs-keyword>by</span> edited_at
+limit <span class=hljs-number>10</span>;
+</code></pre>
+<p>But I went with the first version because it was a lot easier to deal with jooq that way (and a simpler change means people are more willing to give me a quicker review). And the nice thing over rewriting the query is that we can also see the exact change in the plan that causes the speed up.</p>
+<pre class=code-block><input id=code-block-36-10 type=checkbox><label for=code-block-36-10></label><code><span class=hljs-operator>-</span><span class=hljs-operator>&gt;</span> Index Scan Backward <span class=hljs-keyword>using</span> ...
+     Index Cond: ((person_id <span class=hljs-operator>=</span> person.id) <span class=hljs-keyword>AND</span> ...)
+     <span class=hljs-keyword>Filter</span>: (created_at <span class=hljs-operator>&gt;</span> x)
+     <span class=hljs-keyword>Rows</span> Removed <span class=hljs-keyword>by</span> <span class=hljs-keyword>filter</span>: <span class=hljs-number>50000</span>
+     ... (actual <span class=hljs-type>time</span><span class=hljs-operator>=</span><span class=hljs-number>25.002</span>.<span class=hljs-number>.25</span><span class=hljs-number>.002</span> <span class=hljs-keyword>rows</span><span class=hljs-operator>=</span><span class=hljs-number>0</span> loops<span class=hljs-operator>=</span><span class=hljs-number>1500</span>)
+</code></pre>
+<p>1/10th of the loops! And the actual time of the query did go down to somewhere in the 30-40 second range. According to the analyze at least. But wait, the timeout is 30 seconds and you're still over 30 seconds. Yes, but this is in our development environment. Manual tests in prod suggest improvement should change duration from 2 minutes to around 10 seconds.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/35>&lt; count elements in a list</a></div> <div style=text-align:end><a href=/./posts/37>figured out I have a facebook &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-10-15 - update post 36</summary>
+<pre class=code-block><input id=code-block-c6a4206da74ff28764d0e23852ec66695823987c-1 type=checkbox><label for=code-block-c6a4206da74ff28764d0e23852ec66695823987c-1></label><code><span class=hljs-meta>@@ -18,2 +18,3 @@</span> create table comment (id uuid primary key, person_id uuid references person(id),
+ The query being run was used a correlated subquery like so
+<span class=hljs-addition>+</span>
+</code></pre>
+<p>sql</p>
+<p>```</p>
+<pre class=code-block><input id=code-block-c6a4206da74ff28764d0e23852ec66695823987c-2 type=checkbox><label for=code-block-c6a4206da74ff28764d0e23852ec66695823987c-2></label><code><span class=hljs-meta>@@ -42,3 +43,3 @@</span> entry in another partition via an `index only scan (backwards)`.
+
+<span class=hljs-deletion>-```</span>
+<span class=hljs-addition>+```sql</span>
+ -&gt; Index Only Scan Backward using comment_202103_partition_person_id_created_at_idx
+</code></pre>
+<pre class=code-block><input id=code-block-c6a4206da74ff28764d0e23852ec66695823987c-3 type=checkbox><label for=code-block-c6a4206da74ff28764d0e23852ec66695823987c-3></label><code><span class=hljs-meta>@@ -52,3 +53,3 @@</span> The issue comes when we start sorting by another column, like `edited_at`.
+
+<span class=hljs-deletion>-```</span>
+<span class=hljs-addition>+```sql</span>
+ select *
+</code></pre>
+<pre class=code-block><input id=code-block-c6a4206da74ff28764d0e23852ec66695823987c-4 type=checkbox><label for=code-block-c6a4206da74ff28764d0e23852ec66695823987c-4></label><code><span class=hljs-meta>@@ -71,3 +72,3 @@</span> out it was taking between 8-10 minutes to complete (!).
+
+<span class=hljs-deletion>-```</span>
+<span class=hljs-addition>+```sql</span>
+ -&gt; Index Scan Backward using ...
+</code></pre>
+<pre class=code-block><input id=code-block-c6a4206da74ff28764d0e23852ec66695823987c-5 type=checkbox><label for=code-block-c6a4206da74ff28764d0e23852ec66695823987c-5></label><code><span class=hljs-meta>@@ -153,3 +154,3 @@</span> exact change in the plan that causes the speed up.
+
+<span class=hljs-deletion>-```</span>
+<span class=hljs-addition>+```sql</span>
+ -&gt; Index Scan Backward using ...
+</code></pre>
+</details>
+<details>
+<summary>2021-09-12 - add post 36</summary>
+<pre class=code-block><input id=code-block-d9d88387fd11bc9f3d94742c1ef34da75c380133-1 type=checkbox><label for=code-block-d9d88387fd11bc9f3d94742c1ef34da75c380133-1></label><code><span class=hljs-meta>@@ -0,0 +1,166 @@</span>
+<span class=hljs-addition>+# correlated queries and lateral joins</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently I was able to try my hand at improving a query&#x27;s performance for loading</span>
+<span class=hljs-addition>+some data. For the sake of anonymity, I&#x27;ll rephrase the problem it was solving;</span>
+<span class=hljs-addition>+imagine having a table of users and a table of comments and you want to get the</span>
+<span class=hljs-addition>+top users based on the &quot;max&quot; comment - max in quotes because the ordering is one</span>
+<span class=hljs-addition>+of the inputs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here are some fake tables:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```sql</span>
+<span class=hljs-addition>+create table person (id uuid primary key);</span>
+<span class=hljs-addition>+create table comment (id uuid primary key, person_id uuid references person(id), created_at date not null, edited_at date);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The query being run was used a correlated subquery like so</span>
+<span class=hljs-addition>+```sql</span>
+<span class=hljs-addition>+select *</span>
+<span class=hljs-addition>+from person</span>
+<span class=hljs-addition>+join comment</span>
+<span class=hljs-addition>+on person.id = (select id</span>
+<span class=hljs-addition>+    from comment</span>
+<span class=hljs-addition>+    where comment.person_id = person.id</span>
+<span class=hljs-addition>+    and created_at &gt; x</span>
+<span class=hljs-addition>+    order by created_at</span>
+<span class=hljs-addition>+    limit 1)</span>
+<span class=hljs-addition>+order by created_at</span>
+<span class=hljs-addition>+limit 10;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This isn&#x27;t necessarily ideal because the subquery is executed each for each person,</span>
+<span class=hljs-addition>+however for our case it was quite fine because the subquery was able to take advantage</span>
+<span class=hljs-addition>+of an index to be fast and 10 fasts was still fast... most of the time.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To rewind a bit, some &quot;persons&quot; happened to have around 8 million &quot;comments&quot;, and</span>
+<span class=hljs-addition>+because we had so many comments, we ended up partitioning the comment table on the</span>
+<span class=hljs-addition>+`created_at` column. This means that Postgres is able to take advantage of this</span>
+<span class=hljs-addition>+information and find the &quot;max&quot; of one partition and know its higher than any other</span>
+<span class=hljs-addition>+entry in another partition via an `index only scan (backwards)`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+-&gt; Index Only Scan Backward using comment_202103_partition_person_id_created_at_idx</span>
+<span class=hljs-addition>+     Index Cond: ((person_id = person.id) AND ...)</span>
+<span class=hljs-addition>+     ... (actual time=0.002..0.002 rows=0 loops=15000)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This query takes around 5-20 seconds to execute for us depending on another few inputs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The issue comes when we start sorting by another column, like `edited_at`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+select *</span>
+<span class=hljs-addition>+from person</span>
+<span class=hljs-addition>+join comment</span>
+<span class=hljs-addition>+on person.id = (select id</span>
+<span class=hljs-addition>+    from comment</span>
+<span class=hljs-addition>+    where user.person_id = person.id</span>
+<span class=hljs-addition>+    and created_at &gt; x</span>
+<span class=hljs-addition>+    order by edited_at</span>
+<span class=hljs-addition>+    limit 1)</span>
+<span class=hljs-addition>+order by edited_at</span>
+<span class=hljs-addition>+limit 10;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now, postgres can&#x27;t take advantage of the partition to find the &quot;max&quot; comment. All</span>
+<span class=hljs-addition>+we really had noticed was that the query was timing out, and we had a 30 second</span>
+<span class=hljs-addition>+timeout for it. The first thing I did was run it with `explain analyze` and it turns</span>
+<span class=hljs-addition>+out it was taking between 8-10 minutes to complete (!).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+-&gt; Index Scan Backward using ...</span>
+<span class=hljs-addition>+     Index Cond: ((person_id = person.id) AND ...)</span>
+<span class=hljs-addition>+     Filter: (created_at &gt; x)</span>
+<span class=hljs-addition>+     Rows Removed by filter: 50000</span>
+<span class=hljs-addition>+     ... (actual time=24.229..24.229 rows=0 loops=15000)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now, it might have been possible to put another index that covers both all the relevant</span>
+<span class=hljs-addition>+columns, but I figured it might just be simpler to rewrite the query. And also because</span>
+<span class=hljs-addition>+indexes and partitioned tables are kind of a mess I believe and the tooling around</span>
+<span class=hljs-addition>+testing indexes are not there - suggestion was to create index in transaction then</span>
+<span class=hljs-addition>+analyze then remove. Because I knew the bulk of time for the query was due to the</span>
+<span class=hljs-addition>+subquery, I tried rewriting it initially to first find max comments and then join</span>
+<span class=hljs-addition>+with the person table.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I had a couple of attempts:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```psql</span>
+<span class=hljs-addition>+select *</span>
+<span class=hljs-addition>+from person</span>
+<span class=hljs-addition>+join (select distinct on(person_id) *</span>
+<span class=hljs-addition>+    from comment</span>
+<span class=hljs-addition>+    order by person_id, edited_at</span>
+<span class=hljs-addition>+    ) as x</span>
+<span class=hljs-addition>+on x.person_id = person.id</span>
+<span class=hljs-addition>+order by edited_at</span>
+<span class=hljs-addition>+limit 10;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```psql</span>
+<span class=hljs-addition>+select *</span>
+<span class=hljs-addition>+from person</span>
+<span class=hljs-addition>+join comment</span>
+<span class=hljs-addition>+on comment.person_id = person.id</span>
+<span class=hljs-addition>+join (select id, max(edited_at)</span>
+<span class=hljs-addition>+    from comment</span>
+<span class=hljs-addition>+    group by person_id) as x</span>
+<span class=hljs-addition>+on comment.id = x.id and comment.edited_at = x.edited_at;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+These are some rough approximations but ended up having some pretty good performance,</span>
+<span class=hljs-addition>+down to 15-20 seconds from 8-10 minutes. Unforunately it didn&#x27;t really compare well</span>
+<span class=hljs-addition>+for the `created_at` cases which went from a few seconds up to 1-2 minutes. Furthermore,</span>
+<span class=hljs-addition>+we used jooq and I had trouble getting subquery columns to work nicely in it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I eventually settled on just replacing the correlated subquery with a lateral join,</span>
+<span class=hljs-addition>+thinking that it should be a straight upgrade in all cases because its main effect</span>
+<span class=hljs-addition>+would be to prevent unnecessary extra loops.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```psql</span>
+<span class=hljs-addition>+select *</span>
+<span class=hljs-addition>+from person</span>
+<span class=hljs-addition>+cross join lateral (select *</span>
+<span class=hljs-addition>+    from comment</span>
+<span class=hljs-addition>+    where person.id = comment.person_id</span>
+<span class=hljs-addition>+    and created_at &gt; x</span>
+<span class=hljs-addition>+    order by edited_at</span>
+<span class=hljs-addition>+    limit 1)</span>
+<span class=hljs-addition>+order by edited_at</span>
+<span class=hljs-addition>+limit 10;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Note that I think the following is also possible due to the `limit 1`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```psql</span>
+<span class=hljs-addition>+select *</span>
+<span class=hljs-addition>+from person, lateral (select *</span>
+<span class=hljs-addition>+    from comment</span>
+<span class=hljs-addition>+    where person.id = comment.person_id</span>
+<span class=hljs-addition>+    and created_at &gt; x</span>
+<span class=hljs-addition>+    order by edited_at</span>
+<span class=hljs-addition>+    limit 1)</span>
+<span class=hljs-addition>+order by edited_at</span>
+<span class=hljs-addition>+limit 10;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But I went with the first version because it was a lot easier to deal with jooq</span>
+<span class=hljs-addition>+that way (and a simpler change means people are more willing to give me a quicker</span>
+<span class=hljs-addition>+review). And the nice thing over rewriting the query is that we can also see the</span>
+<span class=hljs-addition>+exact change in the plan that causes the speed up.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+-&gt; Index Scan Backward using ...</span>
+<span class=hljs-addition>+     Index Cond: ((person_id = person.id) AND ...)</span>
+<span class=hljs-addition>+     Filter: (created_at &gt; x)</span>
+<span class=hljs-addition>+     Rows Removed by filter: 50000</span>
+<span class=hljs-addition>+     ... (actual time=25.002..25.002 rows=0 loops=1500)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1/10th of the loops! And the actual time of the query did go down to somewhere in</span>
+<span class=hljs-addition>+the 30-40 second range. According to the analyze at least. But wait, the timeout</span>
+<span class=hljs-addition>+is 30 seconds and you&#x27;re still over 30 seconds. Yes, but this is in our development</span>
+<span class=hljs-addition>+environment. Manual tests in prod suggest improvement should change duration from</span>
+<span class=hljs-addition>+2 minutes to around 10 seconds.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

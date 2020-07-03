@@ -1,0 +1,30 @@
+name: Deploy Site
+on:
+    workflow_dispatch:
+
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+jobs:
+    deploy-site:
+        name: Deploy site
+        runs-on: ubuntu-latest
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        permissions:
+            pages: write
+            id-token: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Configure Pages
+              uses: actions/configure-pages@v3
+            - name: Upload Pages artifact
+              uses: actions/upload-pages-artifact@v2
+              with:
+                  path: "."
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@v2

@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>compound words</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./puzzles/6>&lt; graphs 1</a></div> <div style=text-align:end><a href=/./puzzles/8>5 letter words made up of 25 distinct letters &gt;</a></div>
+</nav>
+<h1 id=compound-words>Compound Words</h1>
+<p>I thought of this problem after I encountered a simpler version of it
+<em>somewhere</em>. I'll present the easier version first and then give the generalized (harder) problem.</p>
+<h2 id=simple-version>Simple version</h2>
+<p>
+Given a list of words, return a list of lists which contain words that can be combined to make another word in the list. <br> <br> More specifically, given an array $words$, find all pairs of $words[i]$ and $words[j]$ where $words[i] + words[j] = words[k]$. <br> <br> And to keep thing simple, we allow using the same word multiple times e.g. allowing $words[i] + words[i]$ and no empty string: $words[i] \neq \text{ ""}$ <br> <br> There are several solutions with varying efficienies
+</p>
+<ol>
+<li>Three nested loops over $i$, $j$, and $k$ which are the length of $words$ where we check if $words[i] = words[j] + words[k]$.</li>
+<li>Two nested loops over $i$ and $j$ which are the length of $words$ where we check if $words[i]$ starts with (or ends with) $words[j]$ and if $words[i] - words[j]$ is in $words$.</li>
+<li>One loop over $i$ (the length of $words$) and an inner loop over $j$, the length of $words[i]$ (!) and seeing if $words[i][0\ldots j]$ and $words[i][j\ldots len(words[i])]$ are both in $words$.</li>
+</ol>
+<p>
+How efficient is each solution? The first one is straightforward to evaluate as $O(n^3)$ due to three loops. In our following cases, we'll use $n$ as the length of the list.
+<br>
+<br>
+The second and third are more interesting, as checking if an element is in a list can be reduced to a possibly faster implementation via hashing. However, it's important to note that the runtime for hashing a string is respective to its length! So let's call this $O(m)$ to perform the hash and lookup. Therefore solution 2 is $O(n^2m)$ and solution 3 is $O(nm^2)$.
+<br>
+<br>
+I assume some people would treat $m$ as a constant because it's not related to the input, however specifically because the question is about compound words i.e. a word is made up of other words, this suggests that $m_i = m_j + m_k$ for some $i$, $j$, and $k$ which means that $m$ really has no fixed bounds unless explicitly stated - if you have a word with length $m_j$ then there could be a word with length $m_j + m_k$. Either way, we can see that (3) probably is probably going to perform the best if your words aren't longer than the list. I'm not interested in benchmarks here.
+</p>
+<h2 id=generalized-version>Generalized version</h2>
+<p>
+The generalized version is just to put together all possible combinations, so we no longer care about pairs. It should be straightforward to extend some of our previous solutions for this, so let's do that and look at the performances.
+<br>
+<br>
+(1) We have our outer loop $i$, and then $n$ inner loops to generate every single combination $words[n_1] + words[n_2] + \ldots + words[n_n]$ and seeing if it equals $words[i]$. This is $O(n^n)$
+<br>
+<br>
+(2) Unfortunately, checking for membership of $words[i] - words[j]$ may not work here as it may still be made up of multiple words, so it's not straightforward to port. What we should keep in mind is the "starts with" idea.
+<br>
+<br>
+(3) We maintain our outer loop $i$ and split $words[i]$ until we find a prefix that is in $words$, then we have to split $words[i] - prefix$ and doing the same thing until we run out of places to split. In other words, how many ways can you break up $words[i]$? into $1\ldots m$ pieces? You can break up $words[i]$ into $j$ pieces $len(words[i]) \text{ choose } j$ ways, which means the total ways you can break up $words[i]$ will be $\sum_{j=1}^{m}{\frac{m!}{j!(m-j)!}}$ and for each possible combination, we have to hash $j$ times. Admittedly, this gets too complex for me to casually evaluate so let's say it's $O(m * m! * m)$ which should be a valid but non-tight upper bound. And with the other loop $O(nm^2m!)$. And because $m!$ grows faster than $m^2$ we can simplify to $O(nm!)$.
+<br>
+<br>
+And then comes my other idea. Remember the "starts with" idea? Originally, I was thinking of bucketing words that start with the same words together in a sort of bucket sort because if words don't start with the same letters than it's a case for early termination but it was too fuzzy to evaluate. The simpler approach is to use a trie.
+<br>
+<br>
+Generating a trie is $O(nm)$ and walking through the trie is $O(nm)$ but what do we do as we walk through the trie? As we come across $words[i]$ in the trie, we then then search for $words[j] - words[i]$ where $words[j]$ is a word further down the current path of the trie and do that until we hit the end of the trie or run out of things to match against. What's the runtime? Well, we have $O(nm)$ for going through the trie, then we may have at most $n$ possible words down a branch, and we will traverse at most $m$ nodes for each of those, but then we may come across another $n$ words down the newer branch. I really don't know. Let's just say $O(n!m^2)$ and call it a day.
+<br>
+<br>
+There are definitely some other ideas out there, like a combination of building every possible string up to length $m$ or sorting by string length or taking advantage of the length somehow, but who knows. I think 1 hour is enough time spent thinking about this.
+<br>
+<br>
+Hmm, not the best post for the exercises section; originally I wanted these to be solid but maybe incorrect solutions to problems but I guess not anymore.
+</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./puzzles/6>&lt; graphs 1</a></div> <div style=text-align:end><a href=/./puzzles/8>5 letter words made up of 25 distinct letters &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-11-28 - add exercise 7</summary>
+<pre class=code-block><input id=code-block-b1077b7b1aff782fdb420eda1af713cd2527a1a5-1 type=checkbox><label for=code-block-b1077b7b1aff782fdb420eda1af713cd2527a1a5-1></label><code><span class=hljs-meta>@@ -0,0 +1,115 @@</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD041 --&gt;</span>
+<span class=hljs-addition>+# Compound Words</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I thought of this problem after I encountered a simpler version of it *somewhere*.</span>
+<span class=hljs-addition>+I&#x27;ll present the easier version first and then give the generalized (harder) problem.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Simple version</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Given a list of words, return a list of lists which contain words that can be combined</span>
+<span class=hljs-addition>+to make another word in the list.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+More specifically, given an array $words$, find all pairs of $words[i]$ and $words[j]$</span>
+<span class=hljs-addition>+where $words[i] + words[j] = words[k]$.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+And to keep thing simple, we allow using the same word multiple times e.g. allowing</span>
+<span class=hljs-addition>+$words[i] + words[i]$ and no empty string: $words[i] \neq \text{ &quot;&quot;}$</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+There are several solutions with varying efficienies</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Three nested loops over $i$, $j$, and $k$ which are the length of $words$ where</span>
+<span class=hljs-addition>+   we check if $words[i] = words[j] + words[k]$.</span>
+<span class=hljs-addition>+2. Two nested loops over $i$ and $j$ which are the length of $words$ where we check</span>
+<span class=hljs-addition>+   if $words[i]$ starts with (or ends with) $words[j]$ and if</span>
+<span class=hljs-addition>+   $words[i] - words[j]$ is in $words$.</span>
+<span class=hljs-addition>+3. One loop over $i$ (the length of $words$) and an inner loop over $j$, the length</span>
+<span class=hljs-addition>+   of $words[i]$ (!) and seeing if $words[i][0\ldots j]$ and</span>
+<span class=hljs-addition>+   $words[i][j\ldots len(words[i])]$ are both in $words$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+How efficient is each solution? The first one is straightforward to evaluate as $O(n^3)$</span>
+<span class=hljs-addition>+due to three loops. In our following cases, we&#x27;ll use $n$ as the length of the list.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+The second and third are more interesting, as checking if an element is in a list</span>
+<span class=hljs-addition>+can be reduced to a possibly faster implementation via hashing. However, it&#x27;s important</span>
+<span class=hljs-addition>+to note that the runtime for hashing a string is respective to its length! So let&#x27;s</span>
+<span class=hljs-addition>+call this $O(m)$ to perform the hash and lookup. Therefore solution 2 is $O(n^2m)$</span>
+<span class=hljs-addition>+and solution 3 is $O(nm^2)$.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+I assume some people would treat $m$ as a constant because it&#x27;s not related to the</span>
+<span class=hljs-addition>+input, however specifically because the question is about compound words i.e. a</span>
+<span class=hljs-addition>+word is made up of other words, this suggests that $m_i = m_j + m_k$ for some</span>
+<span class=hljs-addition>+$i$, $j$, and $k$ which means that $m$ really has no fixed bounds unless explicitly</span>
+<span class=hljs-addition>+stated - if you have a word with length $m_j$ then there could be a word with length</span>
+<span class=hljs-addition>+$m_j + m_k$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Either way, we can see that (3) probably is probably going to perform the best if</span>
+<span class=hljs-addition>+your words aren&#x27;t longer than the list. I&#x27;m not interested in benchmarks here.</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Generalized version</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+The generalized version is just to put together all possible combinations, so we</span>
+<span class=hljs-addition>+no longer care about pairs. It should be straightforward to extend some of our previous</span>
+<span class=hljs-addition>+solutions for this, so let&#x27;s do that and look at the performances.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+(1) We have our outer loop $i$, and then $n$ inner loops to generate every single</span>
+<span class=hljs-addition>+combination $words[n_1] + words[n_2] + \ldots + words[n_n]$ and seeing if it equals</span>
+<span class=hljs-addition>+$words[i]$. This is $O(n^n)$</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+(2) Unfortunately, checking for membership of $words[i] - words[j]$ may not work</span>
+<span class=hljs-addition>+here as it may still be made up of multiple words, so it&#x27;s not straightforward to</span>
+<span class=hljs-addition>+port. What we should keep in mind is the &quot;starts with&quot; idea.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+(3) We maintain our outer loop $i$ and split $words[i]$ until we find a prefix that</span>
+<span class=hljs-addition>+is in $words$, then we have to split $words[i] - prefix$ and doing the same thing</span>
+<span class=hljs-addition>+until we run out of places to split. In other words, how many ways can you break</span>
+<span class=hljs-addition>+up $words[i]$? into $1\ldots m$ pieces? You can break up $words[i]$ into $j$ pieces</span>
+<span class=hljs-addition>+$len(words[i]) \text{ choose } j$ ways, which means the total ways you can break</span>
+<span class=hljs-addition>+up $words[i]$ will be $\sum_{j=1}^{m}{\frac{m!}{j!(m-j)!}}$ and for each possible</span>
+<span class=hljs-addition>+combination, we have to hash $j$ times. Admittedly, this gets too complex for me</span>
+<span class=hljs-addition>+to casually evaluate so let&#x27;s say it&#x27;s $O(m * m! * m)$ which should be a valid but</span>
+<span class=hljs-addition>+non-tight upper bound. And with the other loop $O(nm^2m!)$. And because $m!$ grows</span>
+<span class=hljs-addition>+faster than $m^2$ we can simplify to $O(nm!)$.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+And then comes my other idea. Remember the &quot;starts with&quot; idea? Originally, I was</span>
+<span class=hljs-addition>+thinking of bucketing words that start with the same words together in a sort of</span>
+<span class=hljs-addition>+bucket sort because if words don&#x27;t start with the same letters than it&#x27;s a case for</span>
+<span class=hljs-addition>+early termination but it was too fuzzy to evaluate. The simpler approach is to use</span>
+<span class=hljs-addition>+a trie.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+Generating a trie is $O(nm)$ and walking through the trie is $O(nm)$ but what do</span>
+<span class=hljs-addition>+we do as we walk through the trie? As we come across $words[i]$ in the trie, we then</span>
+<span class=hljs-addition>+then search for $words[j] - words[i]$ where $words[j]$ is a word further down the</span>
+<span class=hljs-addition>+current path of the trie and do that until we hit the end of the trie or run out</span>
+<span class=hljs-addition>+of things to match against. What&#x27;s the runtime? Well, we have $O(nm)$ for going</span>
+<span class=hljs-addition>+through the trie, then we may have at most $n$ possible words down a branch, and</span>
+<span class=hljs-addition>+we will traverse at most $m$ nodes for each of those, but then we may come across</span>
+<span class=hljs-addition>+another $n$ words down the newer branch. I really don&#x27;t know. Let&#x27;s just say</span>
+<span class=hljs-addition>+$O(n!m^2)$ and call it a day.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+There are definitely some other ideas out there, like a combination of building</span>
+<span class=hljs-addition>+every possible string up to length $m$ or sorting by string length or taking advantage</span>
+<span class=hljs-addition>+of the length somehow, but who knows. I think 1 hour is enough time spent thinking</span>
+<span class=hljs-addition>+about this.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+Hmm, not the best post for the exercises section; originally I wanted these to be</span>
+<span class=hljs-addition>+solid but maybe incorrect solutions to problems but I guess not anymore.</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

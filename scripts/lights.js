@@ -1,0 +1,1 @@
+((()=>{const a='LIGHTS_KEY',b=localStorage['getItem'](a),c=document['getElementById']('lights');c['checked']=b==='true',c['addEventListener']('change',()=>{localStorage['setItem'](a,c['checked']);});})());

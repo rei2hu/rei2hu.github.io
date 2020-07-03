@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>use of type fields</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/46>&lt; personal yearly reflection 2</a></div> <div style=text-align:end><a href=/./posts/48>some sql optimization thoughts &gt;</a></div>
+</nav>
+<h1 id=use-of-type-fields>use of type fields</h1>
+<p>One thing I've noticed in a few bits of code over the past few years is the use of a <code>type</code> field to determine the true type of an object. For example, we are working at a pet store and are tasked with creating a class to represent cats and dogs, so we make an <code>Animal</code> class. We also determine a few properties that both cats and dogs share and have them in that class.</p>
+<pre class=code-block><input id=code-block-47-1 type=checkbox><label for=code-block-47-1></label><code><span class=hljs-keyword>public</span> <span class=hljs-keyword>enum</span> <span class="hljs-title class_">AnimalType</span> {
+    CAT,
+    DOG,
+    ;
+}
+
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">Animal</span> {
+    AnimalType type;
+    <span class=hljs-type>float</span> price;
+    <span class=hljs-type>int</span> numLegs;
+    <span class=hljs-type>int</span> tailLength;
+}
+</code></pre>
+<p>Ok, that's good and all. Or is it? Let's say now our pet store starts to stock fish, how would we go about updating our code to reflect this? Well, we figure out what kind of data we want about the fish and add <code>FISH</code> to the enum.</p>
+<pre class=code-block><input id=code-block-47-2 type=checkbox><label for=code-block-47-2></label><code><span class=hljs-keyword>public</span> <span class=hljs-keyword>enum</span> <span class="hljs-title class_">AnimalType</span> {
+    CAT,
+    DOG,
+    FISH,
+    ;
+}
+
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">Animal</span> {
+    AnimalType type;
+    <span class=hljs-type>float</span> price;
+    <span class=hljs-type>int</span> numLegs;
+    <span class=hljs-type>double</span> tailLength;
+    <span class=hljs-type>int</span> numFins;
+}
+</code></pre>
+<p>Hmm… immediately we should see an issue where if we use the <code>Animal</code> class to represent a fish, <code>numLegs</code> ends up being an extraneous field. Furthermore, we don't have any nice type checks when working with the class.</p>
+<pre class=code-block><input id=code-block-47-3 type=checkbox><label for=code-block-47-3></label><code><span class=hljs-keyword>if</span> (animal.type == AnimalType.FISH) {
+    <span class=hljs-comment>// fish have legs?</span>
+    System.out.println(<span class=hljs-string>&quot;This fish has &quot;</span> + animal.numLegs + <span class=hljs-string>&quot; legs!&quot;</span>);
+}
+</code></pre>
+<p>I think this kind of thing falls under the category of "untagged union" where we have to use application level logic to determine the true data stored in something, but it doesn't line up with the Wikipedia definition so I'm not so sure. This is a simple example to see the issue, but might be harder to see when dealing with more complex business logic. We should be interested in the proper way to write this.</p>
+<p>Instead of having a <code>type</code> field, we should take advantage of actual types. We should take advantage of inheritance/polymorphism to do this; I feel like most intro to programming classes cover this, and it's one of those things that I never came across or thought about before my formal CS education.</p>
+<pre class=code-block><input id=code-block-47-4 type=checkbox><label for=code-block-47-4></label><code><span class=hljs-keyword>abstract</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">Animal</span> {
+    <span class=hljs-type>float</span> price;
+}
+
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">Dog</span> <span class=hljs-keyword>extends</span> <span class="hljs-title class_">Animal</span> {
+    <span class=hljs-type>int</span> numLegs;
+    <span class=hljs-type>double</span> tailLength;
+}
+
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">Cat</span> <span class=hljs-keyword>extends</span> <span class="hljs-title class_">Animal</span> {
+    <span class=hljs-type>int</span> numLegs;
+    <span class=hljs-type>double</span> tailLength;
+}
+
+<span class=hljs-keyword>class</span> <span class="hljs-title class_">Fish</span> <span class=hljs-keyword>extends</span> <span class="hljs-title class_">Animal</span> {
+    <span class=hljs-type>int</span> numFins;
+    <span class=hljs-type>double</span> tailLength;
+}
+</code></pre>
+<p>This is just the minimum and we can make things more complex with more layers in the hierarchy since we see shared properties among the various subtypes, but that's more of a judgment call or kind of a "we need more info" situation. Either way, we can now take advantage of types.</p>
+<pre class=code-block><input id=code-block-47-5 type=checkbox><label for=code-block-47-5></label><code><span class=hljs-keyword>if</span> (animal <span class=hljs-keyword>instanceof</span> Fish) {
+    <span class=hljs-comment>// should cause compilation error</span>
+    <span class=hljs-comment>// (I think the cast is automatic when you use instanceof?)</span>
+    System.out.println(<span class=hljs-string>&quot;This fish has &quot;</span> + animal.numLegs + <span class=hljs-string>&quot; legs!&quot;</span>);
+}
+</code></pre>
+<p>I find this interesting because a while back I remember one of my university colleagues was complaining about an interview question where they were asked: "What is polymorphism?" and we all thought that was funny because not many people were familiar with the word, but after looking it up we realized it was just talking about things like inheritance which we were familiar with. (I still feel like my CS vocabulary is lacking)</p>
+<p>This isn't just limited to object oriented programming though, for example in Haskell we can use sum types and pattern matching to achieve similar functionality.</p>
+<pre class=code-block><input id=code-block-47-6 type=checkbox><label for=code-block-47-6></label><code><span class=hljs-class><span class=hljs-keyword>data</span> <span class=hljs-type>Animal</span> =</span>
+    <span class=hljs-type>Cat</span> { price :: <span class=hljs-type>Float</span>, numLegs :: <span class=hljs-type>Int</span> } |
+    <span class=hljs-type>Dog</span> { price :: <span class=hljs-type>Float</span>, numLegs :: <span class=hljs-type>Int</span> |
+    <span class=hljs-type>Fish</span> { price :: <span class=hljs-type>Float</span>, numFins :: <span class=hljs-type>Int</span> }
+
+<span class=hljs-title>getAppendages</span> :: <span class=hljs-type>Animal</span> -&gt; <span class=hljs-type>Int</span>
+
+<span class=hljs-comment>-- because record types automatically create getter functions</span>
+<span class=hljs-title>getAppendages</span> (<span class=hljs-type>Cat</span> c) = numLegs c
+<span class=hljs-title>getAppendages</span> (<span class=hljs-type>Dog</span> d) = numLegs d
+<span class=hljs-title>getAppendages</span> (<span class=hljs-type>Fish</span> f) = numFins f
+
+<span class=hljs-comment>-- or</span>
+
+<span class=hljs-title>getAppendages</span> (<span class=hljs-type>Cat</span> { numLegs = n }) = n
+</code></pre>
+<p>Definitely very nice.</p>
+<p>What we should now consider is why people do use <code>type</code> fields instead of taking advantage of actual types. My first guess is because they are used to working in untyped languages, and therefore are used to determining what fields are valid based on application logic.</p>
+<pre class=code-block><input id=code-block-47-7 type=checkbox><label for=code-block-47-7></label><code><span class=hljs-comment>// javascript</span>
+<span class=hljs-keyword>const</span> animal = { <span class=hljs-attr>type</span>: <span class="hljs-title class_">AnimalType</span>.<span class=hljs-property>FISH</span>, <span class=hljs-attr>numFins</span>: <span class=hljs-number>2</span> };
+
+<span class=hljs-keyword>if</span> (animal.<span class=hljs-property>type</span> === <span class="hljs-title class_">AnimalType</span>.<span class=hljs-property>FISH</span>) {
+    <span class=hljs-comment>// both work, despite the check, up to programmer to not mess up</span>
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class=hljs-string>`This fish has <span class=hljs-subst>${animal.numFins}</span> fins!`</span>);
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class=hljs-string>`This fish has <span class=hljs-subst>${animal.numLegs}</span> legs!`</span>);
+}
+</code></pre>
+<p>I do believe we could use inheritance and <code>instanceof</code> in javascript, but I'm not sure that most code is written like that. Fortunately Typescript is smart enough to figure out the types for you with the right type definitions.</p>
+<pre class=code-block><input id=code-block-47-8 type=checkbox><label for=code-block-47-8></label><code><span class=hljs-keyword>type</span> <span class="hljs-title class_">Animal</span> =
+    | { <span class=hljs-attr>type</span>: <span class="hljs-title class_">AnimalType</span>.<span class=hljs-property>CAT</span>; <span class=hljs-attr>price</span>: <span class=hljs-built_in>number</span>; <span class=hljs-attr>numLegs</span>: <span class=hljs-built_in>number</span> }
+    | { <span class=hljs-attr>type</span>: <span class="hljs-title class_">AnimalType</span>.<span class=hljs-property>DOG</span>; <span class=hljs-attr>price</span>: <span class=hljs-built_in>number</span>; <span class=hljs-attr>numLegs</span>: <span class=hljs-built_in>number</span> }
+    | { <span class=hljs-attr>type</span>: <span class="hljs-title class_">AnimalType</span>.<span class=hljs-property>FISH</span>; <span class=hljs-attr>price</span>: <span class=hljs-built_in>number</span>; <span class=hljs-attr>numFins</span>: <span class=hljs-built_in>number</span> };
+
+<span class=hljs-keyword>if</span> (animal.<span class=hljs-property>type</span> === <span class="hljs-title class_">AnimalType</span>.<span class=hljs-property>FISH</span>) {
+    <span class=hljs-comment>// first works, second should cause an error before transpilation</span>
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class=hljs-string>`This fish has <span class=hljs-subst>${animal.numFins}</span> fins!`</span>);
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class=hljs-string>`This fish has <span class=hljs-subst>${animal.numLegs}</span> legs!`</span>);
+}
+</code></pre>
+<p>My other thought is around the interaction between databases and application code; when it comes to databases, I don't think there is any true way to model variants so you'll very often see a table with a type column with fields that may or may not be applicable. And then if you have to manually write the conversion methods, it's slightly easier to design a class that you can stuff the entire row into rather than several classes to specifically pick which fields should be taken. Of course, it might be easier to avoid this with the use of ORMs but those kind of cause their own class of problems too.</p>
+<p>There is also a problem around modeling these types of relationships in frontend components which also kind of don't support true inheritance but instead rely on composability that I half want to write something about but opted not to so I'm just leaving this sentence as a note down here.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/46>&lt; personal yearly reflection 2</a></div> <div style=text-align:end><a href=/./posts/48>some sql optimization thoughts &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-12-29 - add post 47</summary>
+<pre class=code-block><input id=code-block-67b8aa901ccb4f6f6015077ba251a9c5c08bb31c-1 type=checkbox><label for=code-block-67b8aa901ccb4f6f6015077ba251a9c5c08bb31c-1></label><code><span class=hljs-meta>@@ -0,0 +1,175 @@</span>
+<span class=hljs-addition>+# use of type fields</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One thing I&#x27;ve noticed in a few bits of code over the past few years is the use</span>
+<span class=hljs-addition>+of a `type` field to determine the true type of an object. For example, we are working</span>
+<span class=hljs-addition>+at a pet store and are tasked with creating a class to represent cats and dogs,</span>
+<span class=hljs-addition>+so we make an `Animal` class. We also determine a few properties that both cats</span>
+<span class=hljs-addition>+and dogs share and have them in that class.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+public enum AnimalType {</span>
+<span class=hljs-addition>+    CAT,</span>
+<span class=hljs-addition>+    DOG,</span>
+<span class=hljs-addition>+    ;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+class Animal {</span>
+<span class=hljs-addition>+    AnimalType type;</span>
+<span class=hljs-addition>+    float price;</span>
+<span class=hljs-addition>+    int numLegs;</span>
+<span class=hljs-addition>+    int tailLength;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ok, that&#x27;s good and all. Or is it? Let&#x27;s say now our pet store starts to stock fish,</span>
+<span class=hljs-addition>+how would we go about updating our code to reflect this? Well, we figure out what</span>
+<span class=hljs-addition>+kind of data we want about the fish and add `FISH` to the enum.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+public enum AnimalType {</span>
+<span class=hljs-addition>+    CAT,</span>
+<span class=hljs-addition>+    DOG,</span>
+<span class=hljs-addition>+    FISH,</span>
+<span class=hljs-addition>+    ;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+class Animal {</span>
+<span class=hljs-addition>+    AnimalType type;</span>
+<span class=hljs-addition>+    float price;</span>
+<span class=hljs-addition>+    int numLegs;</span>
+<span class=hljs-addition>+    double tailLength;</span>
+<span class=hljs-addition>+    int numFins;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Hmm... immediately we should see an issue where if we use the `Animal` class to</span>
+<span class=hljs-addition>+represent a fish, `numLegs` ends up being an extraneous field. Furthermore, we don&#x27;t</span>
+<span class=hljs-addition>+have any nice type checks when working with the class.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+if (animal.type == AnimalType.FISH) {</span>
+<span class=hljs-addition>+    // fish have legs?</span>
+<span class=hljs-addition>+    System.out.println(&quot;This fish has &quot; + animal.numLegs + &quot; legs!&quot;);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think this kind of thing falls under the category of &quot;untagged union&quot; where we</span>
+<span class=hljs-addition>+have to use application level logic to determine the true data stored in something,</span>
+<span class=hljs-addition>+but it doesn&#x27;t line up with the Wikipedia defeinition so I&#x27;m not so sure. This is</span>
+<span class=hljs-addition>+a simple example to see the issue, but might be harder to see when dealing with</span>
+<span class=hljs-addition>+more complex business logic. We should be interested in the proper way to write this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Instead of having a `type` field, we should take advantage of actual types. We should</span>
+<span class=hljs-addition>+take advantage of inheritance/polymorphism to do this; I feel like most intro to</span>
+<span class=hljs-addition>+programming classes cover this, and it&#x27;s one of those things that I never came across</span>
+<span class=hljs-addition>+or thought about before my formal CS education.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+abstract class Animal {</span>
+<span class=hljs-addition>+    float price;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+class Dog extends Animal {</span>
+<span class=hljs-addition>+    int numLegs;</span>
+<span class=hljs-addition>+    double tailLength;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+class Cat extends Animal {</span>
+<span class=hljs-addition>+    int numLegs;</span>
+<span class=hljs-addition>+    double tailLength;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+class Fish extends Animal {</span>
+<span class=hljs-addition>+    int numFins;</span>
+<span class=hljs-addition>+    double tailLength;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is just the minimum and we can make things more complex with more layers in</span>
+<span class=hljs-addition>+the hierarchy since we see shared properties among the various subtypes, but that&#x27;s</span>
+<span class=hljs-addition>+more of a judgement call or kind of a &quot;we need more info&quot; situation. Either way,</span>
+<span class=hljs-addition>+we can now take advantage of types.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+if (animal instanceof Fish) {</span>
+<span class=hljs-addition>+    // should cause compilation error</span>
+<span class=hljs-addition>+    // (I think the cast is automatic when you use instanceof?)</span>
+<span class=hljs-addition>+    System.out.println(&quot;This fish has &quot; + animal.numLegs + &quot; legs!&quot;);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I find this interesting because a while back I remember one of my university colleagues</span>
+<span class=hljs-addition>+was complaining about an interview question where they were asked: &quot;What is polymorphism?&quot;</span>
+<span class=hljs-addition>+and we all thought that was funny because not many people were familiar with the</span>
+<span class=hljs-addition>+word, but after looking it up we realized it was just talking about things like inheritance</span>
+<span class=hljs-addition>+which we were familiar with. (I still feel like my CS vocabulary is lacking)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This isn&#x27;t just limited to object oriented programming though, for example in Haskell</span>
+<span class=hljs-addition>+we can use sum types and pattern matching to achieve similar functionality.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```hs</span>
+<span class=hljs-addition>+data Animal =</span>
+<span class=hljs-addition>+    Cat { price :: Float, numLegs :: Int } |</span>
+<span class=hljs-addition>+    Dog { price :: Float, numLegs :: Int |</span>
+<span class=hljs-addition>+    Fish { price :: Float, numFins :: Int }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+getAppendages :: Animal -&gt; Int</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- because record types automatically create getter functions</span>
+<span class=hljs-addition>+getAppendages (Cat c) = numLegs c</span>
+<span class=hljs-addition>+getAppendages (Dog d) = numLegs d</span>
+<span class=hljs-addition>+getAppendages (Fish f) = numFins f</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- or</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+getAppendages (Cat { numLegs = n }) = n</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Definitely very nice.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What we should now consider is why people do use `type` fields instead of taking</span>
+<span class=hljs-addition>+advantage of actual types. My first guess is because they are used to working in</span>
+<span class=hljs-addition>+untyped languages, and therefore are used to determining what fields are valid based</span>
+<span class=hljs-addition>+on application logic.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+// javascript</span>
+<span class=hljs-addition>+const animal = { type: AnimalType.FISH, numFins: 2 };</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+if (animal.type === AnimalType.FISH) {</span>
+<span class=hljs-addition>+    // both work, despite the check, up to programmer to not mess up</span>
+<span class=hljs-addition>+    console.log(`This fish has ${animal.numFins} fins!`);</span>
+<span class=hljs-addition>+    console.log(`This fish has ${animal.numLegs} legs!`);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I do believe we could use inheritance and `instanceof` in javascript, but I&#x27;m not</span>
+<span class=hljs-addition>+sure that most code is written like that. Fortunately Typescript is smart enough</span>
+<span class=hljs-addition>+to figure out the types for you with the right type definitions.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```ts</span>
+<span class=hljs-addition>+type Animal =</span>
+<span class=hljs-addition>+    { type: AnimalType.CAT; price: number; numLegs: number; } |</span>
+<span class=hljs-addition>+    { type: AnimalType.DOG; price: number; numLegs: number; } |</span>
+<span class=hljs-addition>+    { type: AnimalType.FISH; price: number; numFins: number; }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+if (animal.type === AnimalType.FISH) {</span>
+<span class=hljs-addition>+    // first works, second should cause an error before transpilation</span>
+<span class=hljs-addition>+    console.log(`This fish has ${animal.numFins} fins!`);</span>
+<span class=hljs-addition>+    console.log(`This fish has ${animal.numLegs} legs!`);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My other thought is around the interaction between databases and application code;</span>
+<span class=hljs-addition>+when it comes to databases, I don&#x27;t think there is any true way to model variants</span>
+<span class=hljs-addition>+so you&#x27;ll very often see a table with a type column with fields that may or may</span>
+<span class=hljs-addition>+not be applicable. And then if you have to manually write the conversion methods,</span>
+<span class=hljs-addition>+it&#x27;s slightly easier to design a class that you can stuff the entire row into rather</span>
+<span class=hljs-addition>+than several classes to specifically pick which fields should be taken. Of course,</span>
+<span class=hljs-addition>+it might be easier to avoid this with the use of ORMs but those kind of cause their</span>
+<span class=hljs-addition>+own class of problems too.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is also a problem around modeling these types of relationships in frontend</span>
+<span class=hljs-addition>+components which also kind of don&#x27;t support true inheritance but instead rely on</span>
+<span class=hljs-addition>+composibility that I half want to write something about but opted not to so I&#x27;m</span>
+<span class=hljs-addition>+just leaving this sentence as a note down here.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

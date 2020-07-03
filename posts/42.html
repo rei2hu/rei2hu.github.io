@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>another sudoku solver</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/41>&lt; thoughts on data migration andor normalization</a></div> <div style=text-align:end><a href=/./posts/43>email organization for privacy enthusiasts &gt;</a></div>
+</nav>
+<h1 id=another-sudoku-solver>another sudoku solver</h1>
+<p>For some reason solving sudokus popped into my head last night and so I felt like writing one today. I had the basic idea which was to set up a graph so that when you solve one cell you know specifically which other cells are affected and then see if you can solve those. It's basically the common strategy for figuring out the solution until you have to guess.</p>
+<p>I ended up using Go because I thought I would be able to leverage the simple
+<code>go fn</code> syntax when I got to the guessing part. I ended up writing this in a couple hours:</p>
+<pre class=code-block><input id=code-block-42-1 type=checkbox><label for=code-block-42-1></label><code><span class=hljs-keyword>package</span> main
+
+<span class=hljs-keyword>import</span> (
+    <span class=hljs-string>&quot;fmt&quot;</span>
+    <span class=hljs-string>&quot;math&quot;</span>
+)
+
+<span class=hljs-keyword>type</span> Pair <span class=hljs-keyword>struct</span> {
+    Row <span class=hljs-type>int</span>
+    Col <span class=hljs-type>int</span>
+}
+
+<span class=hljs-keyword>const</span> n = <span class=hljs-number>9</span>
+
+<span class=hljs-function><span class=hljs-keyword>func</span> <span class=hljs-title>main</span><span class=hljs-params>()</span></span> {
+    cells := [n][n]<span class=hljs-type>int</span> {
+        {<span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>4</span>, <span class=hljs-number>6</span>, <span class=hljs-number>5</span>, <span class=hljs-number>0</span>, <span class=hljs-number>9</span>, <span class=hljs-number>0</span>, <span class=hljs-number>2</span>},
+        {<span class=hljs-number>2</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>3</span>, <span class=hljs-number>1</span>, <span class=hljs-number>9</span>, <span class=hljs-number>5</span>, <span class=hljs-number>6</span>, <span class=hljs-number>4</span>},
+        {<span class=hljs-number>5</span>, <span class=hljs-number>0</span>, <span class=hljs-number>9</span>, <span class=hljs-number>4</span>, <span class=hljs-number>2</span>, <span class=hljs-number>7</span>, <span class=hljs-number>8</span>, <span class=hljs-number>3</span>, <span class=hljs-number>0</span>},
+        {<span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>4</span>, <span class=hljs-number>6</span>, <span class=hljs-number>1</span>, <span class=hljs-number>7</span>},
+        {<span class=hljs-number>1</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>9</span>, <span class=hljs-number>0</span>, <span class=hljs-number>4</span>, <span class=hljs-number>5</span>, <span class=hljs-number>0</span>},
+        {<span class=hljs-number>0</span>, <span class=hljs-number>5</span>, <span class=hljs-number>3</span>, <span class=hljs-number>7</span>, <span class=hljs-number>6</span>, <span class=hljs-number>0</span>, <span class=hljs-number>2</span>, <span class=hljs-number>8</span>, <span class=hljs-number>9</span>},
+        {<span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>2</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>6</span>},
+        {<span class=hljs-number>0</span>, <span class=hljs-number>4</span>, <span class=hljs-number>1</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>9</span>, <span class=hljs-number>5</span>},
+        {<span class=hljs-number>6</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>},
+    }
+
+    sqrt_n := <span class=hljs-type>int</span>(math.Sqrt(<span class=hljs-type>float64</span>(n)))
+
+    <span class=hljs-keyword>var</span> vertices [n][n][n]<span class=hljs-keyword>map</span>[Pair][]<span class=hljs-type>int</span> <span class=hljs-comment>// vertices[x][y][n] contains pairs whose constraints change if n+1 is inserted into cells[x][y]</span>
+    <span class=hljs-keyword>var</span> possibilities [n][n][n]<span class=hljs-type>bool</span> <span class=hljs-comment>// p[x][y][n] = true iff n+1 fits in cells[x][y]</span>
+
+    <span class=hljs-keyword>for</span> i := <span class=hljs-number>0</span>; i &lt; n; i++ {
+        <span class=hljs-keyword>for</span> j := <span class=hljs-number>0</span>; j &lt; n; j++ {
+            <span class=hljs-keyword>for</span> k := <span class=hljs-number>0</span>; k &lt; n; k++ {
+                vertices[i][j][k] = <span class=hljs-built_in>make</span>(<span class=hljs-keyword>map</span>[Pair][]<span class=hljs-type>int</span>)
+            }
+        }
+    }
+
+    <span class=hljs-keyword>for</span> i := <span class=hljs-number>0</span>; i &lt; n; i++ {
+        <span class=hljs-keyword>for</span> j := <span class=hljs-number>0</span>; j &lt; n; j++ {
+            <span class=hljs-keyword>for</span> k := <span class=hljs-number>0</span>; k &lt; n; k++ {
+                <span class=hljs-keyword>if</span> cells[i][j] != <span class=hljs-number>0</span> {
+                    <span class=hljs-keyword>continue</span>
+                }
+
+                l := k + <span class=hljs-number>1</span>
+                possible := <span class=hljs-literal>true</span>
+
+                <span class=hljs-comment>// check if value can be in cell</span>
+                <span class=hljs-keyword>for</span> x := <span class=hljs-number>0</span>; x &lt; n; x++ {
+                    possible = possible &amp;&amp;
+                        cells[i][x] != l &amp;&amp; <span class=hljs-comment>// col</span>
+                        cells[x][j] != l <span class=hljs-comment>// row</span>
+                }
+
+                tli := i / sqrt_n * sqrt_n
+                tlj := j / sqrt_n * sqrt_n
+
+                <span class=hljs-keyword>for</span> x := <span class=hljs-number>0</span>; x &lt; sqrt_n; x++ {
+                    <span class=hljs-keyword>for</span> y := <span class=hljs-number>0</span>; y &lt; sqrt_n; y++ {
+                        possible = possible &amp;&amp;
+                            cells[tli + x][tlj + y] != l <span class=hljs-comment>// subbox</span>
+                    }
+                }
+
+                possibilities[i][j][k] = possible
+
+                <span class=hljs-comment>// set up dependencies</span>
+                pos := Pair { Row: i, Col: j }
+                <span class=hljs-keyword>for</span> k2, possible := <span class=hljs-keyword>range</span>(possibilities[i][j]) {
+                    <span class=hljs-keyword>if</span> possible {
+                        <span class=hljs-keyword>for</span> x := <span class=hljs-number>0</span>; x &lt; n; x++ {
+                            <span class=hljs-keyword>if</span> x != k {
+                                vertices[i][x][k2][pos] = <span class=hljs-literal>nil</span>
+                            }
+                            <span class=hljs-keyword>if</span> x != i {
+                                vertices[x][j][k2][pos] = <span class=hljs-literal>nil</span>
+                            }
+                        }
+
+                        <span class=hljs-keyword>for</span> x := <span class=hljs-number>0</span>; x &lt; sqrt_n; x++ {
+                            <span class=hljs-keyword>for</span> y := <span class=hljs-number>0</span>; y &lt; sqrt_n; y++ {
+                                <span class=hljs-keyword>if</span> tli + x != i &amp;&amp; tlj + y != j {
+                                    vertices[tli + x][tlj + y][k2][pos] = <span class=hljs-literal>nil</span>
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    <span class=hljs-keyword>for</span> i := <span class=hljs-number>0</span>; i &lt; n; i++ {
+        <span class=hljs-keyword>for</span> j := <span class=hljs-number>0</span>; j &lt; n; j++ {
+            solve_one(&amp;cells, &amp;vertices, &amp;possibilities, i, j)
+        }
+    }
+
+    fmt.Println(cells)
+}
+
+<span class=hljs-function><span class=hljs-keyword>func</span> <span class=hljs-title>solve_one</span><span class=hljs-params>(cells *[n][n]<span class=hljs-type>int</span>, verticies *[n][n][n]<span class=hljs-keyword>map</span>[Pair][]<span class=hljs-type>int</span>, possibilities *[n][n][n]<span class=hljs-type>bool</span>, i, j <span class=hljs-type>int</span>)</span></span> {
+    <span class=hljs-keyword>if</span> cells[i][j] != <span class=hljs-number>0</span> {
+        <span class=hljs-keyword>return</span>
+    }
+
+    values := <span class=hljs-built_in>make</span>([]<span class=hljs-type>int</span>, <span class=hljs-number>0</span>)
+
+    <span class=hljs-keyword>for</span> k, possible := <span class=hljs-keyword>range</span>(possibilities[i][j]) {
+        <span class=hljs-keyword>if</span> possible {
+            values = <span class=hljs-built_in>append</span>(values, k)
+        }
+    }
+
+    <span class=hljs-keyword>if</span> <span class=hljs-built_in>len</span>(values) == <span class=hljs-number>1</span> {
+        k := values[<span class=hljs-number>0</span>]
+        cells[i][j] = k + <span class=hljs-number>1</span>
+        <span class=hljs-keyword>for</span> pair := <span class=hljs-keyword>range</span>(verticies[i][j][k]) {
+            possibilities[pair.Row][pair.Col][k] = <span class=hljs-literal>false</span>
+            solve_one(cells, verticies, possibilities, pair.Row, pair.Col)
+        }
+    } <span class=hljs-keyword>else</span> <span class=hljs-keyword>if</span> <span class=hljs-built_in>len</span>(values) &gt; <span class=hljs-number>1</span> {
+        <span class=hljs-comment>// fork here</span>
+    }
+}
+</code></pre>
+<p>But as you can see I quit before actually writing the guessing code because I lost motivation. My Go code is probably not idiomatic, unless it is, and I found it annoying to write - partly because I haven't written any in a long time but mainly because I expect various builtins which Go doesn't provide. I understand that one of the ideas for Go is to only have one way to do things so maybe that's why. Hmm, maybe writing all those for loops and if statements was a little blast from the past. I'm actually surprised I got something that does what I think it does for this one test case so quickly.</p>
+<p>Interestingly enough, the one sample sudoku I picked up randomly off the internet to test with has two solutions, as running it gives you:</p>
+<pre class=code-block><input id=code-block-42-2 type=checkbox><label for=code-block-42-2></label><code>[
+    [<span class=hljs-number>3</span> <span class=hljs-number>1</span> <span class=hljs-number>4</span> <span class=hljs-number>6</span> <span class=hljs-number>5</span> <span class=hljs-number>8</span> <span class=hljs-number>9</span> <span class=hljs-number>7</span> <span class=hljs-number>2</span>]
+    [<span class=hljs-number>2</span> <span class=hljs-number>8</span> <span class=hljs-number>7</span> <span class=hljs-number>3</span> <span class=hljs-number>1</span> <span class=hljs-number>9</span> <span class=hljs-number>5</span> <span class=hljs-number>6</span> <span class=hljs-number>4</span>]
+    [<span class=hljs-number>5</span> <span class=hljs-number>6</span> <span class=hljs-number>9</span> <span class=hljs-number>4</span> <span class=hljs-number>2</span> <span class=hljs-number>7</span> <span class=hljs-number>8</span> <span class=hljs-number>3</span> <span class=hljs-number>1</span>]
+    [<span class=hljs-number>9</span> <span class=hljs-number>2</span> <span class=hljs-number>8</span> <span class=hljs-number>5</span> <span class=hljs-number>3</span> <span class=hljs-number>4</span> <span class=hljs-number>6</span> <span class=hljs-number>1</span> <span class=hljs-number>7</span>]
+    [<span class=hljs-number>1</span> <span class=hljs-number>7</span> <span class=hljs-number>6</span> <span class=hljs-number>8</span> <span class=hljs-number>9</span> <span class=hljs-number>2</span> <span class=hljs-number>4</span> <span class=hljs-number>5</span> <span class=hljs-number>3</span>]
+    [<span class=hljs-number>4</span> <span class=hljs-number>5</span> <span class=hljs-number>3</span> <span class=hljs-number>7</span> <span class=hljs-number>6</span> <span class=hljs-number>1</span> <span class=hljs-number>2</span> <span class=hljs-number>8</span> <span class=hljs-number>9</span>]
+    [<span class=hljs-number>0</span> <span class=hljs-number>3</span> <span class=hljs-number>2</span> <span class=hljs-number>9</span> <span class=hljs-number>0</span> <span class=hljs-number>5</span> <span class=hljs-number>1</span> <span class=hljs-number>4</span> <span class=hljs-number>6</span>]
+    [<span class=hljs-number>0</span> <span class=hljs-number>4</span> <span class=hljs-number>1</span> <span class=hljs-number>2</span> <span class=hljs-number>0</span> <span class=hljs-number>6</span> <span class=hljs-number>3</span> <span class=hljs-number>9</span> <span class=hljs-number>5</span>]
+    [<span class=hljs-number>6</span> <span class=hljs-number>9</span> <span class=hljs-number>5</span> <span class=hljs-number>1</span> <span class=hljs-number>4</span> <span class=hljs-number>3</span> <span class=hljs-number>7</span> <span class=hljs-number>2</span> <span class=hljs-number>8</span>]
+]
+</code></pre>
+<p>The 0 values at (6, 0), (7, 0), (6, 4), and (7, 4) can either be 7 or 8 and I see at least two possible orderings. What I planned to do was start goroutines to fill out a cell with all of the possibilities once all the easy solutions ran out and then have them race to finish the sudoku and kill the program when any goroutine completes it (because I have no idea if there's some kind of race function or if I'll just have to pass a channel around to coordinate. Maybe just a shared boolean would work.)</p>
+<p>I think the graph representation is an interesting idea. Specifically since it's a list of dependencies, you should be able to do a topological sort to quickly determine what cells to fill out if the example is modified a bit to produce a conformant graph. Unfortunately there are a couple issues with this:</p>
+<ol>
+<li>Sometimes you hit a point where you have to guess, I believe this would manifest as a cycle in the graph which means topological sort is useless. Although, maybe one idea past this is just to attempt to remove the cycle and then perform a topological sort. I haven't put much thought into what this means but I think it would kill performance as you would have try removing each path in the cycle. However, this also makes me think the idea of strongly connected components might also play some role here.</li>
+<li>One other strategy for determining the value of a cell is if it's the only cell in its row/column/subgroup that contains that value. I'm not sure how to model that constraint here. I think it could be looked for after all the single possibility cells are filled out but before we start forking threads or goroutines or whatever.</li>
+</ol>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/41>&lt; thoughts on data migration andor normalization</a></div> <div style=text-align:end><a href=/./posts/43>email organization for privacy enthusiasts &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-10-17 - add post 42</summary>
+<pre class=code-block><input id=code-block-8f235ad169ac46c94ca1f5bcc8fd811c04a627a0-1 type=checkbox><label for=code-block-8f235ad169ac46c94ca1f5bcc8fd811c04a627a0-1></label><code><span class=hljs-meta>@@ -0,0 +1,195 @@</span>
+<span class=hljs-addition>+# another sudoku solver</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For some reason solving sudokus popped into my head last night and so I felt like</span>
+<span class=hljs-addition>+writing one today. I had the basic idea which was to set up a graph so that when</span>
+<span class=hljs-addition>+you solve one cell you know specifically which other cells are affected and then</span>
+<span class=hljs-addition>+see if you can solve those. It&#x27;s basically the common strategy for figuring out</span>
+<span class=hljs-addition>+the solution until you have to guess.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ended up using Go because I thought I would be able to leverage the simple</span>
+<span class=hljs-addition>+`go fn` syntax when I got to the guessing part. I ended up writing this in a couple</span>
+<span class=hljs-addition>+hours:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```go</span>
+<span class=hljs-addition>+package main</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+import (</span>
+<span class=hljs-addition>+    &quot;fmt&quot;</span>
+<span class=hljs-addition>+    &quot;math&quot;</span>
+<span class=hljs-addition>+)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+type Pair struct {</span>
+<span class=hljs-addition>+    Row int</span>
+<span class=hljs-addition>+    Col int</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+const n = 9</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+func main() {</span>
+<span class=hljs-addition>+    cells := [n][n]int {</span>
+<span class=hljs-addition>+        {0, 0, 4, 6, 5, 0, 9, 0, 2},</span>
+<span class=hljs-addition>+        {2, 0, 0, 3, 1, 9, 5, 6, 4},</span>
+<span class=hljs-addition>+        {5, 0, 9, 4, 2, 7, 8, 3, 0},</span>
+<span class=hljs-addition>+        {0, 0, 0, 0, 0, 4, 6, 1, 7},</span>
+<span class=hljs-addition>+        {1, 0, 0, 0, 9, 0, 4, 5, 0},</span>
+<span class=hljs-addition>+        {0, 5, 3, 7, 6, 0, 2, 8, 9},</span>
+<span class=hljs-addition>+        {0, 0, 2, 0, 0, 0, 0, 0, 6},</span>
+<span class=hljs-addition>+        {0, 4, 1, 0, 0, 0, 0, 9, 5},</span>
+<span class=hljs-addition>+        {6, 0, 0, 0, 0, 0, 0, 0, 0},</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    sqrt_n := int(math.Sqrt(float64(n)))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    var vertices [n][n][n]map[Pair][]int // vertices[x][y][n] contains pairs whose constraints change if n+1 is inserted into cells[x][y]</span>
+<span class=hljs-addition>+    var possibilities [n][n][n]bool // p[x][y][n] = true iff n+1 fits in cells[x][y]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for i := 0; i &lt; n; i++ {</span>
+<span class=hljs-addition>+        for j := 0; j &lt; n; j++ {</span>
+<span class=hljs-addition>+            for k := 0; k &lt; n; k++ {</span>
+<span class=hljs-addition>+                vertices[i][j][k] = make(map[Pair][]int)</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for i := 0; i &lt; n; i++ {</span>
+<span class=hljs-addition>+        for j := 0; j &lt; n; j++ {</span>
+<span class=hljs-addition>+            for k := 0; k &lt; n; k++ {</span>
+<span class=hljs-addition>+                if cells[i][j] != 0 {</span>
+<span class=hljs-addition>+                    continue</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+                l := k + 1</span>
+<span class=hljs-addition>+                possible := true</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+                // check if value can be in cell</span>
+<span class=hljs-addition>+                for x := 0; x &lt; n; x++ {</span>
+<span class=hljs-addition>+                    possible = possible &amp;amp;&amp;amp;</span>
+<span class=hljs-addition>+                        cells[i][x] != l &amp;amp;&amp;amp; // col</span>
+<span class=hljs-addition>+                        cells[x][j] != l // row</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+                tli := i / sqrt_n * sqrt_n</span>
+<span class=hljs-addition>+                tlj := j / sqrt_n * sqrt_n</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+                for x := 0; x &lt; sqrt_n; x++ {</span>
+<span class=hljs-addition>+                    for y := 0; y &lt; sqrt_n; y++ {</span>
+<span class=hljs-addition>+                        possible = possible &amp;amp;&amp;amp;</span>
+<span class=hljs-addition>+                            cells[tli + x][tlj + y] != l // subbox</span>
+<span class=hljs-addition>+                    }</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+                possibilities[i][j][k] = possible</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+                // set up dependencies</span>
+<span class=hljs-addition>+                pos := Pair { Row: i, Col: j }</span>
+<span class=hljs-addition>+                for k2, possible := range(possibilities[i][j]) {</span>
+<span class=hljs-addition>+                    if possible {</span>
+<span class=hljs-addition>+                        for x := 0; x &lt; n; x++ {</span>
+<span class=hljs-addition>+                            if x != k {</span>
+<span class=hljs-addition>+                                vertices[i][x][k2][pos] = nil</span>
+<span class=hljs-addition>+                            }</span>
+<span class=hljs-addition>+                            if x != i {</span>
+<span class=hljs-addition>+                                vertices[x][j][k2][pos] = nil</span>
+<span class=hljs-addition>+                            }</span>
+<span class=hljs-addition>+                        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+                        for x := 0; x &lt; sqrt_n; x++ {</span>
+<span class=hljs-addition>+                            for y := 0; y &lt; sqrt_n; y++ {</span>
+<span class=hljs-addition>+                                if tli + x != i &amp;amp;&amp;amp; tlj + y != j {</span>
+<span class=hljs-addition>+                                    vertices[tli + x][tlj + y][k2][pos] = nil</span>
+<span class=hljs-addition>+                                }</span>
+<span class=hljs-addition>+                            }</span>
+<span class=hljs-addition>+                        }</span>
+<span class=hljs-addition>+                    }</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for i := 0; i &lt; n; i++ {</span>
+<span class=hljs-addition>+        for j := 0; j &lt; n; j++ {</span>
+<span class=hljs-addition>+            solve_one(&amp;amp;cells, &amp;amp;vertices, &amp;amp;possibilities, i, j)</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    fmt.Println(cells)</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+func solve_one(cells *[n][n]int, verticies *[n][n][n]map[Pair][]int, possibilities *[n][n][n]bool, i, j int) {</span>
+<span class=hljs-addition>+    if cells[i][j] != 0 {</span>
+<span class=hljs-addition>+        return</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    values := make([]int, 0)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for k, possible := range(possibilities[i][j]) {</span>
+<span class=hljs-addition>+        if possible {</span>
+<span class=hljs-addition>+            values = append(values, k)</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    if len(values) == 1 {</span>
+<span class=hljs-addition>+        k := values[0]</span>
+<span class=hljs-addition>+        cells[i][j] = k + 1</span>
+<span class=hljs-addition>+        for pair := range(verticies[i][j][k]) {</span>
+<span class=hljs-addition>+            possibilities[pair.Row][pair.Col][k] = false</span>
+<span class=hljs-addition>+            solve_one(cells, verticies, possibilities, pair.Row, pair.Col)</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    } else if len(values) &gt; 1 {</span>
+<span class=hljs-addition>+        // fork here</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But as you can see I quit before actually writing the guessing code because I lost</span>
+<span class=hljs-addition>+motivation. My Go code is probably not idiomatic, unless it is, and I found it annoying</span>
+<span class=hljs-addition>+to write - partly because I haven&#x27;t written any in a long time but mainly because</span>
+<span class=hljs-addition>+I expect various builtins which Go doesn&#x27;t provide. I understand that one of the</span>
+<span class=hljs-addition>+ideas for Go is to only have one way to do things so maybe that&#x27;s why. Hmm, maybe</span>
+<span class=hljs-addition>+writing all those for loops and if statements was a little blast from the past.</span>
+<span class=hljs-addition>+I&#x27;m actually surprised I got something that does what I think it does for this one</span>
+<span class=hljs-addition>+test case so quickly.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Interestingly enough, the one sample sudoku I picked up randomly off the internet</span>
+<span class=hljs-addition>+to test with has two solutions, as running it gives you:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```go</span>
+<span class=hljs-addition>+[</span>
+<span class=hljs-addition>+    [3 1 4 6 5 8 9 7 2]</span>
+<span class=hljs-addition>+    [2 8 7 3 1 9 5 6 4]</span>
+<span class=hljs-addition>+    [5 6 9 4 2 7 8 3 1]</span>
+<span class=hljs-addition>+    [9 2 8 5 3 4 6 1 7]</span>
+<span class=hljs-addition>+    [1 7 6 8 9 2 4 5 3]</span>
+<span class=hljs-addition>+    [4 5 3 7 6 1 2 8 9]</span>
+<span class=hljs-addition>+    [0 3 2 9 0 5 1 4 6]</span>
+<span class=hljs-addition>+    [0 4 1 2 0 6 3 9 5]</span>
+<span class=hljs-addition>+    [6 9 5 1 4 3 7 2 8]</span>
+<span class=hljs-addition>+]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The 0 values at (6, 0), (7, 0), (6, 4), and (7, 4) can either be 7 or 8 and I see</span>
+<span class=hljs-addition>+at least two possible orderings. What I planned to do was start goroutines to fill</span>
+<span class=hljs-addition>+out a cell with all of the possibilities once all the easy solutions ran out and</span>
+<span class=hljs-addition>+then have them race to finish the sudoku and kill the program when any goroutine</span>
+<span class=hljs-addition>+completes it (because I have no idea if there&#x27;s some kind of race function or if</span>
+<span class=hljs-addition>+I&#x27;ll just have to pass a channel around to coordinate. Maybe just a shared boolean</span>
+<span class=hljs-addition>+would work.)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think the graph representation is an interesting idea. Specifically since it&#x27;s</span>
+<span class=hljs-addition>+a list of dependencies, you should be able to do a topological sort to quickly determine</span>
+<span class=hljs-addition>+what cells to fill out if the example is modified a bit to produce a conformant</span>
+<span class=hljs-addition>+graph. Unforunately there are a couple issues with this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Sometimes you hit a point where you have to guess, I believe this would manifest</span>
+<span class=hljs-addition>+   as a cycle in the graph which means topological sort is useless. Although, maybe</span>
+<span class=hljs-addition>+   one idea past this is just to attempt to remove the cycle and then perform a</span>
+<span class=hljs-addition>+   topological sort. I haven&#x27;t put much thought into what this means but I think</span>
+<span class=hljs-addition>+   it would kill performance as you would have try removing each path in the cycle.</span>
+<span class=hljs-addition>+   However, this also makes me think the idea of strongly connected components might</span>
+<span class=hljs-addition>+   also play some role here.</span>
+<span class=hljs-addition>+2. One other strategy for determining the value of a cell is if it&#x27;s the only cell</span>
+<span class=hljs-addition>+   in its row/column/subgroup that contains that value. I&#x27;m not sure how to model</span>
+<span class=hljs-addition>+   that constraint here. I think it could be looked for after all the single possibility</span>
+<span class=hljs-addition>+   cells are filled out but before we start forking threads or goroutines or whatever.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

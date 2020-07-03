@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>underplanning and underestimating</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/16>&lt; mp3 headers</a></div> <div style=text-align:end><a href=/./posts/18>too young for nostalgia &gt;</a></div>
+</nav>
+<h1 id=underplanning-and-underestimating>underplanning and underestimating</h1>
+<p>I made a several mistakes with my current project.</p>
+<h2 id=underplanning>underplanning</h2>
+<p>So far, I've spent all of the time on writing the mp3 decompresser. That happens to be the part with the least importance (in terms of what I'm trying to do), but blocks the rest of the project since I need to be able to convert all audios' binary data into some common standard like IR for compilers.</p>
+<p>(I eventually figured out I might be talking about pcm)</p>
+<p>I didn't use much, if any, time for planning. I immediately thought of doing audio -&gt; common format -&gt; test fingerprinting algorithms -&gt; compare results.</p>
+<p>I jumped straight to mp3 because it is a very common audio format and I didn't think much of it. But it was actually perfectly valid to work with easier to parse files.</p>
+<h2 id=underestimating>underestimating</h2>
+<p>What I did think of mp3 was that it would be simple enough to decode, especially since I've handled various binary file formats before. This kind of is the case, but the lack of access to the formal documentation forces me to look for other sources which unfortunately lack the detail I'm looking for.</p>
+<p>Take for example,
+<a href=http://blog.bjrn.se/2008/10/lets-build-mp3-decoder.html>this post</a>. When I looked at the screenshot, nowhere in the post did it mention how it was determined where the grey block came from (first 9 bits of side information are interpreted as 9 bit number which is an offset from the frame header/side data bytes where the main data starts).</p>
+<p>And there are some leaps in logic that I do not fully get like</p>
+<blockquote>
+<p>The perceptive reader may notice the gray main data bytes in the image above begin with an interesting pattern (3E 50 00 00…) that resembles the first bytes of the main data in the next logical frame (38 40 00 00…).</p>
+</blockquote>
+<p>I'm not fully sure how this can be considered a pattern at a glance. And even worse, skips over details.</p>
+<blockquote>
+<p>For now let’s pretend we have decoded the main data completely, including the Huffman coded data.</p>
+</blockquote>
+<p>It says for now, but never really goes into details on decoding the main data, or even how to get the main data.</p>
+<p>Admittedly, the post is about a project and the source can be found
+<a href=http://hackage.haskell.org/package/mp3decoder-0.0.1/src/ >here</a> but, in my opinion, it is bad to leave out details and just point to a general area in your code and say that the logic is somewhere around here. It is so much more useful if you can include the exact details, functions, and/or lines within the post itself.</p>
+<p>Although it's possible the author wrote the blog with a different point in mind while I'm trying to rely on it like a technical reference.</p>
+<h2 id=where-now>where now</h2>
+<p>I've still been working on the mp3 decoder - mainly refactoring and subbing in a bitstream reader to simplify things, but again, the lack of details that seem to only be found in code makes this difficult.</p>
+<p>I think it would be valuable to go through and put together a detailed page on how it works in case anyone in the future is in my position. However, as I mentioned earlier, parsing mp3s is a very small (but kind of necessary) part of the project.</p>
+<p>It could be simpler to use wav files which, in general, contain uncompressed audio. This makes transforming them for processing a lot easier.
+<a href=http://soundfile.sapp.org/doc/WaveFormat/ >This page</a> looks quite thorough at a glance, although short - that could be because the format is simple to work with.</p>
+<p>I've decided to double down on figuring out the mp3 though; hopefully by the time I finish, I'll still have interest in trying to fingerprint them.</p>
+<h2 id=random-aside>random aside</h2>
+<p>I think it's interesting how this project ended up touching Haskell (through the person's blog post project) and Huffman coding (which is used in mp3s) as those are topics that I've written about in the past. Also I read that mp3s split up the coding and use 2+ codebooks to achieve better compression ratios - which might be an example of how grouping similar data for encoding can benefit compression.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/16>&lt; mp3 headers</a></div> <div style=text-align:end><a href=/./posts/18>too young for nostalgia &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-09-04 - add a line</summary>
+<pre class=code-block><input id=code-block-2d2fb93deedfd5edd0d7017c3e451894394e9525-1 type=checkbox><label for=code-block-2d2fb93deedfd5edd0d7017c3e451894394e9525-1></label><code><span class=hljs-meta>@@ -11,2 +11,4 @@</span> data into some common standard like IR for compilers.
+
+<span class=hljs-addition>+(I eventually figured out I might be talking about pcm)</span>
+<span class=hljs-addition>+</span>
+ I didn&#x27;t use much, if any, time for planning. I immediately thought of doing
+</code></pre>
+</details>
+<details>
+<summary>2020-08-18 - add a clarifying sentence</summary>
+<pre class=code-block><input id=code-block-233baf8246f2a606a25c4817125f0d974dd054f0-1 type=checkbox><label for=code-block-233baf8246f2a606a25c4817125f0d974dd054f0-1></label><code><span class=hljs-meta>@@ -51,2 +51,5 @@</span> the post itself.
+
+<span class=hljs-addition>+Although it&#x27;s possible the author wrote the blog with a different point in mind while</span>
+<span class=hljs-addition>+I&#x27;m trying to rely on it like a technical reference.</span>
+<span class=hljs-addition>+</span>
+ ## where now
+</code></pre>
+</details>
+<details>
+<summary>2020-08-18 - new post</summary>
+<pre class=code-block><input id=code-block-379ba8713385f0bd4c3f6bbb51ea9038f1fb4ecd-1 type=checkbox><label for=code-block-379ba8713385f0bd4c3f6bbb51ea9038f1fb4ecd-1></label><code><span class=hljs-meta>@@ -0,0 +1,76 @@</span>
+<span class=hljs-addition>+# underplanning and underestimating</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I made a several mistakes with my current project.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## underplanning</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So far, I&#x27;ve spent all of the time on writing the mp3 decompressor. That happens</span>
+<span class=hljs-addition>+to be the part with the least importance (in terms of what I&#x27;m trying to do), but</span>
+<span class=hljs-addition>+blocks the rest of the project since I need to be able to convert all audios&#x27; binary</span>
+<span class=hljs-addition>+data into some common standard like IR for compilers.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I didn&#x27;t use much, if any, time for planning. I immediately thought of doing</span>
+<span class=hljs-addition>+audio -&gt; common format -&gt; test fingerprinting algorithms -&gt; compare results.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I jumped straight to mp3 because it is a very common audio format and I didn&#x27;t think</span>
+<span class=hljs-addition>+much of it. But it was actually perfectly valid to work with easier to parse files.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## underestimating</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What I did think of mp3 was that it would be simple enough to decode, especially</span>
+<span class=hljs-addition>+since I&#x27;ve handled various binary file formats before. This kind of is the case,</span>
+<span class=hljs-addition>+but the lack of access to the formal documentation forces me to look for other sources</span>
+<span class=hljs-addition>+which unfortunately lack the detail I&#x27;m looking for.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Take for example, [this post](http://blog.bjrn.se/2008/10/lets-build-mp3-decoder.html).</span>
+<span class=hljs-addition>+When I looked at the screenshot, nowhere in the post did it mention how it was determined</span>
+<span class=hljs-addition>+where the grey block came from (first 9 bits of side information are interpreted</span>
+<span class=hljs-addition>+as 9 bit number which is an offset from the frame header/side data bytes where the</span>
+<span class=hljs-addition>+main data starts).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And there are some leaps in logic that I do not fully get like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; The perceptive reader may notice the gray main data bytes in the image above</span>
+<span class=hljs-addition>+&gt; begin with an interesting pattern (3E 50 00 00…) that resembles the first bytes</span>
+<span class=hljs-addition>+&gt; of the main data in the next logical frame (38 40 00 00…).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not fully sure how this can be considered a pattern at a glance. And even worse,</span>
+<span class=hljs-addition>+skips over details.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; For now let’s pretend we have decoded the main data completely, including the</span>
+<span class=hljs-addition>+&gt; Huffman coded data.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It says for now, but never really goes into details on decoding the main data, or</span>
+<span class=hljs-addition>+even how to get the main data.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Admittedly, the post is about a project and the source can be found [here](http://hackage.haskell.org/package/mp3decoder-0.0.1/src/)</span>
+<span class=hljs-addition>+but, in my opinion, it is bad to leave out details and just point to a general</span>
+<span class=hljs-addition>+area in your code and say that the logic is somewhere around here. It is so much</span>
+<span class=hljs-addition>+more useful if you can include the exact details, functions, and/or lines within</span>
+<span class=hljs-addition>+the post itself.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## where now</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve still been working on the mp3 decoder - mainly refactoring and subbing in a</span>
+<span class=hljs-addition>+bitstream reader to simplify things, but again, the lack of details that seem to</span>
+<span class=hljs-addition>+only be found in code makes this difficult.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think it would be valuable to go through and put together a detailed page on how</span>
+<span class=hljs-addition>+it works in case anyone in the future is in my position. However, as I mentioned</span>
+<span class=hljs-addition>+earlier, parsing mp3s is a very small (but kind of necessary) part of the project.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It could be simpler to use wav files which, in general, contain uncompressed audio.</span>
+<span class=hljs-addition>+This makes transforming them for processing a lot easier. [This page](http://soundfile.sapp.org/doc/WaveFormat/)</span>
+<span class=hljs-addition>+looks quite thorough at a glance, although short - that could be because the format</span>
+<span class=hljs-addition>+is simple to work with.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve decided to double down on figuring out the mp3 though; hopefully by the time</span>
+<span class=hljs-addition>+I finish, I&#x27;ll still have interest in trying to fingerprint them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## random aside</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think it&#x27;s interesting how this project ended up touching Haskell (through the</span>
+<span class=hljs-addition>+person&#x27;s blog post project) and Huffman coding (which is used in mp3s) as those are</span>
+<span class=hljs-addition>+topics that I&#x27;ve written about in the past. Also I read that mp3s split up the coding</span>
+<span class=hljs-addition>+and use 2+ codebooks to achieve better compression ratios - which might be an example</span>
+<span class=hljs-addition>+of how grouping similar data for encoding can benefit compression.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

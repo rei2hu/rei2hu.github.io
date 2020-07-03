@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>nested results and options in rust</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/20>&lt; attempting to fingerprint audio</a></div> <div style=text-align:end><a href=/./posts/22>some job application statistics &gt;</a></div>
+</nav>
+<h1 id=nested-results-and-options-in-rust>nested results and options in rust</h1>
+<p>So I've been writing a little rust code for my project and I'm using a combination of <a href=https://rocket.rs/ >rocket</a> and
+<a href=https://github.com/rusqlite/rusqlite>rusqlite</a> to help manage some simple sessions for users.</p>
+<p>I wanted to write a function that checks a user's cookies for a session identifier, query the database to check if that session identifier is valid, and then return information related to that session. In short, a function like
+<code>fn get_session_data(connection: SqliteConnection, cookies: Cookies) -&gt; Option&lt;Data&gt;</code></p>
+<p>Start out by getting the cookie:</p>
+<pre class=code-block><input id=code-block-21-1 type=checkbox><label for=code-block-21-1></label><code>cookies.<span class="function_ hljs-title invoke__">get_private</span>(session); <span class=hljs-comment>// Option&lt;Cookie&gt;</span>
+</code></pre>
+<p>The cookie might exist, but it also might not. I only want to check the cookie if it actually exists. <code>Result</code> and <code>Option</code> types have the
+<a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.map><code>.map</code></a>
+method just for this.</p>
+<pre class=code-block><input id=code-block-21-2 type=checkbox><label for=code-block-21-2></label><code>cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">map</span>(|cookie| {
+        connection.<span class="function_ hljs-title invoke__">prepare</span>(sql) <span class=hljs-comment>// Result&lt;Statement, Error&gt;</span>
+    }) <span class=hljs-comment>// Option&lt;Result&lt;Statement, Error&gt;&gt;</span>
+</code></pre>
+<p>The <code>prepare</code> method returns <code>Result&lt;Statement, Error&gt;</code> because this can fail if the <code>&amp;str</code> can't be converted to a C-style string or some generic sql failure occurs when trying to compile the prepared statement.</p>
+<p>The return type is starting to get a little complex here. The next steps will include binding values to the statement, querying, and converting to the struct we want in one step using this convenient function
+<a href=https://docs.rs/rusqlite/0.20.0/rusqlite/struct.Statement.html#method.query_map><code>query_map</code></a>.</p>
+<pre class=code-block><input id=code-block-21-3 type=checkbox><label for=code-block-21-3></label><code>cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">map</span>(|cookie| {
+        connection.<span class="function_ hljs-title invoke__">prepare</span>(sql)
+            .<span class="function_ hljs-title invoke__">map</span>(|<span class=hljs-keyword>mut</span> statement| {
+                statement.<span class="function_ hljs-title invoke__">query_map</span>(
+                    &amp;[&amp;session_id, Time::<span class="function_ hljs-title invoke__">now</span>()],
+                    Data::from_row
+                ) <span class=hljs-comment>// Result&lt;MappedRows, Error&gt;</span>
+            }) <span class=hljs-comment>// Result&lt;Result&lt;MappedRows, Error&gt;, Error&gt;</span>
+    }) <span class=hljs-comment>// Option&lt;Result&lt;Result&lt;MappedRows, Error&gt;, Error&gt;&gt;</span>
+</code></pre>
+<p>And then extract the data of the first row. And extract Data because there's a chance the mapping function failed.</p>
+<p>&gt;</p>
+<pre class=code-block><input id=code-block-21-4 type=checkbox><label for=code-block-21-4></label><code>cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">map</span>(|cookie| {
+        connection.<span class="function_ hljs-title invoke__">prepare</span>(sql)
+            .<span class="function_ hljs-title invoke__">map</span>(|<span class=hljs-keyword>mut</span> statement| {
+                statement.<span class="function_ hljs-title invoke__">query_map</span>(
+                    &amp;[&amp;cookie.<span class="function_ hljs-title invoke__">value</span>(), Time::<span class="function_ hljs-title invoke__">now</span>()],
+                    Data::from_row
+                ).<span class="function_ hljs-title invoke__">map</span>(|<span class=hljs-keyword>mut</span> rows| rows.<span class="function_ hljs-title invoke__">next</span>()) <span class=hljs-comment>// Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;</span>
+            }) <span class=hljs-comment>// Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;</span>
+    }) <span class=hljs-comment>// Option&lt;Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;&gt;</span>
+</code></pre>
+<p>Wow that is complex, but I think it goes to show that all errors are accounted for in the type.</p>
+<pre class=code-block><input id=code-block-21-5 type=checkbox><label for=code-block-21-5></label><code>Option&lt;
+|   Result&lt;
+|   |   Result&lt;
+|   |   |   Option&lt;
+|   |   |   |   Result&lt;Data&gt;&gt;&gt;&gt;&gt;
+|   |   |   |   |
+|   |   |   |   |
+|   |   |   |   if conversion from row to Data fails
+|   |   |   if no rows returned
+|   |   if binding values to statement fails or query fails
+|   if statement fails to be compiled
+if cookie doesn&#x27;t exist
+</code></pre>
+<p>But remember that the end type we are aiming for is <code>Option&lt;Data&gt;</code>. And the point of this post is to show that there are tons of ways to do so, but they all look different. When it comes to nested <code>Result</code> and <code>Option</code> types, I've found several approaches:</p>
+<ol>
+<li>You don't have to nest everything exactly</li>
+<li>Use the
+<a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.flatten><code>flatten</code></a>
+method (which is behind a flag at the time of writing for <code>Result</code>)</li>
+</ol>
+<p>This isn't a comprehensive list of solutions.</p>
+<h2 id=avoid-nesting>avoid nesting</h2>
+<p>The levels of indentation in our code is mimicked by the resulting type. We can try flattening our code in order to flatten the type. Unfortunately, we can't level it all the way because there are actual two separate parts: the database functionality and the cookie part so the best we can do is get it to two levels deep (if at all).</p>
+<p>I tried bringing out the part that deals with <code>rows</code> up one level. Also, I'm going to use <code>Result&lt;T&gt;</code> as shorthand for <code>Result&lt;T, E&gt;</code> from now on.</p>
+<pre class=code-block><input id=code-block-21-6 type=checkbox><label for=code-block-21-6></label><code>cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">map</span>(|cookie| {
+        connection.<span class="function_ hljs-title invoke__">prepare</span>(sql)
+            .<span class="function_ hljs-title invoke__">map</span>(|<span class=hljs-keyword>mut</span> statement| {
+                statement.<span class="function_ hljs-title invoke__">query_map</span>(
+                    &amp;[&amp;cookie.<span class="function_ hljs-title invoke__">value</span>(), Time::<span class="function_ hljs-title invoke__">now</span>()],
+                    Data::from_row
+                ) <span class=hljs-comment>// Result&lt;MappedRows&gt;</span>
+            }) <span class=hljs-comment>// Result&lt;Result&lt;MappedRows&gt;&gt;</span>
+            .<span class="function_ hljs-title invoke__">map</span>(|rowsResult|
+                rowsResult.<span class="function_ hljs-title invoke__">map</span>(
+                    |<span class=hljs-keyword>mut</span> rows| rows.<span class="function_ hljs-title invoke__">next</span>() <span class=hljs-comment>// Option&lt;Result&lt;Data&gt;&gt;</span>
+                ) <span class=hljs-comment>// Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;</span>
+            ) <span class=hljs-comment>// Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;</span>
+    }) <span class=hljs-comment>// Option&lt;Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;&gt;</span>
+</code></pre>
+<p>Well it looks like it lowered it down from 5 to 4. Except you can't do this because of how rusqlite is implemented. The MappedRows struct contains a reference to Statement. Statement only lives as long as the closure in
+<code>.map(|mut statement|{...})</code> so it looks like we have to keep these things together otherwise we would have a dangling reference.</p>
+<h2 id=avoid-nesting-with->avoid nesting with <code>?</code></h2>
+<p>The short explanation of this operator is it does something like this</p>
+<pre class=code-block><input id=code-block-21-7 type=checkbox><label for=code-block-21-7></label><code>    ($expr:expr) =&gt; {
+        <span class=hljs-keyword>match</span> $expr {
+            $crate::result::<span class=hljs-type>Result</span>::<span class="function_ hljs-title invoke__">Ok</span>(val) =&gt; val,
+            $crate::result::<span class=hljs-type>Result</span>::<span class="function_ hljs-title invoke__">Err</span>(err) =&gt; {
+                <span class=hljs-keyword>return</span> $crate::result::<span class=hljs-type>Result</span>::<span class="function_ hljs-title invoke__">Err</span>($crate::convert::<span class=hljs-built_in>From</span>::<span class="function_ hljs-title invoke__">from</span>(err));
+            }
+        }
+    };
+</code></pre>
+<p>So it's basically an early return if there's an error or unwraps from the
+<code>Result</code> if it's <code>Ok</code>. This is possible by refactoring the inner part out to another function.</p>
+<p>Specifically, we can pull out the database operations into another function that return <code>Result&lt;T&gt;</code> like so:</p>
+<p>&gt;</p>
+<pre class=code-block><input id=code-block-21-8 type=checkbox><label for=code-block-21-8></label><code><span class=hljs-keyword>fn</span> <span class="function_ hljs-title">get_session_data_by_id</span>(connection: &amp;SqliteConnection, id: &amp;<span class=hljs-type>str</span>) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>Result</span>&lt;Data, Error&gt; {
+    <span class=hljs-keyword>let</span> <span class=hljs-keyword>mut </span><span class=hljs-variable>statement</span> = connection.<span class="function_ hljs-title invoke__">prepare</span>(sql)?;
+    <span class=hljs-keyword>let</span> <span class=hljs-keyword>mut </span><span class=hljs-variable>rows</span> = statement.<span class="function_ hljs-title invoke__">query_map</span>(
+        &amp;[id, Time::<span class="function_ hljs-title invoke__">now</span>()],
+        Data::from_row
+    )?;
+    rows.<span class="function_ hljs-title invoke__">next</span>().<span class="function_ hljs-title invoke__">map_or</span>(<span class=hljs-literal>Ok</span>, <span class="function_ hljs-title invoke__">Err</span>(Error::NoRowsReturned))
+}
+
+<span class=hljs-comment>// ...</span>
+
+cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">map</span>(|cookie| <span class="function_ hljs-title invoke__">get_session_data_by_id</span>(&amp;connection, &amp;cookie.<span class="function_ hljs-title invoke__">value</span>())) <span class=hljs-comment>// Option&lt;Result&lt;Data, Error&gt;&gt;</span>
+</code></pre>
+<p>&gt;</p>
+<p>Which is a lot cleaner. Of course, we still haven't hit our target of
+<code>Option&lt;Data&gt;</code>. But the rest is quick.</p>
+<h2 id=using-flatten>using <code>flatten</code></h2>
+<p><code>flatten</code> takes <code>Option&lt;Option&lt;T&gt;&gt;</code> or <code>Result&lt;Result&lt;T&gt;&gt;</code> to <code>Option&lt;T&gt;</code> and
+<code>Result&lt;T&gt;</code> respectively. This can be useful if we look at our original type:
+<code>Option&lt;Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;&gt;</code>. We do need to convert all of these to either all <code>Option</code> or all <code>Result</code> though to get this to work. For this, we can convert <code>Result&lt;T&gt;</code> to <code>Option&lt;T&gt;</code> with the
+<a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.ok><code>.ok()</code></a>
+method.</p>
+<p>Let's go back to our starting code and dump in some <code>.ok()</code>s and <code>.flatten()</code>s.</p>
+<p>&gt;</p>
+<pre class=code-block><input id=code-block-21-9 type=checkbox><label for=code-block-21-9></label><code>cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">map</span>(|cookie| {
+        connection.<span class="function_ hljs-title invoke__">prepare</span>(sql)
+            .<span class="function_ hljs-title invoke__">map</span>(|<span class=hljs-keyword>mut</span> statement| {
+                statement.<span class="function_ hljs-title invoke__">query_map</span>(
+                    &amp;[&amp;cookie.<span class="function_ hljs-title invoke__">value</span>(), Time::<span class="function_ hljs-title invoke__">now</span>()],
+                    Data::from_row
+                ).<span class="function_ hljs-title invoke__">map</span>(|<span class=hljs-keyword>mut</span> rows| {
+                    rows.<span class="function_ hljs-title invoke__">next</span>()
+                        <span class=hljs-comment>// added ok here</span>
+                        .<span class="function_ hljs-title invoke__">map</span>(|maybe_data| maybe_data.<span class="function_ hljs-title invoke__">ok</span>()) <span class=hljs-comment>// Option&lt;Data&gt;</span>
+                <span class=hljs-comment>// added ok here</span>
+                }).<span class="function_ hljs-title invoke__">ok</span>() <span class=hljs-comment>// Option&lt;Option&lt;Data&gt;&gt;</span>
+            <span class=hljs-comment>// added ok here</span>
+            }).<span class="function_ hljs-title invoke__">ok</span>() <span class=hljs-comment>// Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;</span>
+    }) <span class=hljs-comment>// Option&lt;Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;&gt;</span>
+    .<span class="function_ hljs-title invoke__">flatten</span>() <span class=hljs-comment>// Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;</span>
+    .<span class="function_ hljs-title invoke__">flatten</span>() <span class=hljs-comment>// Option&lt;Option&lt;Data&gt;&gt;</span>
+    .<span class="function_ hljs-title invoke__">flatten</span>() <span class=hljs-comment>// Option&lt;Data&gt;</span>
+</code></pre>
+<p>And we finally have our result. Similarly, we could use <code>.ok()</code> and <code>.flatten()</code>
+along with <code>?</code> for something cleaner:</p>
+<p>&gt;</p>
+<pre class=code-block><input id=code-block-21-10 type=checkbox><label for=code-block-21-10></label><code><span class=hljs-keyword>fn</span> <span class="function_ hljs-title">get_session_data_by_id</span>(connection: &amp;SqliteConnection, id: &amp;<span class=hljs-type>str</span>) <span class=hljs-punctuation>-&gt;</span> <span class=hljs-type>Result</span>&lt;Data, Error&gt; {
+    <span class=hljs-keyword>let</span> <span class=hljs-keyword>mut </span><span class=hljs-variable>statement</span> = connection.<span class="function_ hljs-title invoke__">prepare</span>(sql)?;
+    <span class=hljs-keyword>let</span> <span class=hljs-keyword>mut </span><span class=hljs-variable>rows</span> = statement.<span class="function_ hljs-title invoke__">query_map</span>(
+        &amp;[id, Time::<span class="function_ hljs-title invoke__">now</span>()],
+        Data::from_row
+    )?;
+    rows.<span class="function_ hljs-title invoke__">next</span>().<span class="function_ hljs-title invoke__">unwrap_or</span>(<span class="function_ hljs-title invoke__">Err</span>(Error::QueryReturnedNoRows)))
+}
+
+<span class=hljs-comment>// ...</span>
+
+cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">map</span>(|cookie| <span class="function_ hljs-title invoke__">get_session_data_by_id</span>(&amp;connection, &amp;cookie.<span class="function_ hljs-title invoke__">value</span>()).<span class="function_ hljs-title invoke__">ok</span>()) <span class=hljs-comment>// Option&lt;Option&lt;Data&gt;&gt;</span>
+    .<span class="function_ hljs-title invoke__">flatten</span>() <span class=hljs-comment>// Option&lt;Data&gt;</span>
+</code></pre>
+<p>&gt;</p>
+<p>Or an easier way with
+<a href=https://doc.rust-lang.org/std/option/enum.Option.html#method.and_then><code>and_then</code></a>
+which is basically what we try to do with map and flatten.</p>
+<pre class=code-block><input id=code-block-21-11 type=checkbox><label for=code-block-21-11></label><code>cookies.<span class="function_ hljs-title invoke__">get_private</span>(session)
+    .<span class="function_ hljs-title invoke__">and_then</span>(|cookie| <span class="function_ hljs-title invoke__">get_session_data_by_id</span>(&amp;connection, &amp;cookie.<span class="function_ hljs-title invoke__">value</span>()).<span class="function_ hljs-title invoke__">ok</span>())
+</code></pre>
+<h2 id=conclusion>conclusion</h2>
+<p>So there are a lot of ways to do this, and some looked nicer than others (to me). Which one is the idiomatic approach though? Who knows?</p>
+<p>Also you could argue that I might want to do something with the errors so I might want to change the type to <code>Result&lt;Data, Error&gt;</code> instead of
+<code>Option&lt;Data&gt;</code>, which is another thing.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/20>&lt; attempting to fingerprint audio</a></div> <div style=text-align:end><a href=/./posts/22>some job application statistics &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-11-13 - add some more details to 21</summary>
+<pre class=code-block><input id=code-block-df5a9acc2c65046e4a550552a851367cd1067dd0-1 type=checkbox><label for=code-block-df5a9acc2c65046e4a550552a851367cd1067dd0-1></label><code><span class=hljs-meta>@@ -94,2 +94,4 @@</span> When it comes to nested `Result` and `Option` types, I&#x27;ve found several approach
+
+<span class=hljs-addition>+This isn&#x27;t a comprehensive list of solutions.</span>
+<span class=hljs-addition>+</span>
+ ## avoid nesting
+</code></pre>
+<pre class=code-block><input id=code-block-df5a9acc2c65046e4a550552a851367cd1067dd0-2 type=checkbox><label for=code-block-df5a9acc2c65046e4a550552a851367cd1067dd0-2></label><code><span class=hljs-meta>@@ -194,11 +196,11 @@</span> cookies.get_private(session)
+                         // added ok here
+<span class=hljs-deletion>-                        .map(|maybe_user| maybe_user.ok()) // Option&lt;User&gt;</span>
+<span class=hljs-addition>+                        .map(|maybe_data| maybe_data.ok()) // Option&lt;Data&gt;</span>
+                 // added ok here
+<span class=hljs-deletion>-                }).ok() // Option&lt;Option&lt;User&gt;&gt;</span>
+<span class=hljs-addition>+                }).ok() // Option&lt;Option&lt;Data&gt;&gt;</span>
+             // added ok here
+<span class=hljs-deletion>-            }).ok() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;</span>
+<span class=hljs-deletion>-    }) // Option&lt;Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;&gt;</span>
+<span class=hljs-deletion>-    .flatten() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;</span>
+<span class=hljs-deletion>-    .flatten() // Option&lt;Option&lt;User&gt;&gt;</span>
+<span class=hljs-deletion>-    .flatten() // Option&lt;User&gt;</span>
+<span class=hljs-addition>+            }).ok() // Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;</span>
+<span class=hljs-addition>+    }) // Option&lt;Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;&gt;</span>
+<span class=hljs-addition>+    .flatten() // Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;</span>
+<span class=hljs-addition>+    .flatten() // Option&lt;Option&lt;Data&gt;&gt;</span>
+<span class=hljs-addition>+    .flatten() // Option&lt;Data&gt;</span>
+</code></pre>
+<p>```</p>
+<pre class=code-block><input id=code-block-df5a9acc2c65046e4a550552a851367cd1067dd0-3 type=checkbox><label for=code-block-df5a9acc2c65046e4a550552a851367cd1067dd0-3></label><code><span class=hljs-meta>@@ -229,2 +231,10 @@</span> cookies.get_private(session)
+
+<span class=hljs-addition>+Or an easier way with [`and_then`](https://doc.rust-lang.org/std/option/enum.Option.html#method.and_then)</span>
+<span class=hljs-addition>+which is basically what we try to do with map and flatten.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+cookies.get_private(session)</span>
+<span class=hljs-addition>+    .and_then(|cookie| get_session_data_by_id(&amp;amp;connection, &amp;amp;cookie.value()).ok())</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+ ## conclusion
+</code></pre>
+</details>
+<details>
+<summary>2020-10-28 - add post 21</summary>
+<pre class=code-block><input id=code-block-70f812e3efe2ce742457d1c6c6128456947546b9-1 type=checkbox><label for=code-block-70f812e3efe2ce742457d1c6c6128456947546b9-1></label><code><span class=hljs-meta>@@ -0,0 +1,237 @@</span>
+<span class=hljs-addition>+# nested results and options in rust</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I&#x27;ve been writing a little rust code for my project and I&#x27;m using a combination</span>
+<span class=hljs-addition>+of [rocket](https://rocket.rs/) and [rusqlite](https://github.com/rusqlite/rusqlite)</span>
+<span class=hljs-addition>+to help manage some simple sessions for users.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I wanted to write a function that checks a user&#x27;s cookies for a session</span>
+<span class=hljs-addition>+identifier, query the database to check if that session identifier is valid, and</span>
+<span class=hljs-addition>+then return information related to that session. In short, a function like</span>
+<span class=hljs-addition>+`fn get_session_data(connection: SqliteConnection, cookies: Cookies) -&gt; Option&lt;Data&gt;`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Start out by getting the cookie:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+cookies.get_private(session); // Option&lt;Cookie&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The cookie might exist, but it also might not. I only want to check the cookie if</span>
+<span class=hljs-addition>+it actually exists. `Result` and `Option` types have the [`.map`](https://doc.rust-lang.org/std/result/enum.Result.html#method.map)</span>
+<span class=hljs-addition>+method just for this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+cookes.get_private(session)</span>
+<span class=hljs-addition>+    .map(|cookie| {</span>
+<span class=hljs-addition>+        connection.prepare(sql) // Result&lt;Statement, Error&gt;</span>
+<span class=hljs-addition>+    }) // Option&lt;Result&lt;Statement, Error&gt;&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The `prepare` method returns `Result&lt;Statement, Error&gt;` because this</span>
+<span class=hljs-addition>+can fail if the `&amp;amp;str` can&#x27;t be converted to a C-style string or some generic sql</span>
+<span class=hljs-addition>+failure occurrs when trying to compile the prepared statement.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The return type is starting to get a little complex here. The next steps will include</span>
+<span class=hljs-addition>+binding values to the statement, querying, and converting to the struct we want</span>
+<span class=hljs-addition>+in one step using this convenient function [`query_map`](https://docs.rs/rusqlite/0.20.0/rusqlite/struct.Statement.html#method.query_map).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+cookies.get_private(session)</span>
+<span class=hljs-addition>+    .map(|cookie| {</span>
+<span class=hljs-addition>+        connection.prepare(sql)</span>
+<span class=hljs-addition>+            .map(|mut statement| {</span>
+<span class=hljs-addition>+                statement.query_map(</span>
+<span class=hljs-addition>+                    &amp;amp;[&amp;amp;session_id, Time::now()],</span>
+<span class=hljs-addition>+                    Data::from_row</span>
+<span class=hljs-addition>+                ) // Result&lt;MappedRows, Error&gt;</span>
+<span class=hljs-addition>+            }) // Result&lt;Result&lt;MappedRows, Error&gt;, Error&gt;</span>
+<span class=hljs-addition>+    }) // Option&lt;Result&lt;Result&lt;MappedRows, Error&gt;, Error&gt;&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And then extract the data of the first row. And extract Data because there&#x27;s</span>
+<span class=hljs-addition>+a chance the mapping function failed.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;&gt;</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+cookies.get_private(session)</span>
+<span class=hljs-addition>+    .map(|cookie| {</span>
+<span class=hljs-addition>+        connection.prepare(sql)</span>
+<span class=hljs-addition>+            .map(|mut statement| {</span>
+<span class=hljs-addition>+                statement.query_map(</span>
+<span class=hljs-addition>+                    &amp;amp;[&amp;amp;cookie.value(), Time::now()],</span>
+<span class=hljs-addition>+                    Data::from_row</span>
+<span class=hljs-addition>+                ).map(|mut rows| rows.next()) // Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;</span>
+<span class=hljs-addition>+            }) // Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;</span>
+<span class=hljs-addition>+    }) // Option&lt;Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Wow that is complex, but I think it goes to show that all errors are accounted for</span>
+<span class=hljs-addition>+in the type.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```text</span>
+<span class=hljs-addition>+Option&lt;</span>
+<span class=hljs-addition>+|   Result&lt;</span>
+<span class=hljs-addition>+|   |   Result&lt;</span>
+<span class=hljs-addition>+|   |   |   Option&lt;</span>
+<span class=hljs-addition>+|   |   |   |   Result&lt;Data&gt;&gt;&gt;&gt;&gt;</span>
+<span class=hljs-addition>+|   |   |   |   |</span>
+<span class=hljs-addition>+|   |   |   |   |</span>
+<span class=hljs-addition>+|   |   |   |   if conversion from row to Data fails</span>
+<span class=hljs-addition>+|   |   |   if no rows returned</span>
+<span class=hljs-addition>+|   |   if binding values to statement fails or query fails</span>
+<span class=hljs-addition>+|   if statement fails to be compiled</span>
+<span class=hljs-addition>+if cookie doesnt exist</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But remember that the end type we are aiming for is `Option&lt;Data&gt;`. And the point</span>
+<span class=hljs-addition>+of this post is to show that there are tons of ways to do so, but they all look different.</span>
+<span class=hljs-addition>+When it comes to nested `Result` and `Option` types, I&#x27;ve found several approaches:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. You don&#x27;t have to nest everything exactly</span>
+<span class=hljs-addition>+2. Use the [`flatten`](https://doc.rust-lang.org/std/result/enum.Result.html#method.flatten)</span>
+<span class=hljs-addition>+   method (which is behind a flag at the time of writing for `Result`)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## avoid nesting</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The levels of indentation in our code is mimicked by the resulting type. We can</span>
+<span class=hljs-addition>+try flattening our code in order to flatten the type. Unfortunately, we can&#x27;t level</span>
+<span class=hljs-addition>+it all the way because there are actual two seperate parts: the database functionality</span>
+<span class=hljs-addition>+and the cookie part so the best we can do is get it to two levels deep (if at all).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I tried bringing out the part that deals with `rows` up one level. Also, I&#x27;m going</span>
+<span class=hljs-addition>+to use `Result&lt;T&gt;` as shorthand for `Result&lt;T, E&gt;` from now on.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+cookies.get_private(session)</span>
+<span class=hljs-addition>+    .map(|cookie| {</span>
+<span class=hljs-addition>+        connection.prepare(sql)</span>
+<span class=hljs-addition>+            .map(|mut statement| {</span>
+<span class=hljs-addition>+                statement.query_map(</span>
+<span class=hljs-addition>+                    &amp;amp;[&amp;amp;cookie.value(), Time::now()],</span>
+<span class=hljs-addition>+                    Data::from_row</span>
+<span class=hljs-addition>+                ) // Result&lt;MappedRows&gt;</span>
+<span class=hljs-addition>+            }) // Result&lt;Result&lt;MappedRows&gt;&gt;</span>
+<span class=hljs-addition>+            .map(|rowsResult|</span>
+<span class=hljs-addition>+                rowsResult.map(</span>
+<span class=hljs-addition>+                    |mut rows| rows.next() // Option&lt;Result&lt;Data&gt;&gt;</span>
+<span class=hljs-addition>+                ) // Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;</span>
+<span class=hljs-addition>+            ) // Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;</span>
+<span class=hljs-addition>+    }) // Option&lt;Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well it looks like it lowered it down from 5 to 4. Except you can&#x27;t do this because</span>
+<span class=hljs-addition>+of how rusqlite is implemented. The MappedRows struct contains a reference to Statement.</span>
+<span class=hljs-addition>+Statement only lives as long as the closure in `.map(|mut statement|{...})` so it</span>
+<span class=hljs-addition>+looks like we have to keep these things together otherwise we would have a dangling</span>
+<span class=hljs-addition>+reference.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## avoid nesting with `?`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The short explanation of this operator is it does something like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+    ($expr:expr) =&gt; {</span>
+<span class=hljs-addition>+        match $expr {</span>
+<span class=hljs-addition>+            $crate::result::Result::Ok(val) =&gt; val,</span>
+<span class=hljs-addition>+            $crate::result::Result::Err(err) =&gt; {</span>
+<span class=hljs-addition>+                return $crate::result::Result::Err($crate::convert::From::from(err));</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So it&#x27;s basically an early return if there&#x27;s an error or unwraps from the `Result`</span>
+<span class=hljs-addition>+if it&#x27;s `Ok`. This is possible by refactoring the inner part out to another function.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Specifically, we can pull out the database operations into another function that</span>
+<span class=hljs-addition>+return `Result&lt;T&gt;` like so:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;&gt;</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+fn get_session_data_by_id(connection: &amp;amp;SqliteConnection, id: &amp;amp;str) -&gt; Result&lt;Data, Error&gt; {</span>
+<span class=hljs-addition>+    let mut statement = connection.prepare(sql)?;</span>
+<span class=hljs-addition>+    let mut rows = statement.query_map(</span>
+<span class=hljs-addition>+        &amp;amp;[id, Time::now()],</span>
+<span class=hljs-addition>+        Data::from_row</span>
+<span class=hljs-addition>+    )?;</span>
+<span class=hljs-addition>+    rows.next().map_or(Ok, Err(Error::NoRowsReturned))</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// ...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+cookies.get_private(session)</span>
+<span class=hljs-addition>+    .map(|cookie| get_session_data_by_id(&amp;amp;connection, &amp;amp;cookie.value())) // Option&lt;Result&lt;Data, Error&gt;&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Which is a lot cleaner. Of course, we still haven&#x27;t hit our target of `Option&lt;Data&gt;`.</span>
+<span class=hljs-addition>+But the rest is quick.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## using `flatten`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+`flatten` takes `Option&lt;Option&lt;T&gt;&gt;` or `Result&lt;Result&lt;T&gt;&gt;` to `Option&lt;T&gt;` and `Result&lt;T&gt;`</span>
+<span class=hljs-addition>+respectively. This can be useful if we look at our original type:</span>
+<span class=hljs-addition>+`Option&lt;Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;&gt;`. We do need</span>
+<span class=hljs-addition>+to convert all of these to either all `Option` or all `Result` though to get this</span>
+<span class=hljs-addition>+to work. For this, we can convert `Result&lt;T&gt;` to `Option&lt;T&gt;` with the [`.ok()`](https://doc.rust-lang.org/std/result/enum.Result.html#method.ok)</span>
+<span class=hljs-addition>+method.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Let&#x27;s go back to our starting code and dump in some `.ok()`s and `.flatten()`s.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;&gt;</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+cookies.get_private(session)</span>
+<span class=hljs-addition>+    .map(|cookie| {</span>
+<span class=hljs-addition>+        connection.prepare(sql)</span>
+<span class=hljs-addition>+            .map(|mut statement| {</span>
+<span class=hljs-addition>+                statement.query_map(</span>
+<span class=hljs-addition>+                    &amp;amp;[&amp;amp;cookie.value(), Time::now()],</span>
+<span class=hljs-addition>+                    Data::from_row</span>
+<span class=hljs-addition>+                ).map(|mut rows| {</span>
+<span class=hljs-addition>+                    rows.next()</span>
+<span class=hljs-addition>+                        // added ok here</span>
+<span class=hljs-addition>+                        .map(|maybe_user| maybe_user.ok()) // Option&lt;User&gt;</span>
+<span class=hljs-addition>+                // added ok here</span>
+<span class=hljs-addition>+                }).ok() // Option&lt;Option&lt;User&gt;&gt;</span>
+<span class=hljs-addition>+            // added ok here</span>
+<span class=hljs-addition>+            }).ok() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;</span>
+<span class=hljs-addition>+    }) // Option&lt;Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;&gt;</span>
+<span class=hljs-addition>+    .flatten() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;</span>
+<span class=hljs-addition>+    .flatten() // Option&lt;Option&lt;User&gt;&gt;</span>
+<span class=hljs-addition>+    .flatten() // Option&lt;User&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And we finally have our result. Similarly, we could use `.ok()` and `.flatten()`</span>
+<span class=hljs-addition>+along with `?` for something cleaner:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;&gt;</span>
+<span class=hljs-addition>+```rs</span>
+<span class=hljs-addition>+fn get_session_data_by_id(connection: &amp;amp;SqliteConnection, id: &amp;amp;str) -&gt; Result&lt;Data, Error&gt; {</span>
+<span class=hljs-addition>+    let mut statement = connection.prepare(sql)?;</span>
+<span class=hljs-addition>+    let mut rows = statement.query_map(</span>
+<span class=hljs-addition>+        &amp;amp;[id, Time::now()],</span>
+<span class=hljs-addition>+        Data::from_row</span>
+<span class=hljs-addition>+    )?;</span>
+<span class=hljs-addition>+    rows.next().unwrap_or(Err(Error::QueryReturnedNoRows)))</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// ...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+cookies.get_private(session)</span>
+<span class=hljs-addition>+    .map(|cookie| get_session_data_by_id(&amp;amp;connection, &amp;amp;cookie.value()).ok()) // Option&lt;Option&lt;Data&gt;&gt;</span>
+<span class=hljs-addition>+    .flatten() // Option&lt;Data&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So there are a lot of ways to do this, and some looked nicer than others (to me).</span>
+<span class=hljs-addition>+Which one is the idiomatic approach though? Who knows?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also you could argue that I might want to do something with the errors so I might</span>
+<span class=hljs-addition>+want to change the type to `Result&lt;Data, Error&gt;` instead of `Option&lt;Data&gt;`, which</span>
+<span class=hljs-addition>+is another thing.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

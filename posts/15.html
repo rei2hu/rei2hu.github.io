@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>first time aws user here</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/14>&lt; compression - rambling</a></div> <div style=text-align:end><a href=/./posts/16>mp3 headers &gt;</a></div>
+</nav>
+<h1 id=first-time-aws-user-experience>first time aws user experience</h1>
+<p>A few weeks back, I decided to go through
+<a href=https://aws.amazon.com/getting-started/hands-on/build-modern-app-fargate-lambda-dynamodb-python/ >an aws tutorial</a>. It didn't really explain much, and most of it was copying text from one place to another, so I ended up stopping around the 3rd stage. I'm a cheap person so I didn't want to get charged much so I ended up stopping what I thought were all the services.</p>
+<p>Fast forward a week, I find out I have a \$15 charge for last month, so first things first, I got back to google and looked for ways to stop all services on aws.</p>
+<h2 id=stopping-services-hopefully>stopping services (hopefully)</h2>
+<p>The first result was
+<a href=https://stackoverflow.com/questions/17528559/aws-how-to-disable-all-services>this post</a>
+that I found on StackOverflow. The accepted answer ended up not being very helpful.</p>
+<blockquote>
+<p>You can close your entire account in AWS Billing:
+<a href=https://console.aws.amazon.com/billing/home?#/account>https://console.aws.amazon.com/billing/home?#/account</a></p>
+</blockquote>
+<p>It is important to note that even if you do close your account, you
+<a href=https://aws.amazon.com/premiumsupport/knowledge-center/close-aws-account/ >may still have to pay for things</a></p>
+<blockquote>
+<p>If you purchased any subscriptions with ongoing payment commitments, such as Amazon Elastic Compute Cloud (Amazon EC2) Reserved Instances (RIs) and Savings Plans, you are charged for these subscriptions until the plan term ends even after you close your account.</p>
+</blockquote>
+<p>And it is also suggested to go to the EC2 console and stop things. The problem with this approach is that not everything is listed there and to stop services, you have to jump through multiple hoops to find and cancel its dependents/dependencies first.</p>
+<p>The proper approach to canceling services is hinted at in the second most upvoted answer, but fails to deliver details - ending with</p>
+<blockquote>
+<p>The rest is straightforward from here</p>
+</blockquote>
+<h3 id=actually-stopping-services>actually stopping services</h3>
+<p>So the first thing to do is to head to the
+<a href=https://console.aws.amazon.com/billing/home>billing page</a> and find what you are being billed for. Now keep track of the region and name of the service in my case it was <code>US East (Ohio) Amazon Elastic Compute Cloud NatGateway</code>.</p>
+<p>I then searched for <code>nat gateway</code> and it brought me to the VPC dashboard. Oh, here is the location of other services. And then I was able to cancel them, but not before accruing another \$5 charge for this month.</p>
+<p>So all in all, I was charged \$20 for failing to stop the services properly.</p>
+<h2 id=contacting-support>contacting support</h2>
+<p>Again, I'm a pretty cheap person so I thought I might as well try to file a support ticket to make sure I've canceled everything I could get charged for in addition to asking for a refund - noting that the tutorial claimed that the cost to complete is a lot lower than expected.</p>
+<blockquote>
+<p>Many of the services used are included in the AWS Free Tier. For those that are not, the sample application will cost, in total, less than \$1/day.</p>
+</blockquote>
+<p>I ended up asking 3 questions</p>
+<ol>
+<li>Do I have anything else running that I am getting charged for right now?</li>
+<li>Is there a way to get a refund on my current charges? (last month, start of this month is already \$5)</li>
+<li>Is there a way to know when I start a service that will charge me without waiting for it to show up on the billing page?</li>
+</ol>
+<p>I'm not sure what I was expecting but the support was terrific (well, my only experience going through support was mainly for f2p games, where it takes weeks to get a human response, if at all. Nexon give me my Maplestory account back btw).</p>
+<p>In two business days, support was able to confirm I had canceled everything in addition to refunding me \$15.17 in addition to receiving \$7 of credit. Furthermore, I was provided with a lot of links that could help with avoiding unnecessary charges.</p>
+<ul>
+<li><a href=https://docs.aws.amazon.com/AmazonECS/latest/developerguide/update-service.html>https://docs.aws.amazon.com/AmazonECS/latest/developerguide/update-service.html</a></li>
+<li>This is a better way to find and manage services compared to what was provided in the StackOverflow thread</li>
+<li><a href=https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html>https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor<em>estimated</em>charges<em>with</em>cloudwatch.html</a></li>
+<li>Monitoring (estimated) charges with billing alarms</li>
+<li><a href=https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-managing-costs.html>https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-managing-costs.html</a></li>
+<li>Create budgets (granted this seems to cost money in of itself…)</li>
+</ul>
+<h2 id=where-did-the-nat-gateway-come-from>where did the NAT gateway come from</h2>
+<p>I did only run through that one tutorial so I'm wondering where the NAT gateway came from. When I look at the billing for last month, I was charged for 0.653 GB of data which was processed by the NAT gateway (\$0.03) and 296.000 Hrs (\$13.32). The interesting thing here is that I made my aws account 6 days before the end of the month - and I remember actually creating two, which means somehow I made two by going through the tutorial.</p>
+<p>Specifically, it seemed to be on stage 2, we can see that under Services Used, it lists Amazon Virtual Private Cloud (VPC).</p>
+<p>I can see on step 1 is where it actually created the two NAT gateways based on the
+<a href=https://github.com/aws-samples/aws-modern-application-workshop/blob/python/module-2/cfn/core.yml>setup file</a>. In fact, the tutorial literally says:</p>
+<blockquote>
+<p>Two NAT Gateways (one for each public subnet) - allows the containers we will eventually deploy into our private subnets to communicate out to the Internet to download necessary packages, etc.</p>
+</blockquote>
+<p>And that by itself is \$2.16 (\$0.045 * 24 * 2) a day.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/14>&lt; compression - rambling</a></div> <div style=text-align:end><a href=/./posts/16>mp3 headers &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-08-11 - fix some more formatting</summary>
+<pre class=code-block><input id=code-block-5db7e8653b760879aeeb17c55daac0987697eb1b-1 type=checkbox><label for=code-block-5db7e8653b760879aeeb17c55daac0987697eb1b-1></label><code><span class=hljs-meta>@@ -75,3 +75,3 @@</span> provided with a lot of links that could help with avoiding unnecessary charges.
+     in the StackOverflow thread
+<span class=hljs-deletion>-- [https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html)</span>
+<span class=hljs-addition>+- [https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor\_estimated\_charges\_with\_cloudwatch.html](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html)</span>
+   - Monitoring (estimated) charges with billing alarms
+</code></pre>
+</details>
+<details>
+<summary>2020-08-06 - aws</summary>
+<pre class=code-block><input id=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-1 type=checkbox><label for=code-block-f986f83322b2a2b3e8e4f447a3357730f208f2a2-1></label><code><span class=hljs-meta>@@ -0,0 +1,101 @@</span>
+<span class=hljs-addition>+# first time aws user experience</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A few weeks back, I decided to go through [an aws tutorial](https://aws.amazon.com/getting-started/hands-on/build-modern-app-fargate-lambda-dynamodb-python/).</span>
+<span class=hljs-addition>+It didn&#x27;t really explain much, and most of it was copying text from one place to</span>
+<span class=hljs-addition>+another, so I ended up stopping around the 3rd stage. I&#x27;m a cheap person so I didn&#x27;t</span>
+<span class=hljs-addition>+want to get charged much so I ended up stopping what I thought were all the services.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Fast forward a week, I find out I have a $15 charge for last month, so first things</span>
+<span class=hljs-addition>+first, I got back to google and looked for ways to stop all services on aws.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## stopping services (hopefully)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first result was [this post](https://stackoverflow.com/questions/17528559/aws-how-to-disable-all-services)</span>
+<span class=hljs-addition>+that I found on StackOverflow. The accepted answer ended up not being very helpful.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; You can close your entire account in AWS Billing: [https://console.aws.amazon.com/billing/home?#/account](https://console.aws.amazon.com/billing/home?#/account)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It is important to note that even if you do close your account, you [may still have</span>
+<span class=hljs-addition>+to pay for things](https://aws.amazon.com/premiumsupport/knowledge-center/close-aws-account/)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; If you purchased any subscriptions with ongoing payment commitments, such as Amazon</span>
+<span class=hljs-addition>+&gt; Elastic Compute Cloud (Amazon EC2) Reserved Instances (RIs) and Savings Plans,</span>
+<span class=hljs-addition>+&gt; you are charged for these subscriptions until the plan term ends even after you</span>
+<span class=hljs-addition>+&gt; close your account.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And it is also suggested to go to the EC2 console and stop things. The problem with</span>
+<span class=hljs-addition>+this approach is that not everything is listed there and to stop services, you have</span>
+<span class=hljs-addition>+to jump through multiple hoops to find and cancel its dependents/dependencies first.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The proper approach to canceling services is hinted at in the second most upvoted</span>
+<span class=hljs-addition>+answer, but fails to deliver details - ending with</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; The rest is straightforward from here</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### actually stopping services</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So the first thing to do is to head to the [billing page](https://console.aws.amazon.com/billing/home)</span>
+<span class=hljs-addition>+and find what you are being billed for. Now keep track of the region and name of</span>
+<span class=hljs-addition>+the service in my case it was `US East (Ohio) Amazon Elastic Compute Cloud NatGateway`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I then searched for `nat gateway` and it brought me to the VPC dashboard. Oh, here</span>
+<span class=hljs-addition>+is the location of other services. And then I was able to cancel them, but not before</span>
+<span class=hljs-addition>+accruing another $5 charge for this month.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So all in all, I was charged $20 for failing to stop the services properly.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## contacting support</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Again, I&#x27;m a pretty cheap person so I thought I might as well try to file a support</span>
+<span class=hljs-addition>+ticket to make sure I&#x27;ve cancelled everything I could get charged for in addition</span>
+<span class=hljs-addition>+to asking for a refund - noting that the tutorial claimed that the cost to complete</span>
+<span class=hljs-addition>+is a lot lower than expected.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Many of the services used are included in the AWS Free Tier. For those that are</span>
+<span class=hljs-addition>+&gt; not, the sample application will cost, in total, less than $1/day.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ended up asking 3 questions</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Do I have anything else running that I am getting charged for right now?</span>
+<span class=hljs-addition>+2. Is there a way to get a refund on my current charges? (last month, start of this</span>
+<span class=hljs-addition>+   month is already $5)</span>
+<span class=hljs-addition>+3. Is there a way to know when I start a service that will charge me without waiting</span>
+<span class=hljs-addition>+   for it to show up on the billing page?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not sure what I was expecting but the support was terrific (well, my only experience</span>
+<span class=hljs-addition>+going through support was mainly for f2p games, where it takes weeks to get a human</span>
+<span class=hljs-addition>+response, if at all. Nexon give me my Maplestory account back btw).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In two business days, support was able to confirm I had cancelled everything in addition</span>
+<span class=hljs-addition>+to refunding me $15.17 in addition to receiving $7 of credit. Furthermore, I was</span>
+<span class=hljs-addition>+provided with a lot of links that could help with avoiding unnecessary charges.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- [https://docs.aws.amazon.com/AmazonECS/latest/developerguide/update-service.html](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/update-service.html)</span>
+<span class=hljs-addition>+  - This is a better way to find and manage services compared to what was provided</span>
+<span class=hljs-addition>+    in the StackOverflow thread</span>
+<span class=hljs-addition>+- [https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html)</span>
+<span class=hljs-addition>+  - Monitoring (estimated) charges with billing alarms</span>
+<span class=hljs-addition>+- [https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-managing-costs.html](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-managing-costs.html)</span>
+<span class=hljs-addition>+  - Create budgets (granted this seems to cost money in of itself...)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## where did the NAT gateway come from</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I did only run through that one tutorial so I&#x27;m wondering where the NAT gateway</span>
+<span class=hljs-addition>+came from. When I look at the billing for last month, I was charged for 0.653 GB</span>
+<span class=hljs-addition>+of data which was processed by the NAT gateway ($0.03) and 296.000 Hrs ($13.32).</span>
+<span class=hljs-addition>+The interesting thing here is that I made my aws account 6 days before the end of</span>
+<span class=hljs-addition>+the month - and I remember actually creating two, which means somehow I made two</span>
+<span class=hljs-addition>+by going through the tutorial.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Specifically, it seemed to be on stage 2, we can see that under Services Used, it</span>
+<span class=hljs-addition>+lists Amazon Virtual Private Cloud (VPC).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I can see on step 1 is where it actually created the two NAT gateways based on the</span>
+<span class=hljs-addition>+[setup file](https://github.com/aws-samples/aws-modern-application-workshop/blob/python/module-2/cfn/core.yml).</span>
+<span class=hljs-addition>+In fact, the tutorial literally says:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Two NAT Gateways (one for each public subnet) - allows the containers we will</span>
+<span class=hljs-addition>+&gt; eventually deploy into our private subnets to communicate out to the Internet</span>
+<span class=hljs-addition>+&gt; to download necessary packages, etc.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And that by itself is $2.16 ($0.045 \* 24 * 2) a day.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

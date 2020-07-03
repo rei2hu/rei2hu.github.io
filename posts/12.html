@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>start with a statically typed language</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/11>&lt; review of my haskell project</a></div> <div style=text-align:end><a href=/./posts/13>compression - huffman coding &gt;</a></div>
+</nav>
+<h1 id=start-with-a-statically-typed-language>start with a statically typed language</h1>
+<p>This is my opinion.</p>
+<p>In the context of learning programming and computer science, it is best to start with a statically and strongly typed language. Dynamically typed languages are touted as offering higher productivity and easier to write but these things are not important to the novice programmer.</p>
+<p>One of the most popular languages to start out with according to the internet happens to be python which is kind of on the opposite side of the spectrum here (although it is strongly typed). A few reasons are:</p>
+<ol>
+<li>Easy syntax</li>
+<li>Versatile</li>
+<li>Good documentation/community</li>
+</ol>
+<p>I cannot give a beginner's eye on these reasons but, personally, I do not think the syntax is that much easier than what can be found in other languages - unless you count the boilerplate setup that comes with many compiled languages which shouldn't matter as it's not much noise. In terms of versatility, this is also something a beginner should not be too interested in - yes, python is used in various fields like machine learning, web development, data science, game development, etc. but this is not something that someone looking to learn solid fundamentals should be concerned about. The community is a good reason though, because it's good to have support as you learn.</p>
+<p>However, a statically and strongly typed language provides one huge and important benefit that carries over to programming with other types of languages.</p>
+<h2 id=learn-to-solve-your-own-errors>learn to solve your own errors</h2>
+<p>In some of my free time, I help beginner programmers troubleshoot their issues and this errors that are provided an overwhelming amount of time are ones like this</p>
+<pre class=code-block><input id=code-block-12-1 type=checkbox><label for=code-block-12-1></label><code>(<span class=hljs-attr>node</span>:<span class=hljs-number>28176</span>) <span class="class_ hljs-title">UnhandledPromiseRejectionWarning</span>: <span class="class_ hljs-title">TypeError</span>: <span class="class_ hljs-title">Cannot</span> read property <span class=hljs-string>&#x27;name&#x27;</span> <span class=hljs-keyword>of</span> <span class=hljs-literal>undefined</span>
+</code></pre>
+<pre class=code-block><input id=code-block-12-2 type=checkbox><label for=code-block-12-2></label><code>Traceback (most recent call last):
+  File <span class=hljs-string>&quot;f.py&quot;</span>, line <span class=hljs-number>21</span>, <span class=hljs-keyword>in</span> &lt;module&gt;
+AttributeError: <span class=hljs-string>&#x27;Block&#x27;</span> <span class=hljs-built_in>object</span> has no attribute <span class=hljs-string>&#x27;length&#x27;</span>
+</code></pre>
+<p>First things first, it is interesting to see how many people either do not understand what this kind of error message means or do not read.</p>
+<p>I've tackled so many issues with this problem and 99% of the time it is due to not understanding types. Someone is using a variable and doesn't understand that the data represented by the variable is a certain type with certain properties and methods and is trying to access some arbitrary property that doesn't exist.</p>
+<p>So much time could be saved if the programmer just kept this in mind - and this idea is actually forced upon you when you use a statically typed language because the types need to be known before run time, so you wouldn't even be able to run the program without getting this right.</p>
+<p>Furthermore, understanding types is a roadway to understanding classes and reading documentation. When you understand that a variable is of a certain type, you can pull up the documentation of the class or struct and see what properties and methods exist on it.</p>
+<p>And on a slightly unrelated note, being able to search documentation <strong>by types</strong> is a huge feature. I mean, have you tried out
+<a href=https://hoogle.haskell.org/ >Hoogle</a>?</p>
+<h2 id=conclusion>conclusion</h2>
+<p>Many trivial errors that are encountered by novice programmers could be avoided if they started out with a strongly, statically typed language. If one plans to surpass the level of copying code off of examples and making slight modifications to writing their own, the fundamentals conferred through the use of such a language is indispensable in helping you do so.</p>
+<p>Once you have a solid understanding of types after getting beat up by the type checker, you will be able to keep the concept in mind as you work with dynamically typed languages which have no such support yet will give you errors if you make the same mistake.</p>
+<p>Think of it as starting out with training wheels - you go a little slower but are safer and able to build up a good understanding - and then you take them off and are able to keep your balance (not make novel errors due to mismatched types).</p>
+<p>I wouldn't suggest starting with Haskell though, the syntax is a lot different from what is usually found in imperative programming languages.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/11>&lt; review of my haskell project</a></div> <div style=text-align:end><a href=/./posts/13>compression - huffman coding &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-07-19 - add another post about preferring languages</summary>
+<pre class=code-block><input id=code-block-64a592e46b0596fb49b290d098c0ab635aff1942-1 type=checkbox><label for=code-block-64a592e46b0596fb49b290d098c0ab635aff1942-1></label><code><span class=hljs-meta>@@ -0,0 +1,86 @@</span>
+<span class=hljs-addition>+# start with a statically typed language</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is my opinion.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In the context of learning programming and computer science, it is best to start</span>
+<span class=hljs-addition>+with a statically and strongly typed language. Dynamically typed languages are touted</span>
+<span class=hljs-addition>+as offering higher productivity and easier to write but these things are not important</span>
+<span class=hljs-addition>+to the novice programmer.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One of the most popular languages to start out with according to the internet happens</span>
+<span class=hljs-addition>+to be python which is kind of on the opposite side of the spectrum here (although</span>
+<span class=hljs-addition>+it is strongly typed). A few reasons are:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Easy syntax</span>
+<span class=hljs-addition>+2. Versatile</span>
+<span class=hljs-addition>+3. Good documentation/community</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I cannot give a beginner&#x27;s eye on these reasons but, personally, I do not think the</span>
+<span class=hljs-addition>+syntax is that much easier than what can be found in other languages - unless you</span>
+<span class=hljs-addition>+count the boilerplate setup that comes with many compiled languages which shouldn&#x27;t</span>
+<span class=hljs-addition>+matter as it&#x27;s not much noise. In terms of versatility, this is also something a</span>
+<span class=hljs-addition>+beginner should not be too interested in - yes, python is used in various fields</span>
+<span class=hljs-addition>+like machine learning, web development, data science, game development, etc. but</span>
+<span class=hljs-addition>+this is not something that someone looking to learn solid fundamentals should be</span>
+<span class=hljs-addition>+concerned about. The community is a good reason though, because it&#x27;s good to have</span>
+<span class=hljs-addition>+support as you learn.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, a statically and strongly typed language provides one huge and important</span>
+<span class=hljs-addition>+benefit that carries over to programming with other types of languages.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## learn to solve your own errors</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In some of my free time, I help beginner programmers troubleshoot their issues and</span>
+<span class=hljs-addition>+this errors that are provided an overwhelming amount of time are ones like this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```javascript</span>
+<span class=hljs-addition>+(node:28176) UnhandledPromiseRejectionWarning: TypeError: Cannot read property &#x27;name&#x27; of undefined</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+Traceback (most recent call last):</span>
+<span class=hljs-addition>+  File &quot;f.py&quot;, line 21, in &lt;module&gt;</span>
+<span class=hljs-addition>+AttributeError: &#x27;Block&#x27; object has no attribute &#x27;length&#x27;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First things first, it is interesting to see how many people either do not understand</span>
+<span class=hljs-addition>+what this kind of error message means or do not read.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve tackled so many issues with this problem and 99% of the time it is due to not</span>
+<span class=hljs-addition>+understanding types. Someone is using a variable and doesn&#x27;t understand that the</span>
+<span class=hljs-addition>+data represented by the variable is a certain type with certain properties and methods</span>
+<span class=hljs-addition>+and is trying to access some arbitrary property that doesn&#x27;t exist.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So much time could be saved if the programmer just kept this in mind - and this idea</span>
+<span class=hljs-addition>+is actually forced upon you when you use a statically typed language because the</span>
+<span class=hljs-addition>+types need to be known before run time, so you wouldn&#x27;t even be able to run the program</span>
+<span class=hljs-addition>+without getting this right.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Furthermore, understanding types is a roadway to understanding classes and reading</span>
+<span class=hljs-addition>+documentation. When you understand that a variable is of a certain type, you can</span>
+<span class=hljs-addition>+pull up the documentation of the class or struct and see what properties and methods</span>
+<span class=hljs-addition>+exist on it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And on a slightly unrelated note, being able to search documentation **by types**</span>
+<span class=hljs-addition>+is a huge feature. I mean, have you tried out [Hoogle](https://hoogle.haskell.org/)?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Many trivial errors that are encountered by novice programmers could be avoided if</span>
+<span class=hljs-addition>+they started out with a strongly, statically typed language. If one plans to surpass</span>
+<span class=hljs-addition>+the level of copying code off of examples and making slight modifications to writing</span>
+<span class=hljs-addition>+their own, the fundamentals conferred through the use of such a language is indispensible</span>
+<span class=hljs-addition>+in helping you do so.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Once you have a solid understanding of types after getting beat up by the type checker,</span>
+<span class=hljs-addition>+you will be able to keep the concept in mind as you work with dynamically typed languages</span>
+<span class=hljs-addition>+which have no such support yet will give you errors if you make the same mistake.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Think of it as starting out with training wheels - you go a little slower but are</span>
+<span class=hljs-addition>+safer and able to build up a good understanding - and then you take them off and</span>
+<span class=hljs-addition>+are able to keep your balance (not make novel errors due to mismatched types).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I wouldn&#x27;t suggest starting with Haskell though, the syntax is a lot different from</span>
+<span class=hljs-addition>+what is usually found in imperative programming languages.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

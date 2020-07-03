@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>compression - huffman coding</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/12>&lt; start with a statically typed language</a></div> <div style=text-align:end><a href=/./posts/14>compression - rambling &gt;</a></div>
+</nav>
+<h1 id=compression---huffman-coding>compression - Huffman coding</h1>
+<p>This probably isn't the best title, but I was wondering if it was possible that breaking data into multiple pieces and compressing them separately can give better results than compressing it at once.</p>
+<p>I've actually changed the title like 4 times because the other ones were too long for the layout.</p>
+<h2 id=a-basic-compression-technique---huffman-coding>a basic compression technique - Huffman coding</h2>
+<p>Huffman coding is probably one of the simplest and well known compression techniques considering it is taught as part of the computer science curriculum. I'll be rambling about this in an effort to see whether this idea might be possible, but first, an explanation of how it works.</p>
+<h3 id=huffman-coding---an-explanation>Huffman coding - an explanation</h3>
+<p>The idea behind Huffman coding is to come up with a set of codes that encode less frequently occurring symbols with more bits while encoding more frequently occurring symbols with less bits.</p>
+<p>Take, for example, a <code>char</code>. This has a size of 1 byte or 8 bits, but if you only have 2 different <code>char</code>s in your file, then in reality, we only need 1 bit to differentiate between the two, for example (spacing for display purposes):</p>
+<p>
+A A B B A B $\rightarrow$ 01000001 01000001 01000010 01000010 01000001 01000010
+<br>
+compared to
+<br>
+A A B B A B $\rightarrow$ 0 0 1 1 0 1
+</p>
+<p>However, it is not as simple as having the patterns <code>0</code>, <code>1</code>, <code>01</code>, <code>10</code>, etc. because when decoding, you would come across ambiguities. Therefore, the encoding must be a <strong>prefix code</strong> so that none of the codes are prefixes of the other - <code>0</code> and <code>01</code> could not both be in the set because <code>0</code> is a prefix of
+<code>01</code>.</p>
+<p>It just so happens that this can be simply done with a binary tree - we treat the edges as a way to represent the code and as long as we leave (haha) the symbols at the leaves, we guarantee that we do not have the prefix conflict. For example:</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child{ node{A} edge from parent node[left, draw=none] {0} }
+      child{ node {}
+        child{ node{B} edge from parent node[left, draw=none] {0} }
+        child{ node{C} edge from parent node[right, draw=none] {1} }
+      edge from parent node[right, draw=none] {1} };
+   \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child{ node{A} edge from parent node[left, draw=none] {0} }
+      child{ node {}
+        child{ node{B} edge from parent node[left, draw=none] {0} }
+        child{ node{C} edge from parent node[right, draw=none] {1} }
+      edge from parent node[right, draw=none] {1} };
+   \end{tikzpicture}
+</script>
+<p>We can interpret the tree as a prefix code by starting at the root and using the bits along the path to each leaf as the codeword for the symbol at the leaf i.e.</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Codeword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>0</td>
+</tr>
+<tr>
+<td>B</td>
+<td>10</td>
+</tr>
+<tr>
+<td>C</td>
+<td>11</td>
+</tr>
+</tbody>
+</table>
+<h3 id=huffman-coding---an-example>Huffman coding - an example</h3>
+<p>Consider compressing the string <code>AAAACABBDDECCDD</code>.</p>
+<p>To construct this tree for this example, we start with only the leaves (trees of size 1) - we then combine the two least trees with the least occurring symbols into another tree and keep doing so until we end up with one tree. Here is a rough code example.</p>
+<pre class=code-block><input id=code-block-13-1 type=checkbox><label for=code-block-13-1></label><code><span class=hljs-keyword>from</span> collections <span class=hljs-keyword>import</span> namedtuple
+
+Node = namedtuple(<span class=hljs-string>&#x27;Node&#x27;</span>, [<span class=hljs-string>&#x27;left&#x27;</span>, <span class=hljs-string>&#x27;right&#x27;</span>, <span class=hljs-string>&#x27;value&#x27;</span>, <span class=hljs-string>&#x27;occurrences&#x27;</span>])
+
+
+<span class=hljs-keyword>def</span> <span class="function_ hljs-title">make_huff_tree</span>(<span class=hljs-params>symbols</span>):
+    <span class=hljs-keyword>if</span> <span class=hljs-built_in>len</span>(symbols) == <span class=hljs-number>1</span>:
+        <span class=hljs-keyword>return</span> symbols.pop()
+
+    left = symbols.pop(<span class=hljs-number>0</span>)
+    right = symbols.pop(<span class=hljs-number>0</span>)
+    <span class=hljs-comment># this is an inner node so there is no value</span>
+    symbols.append(
+        Node(left, right, <span class=hljs-literal>None</span>, left.occurrences + right.occurrences))
+    <span class=hljs-comment># inefficient, but basically I want to guarantee that the first two things</span>
+    <span class=hljs-comment># in the list are the ones with the least occurrences - this is typically</span>
+    <span class=hljs-comment># done with a priority queue</span>
+    symbols.sort(key=<span class=hljs-keyword>lambda</span> s: s.occurrences)
+    <span class=hljs-keyword>return</span> make_huff_tree(symbols)
+
+data = <span class=hljs-string>&quot;AAAACABBDDECCDD&quot;</span>
+<span class=hljs-comment># &quot;fun&quot; way to get char counts</span>
+symbols = <span class=hljs-built_in>list</span>(
+    <span class=hljs-built_in>map</span>(<span class=hljs-keyword>lambda</span> a: Node(<span class=hljs-literal>None</span>, <span class=hljs-literal>None</span>, a[<span class=hljs-number>0</span>], <span class=hljs-built_in>len</span>(<span class=hljs-built_in>list</span>(a[<span class=hljs-number>1</span>]))), groupby(<span class=hljs-built_in>sorted</span>(data))))
+symbols.sort(key=<span class=hljs-keyword>lambda</span> s: s.occurrences)
+
+<span class=hljs-built_in>print</span>(make_huff_tree(symbols))
+</code></pre>
+<p>This gives us the following output:</p>
+<pre class=code-block><input id=code-block-13-2 type=checkbox><label for=code-block-13-2></label><code>Node(left=Node(left=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;C&#x27;</span>, occurrences=<span class=hljs-number>3</span>), right=Node(left=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;E&#x27;</span>, occurrences=<span class=hljs-number>1</span>), right=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;B&#x27;</span>, occurrences=<span class=hljs-number>2</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>3</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>6</span>), right=Node(left=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;D&#x27;</span>, occurrences=<span class=hljs-number>4</span>), right=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;A&#x27;</span>, occurrences=<span class=hljs-number>5</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>9</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>15</span>))
+</code></pre>
+<p>Or the following tree (I'm keeping track of the occurrences here also, just for reference)</p>
+<noscript><pre>
+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+    level 1/.style={sibling distance=30mm},
+    level 2/.style={sibling distance=15mm}]
+    \node{15}
+      child { node{6}
+        child{ node{C:3} edge from parent node[left, draw=none] {0}
+          edge from parent node[left, draw=none] {0}
+        }
+        child{ node {3}
+          child{ node{E:1} edge from parent node[left, draw=none] {0} }
+          child{ node{B:2} edge from parent node[right, draw=none] {1} }
+          edge from parent node[right, draw=none] {1}
+        }
+        edge from parent node[left, draw=none] {0}
+      }
+      child { node {9}
+        child { node {D:4} edge from parent node[left, draw=none] {0} }
+        child { node {A:5} edge from parent node[right, draw=none] {1} }
+        edge from parent node[right, draw=none] {1}
+      };
+   \end{tikzpicture}
+</pre></noscript><script type=text/tikz>
+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+    level 1/.style={sibling distance=30mm},
+    level 2/.style={sibling distance=15mm}]
+    \node{15}
+      child { node{6}
+        child{ node{C:3} edge from parent node[left, draw=none] {0}
+          edge from parent node[left, draw=none] {0}
+        }
+        child{ node {3}
+          child{ node{E:1} edge from parent node[left, draw=none] {0} }
+          child{ node{B:2} edge from parent node[right, draw=none] {1} }
+          edge from parent node[right, draw=none] {1}
+        }
+        edge from parent node[left, draw=none] {0}
+      }
+      child { node {9}
+        child { node {D:4} edge from parent node[left, draw=none] {0} }
+        child { node {A:5} edge from parent node[right, draw=none] {1} }
+        edge from parent node[right, draw=none] {1}
+      };
+   \end{tikzpicture}
+</script>
+<p>And encoding</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Codeword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>11</td>
+</tr>
+<tr>
+<td>B</td>
+<td>011</td>
+</tr>
+<tr>
+<td>C</td>
+<td>00</td>
+</tr>
+<tr>
+<td>D</td>
+<td>10</td>
+</tr>
+<tr>
+<td>E</td>
+<td>010</td>
+</tr>
+</tbody>
+</table>
+<p>So here we see that instead of using the usual 8 bits per character, we were able to compress it down to using 2 or 3 bits per character. So now we know how to compress data using this algorithm. Now, let's to look at how to store it in a file using the current example.</p>
+<p>As a quick aside, this is the binary of the original file containing $AAAACABBDDECCDD$</p>
+<pre class=code-block><input id=code-block-13-3 type=checkbox><label for=code-block-13-3></label><code>0100000101000001010000010100000101000011010000010100001001000010010001000100010001000101010000110100001101000100010001000
+</code></pre>
+<p>When storing the codebook (translation), the one efficient way to store it encodes a preorder traversal of the tree through bits; imagine 1 is an inner node and 0 is a leaf node. When we reach a leaf node, we append the symbol. Here's another rough block of code that builds off the previous one (we'll use a list of strings for simplicity's sake):</p>
+<pre class=code-block><input id=code-block-13-4 type=checkbox><label for=code-block-13-4></label><code>tree = make_huff_tree(symbols)
+
+<span class=hljs-keyword>def</span> <span class="function_ hljs-title">encode_huff_tree</span>(<span class=hljs-params>tree</span>):
+    <span class=hljs-comment># a leaf node</span>
+    <span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> (tree.left <span class=hljs-keyword>or</span> tree.right):
+        <span class=hljs-keyword>return</span> [<span class=hljs-string>&#x27;0&#x27;</span>, <span class=hljs-built_in>format</span>(<span class=hljs-built_in>ord</span>(tree.value), <span class=hljs-string>&#x27;b&#x27;</span>).zfill(<span class=hljs-number>8</span>)]
+    <span class=hljs-keyword>return</span> [<span class=hljs-string>&#x27;1&#x27;</span>] + encode_huff_tree(tree.left) + encode_huff_tree(tree.right)
+
+<span class=hljs-built_in>print</span>(encode_huff_tree(tree))
+</code></pre>
+<p>Which outputs</p>
+<pre class=code-block><input id=code-block-13-5 type=checkbox><label for=code-block-13-5></label><code>[<span class=hljs-string>&#x27;1&#x27;</span>, <span class=hljs-string>&#x27;1&#x27;</span>, <span class=hljs-string>&#x27;0&#x27;</span>, <span class=hljs-string>&#x27;01000011&#x27;</span>, <span class=hljs-string>&#x27;1&#x27;</span>, <span class=hljs-string>&#x27;0&#x27;</span>, <span class=hljs-string>&#x27;01000101&#x27;</span>, <span class=hljs-string>&#x27;0&#x27;</span>, <span class=hljs-string>&#x27;01000010&#x27;</span>, <span class=hljs-string>&#x27;1&#x27;</span>, <span class=hljs-string>&#x27;0&#x27;</span>, <span class=hljs-string>&#x27;01000100&#x27;</span>, <span class=hljs-string>&#x27;0&#x27;</span>, <span class=hljs-string>&#x27;01000001&#x27;</span>]
+</code></pre>
+<p>We can see that the symbols still take up their usual 8 bits. And the decoding method:</p>
+<pre class=code-block><input id=code-block-13-6 type=checkbox><label for=code-block-13-6></label><code>enc_tree = encode_huff_tree(tree)
+RebuiltNode = namedtuple(<span class=hljs-string>&#x27;RebuiltNode&#x27;</span>, [<span class=hljs-string>&#x27;left&#x27;</span>, <span class=hljs-string>&#x27;right&#x27;</span>, <span class=hljs-string>&#x27;value&#x27;</span>])
+
+<span class=hljs-keyword>def</span> <span class="function_ hljs-title">decode_huff_tree</span>(<span class=hljs-params>encoded</span>):
+    node = encoded.pop(<span class=hljs-number>0</span>)
+    <span class=hljs-keyword>if</span> node == <span class=hljs-string>&#x27;1&#x27;</span>:
+        <span class=hljs-comment># an inner node</span>
+        <span class=hljs-keyword>return</span> RebuiltNode(decode_huff_tree(encoded), decode_huff_tree(encoded), <span class=hljs-literal>None</span>)
+    <span class=hljs-keyword>else</span>:
+        <span class=hljs-comment># a leaf node</span>
+        r = RebuiltNode(<span class=hljs-literal>None</span>, <span class=hljs-literal>None</span>, <span class=hljs-built_in>chr</span>(<span class=hljs-built_in>int</span>(<span class=hljs-string>&#x27;&#x27;</span>.join(encoded[<span class=hljs-number>0</span>:<span class=hljs-number>8</span>]), <span class=hljs-number>2</span>)))
+        <span class=hljs-keyword>del</span> encoded[<span class=hljs-number>0</span>:<span class=hljs-number>8</span>]
+        <span class=hljs-keyword>return</span> r
+
+<span class=hljs-built_in>print</span>(decode_huff_tree(<span class=hljs-built_in>list</span>(<span class=hljs-string>&#x27;&#x27;</span>.join(encode_huff_tree(tree)))))
+</code></pre>
+<p>Which outputs</p>
+<pre class=code-block><input id=code-block-13-7 type=checkbox><label for=code-block-13-7></label><code>RebuiltNode(left=RebuiltNode(left=RebuiltNode(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;C&#x27;</span>), right=RebuiltNode(left=RebuiltNode(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;E&#x27;</span>), right=RebuiltNode(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;B&#x27;</span>), value=<span class=hljs-literal>None</span>), value=<span class=hljs-literal>None</span>), right=RebuiltNode(left=RebuiltNode(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;D&#x27;</span>), right=RebuiltNode(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;A&#x27;</span>), value=<span class=hljs-literal>None</span>), value=<span class=hljs-literal>None</span>)
+</code></pre>
+<p>Hey, it's literally the same tree as the one we made all the way back except without the occurrences data, and we conveniently don't need to give the length of the encoded tree data because it knows when to terminate, e.g.</p>
+<pre class=code-block><input id=code-block-13-8 type=checkbox><label for=code-block-13-8></label><code>enc_tree = encode_huff_tree(tree)
+enc_tree = enc_tree + [<span class=hljs-string>&#x27;oh no!&#x27;</span>, <span class=hljs-string>&#x27;is the data starting?&#x27;</span>]
+
+<span class=hljs-comment># ...</span>
+
+<span class=hljs-built_in>print</span>(decode_huff_tree(<span class=hljs-built_in>list</span>(<span class=hljs-string>&#x27;&#x27;</span>.join(enc_tree))) <span class=hljs-comment># it still works!</span>
+</code></pre>
+<p>And the leftovers of the list are actual the encoded data. There is only one last thing to do, which is to prepend the encoded tree to the actual data and see how much space we've saved. Let's look at the individual components before combining them.</p>
+<pre class=code-block><input id=code-block-13-9 type=checkbox><label for=code-block-13-9></label><code><span class=hljs-comment># encoded tree</span>
+<span class=hljs-comment># [&#x27;1&#x27;, &#x27;1&#x27;, &#x27;0&#x27;, &#x27;01000011&#x27;, &#x27;1&#x27;, &#x27;0&#x27;, &#x27;01000101&#x27;, &#x27;0&#x27;, &#x27;01000010&#x27;, &#x27;1&#x27;, &#x27;0&#x27;, &#x27;01000100&#x27;, &#x27;0&#x27;, &#x27;01000001&#x27;]</span>
+110 01000011 1 0 01000101 0 01000010 1 0 01000100 0 01000001
+<span class=hljs-comment># actual data</span>
+1111111100110110111010010000010100
+<span class=hljs-comment># final (82)</span>
+1100100001110010001010010000101001000100001000001111111110011011011101001000001010
+<span class=hljs-comment># original (120)</span>
+0100000101000001010000010100000101000011010000010100001001000010010001000100010001000101010000110100001101000100010001000
+</code></pre>
+<p>Wow, a whopping 38 bits saved! Naturally, compression is more useful when dealing with larger data. Want to see the full example run end to end? The code can be found
+<a href=https://github.com/rei2hu/random_stuff/blob/master/python/huffman_example.py>here</a></p>
+<p>Whew! That was explanation longer that I initially anticipated - looks like I'll be splitting this into two parts where part 2 will be all my rambling thoughts. Honestly, the actual idea for this post popped in my head at like 3 am.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/12>&lt; start with a statically typed language</a></div> <div style=text-align:end><a href=/./posts/14>compression - rambling &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-11-18 - rename some posts</summary>
+<pre class=code-block><input id=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1 type=checkbox><label for=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-# compression - pt 1 - an explanation of Huffman coding</span>
+<span class=hljs-addition>+# compression - Huffman coding</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - redo title yet again for 13</summary>
+<pre class=code-block><input id=code-block-1f8f9330ba2fdb19f1602e23739abc601225e417-1 type=checkbox><label for=code-block-1f8f9330ba2fdb19f1602e23739abc601225e417-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-# compression - pt 1 - Huffman coding, an explanation</span>
+<span class=hljs-addition>+# compression - pt 1 - an explanation of Huffman coding</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - fix some more dumb stuff</summary>
+<pre class=code-block><input id=code-block-dd7593b25d9538aa085f4ad0b46135af192935b1-1 type=checkbox><label for=code-block-dd7593b25d9538aa085f4ad0b46135af192935b1-1></label><code><span class=hljs-meta>@@ -223,3 +223,3 @@</span> enc_tree = enc_tree + [&#x27;oh no!&#x27;, &#x27;is the data starting?&#x27;]
+
+<span class=hljs-deletion>-print(decode_huff_tree(list(&#x27;&#x27;.join(encode_huff_tree(tree)))) # it still works!</span>
+<span class=hljs-addition>+print(decode_huff_tree(list(&#x27;&#x27;.join(enc_tree))) # it still works!</span>
+</code></pre>
+<p>```</p>
+</details>
+<details>
+<summary>2020-07-28 - fix inaccurate calculation</summary>
+<pre class=code-block><input id=code-block-673c93f88c65bfcba69a6c8eb5c603f386135249-1 type=checkbox><label for=code-block-673c93f88c65bfcba69a6c8eb5c603f386135249-1></label><code><span class=hljs-meta>@@ -245,3 +245,3 @@</span> them.
+
+<span class=hljs-deletion>-Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing</span>
+<span class=hljs-addition>+Wow, a whopping 38 bits saved! Naturally, compression is more useful when dealing</span>
+ with larger data. Want to see the full example run end to end? The code can be found
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - update sections</summary>
+<pre class=code-block><input id=code-block-50f4b06cddb3bc51e5285bf8d26f1b4154069a39-1 type=checkbox><label for=code-block-50f4b06cddb3bc51e5285bf8d26f1b4154069a39-1></label><code><span class=hljs-meta>@@ -16,3 +16,3 @@</span> explanation of how it works.
+
+<span class=hljs-deletion>-### Huffman coding - an explanation/example</span>
+<span class=hljs-addition>+### Huffman coding - an explanation</span>
+</code></pre>
+<pre class=code-block><input id=code-block-50f4b06cddb3bc51e5285bf8d26f1b4154069a39-2 type=checkbox><label for=code-block-50f4b06cddb3bc51e5285bf8d26f1b4154069a39-2></label><code><span class=hljs-meta>@@ -63,2 +63,4 @@</span> bits along the path to each leaf as the codeword for the symbol at the leaf i.e.
+
+<span class=hljs-addition>+### Huffman coding - an example</span>
+<span class=hljs-addition>+</span>
+ Consider compressing the string `AAAACABBDDECCDD`.
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - update title for 13 and other small issues</summary>
+<pre class=code-block><input id=code-block-ae9dd1bf0ce328dc8e41bdfaf06feeefa6497b87-1 type=checkbox><label for=code-block-ae9dd1bf0ce328dc8e41bdfaf06feeefa6497b87-1></label><code><span class=hljs-meta>@@ -115,3 +115,3 @@</span> Or the following tree (I&#x27;m keeping track of the occurences here also, just for r
+     \node{15}
+<span class=hljs-deletion>-      child {</span>
+<span class=hljs-addition>+      child { node{6}</span>
+         child{ node{C:3} edge from parent node[left, draw=none] {0}
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - update title for 13</summary>
+<pre class=code-block><input id=code-block-036ab6e75b35003e7d9045db8d0dc4296ecbc2ed-1 type=checkbox><label for=code-block-036ab6e75b35003e7d9045db8d0dc4296ecbc2ed-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-# can more be less in compresson - pt 1 - Huffman coding, an explanation</span>
+<span class=hljs-addition>+# compression - pt 1 - Huffman coding, an explanation</span>
+</code></pre>
+<pre class=code-block><input id=code-block-036ab6e75b35003e7d9045db8d0dc4296ecbc2ed-2 type=checkbox><label for=code-block-036ab6e75b35003e7d9045db8d0dc4296ecbc2ed-2></label><code><span class=hljs-meta>@@ -6,2 +6,5 @@</span> better results than compressing it at once.
+
+<span class=hljs-addition>+I&#x27;ve actually changed the title like 4 times because the other ones were too long</span>
+<span class=hljs-addition>+for the layout.</span>
+<span class=hljs-addition>+</span>
+ ## a basic compression technique - Huffman coding
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - fix yet another problem with the huffman thing</summary>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-1 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-1></label><code><span class=hljs-meta>@@ -73,3 +73,3 @@</span> Node = namedtuple(&#x27;Node&#x27;, [&#x27;left&#x27;, &#x27;right&#x27;, &#x27;value&#x27;, &#x27;occurrences&#x27;])
+
+<span class=hljs-deletion>-def makeHuffTree(symbols):</span>
+<span class=hljs-addition>+def make_huff_tree(symbols):</span>
+     if len(symbols) == 1:
+</code></pre>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-2 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-2></label><code><span class=hljs-meta>@@ -77,12 +77,8 @@</span> def makeHuffTree(symbols):
+
+<span class=hljs-deletion>-    # these two trees should have the lowest occurrence counts</span>
+     left = symbols.pop(0)
+     right = symbols.pop(0)
+<span class=hljs-deletion>-</span>
+<span class=hljs-deletion>-    # combine them into a new tree - since this is an inner node</span>
+<span class=hljs-deletion>-    # there is no actual value, but we do add up the occurrences</span>
+<span class=hljs-deletion>-    symbols.append(Node(left, right, None, left.occurrences</span>
+<span class=hljs-deletion>-                   + right.occurrences))</span>
+<span class=hljs-deletion>-</span>
+<span class=hljs-deletion>-    # inefficient, but basically we want to guarantee that the first two things</span>
+<span class=hljs-addition>+    # this is an inner node so there is no value</span>
+<span class=hljs-addition>+    symbols.append(</span>
+<span class=hljs-addition>+        Node(left, right, None, left.occurrences + right.occurrences))</span>
+<span class=hljs-addition>+    # inefficient, but basically I want to guarantee that the first two things</span>
+     # in the list are the ones with the least occurrences - this is typically
+</code></pre>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-3 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-3></label><code><span class=hljs-meta>@@ -90,12 +86,11 @@</span> def makeHuffTree(symbols):
+     symbols.sort(key=lambda s: s.occurrences)
+<span class=hljs-deletion>-    return makeHuffTree(symbols)</span>
+<span class=hljs-deletion>-</span>
+<span class=hljs-deletion>-# make sure the first two things in symbols have the lowest occurrences</span>
+<span class=hljs-deletion>-# again, typically with a priority queue, every time you peek/remove, you are</span>
+<span class=hljs-deletion>-# guaranteed to get the extreme so that is another way this could be done</span>
+<span class=hljs-deletion>-symbols = [Node(None, None, &#x27;A&#x27;, 5), Node(None, None, &#x27;B&#x27;, 2),</span>
+<span class=hljs-deletion>-           Node(None, None, &#x27;C&#x27;, 3), Node(None, None, &#x27;D&#x27;, 4),</span>
+<span class=hljs-deletion>-           Node(None, None, &#x27;E&#x27;, 1)]</span>
+<span class=hljs-addition>+    return make_huff_tree(symbols)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+data = &quot;AAAACABBDDECCDD&quot;</span>
+<span class=hljs-addition>+# &quot;fun&quot; way to get char counts</span>
+<span class=hljs-addition>+symbols = list(</span>
+<span class=hljs-addition>+    map(lambda a: Node(None, None, a[0], len(list(a[1]))), groupby(sorted(data))))</span>
+ symbols.sort(key=lambda s: s.occurrences)
+<span class=hljs-deletion>-print makeHuffTree(symbols)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+print(make_huff_tree(symbols))</span>
+</code></pre>
+<p>```</p>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-4 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-4></label><code><span class=hljs-meta>@@ -106,3 +101,3 @@</span> This gives us the following output:
+</code></pre>
+<p>python -Node(left=Node(left=Node(left=None, right=None, value='C', occurrences=3), right=Node(left=Node(left=None, right=None, value='E', occurrences=1), right=Node(left=None, right=None, value='B', occurrences=2), value=None, occurrences=3), value=None, occurrences=6), right=Node(left=Node(left=None, right=None, value='D', occurrences=4), right=Node(left=None, right=None, value='A', occurrences=5), value=None, occurrences=9), value=None, occurrences=15) +Node(left=Node(left=Node(left=None, right=None, value='C', occurrences=3), right=Node(left=Node(left=None, right=None, value='E', occurrences=1), right=Node(left=None, right=None, value='B', occurrences=2), value=None, occurrences=3), value=None, occurrences=6), right=Node(left=Node(left=None, right=None, value='D', occurrences=4), right=Node(left=None, right=None, value='A', occurrences=5), value=None, occurrences=9), value=None, occurrences=15))</p>
+<pre><code>
+</code></pre>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-5 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-5></label><code><span class=hljs-meta>@@ -164,11 +159,11 @@</span> simplicity&#x27;s sake):
+</code></pre>
+<p>python -tree = makeHuffTree(symbols) +tree = make<em>huff</em>tree(symbols)</p>
+<p>-def encodeHuffTree(tree): +def encode<em>huff</em>tree(tree): # a leaf node if not (tree.left or tree.right):</p>
+<ul>
+<li>return &quot;0&quot; + tree.value</li>
+<li>return &quot;1&quot; + encodeHuffTree(tree.left) + encodeHuffTree(tree.right)</li>
+<li>return ['0', format(ord(tree.value), 'b').zfill(8)]</li>
+<li>return ['1'] + encode<em>huff</em>tree(tree.left) + encode<em>huff</em>tree(tree.right)</li>
+</ul>
+<p>-print(encodeHuffTree(tree)) +print(encode<em>huff</em>tree(tree))</p>
+<pre><code>
+</code></pre>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-6 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-6></label><code><span class=hljs-meta>@@ -177,24 +172,29 @@</span> Which outputs
+
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+</code></pre>
+<p>python -[1, 1, 0, 'C', 1, 0, 'E', 0, 'B', 1, 0, 'D', 0, 'A'] +['1', '1', '0', '01000011', '1', '0', '01000101', '0', '01000010', '1', '0', '01000100', '0', '01000001']</p>
+<pre><code>+&amp;lt;!-- markdownlint-enable line-length --&amp;gt;
+
+-And the decoding method:
++We can see that the symbols still take up their usual 8 bits. And the decoding method:
+
++&amp;lt;!-- markdownlint-disable line-length --&amp;gt;
+</code></pre>
+<p>python -encTree = encodeHuffTree(tree) +enc<em>tree = encode</em>huff_tree(tree) RebuiltNode = namedtuple('RebuiltNode', ['left', 'right', 'value'])</p>
+<p>-def decodeHuffTree(encoded): +def decode<em>huff</em>tree(encoded): node = encoded.pop(0)</p>
+<ul>
+<li>if node == 1:</li>
+<li>if node == '1': # an inner node</li>
+<li>return RebuiltNode(decodeHuffTree(encoded), decodeHuffTree(encoded), None)</li>
+<li>return RebuiltNode(decode<em>huff</em>tree(encoded), decode<em>huff</em>tree(encoded), None) else: # a leaf node</li>
+<li># read the symbol out and set it as the value</li>
+<li>return RebuiltNode(None, None, encoded.pop(0))</li>
+<li>r = RebuiltNode(None, None, chr(int(''.join(encoded[0:8]), 2)))</li>
+<li>del encoded[0:8]</li>
+<li>return r</li>
+</ul>
+<p>-print(decodeHuffTree(encTree)) +print(decode<em>huff</em>tree(list(''.join(encode<em>huff</em>tree(tree)))))</p>
+<pre><code>+&amp;lt;!-- markdownlint-enable line-length --&amp;gt;
+</code></pre>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-7 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-7></label><code><span class=hljs-meta>@@ -213,4 +213,4 @@</span> tree data because it knows when to terminate, e.g.
+</code></pre>
+<p>python -encTree = encodeHuffTree(tree) -encTree = encTree + ['oh no!', 'is the data starting?'] +enc<em>tree = encode</em>huff<em>tree(tree) +enc</em>tree = enc_tree + ['oh no!', 'is the data starting?']</p>
+<p>```</p>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-8 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-8></label><code><span class=hljs-meta>@@ -218,3 +218,3 @@</span> encTree = encTree + [&#x27;oh no!&#x27;, &#x27;is the data starting?&#x27;]
+
+<span class=hljs-deletion>-print(decodeHuffTree(encTree)) # it still works!</span>
+<span class=hljs-addition>+print(decode_huff_tree(list(&#x27;&#x27;.join(encode_huff_tree(tree)))) # it still works!</span>
+</code></pre>
+<p>```</p>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-9 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-9></label><code><span class=hljs-meta>@@ -226,5 +226,6 @@</span> them.
+
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+</code></pre>
+<p>bash # encoded tree -# [1, 1, 0, 'C', 1, 0, 'E', 0, 'B', 1, 0, 'D', 0, 'A'] +# ['1', '1', '0', '01000011', '1', '0', '01000101', '0', '01000010', '1', '0', '01000100', '0', '01000001'] 110 01000011 1 0 01000101 0 01000010 1 0 01000100 0 01000001</p>
+<p>```</p>
+<pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-10 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-10></label><code><span class=hljs-meta>@@ -237,5 +238,7 @@</span> them.
+</code></pre>
+<p>+&lt;!-- markdownlint-enable line-length --&gt;</p>
+<p>Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing -with larger data. +with larger data. Want to see the full example run end to end? The code can be found +<a href=https://github.com/rei2hu/random_stuff/blob/master/python/huffman_example.py>here</a></p>
+<p>```</p>
+</details>
+<details>
+<summary>2020-07-28 - fix yet another problem</summary>
+<pre class=code-block><input id=code-block-f3950128745787c698931ce8df917144c9933547-1 type=checkbox><label for=code-block-f3950128745787c698931ce8df917144c9933547-1></label><code><span class=hljs-meta>@@ -154,3 +154,3 @@</span> As a quick aside, this is the binary of the original file containing $AAAACABBDD
+</code></pre>
+<p>bash -100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100 +0100000101000001010000010100000101000011010000010100001001000010010001000100010001000101010000110100001101000100010001000</p>
+<pre><code>
+</code></pre>
+<pre class=code-block><input id=code-block-f3950128745787c698931ce8df917144c9933547-2 type=checkbox><label for=code-block-f3950128745787c698931ce8df917144c9933547-2></label><code><span class=hljs-meta>@@ -234,7 +234,7 @@</span> them.
+ 1100100001110010001010010000101001000100001000001111111110011011011101001000001010
+<span class=hljs-deletion>-# original (105)</span>
+<span class=hljs-deletion>-100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100</span>
+<span class=hljs-addition>+# original (120)</span>
+<span class=hljs-addition>+0100000101000001010000010100000101000011010000010100001001000010010001000100010001000101010000110100001101000100010001000</span>
+</code></pre>
+<p>-Wow, a whopping 23 bits saved! Naturally, compression is more useful when dealing +Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing with larger data. ```</p>
+</details>
+<details>
+<summary>2020-07-28 - chars are 8 bits</summary>
+<pre class=code-block><input id=code-block-a6bf5fce6546ba99781dc4eb8c4eeb2d32e66aeb-1 type=checkbox><label for=code-block-a6bf5fce6546ba99781dc4eb8c4eeb2d32e66aeb-1></label><code><span class=hljs-meta>@@ -24,4 +24,6 @@</span> between the two, for example (spacing for display purposes):
+ &lt;p&gt;
+<span class=hljs-deletion>-A A B B A B $\rightarrow$ 01000001 1000010 1000010 1000010 1000010 1000010 &lt;br /&gt;</span>
+<span class=hljs-deletion>-compared to &lt;br /&gt;</span>
+<span class=hljs-addition>+A A B B A B $\rightarrow$ 01000001 01000001 01000010 01000010 01000001 01000010</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+compared to</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+ A A B B A B $\rightarrow$ 0 0 1 1 0 1
+</code></pre>
+<pre class=code-block><input id=code-block-a6bf5fce6546ba99781dc4eb8c4eeb2d32e66aeb-2 type=checkbox><label for=code-block-a6bf5fce6546ba99781dc4eb8c4eeb2d32e66aeb-2></label><code><span class=hljs-meta>@@ -227,7 +229,7 @@</span> them.
+ # [1, 1, 0, &#x27;C&#x27;, 1, 0, &#x27;E&#x27;, 0, &#x27;B&#x27;, 1, 0, &#x27;D&#x27;, 0, &#x27;A&#x27;]
+<span class=hljs-deletion>-110 1000011 1 0 1000101 0 1000010 1 0 1000100 0 1000001</span>
+<span class=hljs-addition>+110 01000011 1 0 01000101 0 01000010 1 0 01000100 0 01000001</span>
+ # actual data
+<span class=hljs-deletion>-111111110011011011101001000001010</span>
+<span class=hljs-deletion>-# final (77)</span>
+<span class=hljs-deletion>-11010000111010001010100001010100010001000001111111110011011011101001000001010</span>
+<span class=hljs-addition>+1111111100110110111010010000010100</span>
+<span class=hljs-addition>+# final (82)</span>
+<span class=hljs-addition>+1100100001110010001010010000101001000100001000001111111110011011011101001000001010</span>
+ # original (105)
+</code></pre>
+<pre class=code-block><input id=code-block-a6bf5fce6546ba99781dc4eb8c4eeb2d32e66aeb-3 type=checkbox><label for=code-block-a6bf5fce6546ba99781dc4eb8c4eeb2d32e66aeb-3></label><code><span class=hljs-meta>@@ -236,3 +238,3 @@</span> them.
+
+<span class=hljs-deletion>-Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing</span>
+<span class=hljs-addition>+Wow, a whopping 23 bits saved! Naturally, compression is more useful when dealing</span>
+ with larger data.
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - update title</summary>
+<pre class=code-block><input id=code-block-4b2550a9ec05bb888397377dee68e9e7129b0be7-1 type=checkbox><label for=code-block-4b2550a9ec05bb888397377dee68e9e7129b0be7-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-# can less be more in compresson - pt 1 - Huffman coding, an explanation</span>
+<span class=hljs-addition>+# can more be less in compresson - pt 1 - Huffman coding, an explanation</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-07-28 - add part 1 for compression post</summary>
+<pre class=code-block><input id=code-block-538f6d45d7c1f859a3d1415f39f23c38809fc0c1-1 type=checkbox><label for=code-block-538f6d45d7c1f859a3d1415f39f23c38809fc0c1-1></label><code><span class=hljs-meta>@@ -0,0 +1,242 @@</span>
+<span class=hljs-addition>+# can less be more in compresson - pt 1 - Huffman coding, an explanation</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This probably isn&#x27;t the best title, but I was wondering if it was possible that</span>
+<span class=hljs-addition>+breaking data into multiple pieces and compressing them seperately can give</span>
+<span class=hljs-addition>+better results than compressing it at once.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## a basic compression technique - Huffman coding</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Huffman coding is probably one of the simplest and well known compression techniques</span>
+<span class=hljs-addition>+considering it is taught as part of the computer science curriculum. I&#x27;ll be rambling</span>
+<span class=hljs-addition>+about this in an effort to see whether this idea might be possible, but first, an</span>
+<span class=hljs-addition>+explanation of how it works.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Huffman coding - an explanation/example</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The idea behind Huffman coding is to come up with a set of codes that encode less</span>
+<span class=hljs-addition>+frequently occurring symbols with more bits while encoding more frequently occurring</span>
+<span class=hljs-addition>+symbols with less bits.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Take, for example, a `char`. This has a size of 1 byte or 8 bits, but if you only</span>
+<span class=hljs-addition>+have 2 different `char`s in your file, then in reality, we only need 1 bit to differentiate</span>
+<span class=hljs-addition>+between the two, for example (spacing for display purposes):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+A A B B A B $\rightarrow$ 01000001 1000010 1000010 1000010 1000010 1000010 &lt;br /&gt;</span>
+<span class=hljs-addition>+compared to &lt;br /&gt;</span>
+<span class=hljs-addition>+A A B B A B $\rightarrow$ 0 0 1 1 0 1</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, it is not as simple as having the patterns `0`, `1`, `01`, `10`, etc. because</span>
+<span class=hljs-addition>+when decoding, you would come across ambiguities. Therefore, the encoding must be</span>
+<span class=hljs-addition>+a **prefix code** so that none of the codes are prefixes of the other - `0` and</span>
+<span class=hljs-addition>+`01` could not both be in the set because `0` is a prefix of `01`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It just so happens that this can be simply done with a binary tree - we treat the</span>
+<span class=hljs-addition>+edges as a way to represent the code and as long as we leave (haha) the symbols at</span>
+<span class=hljs-addition>+the leaves, we guarantee that we do not have the prefix conflict. For example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+    \node{}</span>
+<span class=hljs-addition>+      child{ node{A} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+      child{ node {}</span>
+<span class=hljs-addition>+        child{ node{B} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+        child{ node{C} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+      edge from parent node[right, draw=none] {1} };</span>
+<span class=hljs-addition>+   \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can interpret the tree as a prefix code by starting at the root and using the</span>
+<span class=hljs-addition>+bits along the path to each leaf as the codeword for the symbol at the leaf i.e.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Symbol | Codeword |</span>
+<span class=hljs-addition>+| ------ | -------- |</span>
+<span class=hljs-addition>+| A      | 0        |</span>
+<span class=hljs-addition>+| B      | 10       |</span>
+<span class=hljs-addition>+| C      | 11       |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Consider compressing the string `AAAACABBDDECCDD`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To construct this tree for this example, we start with only the leaves (trees of</span>
+<span class=hljs-addition>+size 1) - we then combine the two least trees with the least occurring symbols into</span>
+<span class=hljs-addition>+another tree and keep doing so until we end up with one tree. Here is a rough</span>
+<span class=hljs-addition>+code example.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+from collections import namedtuple</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Node = namedtuple(&#x27;Node&#x27;, [&#x27;left&#x27;, &#x27;right&#x27;, &#x27;value&#x27;, &#x27;occurrences&#x27;])</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+def makeHuffTree(symbols):</span>
+<span class=hljs-addition>+    if len(symbols) == 1:</span>
+<span class=hljs-addition>+        return symbols.pop()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    # these two trees should have the lowest occurrence counts</span>
+<span class=hljs-addition>+    left = symbols.pop(0)</span>
+<span class=hljs-addition>+    right = symbols.pop(0)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    # combine them into a new tree - since this is an inner node</span>
+<span class=hljs-addition>+    # there is no actual value, but we do add up the occurrences</span>
+<span class=hljs-addition>+    symbols.append(Node(left, right, None, left.occurrences</span>
+<span class=hljs-addition>+                   + right.occurrences))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    # inefficient, but basically we want to guarantee that the first two things</span>
+<span class=hljs-addition>+    # in the list are the ones with the least occurrences - this is typically</span>
+<span class=hljs-addition>+    # done with a priority queue</span>
+<span class=hljs-addition>+    symbols.sort(key=lambda s: s.occurrences)</span>
+<span class=hljs-addition>+    return makeHuffTree(symbols)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+# make sure the first two things in symbols have the lowest occurrences</span>
+<span class=hljs-addition>+# again, typically with a priority queue, every time you peek/remove, you are</span>
+<span class=hljs-addition>+# guaranteed to get the extreme so that is another way this could be done</span>
+<span class=hljs-addition>+symbols = [Node(None, None, &#x27;A&#x27;, 5), Node(None, None, &#x27;B&#x27;, 2),</span>
+<span class=hljs-addition>+           Node(None, None, &#x27;C&#x27;, 3), Node(None, None, &#x27;D&#x27;, 4),</span>
+<span class=hljs-addition>+           Node(None, None, &#x27;E&#x27;, 1)]</span>
+<span class=hljs-addition>+symbols.sort(key=lambda s: s.occurrences)</span>
+<span class=hljs-addition>+print makeHuffTree(symbols)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This gives us the following output:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+Node(left=Node(left=Node(left=None, right=None, value=&#x27;C&#x27;, occurrences=3), right=Node(left=Node(left=None, right=None, value=&#x27;E&#x27;, occurrences=1), right=Node(left=None, right=None, value=&#x27;B&#x27;, occurrences=2), value=None, occurrences=3), value=None, occurrences=6), right=Node(left=Node(left=None, right=None, value=&#x27;D&#x27;, occurrences=4), right=Node(left=None, right=None, value=&#x27;A&#x27;, occurrences=5), value=None, occurrences=9), value=None, occurrences=15)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Or the following tree (I&#x27;m keeping track of the occurences here also, just for reference)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-addition>+    level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-addition>+    level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-addition>+    \node{15}</span>
+<span class=hljs-addition>+      child {</span>
+<span class=hljs-addition>+        child{ node{C:3} edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-addition>+          edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        child{ node {3}</span>
+<span class=hljs-addition>+          child{ node{E:1} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+          child{ node{B:2} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+          edge from parent node[right, draw=none] {1}</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+        edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-addition>+      }</span>
+<span class=hljs-addition>+      child { node {9}</span>
+<span class=hljs-addition>+        child { node {D:4} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+        child { node {A:5} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+        edge from parent node[right, draw=none] {1}</span>
+<span class=hljs-addition>+      };</span>
+<span class=hljs-addition>+   \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And encoding</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Symbol | Codeword |</span>
+<span class=hljs-addition>+| ------ | -------- |</span>
+<span class=hljs-addition>+| A      | 11       |</span>
+<span class=hljs-addition>+| B      | 011      |</span>
+<span class=hljs-addition>+| C      | 00       |</span>
+<span class=hljs-addition>+| D      | 10       |</span>
+<span class=hljs-addition>+| E      | 010      |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So here we see that instead of using the usual 8 bits per character, we were able</span>
+<span class=hljs-addition>+to compress it down to using 2 or 3 bits per character. So now we know how to compress</span>
+<span class=hljs-addition>+data using this algorithm. Now, let&#x27;s to look at how to store it in a file using</span>
+<span class=hljs-addition>+the current example.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As a quick aside, this is the binary of the original file containing $AAAACABBDDECCDD$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```bash</span>
+<span class=hljs-addition>+100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When storing the codebook (translation), the one efficient way to store it encodes</span>
+<span class=hljs-addition>+a preorder traversal of the tree through bits; imagine 1 is an inner node and 0 is</span>
+<span class=hljs-addition>+a leaf node. When we reach a leaf node, we append the symbol. Here&#x27;s another rough</span>
+<span class=hljs-addition>+block of code that builds off the previous one (we&#x27;ll use a list of strings for</span>
+<span class=hljs-addition>+simplicity&#x27;s sake):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+tree = makeHuffTree(symbols)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+def encodeHuffTree(tree):</span>
+<span class=hljs-addition>+    # a leaf node</span>
+<span class=hljs-addition>+    if not (tree.left or tree.right):</span>
+<span class=hljs-addition>+        return &quot;0&quot; + tree.value</span>
+<span class=hljs-addition>+    return &quot;1&quot; + encodeHuffTree(tree.left) + encodeHuffTree(tree.right)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+print(encodeHuffTree(tree))</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Which outputs</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+[1, 1, 0, &#x27;C&#x27;, 1, 0, &#x27;E&#x27;, 0, &#x27;B&#x27;, 1, 0, &#x27;D&#x27;, 0, &#x27;A&#x27;]</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And the decoding method:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+encTree = encodeHuffTree(tree)</span>
+<span class=hljs-addition>+RebuiltNode = namedtuple(&#x27;RebuiltNode&#x27;, [&#x27;left&#x27;, &#x27;right&#x27;, &#x27;value&#x27;])</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+def decodeHuffTree(encoded):</span>
+<span class=hljs-addition>+    node = encoded.pop(0)</span>
+<span class=hljs-addition>+    if node == 1:</span>
+<span class=hljs-addition>+        # an inner node</span>
+<span class=hljs-addition>+        return RebuiltNode(decodeHuffTree(encoded), decodeHuffTree(encoded), None)</span>
+<span class=hljs-addition>+    else:</span>
+<span class=hljs-addition>+        # a leaf node</span>
+<span class=hljs-addition>+        # read the symbol out and set it as the value</span>
+<span class=hljs-addition>+        return RebuiltNode(None, None, encoded.pop(0))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+print(decodeHuffTree(encTree))</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Which outputs</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+RebuiltNode(left=RebuiltNode(left=RebuiltNode(left=None, right=None, value=&#x27;C&#x27;), right=RebuiltNode(left=RebuiltNode(left=None, right=None, value=&#x27;E&#x27;), right=RebuiltNode(left=None, right=None, value=&#x27;B&#x27;), value=None), value=None), right=RebuiltNode(left=RebuiltNode(left=None, right=None, value=&#x27;D&#x27;), right=RebuiltNode(left=None, right=None, value=&#x27;A&#x27;), value=None), value=None)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Hey, it&#x27;s literally the same tree as the one we made all the way back except without</span>
+<span class=hljs-addition>+the occurrences data, and we conveniently don&#x27;t need to give the length of the encoded</span>
+<span class=hljs-addition>+tree data because it knows when to terminate, e.g.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```python</span>
+<span class=hljs-addition>+encTree = encodeHuffTree(tree)</span>
+<span class=hljs-addition>+encTree = encTree + [&#x27;oh no!&#x27;, &#x27;is the data starting?&#x27;]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+# ...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+print(decodeHuffTree(encTree)) # it still works!</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And the leftovers of the list are actual the encoded data. There is only one last</span>
+<span class=hljs-addition>+thing to do, which is to prepend the encoded tree to the actual data and see how</span>
+<span class=hljs-addition>+much space we&#x27;ve saved. Let&#x27;s look at the individual components before combining</span>
+<span class=hljs-addition>+them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```bash</span>
+<span class=hljs-addition>+# encoded tree</span>
+<span class=hljs-addition>+# [1, 1, 0, &#x27;C&#x27;, 1, 0, &#x27;E&#x27;, 0, &#x27;B&#x27;, 1, 0, &#x27;D&#x27;, 0, &#x27;A&#x27;]</span>
+<span class=hljs-addition>+110 1000011 1 0 1000101 0 1000010 1 0 1000100 0 1000001</span>
+<span class=hljs-addition>+# actual data</span>
+<span class=hljs-addition>+111111110011011011101001000001010</span>
+<span class=hljs-addition>+# final (77)</span>
+<span class=hljs-addition>+11010000111010001010100001010100010001000001111111110011011011101001000001010</span>
+<span class=hljs-addition>+# original (105)</span>
+<span class=hljs-addition>+100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing</span>
+<span class=hljs-addition>+with larger data.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Whew! That was explanation longer that I initially anticipated - looks like I&#x27;ll</span>
+<span class=hljs-addition>+be splitting this into two parts where part 2 will be all my rambling thoughts.</span>
+<span class=hljs-addition>+Honestly, the actual idea for this post popped in my head at like 3 am.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

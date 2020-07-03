@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>getting github pages to work the way I want it to</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"></div> <div style=text-align:end><a href=/./posts/2>inefficient business logic &gt;</a></div>
+</nav>
+<h1 id=getting-github-pages-to-work-the-way-i-want-it-to>getting github pages to work the way I want it to</h1>
+<p>Moving my website to GitHub Pages has taken a little more effort than I originally thought it would due to a lack of control over how things get delivered and a few specific bugs that popped up here and there from trying to get a ton of stuff to work together.</p>
+<h2 id=obfuscation-minimization-and-other-preprocessing-related-things>obfuscation, minimization, and other preprocessing related things</h2>
+<p>Naturally, I want to have all my code obfuscated, files minimized, and some other things done to what users will end up receiving when visiting the website. The problem here is that GitHub Pages only servers static sites so these files will have to exist on their own within the repository that is being served.</p>
+<p>Another issue comes from the fact that I ended up using the user site i.e.
+<username>.github.io instead of another one, so I
+<a href=https://docs.github.com/en/github/working-with-github-pages/about-github-pages#publishing-sources-for-github-pages-sites>couldn't choose a specific publishing source outside of master</a>. This means I had to have just the processed files exist on the master branch and nothing else or else risk them being found through url enumeration or something.</username></p>
+<h3 id=preprocessing>preprocessing</h3>
+<p>I was able to set up a separate branch with the files in their unadulterated form and use GitHub Actions along with a few custom scripts to build and update master with the resulting files. The files are processed to complete the following tasks:</p>
+<h3 id=serving-scripts-as-images>serving scripts as images</h3>
+<p>This is a <del>exploit</del> trick I learned a long time ago which I thought was pretty cool - due to the nature of various image formats, they are perfectly valid when run as javascript. If you want to see an example, the script that loads the background effect is <a href=/scripts/playful_reimu.bmp>this one</a>.</p>
+<p>It's important to first note that certain browsers will block these kinds of things, as I used to load the script with</p>
+<pre class=code-block><input id=code-block-1-1 type=checkbox><label for=code-block-1-1></label><code><span class="hljs-variable language_">document</span>.<span class=hljs-property>head</span>.<span class="function_ hljs-title">appendChild</span>(<span class="hljs-variable language_">document</span>.<span class="function_ hljs-title">createElement</span>(<span class=hljs-string>&quot;script&quot;</span>)).<span class=hljs-property>src</span> =
+    <span class=hljs-string>&quot;/image_script.bmp&quot;</span>;
+</code></pre>
+<p>but slightly modified in such a way that it might look like it's loading an image at first glance.</p>
+<p>Depending on the MIME type, this may be blocked. If we look at the
+<a href=https://hg.mozilla.org/mozilla-central/file/57284968eab1434aeb7a435082f0a7b59add13af/netwerk/protocol/http/nsHttpChannel.cpp#l1548>Firefox source</a>
+we can see that if the MIME type starts with certain things, they will be blocked, but further down we can also see that sometimes unmatching MIME types are allowed through with a warning. One more thing is that I wanted to have the image displayed when users visit the url which means it still needs to have some kind of MIME type that hints that it is an image. I was able to get around this by just setting the <code>Content-Type</code> as <code>image</code> - hey, it doesn't start with
+<code>image/</code> so it works! (disclaimer: untested on other browsers)</p>
+<p>(Actually this behavior might have changed between the initial date of writing and now. An updated version of that file can be found
+<a href=https://searchfox.org/mozilla-central/source/netwerk/protocol/http/nsHttpChannel.cpp#1675-1707>here</a>)</p>
+<p>Unfortunately, for GitHub Pages, you don't have control over these things. I was able to remove the .bmp extension and have the MIME type be
+<code>application/octet-stream</code> which loaded nicely but then would not display an image when visiting the url. I could also keep the <code>.bmp</code> extension but run into the problems mentioned above.</p>
+<p>I ended up just using fetch/xhr to load the script contents and eval to load it… This is probably when someone tells me about the security concerns of doing this</p>
+<p>Also if you're interested, here's
+<a href=https://github.com/rei2hu/js-bmp-packer>the package</a> I made and use to combine images and code. Unfortunately I never got around to writing one for other image formats because bmps served the purpose fine for me.</p>
+<h3 id=minification-and-obfuscation-and-rip-off-templating>minification and obfuscation and rip-off templating</h3>
+<p>I guess technically the above technique also falls under obfuscation since there is a ton of image data that you'll find when looking at the scripts, but who knows. As part of the build process, I run minifiers/obfuscators on the files. There's nothing very complicated about this especially since I ended up using packages to do all the work so I'll skip over this.</p>
+<p>One thing I have setup is that all of these posts are actually markdown files which are then converted to html and inserted into a template which contains the head contents. The template is literally just a string for which I just
+<code>String#replace</code> to insert the converted markdown. The funniest issue is that I have set up the html with MathJax and the markdown to have display math indicators be \$\$. And it just so happens that using
+<code>String#replace(string, string)</code> has a special interpretation of \$$, which changed those to $, ruining the layout. That was quickly fixed by using <code>String#replace(string, Function)</code> but damn was that funny how it popped up.</p>
+<h3 id=workflow-idea>workflow idea</h3>
+<ol>
+<li>Checkout master branch</li>
+<li>Checkout internal branch</li>
+<li>Build site with scripts in internal branch directory<ol>
+<li>Script to package javascript and images</li>
+<li>Script to convert markdown to html</li>
+<li>Script to minify css</li>
+<li>Script to minify html</li></ol></li>
+<li>Copy folder with built contents into master directory</li>
+<li>Commit and push</li>
+</ol>
+<h3 id=credit-to-packages>credit to packages</h3>
+<p>I just want to credit the packages that I am taking advantage of for this stuff (copied from package.json):</p>
+<ul>
+<li>"clean-css": "^4.2.3"</li>
+<li>"html-minifier": "^4.0.0"</li>
+<li>"javascript-obfuscator": "^1.3.0"</li>
+<li>"js-bmp-packer": "git+<a href=https://github.com/rei2hu/js-bmp-packer.git>https://github.com/rei2hu/js-bmp-packer.git</a>"</li>
+<li>"showdown": "^1.9.1"</li>
+<li>"uglify-es": "^3.3.9"</li>
+</ul>
+<h4 id=local-testing>local testing</h4>
+<p>Specifically because I have the ability to build stuff locally such that the entire website is stored in a single directory, I was able to use http-server to quickly test everything. That's in the dev dependencies.</p>
+<ul>
+<li>"http-server": "^0.12.3"</li>
+</ul>
+<h4 id=other-things>other things</h4>
+<p>I am also taking advantage of highlightjs and MathJax (well not this one yet) for other display reasons.</p>
+<h2 id=closing>closing</h2>
+<p>Looking at these scripts… hmm yeah I think I'm going to regret making them the way they are right now. Either I will have to clean them up quickly or I will question my past self. Maybe not. Ideally I don't have to touch them… haha</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"></div> <div style=text-align:end><a href=/./posts/2>inefficient business logic &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2020-11-03 - update a link and add a clarification</summary>
+<pre class=code-block><input id=code-block-9c58a33ce94bd2b2bad7af85ba998cb09c813ff7-1 type=checkbox><label for=code-block-9c58a33ce94bd2b2bad7af85ba998cb09c813ff7-1></label><code><span class=hljs-meta>@@ -43,3 +43,3 @@</span> at first glance.
+
+<span class=hljs-deletion>-Depending on the MIME type, this may be blocked. If we look at the [Firefox source](https://searchfox.org/mozilla-central/source/netwerk/protocol/http/nsHttpChannel.cpp#1675-1707)</span>
+<span class=hljs-addition>+Depending on the MIME type, this may be blocked. If we look at the [Firefox source](https://hg.mozilla.org/mozilla-central/file/57284968eab1434aeb7a435082f0a7b59add13af/netwerk/protocol/http/nsHttpChannel.cpp#l1548)</span>
+ we can see that if the MIME type starts with certain things, they will be blocked,
+</code></pre>
+<pre class=code-block><input id=code-block-9c58a33ce94bd2b2bad7af85ba998cb09c813ff7-2 type=checkbox><label for=code-block-9c58a33ce94bd2b2bad7af85ba998cb09c813ff7-2></label><code><span class=hljs-meta>@@ -52,2 +52,5 @@</span> that hints that it is an image. I was able to get around this by just setting th
+
+<span class=hljs-addition>+(Actually this behavior might have changed between the initial date of writing and</span>
+<span class=hljs-addition>+now. An updated version of that file can be found [here](https://searchfox.org/mozilla-central/source/netwerk/protocol/http/nsHttpChannel.cpp#1675-1707))</span>
+<span class=hljs-addition>+</span>
+ Unforunately, for GitHub Pages, you don&#x27;t have control over these things. I was able
+</code></pre>
+</details>
+<details>
+<summary>2020-07-19 - update post 1</summary>
+<pre class=code-block><input id=code-block-bc9f8489ef6aa23cbce6b057be233e1b1f2c89da-1 type=checkbox><label for=code-block-bc9f8489ef6aa23cbce6b057be233e1b1f2c89da-1></label><code><span class=hljs-meta>@@ -81,2 +81,14 @@</span> changed those to $, ruining the layout. That was quickly fixed by using
+
+<span class=hljs-addition>+### workflow idea</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Checkout master branch</span>
+<span class=hljs-addition>+2. Checkout internal branch</span>
+<span class=hljs-addition>+3. Build site with scripts in internal branch directory</span>
+<span class=hljs-addition>+    1. Script to package javascript and images</span>
+<span class=hljs-addition>+    2. Script to convert markdown to html</span>
+<span class=hljs-addition>+    3. Script to minify css</span>
+<span class=hljs-addition>+    4. Script to minify html</span>
+<span class=hljs-addition>+4. Copy folder with built contents into master directory</span>
+<span class=hljs-addition>+5. Commit and push</span>
+<span class=hljs-addition>+</span>
+ ### credit to packages
+</code></pre>
+</details>
+<details>
+<summary>2020-07-06 - add the story about performance issues</summary>
+<pre class=code-block><input id=code-block-2c25416db83ae5176cc04197c91583bd6852abde-1 type=checkbox><label for=code-block-2c25416db83ae5176cc04197c91583bd6852abde-1></label><code><span class=hljs-meta>@@ -49,3 +49,3 @@</span> when users visit the url which means it still needs to have some kind of MIME ty
+ that hints that it is an image. I was able to get around this by just setting the
+<span class=hljs-deletion>-**Content-Type** as **image** - hey, it doesn&#x27;t start with **image/** so it works!</span>
+<span class=hljs-addition>+`Content-Type` as `image` - hey, it doesn&#x27;t start with `image/` so it works!</span>
+ (disclaimer: untested on other browsers)
+</code></pre>
+<pre class=code-block><input id=code-block-2c25416db83ae5176cc04197c91583bd6852abde-2 type=checkbox><label for=code-block-2c25416db83ae5176cc04197c91583bd6852abde-2></label><code><span class=hljs-meta>@@ -53,5 +53,5 @@</span> that hints that it is an image. I was able to get around this by just setting th
+ Unforunately, for GitHub Pages, you don&#x27;t have control over these things. I was able
+<span class=hljs-deletion>-to remove the .bmp extension and have the MIME type be application/octect-stream</span>
+<span class=hljs-addition>+to remove the .bmp extension and have the MIME type be `application/octect-stream`</span>
+ which loaded nicely but then would not display an image when visiting the url. I
+<span class=hljs-deletion>-could also keep the .bmp extension but run into the problems mentioned above.</span>
+<span class=hljs-addition>+could also keep the `.bmp` extension but run into the problems mentioned above.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-2c25416db83ae5176cc04197c91583bd6852abde-3 type=checkbox><label for=code-block-2c25416db83ae5176cc04197c91583bd6852abde-3></label><code><span class=hljs-meta>@@ -74,8 +74,8 @@</span> One thing I have setup is that all of these posts are actually markdown files wh
+ are then converted to html and inserted into a template which contains the head contents.
+<span class=hljs-deletion>-The template is literally just a string for which I just **String#replace** to insert</span>
+<span class=hljs-addition>+The template is literally just a string for which I just `String#replace` to insert</span>
+ the converted markdown. The funniest issue is that I have set up the html with MathJax
+ and the markdown to have display math indicators be $$. And it just so happens that
+<span class=hljs-deletion>-using **String#replace(string, string)** has a special interpretation of $$, which</span>
+<span class=hljs-addition>+using `String#replace(string, string)` has a special interpretation of $$, which</span>
+ changed those to $, ruining the layout. That was quickly fixed by using
+<span class=hljs-deletion>-**String#replace(string, Function)** but damn was that funny how it popped up.</span>
+<span class=hljs-addition>+`String#replace(string, Function)` but damn was that funny how it popped up.</span>
+</code></pre>
+</details>
+<details>
+<summary>2020-07-04 - create actual first post</summary>
+<pre class=code-block><input id=code-block-b3e48284bbb0de96791a5f183550657109d5a01f-1 type=checkbox><label for=code-block-b3e48284bbb0de96791a5f183550657109d5a01f-1></label><code><span class=hljs-meta>@@ -0,0 +1,111 @@</span>
+<span class=hljs-addition>+# getting github pages to work the way I want it to</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Moving my website to GitHub Pages has taken a little more effort than I originally</span>
+<span class=hljs-addition>+thought it would due to a lack of control over how things get delivered and a few</span>
+<span class=hljs-addition>+specific bugs that popped up here and there from trying to get a ton of stuff to</span>
+<span class=hljs-addition>+work together.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## obfuscation, minimization, and other preprocessing related things</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Naturally, I want to have all my code obfuscated, files minimized, and some other</span>
+<span class=hljs-addition>+things done to what users will end up recieving when visiting the website. The problem</span>
+<span class=hljs-addition>+here is that GitHub Pages only servers static sites so these files will have to</span>
+<span class=hljs-addition>+exist on their own within the repository that is being served.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another issue comes from the fact that I ended up using the user site i.e.</span>
+<span class=hljs-addition>+&lt;username&gt;.github.io instead of another one, so I [couldn&#x27;t choose a specific publishing</span>
+<span class=hljs-addition>+source outside of master](https://docs.github.com/en/github/working-with-github-pages/about-github-pages#publishing-sources-for-github-pages-sites).</span>
+<span class=hljs-addition>+This means I had to have just the processed files exist on the master branch and</span>
+<span class=hljs-addition>+nothing else or else risk them being found through url enumeration or something.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### preprocessing</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was able to set up a separate branch with the files in their unadultered form</span>
+<span class=hljs-addition>+and use GitHub Actions along with a few custom scripts to build and update master</span>
+<span class=hljs-addition>+with the resulting files. The files are processed to complete the following tasks:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### serving scripts as images</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is a ~~exploit~~ trick I learned a long time ago which I thought was pretty</span>
+<span class=hljs-addition>+cool - due to the nature of various image formats, they are perfectly valid</span>
+<span class=hljs-addition>+when run as javascript. If you want to see an example, the script that loads the</span>
+<span class=hljs-addition>+background effect is [this one](/scripts/playful_reimu.bmp).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s important to first note that certain browsers will block these kinds of things,</span>
+<span class=hljs-addition>+as I used to load the script with</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```javascript</span>
+<span class=hljs-addition>+document.head.appendChild(document.createElement(&#x27;script&#x27;)).src = &#x27;/image_script.bmp&#x27;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+but slightly modified in such a way that it might look like it&#x27;s loading an image</span>
+<span class=hljs-addition>+at first glance.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Depending on the MIME type, this may be blocked. If we look at the [Firefox source](https://searchfox.org/mozilla-central/source/netwerk/protocol/http/nsHttpChannel.cpp#1675-1707)</span>
+<span class=hljs-addition>+we can see that if the MIME type starts with certain things, they will be blocked,</span>
+<span class=hljs-addition>+but further down we can also see that sometimes unmatching MIME types are allowed</span>
+<span class=hljs-addition>+through with a warning. One more thing is that I wanted to have the image displayed</span>
+<span class=hljs-addition>+when users visit the url which means it still needs to have some kind of MIME type</span>
+<span class=hljs-addition>+that hints that it is an image. I was able to get around this by just setting the</span>
+<span class=hljs-addition>+**Content-Type** as **image** - hey, it doesn&#x27;t start with **image/** so it works!</span>
+<span class=hljs-addition>+(disclaimer: untested on other browsers)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unforunately, for GitHub Pages, you don&#x27;t have control over these things. I was able</span>
+<span class=hljs-addition>+to remove the .bmp extension and have the MIME type be application/octect-stream</span>
+<span class=hljs-addition>+which loaded nicely but then would not display an image when visiting the url. I</span>
+<span class=hljs-addition>+could also keep the .bmp extension but run into the problems mentioned above.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ended up just using fetch/xhr to load the script contents and eval to load it...</span>
+<span class=hljs-addition>+This is probably when someone tells me about the security concerns of doing this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also if you&#x27;re interested, here&#x27;s [the package](https://github.com/rei2hu/js-bmp-packer)</span>
+<span class=hljs-addition>+I made and use to combine images and code. Unforunately I never got around to</span>
+<span class=hljs-addition>+writing one for other image formats because bmps served the purpose fine for me.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### minifcation and obfuscation and rip-off templating</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I guess technically the above technique also falls under obfuscation since there</span>
+<span class=hljs-addition>+is a ton of image data that you&#x27;ll find when looking at the scripts, but who knows.</span>
+<span class=hljs-addition>+As part of the build process, I run minifiers/obfuscators on the files. There&#x27;s nothing</span>
+<span class=hljs-addition>+very complicated about this especially since I ended up using packages to do all</span>
+<span class=hljs-addition>+the work so I&#x27;ll skip over this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One thing I have setup is that all of these posts are actually markdown files which</span>
+<span class=hljs-addition>+are then converted to html and inserted into a template which contains the head contents.</span>
+<span class=hljs-addition>+The template is literally just a string for which I just **String#replace** to insert</span>
+<span class=hljs-addition>+the converted markdown. The funniest issue is that I have set up the html with MathJax</span>
+<span class=hljs-addition>+and the markdown to have display math indicators be $$. And it just so happens that</span>
+<span class=hljs-addition>+using **String#replace(string, string)** has a special interpretation of $$, which</span>
+<span class=hljs-addition>+changed those to $, ruining the layout. That was quickly fixed by using</span>
+<span class=hljs-addition>+**String#replace(string, Function)** but damn was that funny how it popped up.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### credit to packages</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I just want to credit the packages that I am taking advantage of for this stuff</span>
+<span class=hljs-addition>+(copied from package.json):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- &quot;clean-css&quot;: &quot;^4.2.3&quot;</span>
+<span class=hljs-addition>+- &quot;html-minifier&quot;: &quot;^4.0.0&quot;</span>
+<span class=hljs-addition>+- &quot;javascript-obfuscator&quot;: &quot;^1.3.0&quot;</span>
+<span class=hljs-addition>+- &quot;js-bmp-packer&quot;: &quot;git+&lt;https://github.com/rei2hu/js-bmp-packer.git&gt;&quot;</span>
+<span class=hljs-addition>+- &quot;showdown&quot;: &quot;^1.9.1&quot;</span>
+<span class=hljs-addition>+- &quot;uglify-es&quot;: &quot;^3.3.9&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### local testing</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Specifically because I have the ability to build stuff locally such that the entire</span>
+<span class=hljs-addition>+website is stored in a single directory, I was able to use http-server to quickly</span>
+<span class=hljs-addition>+test everything. That&#x27;s in the dev dependencies.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- &quot;http-server&quot;: &quot;^0.12.3&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### other things</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I am also taking advantage of highlightjs and MathJax (well not this one yet) for</span>
+<span class=hljs-addition>+other display reasons.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## closing</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Looking at these scripts... hmm yeah I think I&#x27;m going to regret making them the</span>
+<span class=hljs-addition>+way they are right now. Either I will have to clean them up quickly or I will question</span>
+<span class=hljs-addition>+my past self. Maybe not. Ideally I don&#x27;t have to touch them... haha</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

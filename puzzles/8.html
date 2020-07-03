@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>5 letter words made up of 25 distinct letters</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./puzzles/7>&lt; compound words</a></div>
+</nav>
+<h1 id=5-letter-words-that-made-of-25-distinct-letters>5 letter words that made of 25 distinct letters</h1>
+<p>A colleague shared a
+<a href="https://www.youtube.com/watch?v=_-AfhLQfb6w">youtube video</a> titled "Can you find: five five-letter words with twenty-five unique letters?"</p>
+<p>In short, given a list of 5 letter words, find 5 of them which do not have any repeating letters.
+<a href=https://gist.github.com/rei2hu/ffa463d49a67f1b20131a84e12fa0924>This</a> was the word list that he provided for testing (althoug <code>wc -l</code> on my local file gives me 12973 lines so maybe not but I was too lazy to move the file off a work computer to local then upload it).</p>
+<p>My colleague pointed out that there are solutions that took up to a month and down to approximately 20 minutes while he has solutions that take 10 minutes and then 70 seconds with some data specific tricks which is quite interesting. If you watch the video, you'll note that the "good" solution relies on graph theory which seemed overly complex in my opinion.</p>
+<p>My attempt at a solution is:</p>
+<pre class=code-block><input id=code-block-8-1 type=checkbox><label for=code-block-8-1></label><code><span class=hljs-keyword>const</span> seen = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
+<span class=hljs-keyword>const</span> words = <span class=hljs-built_in>require</span>(<span class=hljs-string>&quot;fs&quot;</span>)
+    .<span class="hljs-title function_">readFileSync</span>(process.<span class=hljs-property>argv</span>[<span class=hljs-number>2</span>], <span class=hljs-string>&quot;utf8&quot;</span>)
+    .<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;\n&quot;</span>)
+    .<span class="hljs-title function_">filter</span>(<span class=hljs-function>(<span class=hljs-params>word</span>) =&gt;</span> <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>(word).<span class=hljs-property>size</span> === <span class=hljs-number>5</span>) <span class=hljs-comment>// unique letters</span>
+    .<span class="hljs-title function_">filter</span>(<span class=hljs-function>(<span class=hljs-params>word</span>) =&gt;</span> {
+        <span class=hljs-comment>// anagrams</span>
+        <span class=hljs-keyword>const</span> sorted = word.<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;&quot;</span>).<span class="hljs-title function_">sort</span>().<span class="hljs-title function_">join</span>(<span class=hljs-string>&quot;&quot;</span>);
+        <span class=hljs-keyword>if</span> (seen.<span class="hljs-title function_">has</span>(sorted)) <span class=hljs-keyword>return</span> <span class=hljs-literal>false</span>;
+        seen.<span class="hljs-title function_">add</span>(sorted);
+        <span class=hljs-keyword>return</span> <span class=hljs-literal>true</span>;
+    });
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(words.<span class=hljs-property>length</span>);
+
+<span class=hljs-keyword>const</span> failures = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">solve</span>(<span class=hljs-params>selected, pos</span>) {
+    <span class=hljs-keyword>if</span> (selected.<span class=hljs-property>length</span> === <span class=hljs-number>5</span>) <span class=hljs-keyword>return</span> selected;
+
+    <span class=hljs-keyword>const</span> letters = selected.<span class="hljs-title function_">join</span>(<span class=hljs-string>&quot;&quot;</span>).<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;&quot;</span>).<span class="hljs-title function_">sort</span>().<span class="hljs-title function_">join</span>(<span class=hljs-string>&quot;&quot;</span>);
+    <span class=hljs-keyword>if</span> (failures.<span class="hljs-title function_">has</span>(letters)) <span class=hljs-keyword>return</span>;
+
+    <span class=hljs-keyword>const</span> cs = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>(letters);
+
+    <span class=hljs-attr>outer</span>: <span class=hljs-keyword>for</span> (<span class=hljs-keyword>let</span> i = pos; i &lt; words.<span class=hljs-property>length</span>; i++) {
+        <span class=hljs-keyword>const</span> word = words[i];
+        <span class=hljs-keyword>for</span> (<span class=hljs-keyword>const</span> c <span class=hljs-keyword>of</span> word) <span class=hljs-keyword>if</span> (cs.<span class="hljs-title function_">has</span>(c)) <span class=hljs-keyword>continue</span> outer;
+
+        <span class=hljs-keyword>const</span> ans = <span class="hljs-title function_">solve</span>([word, ...selected], i + <span class=hljs-number>1</span>);
+        <span class=hljs-keyword>if</span> (ans) <span class=hljs-keyword>return</span> ans;
+    }
+    failures.<span class="hljs-title function_">add</span>(letters);
+}
+
+<span class=hljs-keyword>const</span> ans = <span class="hljs-title function_">solve</span>([], <span class=hljs-number>0</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(ans);
+</code></pre>
+<p>It is a straightforward solution that takes around 100 seconds according to
+<code>time</code>; a brute force search that prunes branches based on combinations already tried. Then I realized the youtube video's uploader used a different word list which could be found
+<a href=https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt>here</a>
+and instead listed all of the possible solutions.</p>
+<p>So a small modification gives</p>
+<pre class=code-block><input id=code-block-8-2 type=checkbox><label for=code-block-8-2></label><code><span class=hljs-keyword>const</span> seen = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
+<span class=hljs-keyword>const</span> words = <span class=hljs-built_in>require</span>(<span class=hljs-string>&quot;fs&quot;</span>)
+    .<span class="hljs-title function_">readFileSync</span>(process.<span class=hljs-property>argv</span>[<span class=hljs-number>2</span>], <span class=hljs-string>&quot;utf8&quot;</span>)
+    .<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;\n&quot;</span>)
+    .<span class="hljs-title function_">filter</span>(<span class=hljs-function>(<span class=hljs-params>word</span>) =&gt;</span> <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>(word).<span class=hljs-property>size</span> === <span class=hljs-number>5</span> &amp;&amp; word.<span class=hljs-property>length</span> === <span class=hljs-number>5</span>) <span class=hljs-comment>// unique letters</span>
+    .<span class="hljs-title function_">filter</span>(<span class=hljs-function>(<span class=hljs-params>word</span>) =&gt;</span> {
+        <span class=hljs-comment>// anagrams</span>
+        <span class=hljs-keyword>const</span> sorted = word.<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;&quot;</span>).<span class="hljs-title function_">sort</span>().<span class="hljs-title function_">join</span>(<span class=hljs-string>&quot;&quot;</span>);
+        <span class=hljs-keyword>if</span> (seen.<span class="hljs-title function_">has</span>(sorted)) <span class=hljs-keyword>return</span> <span class=hljs-literal>false</span>;
+        seen.<span class="hljs-title function_">add</span>(sorted);
+        <span class=hljs-keyword>return</span> <span class=hljs-literal>true</span>;
+    });
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(words.<span class=hljs-property>length</span>);
+
+<span class=hljs-keyword>const</span> failures = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
+<span class=hljs-keyword>const</span> a = [];
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">solve</span>(<span class=hljs-params>selected, pos</span>) {
+    <span class=hljs-keyword>if</span> (selected.<span class=hljs-property>length</span> === <span class=hljs-number>5</span>) {
+        a.<span class="hljs-title function_">push</span>(selected);
+        <span class=hljs-keyword>return</span> <span class=hljs-literal>true</span>;
+    }
+
+    <span class=hljs-keyword>const</span> letters = selected.<span class="hljs-title function_">join</span>(<span class=hljs-string>&quot;&quot;</span>).<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;&quot;</span>).<span class="hljs-title function_">sort</span>().<span class="hljs-title function_">join</span>(<span class=hljs-string>&quot;&quot;</span>);
+    <span class=hljs-keyword>if</span> (failures.<span class="hljs-title function_">has</span>(letters)) <span class=hljs-keyword>return</span>;
+
+    <span class=hljs-keyword>const</span> cs = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>(letters);
+    <span class=hljs-keyword>let</span> good = <span class=hljs-literal>false</span>;
+
+    <span class=hljs-attr>outer</span>: <span class=hljs-keyword>for</span> (<span class=hljs-keyword>let</span> i = pos; i &lt; words.<span class=hljs-property>length</span>; i++) {
+        <span class=hljs-keyword>const</span> word = words[i];
+        <span class=hljs-keyword>for</span> (<span class=hljs-keyword>const</span> c <span class=hljs-keyword>of</span> word) <span class=hljs-keyword>if</span> (cs.<span class="hljs-title function_">has</span>(c)) <span class=hljs-keyword>continue</span> outer;
+
+        good = good || <span class="hljs-title function_">solve</span>([word, ...selected], i + <span class=hljs-number>1</span>);
+    }
+    <span class=hljs-keyword>if</span> (!good) failures.<span class="hljs-title function_">add</span>(letters);
+    <span class=hljs-keyword>return</span> good;
+}
+
+<span class="hljs-title function_">solve</span>([], <span class=hljs-number>0</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(a, a.<span class=hljs-property>length</span>);
+</code></pre>
+<p>Which takes around 5 minutes and returns 181 solutions. But in the video it says we should have 831 solutions or 538 which is quite suspicious. Well, I saw at least one issue around the short circuiting <code>good = good || solve(...)</code> as once one successful set is found it wouldn't try the rest of the words. This only brought it up to 303 solutions after 5 minutes (interesting how the runtime didn't change much, but it may be due to other background work I'm doing.) I do wish that the solution set was provided somewhere to test against but unfortunately it's not.</p>
+<p>One thing is to note that the efficient solution provided by the video revolves around graph theory and is much more complex than this. However my "solution" may not even be one. The interesting thing here is that the memory and runtime bounds on some lines in my code are actually constant; the <code>failures</code> <code>Set</code> is actually constant memory, as there is a finite number of 5-25 letter combinations in sorted order (and we only store combinations of 5, 10, 15, 20, 25). That sorting? also constant as we sort at most 25 letters. This is like a $O(n^5)$ solution with basic branch pruning.</p>
+<p>By the way, the trick my colleague used was to keep track of how many vowels were in words and work off of that it works great for normal words but not fully randomized data. But as I pointed out, it turns out the words were actually from somewhere else. Either way, after processing, both lists were approximately 5000 words long.</p>
+<p>Perhaps my entire thing is wrong, but I'll leave that as an exercise to the reader.</p>
+<p>And a random revelation I had is that after the filtering process, the solution is constant time as there is a finite amount of 5 letter words made up of distinct letters.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./puzzles/7>&lt; compound words</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2022-09-11 - update puzzle 8</summary>
+<pre class=code-block><input id=code-block-3ad3b19684effa0cd3a602093f5dba31e744836e-1 type=checkbox><label for=code-block-3ad3b19684effa0cd3a602093f5dba31e744836e-1></label><code>@@ -129 +129,5 @@ Either way, after processing, both lists were approximately 5000 words long.
+ Perhaps my entire thing is wrong, but I&#x27;ll leave that as an exercise to the reader.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And a random revelation I had is that after the filtering process, the solution</span>
+<span class=hljs-addition>+is constant time as there is a finite amount of 5 letter words made up of distinct</span>
+<span class=hljs-addition>+letters.</span>
+</code></pre>
+</details>
+<details>
+<summary>2022-08-09 - add exercise 8</summary>
+<pre class=code-block><input id=code-block-39b18882065cf2ed3f47441e4adfef1867abf091-1 type=checkbox><label for=code-block-39b18882065cf2ed3f47441e4adfef1867abf091-1></label><code><span class=hljs-meta>@@ -0,0 +1,129 @@</span>
+<span class=hljs-addition>+# 5 letter words that made of 25 distinct letters</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A colleague shared a [youtube video](https://www.youtube.com/watch?v=_-AfhLQfb6w)</span>
+<span class=hljs-addition>+titled &quot;Can you find: five five-letter words with twenty-five unique letters?&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In short, given a list of 5 letter words, find 5 of them which do not have any repeating</span>
+<span class=hljs-addition>+letters. [This](https://gist.github.com/rei2hu/ffa463d49a67f1b20131a84e12fa0924)</span>
+<span class=hljs-addition>+was the word list that he provided for testing (althoug `wc -l` on my local file</span>
+<span class=hljs-addition>+gives me 12973 lines so maybe not but I was too lazy to move the file off a work</span>
+<span class=hljs-addition>+computer to local then upload it).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My colleague pointed out that there are solutions that took up to a month and down</span>
+<span class=hljs-addition>+to approximately 20 minutes while he has solutions that take 10 minutes and then</span>
+<span class=hljs-addition>+70 seconds with some data specific tricks which is quite interesting. If you watch</span>
+<span class=hljs-addition>+the video, you&#x27;ll note that the &quot;good&quot; solution relies on graph theory which seemed</span>
+<span class=hljs-addition>+overly complex in my opinion.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My attempt at a solution is:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+const seen = new Set();</span>
+<span class=hljs-addition>+const words = require(&quot;fs&quot;).readFileSync(process.argv[2], &quot;utf8&quot;)</span>
+<span class=hljs-addition>+    .split(&quot;\n&quot;)</span>
+<span class=hljs-addition>+    .filter(word =&gt; new Set(word).size === 5) // unique letters</span>
+<span class=hljs-addition>+    .filter(word =&gt; { // anagrams</span>
+<span class=hljs-addition>+        const sorted = word.split(&quot;&quot;).sort().join(&quot;&quot;);</span>
+<span class=hljs-addition>+        if (seen.has(sorted)) return false;</span>
+<span class=hljs-addition>+        seen.add(sorted);</span>
+<span class=hljs-addition>+        return true;</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+console.log(words.length);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+const failures = new Set();</span>
+<span class=hljs-addition>+function solve(selected, pos) {</span>
+<span class=hljs-addition>+    if (selected.length === 5) return selected;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    const letters = selected.join(&quot;&quot;).split(&quot;&quot;).sort().join(&quot;&quot;);</span>
+<span class=hljs-addition>+    if (failures.has(letters)) return;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    const cs = new Set(letters);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    outer:</span>
+<span class=hljs-addition>+    for (let i = pos; i &lt; words.length; i++) {</span>
+<span class=hljs-addition>+        const word = words[i];</span>
+<span class=hljs-addition>+        for (const c of word) if (cs.has(c)) continue outer;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        const ans = solve([word, ...selected], i + 1);</span>
+<span class=hljs-addition>+        if (ans) return ans;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    failures.add(letters);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+const ans = solve([], 0);</span>
+<span class=hljs-addition>+console.log(ans);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It is a straightforward solution that takes around 100 seconds according to `time`;</span>
+<span class=hljs-addition>+a brute force search that prunes branches based on combinations already tried. Then</span>
+<span class=hljs-addition>+I realized the youtube video&#x27;s uploader used a different word list which could be</span>
+<span class=hljs-addition>+found [here](https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt)</span>
+<span class=hljs-addition>+and instead listed all of the possible solutions.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So a small modification gives</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+const seen = new Set();</span>
+<span class=hljs-addition>+const words = require(&quot;fs&quot;).readFileSync(process.argv[2], &quot;utf8&quot;)</span>
+<span class=hljs-addition>+    .split(&quot;\n&quot;)</span>
+<span class=hljs-addition>+    .filter(word =&gt; new Set(word).size === 5 &amp;amp;&amp;amp; word.length === 5) // unique letters</span>
+<span class=hljs-addition>+    .filter(word =&gt; { // anagrams</span>
+<span class=hljs-addition>+        const sorted = word.split(&quot;&quot;).sort().join(&quot;&quot;);</span>
+<span class=hljs-addition>+        if (seen.has(sorted)) return false;</span>
+<span class=hljs-addition>+        seen.add(sorted);</span>
+<span class=hljs-addition>+        return true;</span>
+<span class=hljs-addition>+    });</span>
+<span class=hljs-addition>+console.log(words.length);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+const failures = new Set();</span>
+<span class=hljs-addition>+const a = [];</span>
+<span class=hljs-addition>+function solve(selected, pos) {</span>
+<span class=hljs-addition>+    if (selected.length === 5) {</span>
+<span class=hljs-addition>+        a.push(selected);</span>
+<span class=hljs-addition>+        return true;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    const letters = selected.join(&quot;&quot;).split(&quot;&quot;).sort().join(&quot;&quot;);</span>
+<span class=hljs-addition>+    if (failures.has(letters)) return;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    const cs = new Set(letters);</span>
+<span class=hljs-addition>+    let good = false;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    outer:</span>
+<span class=hljs-addition>+    for (let i = pos; i &lt; words.length; i++) {</span>
+<span class=hljs-addition>+        const word = words[i];</span>
+<span class=hljs-addition>+        for (const c of word) if (cs.has(c)) continue outer;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        good = good || solve([word, ...selected], i + 1);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    if (!good) failures.add(letters);</span>
+<span class=hljs-addition>+    return good;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+solve([], 0);</span>
+<span class=hljs-addition>+console.log(a, a.length);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Which takes around 5 minutes and returns 181 solutions. But in the video it says</span>
+<span class=hljs-addition>+we should have 831 solutions or 538 which is quite suspicious. Well, I saw at least</span>
+<span class=hljs-addition>+one issue around the short circuiting `good = good || solve(...)` as once one successful</span>
+<span class=hljs-addition>+set is found it wouldn&#x27;t try the rest of the words. This only brought it up to 303</span>
+<span class=hljs-addition>+solutions after 5 minutes (interesting how the runtime didn&#x27;t change much, but it</span>
+<span class=hljs-addition>+may be due to other background work I&#x27;m doing.) I do wish that the solution set</span>
+<span class=hljs-addition>+was provided somewhere to test against but unfortunately it&#x27;s not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One thing is to note that the efficient solution provided by the video revolves around</span>
+<span class=hljs-addition>+graph theory and is much more complex than this. However my &quot;solution&quot; may not even</span>
+<span class=hljs-addition>+be one. The interesting thing here is that the memory and runtime bounds on some</span>
+<span class=hljs-addition>+lines in my code are actually constant; the `failures` `Set` is actually constant</span>
+<span class=hljs-addition>+memory, as there is a finite number of 5-25 letter combinations in sorted order</span>
+<span class=hljs-addition>+(and we only store combinations of 5, 10, 15, 20, 25). That sorting? also constant</span>
+<span class=hljs-addition>+as we sort at most 25 letters. This is like a $O(n^5)$ solution with basic branch</span>
+<span class=hljs-addition>+pruning.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+By the way, the trick my colleague used was to keep track of how many vowels were</span>
+<span class=hljs-addition>+in words and work off of that it works great for normal words but not fully randomized</span>
+<span class=hljs-addition>+data. But as I pointed out, it turns out the words were actually from somewhere else.</span>
+<span class=hljs-addition>+Either way, after processing, both lists were approximately 5000 words long.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Perhaps my entire thing is wrong, but I&#x27;ll leave that as an exercise to the reader.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

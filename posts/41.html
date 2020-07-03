@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>thoughts on data migration andor normalization</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/40>&lt; an amazon recruiter conversation</a></div> <div style=text-align:end><a href=/./posts/42>another sudoku solver &gt;</a></div>
+</nav>
+<h1 id=thoughts-on-data-migration-andy-normalization>thoughts on data migration Andy normalization</h1>
+<p>Man, can't use slashes in file names. We recently finished a pretty big data migration and I had some… <em>thoughts</em> throughout the process. I'm told the entire thing was in the works for a few years, and I was there for the last 6 months.</p>
+<p>To lay out a scenario that is only barely related by usage, imagine you run a media hosting service and allow people to add one tag to what they upload to identify it.</p>
+<pre class=code-block><input id=code-block-41-1 type=checkbox><label for=code-block-41-1></label><code><span class=hljs-keyword>create</span> <span class=hljs-keyword>table</span> video (id uuid <span class=hljs-keyword>primary</span> key, data <span class=hljs-type>blob</span>, name text, description text, label text);
+<span class=hljs-keyword>create</span> <span class=hljs-keyword>table</span> image (id uuid <span class=hljs-keyword>primary</span> key, data <span class=hljs-type>blob</span>, name text, description text, label text);
+</code></pre>
+<p>Hmm why isn't it just one table with a media type column? I guess it's possible but that's not the point here. Also let's say you kind of already have a <code>tag</code>
+table which is what the labels should be referencing. Because it's used in some other part of the hosting application.</p>
+<pre class=code-block><input id=code-block-41-2 type=checkbox><label for=code-block-41-2></label><code><span class=hljs-keyword>create</span> <span class=hljs-keyword>table</span> tag (id uuid <span class=hljs-keyword>primary</span> key, name text, description text, label text);
+</code></pre>
+<p>And due to microservice architecture the tag table is in a different database than the <code>video</code> and <code>image</code> tables. The first step that was done was to add the
+<code>labelIds</code> column to the tables. It's basically a normalization operation but reminder that they can't be foreign key references because this is between databases.</p>
+<pre class=code-block><input id=code-block-41-3 type=checkbox><label for=code-block-41-3></label><code><span class=hljs-keyword>alter</span> <span class=hljs-keyword>table</span> video <span class=hljs-keyword>add</span> <span class=hljs-keyword>column</span> tagId uuid;
+<span class=hljs-keyword>alter</span> <span class=hljs-keyword>table</span> image <span class=hljs-keyword>add</span> <span class=hljs-keyword>column</span> tagId uuid;
+</code></pre>
+<p>This is a simple and straightforward move. However, what was implemented next was an issue. The engineer in charge of the backend changes went ahead and implemented a kind of double write logic like so (ignore edge cases like empty strings and such, also disclaimer I rarely write Java without the help of an IDE):</p>
+<pre class=code-block><input id=code-block-41-4 type=checkbox><label for=code-block-41-4></label><code><span class=hljs-keyword>public</span> Video <span class="function_ hljs-title">updateVideo</span><span class=hljs-params>(VideoData videoData)</span> {
+    <span class=hljs-keyword>final</span> <span class=hljs-type>var</span> <span class=hljs-variable>oldVideoData</span> <span class=hljs-operator>=</span> mediaDb.getVideo(videoData.id);
+
+    <span class=hljs-comment>// either add a matching tag or update the referenced tag</span>
+    <span class=hljs-keyword>final</span> <span class=hljs-type>var</span> <span class=hljs-variable>referencedTag</span> <span class=hljs-operator>=</span> oldVideoData.tagId
+        .map(tagId -&gt;
+            <span class=hljs-comment>// update the referenced tag</span>
+            tagService.updateTag(tagId, videoData.title, videoData.description, videoData.label);
+        )
+        .orElseGet(() -&gt;
+            tagService.createTag(videoData.title, videoData.description, videoData.label);
+        );
+
+    videoData.tagId = referencedTag.id;
+
+    mediaDb.updateVideo(videoData.id, videoData);
+}
+</code></pre>
+<p>So any time the video or image is updated, it updates the tag that's referenced. Sound good? It shouldn't when you realize that the title of the tag is kept in sync with the last video that references it is updated. For example we have two videos called V1 and V2 that reference tag T1. Whenever you update V1 the name of the tag gets updated to V1 and the same thing for V2.</p>
+<p>The double write was weird and I eventually came across it and had to remove it. Furthermore, it there was another bug where tags with the same label kept being created. And the most egregious issue was that there was nothing preventing you from updating the tag - you could update the tag's label and then <code>video.label</code>
+and <code>tag.label</code> are no long in sync. This still causes us small amounts of pain as parts of the frontend still referenced <code>video.label</code>.</p>
+<p>At this point I should mention I mainly did frontend logic around updating tag creation and display so some of these issues are on me. The first issue I ran into was a null pointer issue. The backend engineer updated the <code>Video</code> object to include the <code>tag</code> property which would hold the entire <code>tag</code> object and I updated the frontend types and relied on this to pull data whenever I wrote new logic. How was it implemented in the backend? At the end of any request that returned <code>Video</code>(s), he would call a function like <code>attachTag</code> so instead of
+<code>return video</code> it became <code>return attachTag(video)</code>. The issue here? He missed a lot of spots and when the frontend received the <code>Video</code> data and tried to access
+<code>video.tag.label</code>, it became a null pointer. I asked them to fix it but it never was and I ended up just never relying on it. Instead, I had the frontend call out to tag service based on logic to fetch relevant tags. Also due to how some views were designed you could update the tag while viewing a video which meant the tag object on the video was out of date unless you wanted some more double write logic for the frontend… bleh.</p>
+<p>Well, enough complaining about the backend for now so I'll complain about my own work. We needed frontend changes that could support adding tags the old way and the new way depending on if it a video or image already references one. Also we only had one app wide toggle to control various features so we couldn't turn things on for individual customers without extreme pains (basically override for each customer at a time in a configuration file). The issue here was we didn't want give anyone access to the new ui without having fully done the migration. So the steps should be:</p>
+<ol>
+<li>Can add labels normally, text only</li>
+<li>Run big migration</li>
+<li>Can only add/edit attached tag</li>
+</ol>
+<p>The question is what do we hide behind the toggle? To me, it seemed like we want to hide the add tag controls behind the toggle but then force people to add tags for anything new but be able to edit "legacy" labels.</p>
+<ol>
+<li>Can add labels normally</li>
+<li>Flip feature</li>
+<li>Can edit labels normally, or add/edit attached tag</li>
+<li>Run big migration</li>
+<li>Can only add/edit attached tag (no more legacy labels)</li>
+</ol>
+<p>I ran the logic by several times and got it OK'd but several weeks in it go NOK'd because the PM didn't want to force adding a tag to non-legacy media. I ended up writing the same thing but reversed: can add labels normally but if something references a tag you can only edit the tag. Then the toggle determines if you can add labels/add tags.</p>
+<ol>
+<li>Can add labels normally, edit tags if referenced</li>
+<li>Run big migration</li>
+<li>Flip feature</li>
+<li>Can only add/edit attached tag (no more legacy labels)</li>
+</ol>
+<p>Seem solid? Well, there is a step in between 2 and 3, called 2.5: users can create legacy labels and we need to rerun the migration. I brought it up but the suggested solution was to just run the migration as step 2.6. I'm not sure if cared when I pointed out we might be stuck in between steps 2.5 and 2.6 and should think about reordering the steps. Well, in hindsight this was fine and caused no issues but still.</p>
+<p>But to bring back my backend complaining, we didn't want to show the controls yet, specifically "1. …edit tags if referenced" wasn't supposed to happen because the logic that generated tags was already in production and checking the production database showed many tags created this way. Yes, things were a little dire to me at least.</p>
+<p>Well, migration day was coming and it turns out backend engineer person who has been working on this since years ago suddenly announces he's leaving for a crypto company. Before migration day. Oh boy, I'm not sure if it was a coincidence or if he didn't want to be here for the potential clusterfuck.</p>
+<p>Either way, we went through the migration which was more or less straightforward. We wrote endpoints to collect the unique labels for customers and generate tags and referenced the generated tags. There was a small bit of manual work/custom logic for consolidating similar tags with things like case sensitivity and another slightly complex point I'm leaving out because it makes no sense in the made up tag scenario. Everything came out ok, and I overworried for nothing.</p>
+<p>But to finish off, I mentioned earlier that we still have frontend pains around
+<code>video.label</code> still being referenced. And I was on frontend duty so this is kind my fault. I spent all of my time making sure the Video and Image pages were working, but it turns out that the <code>Video</code> and <code>Image</code> objects were used on other pages and those pages still referenced the old <code>label</code> field, and as I pointed out earlier there is no guarantee that this is synced with the tag's label and gives incorrect info.</p>
+<p>I also have a sneaking suspicion this might also be the case on the backend, but I haven't looked. However, it might not be because the backend types are a lot more solid (Java) than what the frontend has (a combination of JavaScript/TypeScript). And I know there's a method that works like:</p>
+<pre class=code-block><input id=code-block-41-5 type=checkbox><label for=code-block-41-5></label><code><span class=hljs-keyword>public</span> String <span class="function_ hljs-title">getLabel</span><span class=hljs-params>(Video video)</span> {
+    <span class=hljs-keyword>return</span> video.tag.map(tag -&gt; tag.label).orElse(video.label);
+}
+</code></pre>
+<p>That's used in various spots. Hopefully it's been plugged in better than
+<code>attachTag</code> although it depends on it…</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/40>&lt; an amazon recruiter conversation</a></div> <div style=text-align:end><a href=/./posts/42>another sudoku solver &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2021-10-15 - add post 41</summary>
+<pre class=code-block><input id=code-block-3c1c2384cfed218e8995efd7cdafba0cb6df41c8-1 type=checkbox><label for=code-block-3c1c2384cfed218e8995efd7cdafba0cb6df41c8-1></label><code><span class=hljs-meta>@@ -0,0 +1,169 @@</span>
+<span class=hljs-addition>+# thoughts on data migration andor normalization</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Man, can&#x27;t use slashes in file names. We recently finished a pretty big data migration</span>
+<span class=hljs-addition>+and I had some... *thoughts* throughout the process. I&#x27;m told the entire thing was</span>
+<span class=hljs-addition>+in the works for a few years, and I was there for the last 6 months.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To lay out a scenario that is only barely related by usage, imagine you run a media</span>
+<span class=hljs-addition>+hosting service and allow people to add one tag to what they upload to identify it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```sql</span>
+<span class=hljs-addition>+create table video (id uuid primary key, data blob, name text, description text, label text);</span>
+<span class=hljs-addition>+create table image (id uuid primary key, data blob, name text, description text, label text);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Hmm why isn&#x27;t it just one table with a mediatype column? I guess it&#x27;s possible but</span>
+<span class=hljs-addition>+that&#x27;s not the point here. Also let&#x27;s say you kind of already have a `tag` tabel</span>
+<span class=hljs-addition>+which is what the labels should be referencing. Because it&#x27;s used in some other</span>
+<span class=hljs-addition>+part of the hosting application.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sql</span>
+<span class=hljs-addition>+create table tag (id uuid primary key, name text, description text, label text);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And due to microservice architecture the tag table is in a different database than</span>
+<span class=hljs-addition>+the `video` and `image` tables. The first step that was done was to add the `labelIds`</span>
+<span class=hljs-addition>+column to the tables. It&#x27;s basically a normalization operation but reminder that</span>
+<span class=hljs-addition>+they can&#x27;t be foreign key references because this is between databases.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sql</span>
+<span class=hljs-addition>+alter table video add column tagId uuid;</span>
+<span class=hljs-addition>+alter table image add column tagId uuid;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is a simple and straightforward move. However, what was implemented next was</span>
+<span class=hljs-addition>+an issue. The engineer in charge of the backend changes went ahead and implemented</span>
+<span class=hljs-addition>+a kind of double write logic like so (ignore edge cases like empty strings and such,</span>
+<span class=hljs-addition>+also disclaimer I rarely write Java without the help of an IDE):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+public Video updateVideo(VideoData videoData) {</span>
+<span class=hljs-addition>+    final var oldVideoData = mediaDb.getVideo(videoData.id);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    // either add a matching tag or update the referenced tag</span>
+<span class=hljs-addition>+    final var referencedTag = oldVideoData.tagId</span>
+<span class=hljs-addition>+        .map(tagId -&gt;</span>
+<span class=hljs-addition>+            // update the referenced tag</span>
+<span class=hljs-addition>+            tagService.updateTag(tagId, videoData.title, videoData.decription, videoData.label);</span>
+<span class=hljs-addition>+        )</span>
+<span class=hljs-addition>+        .orElseGet(() -&gt;</span>
+<span class=hljs-addition>+            tagService.createTag(videoData.title, videoData.description, videoData.label);</span>
+<span class=hljs-addition>+        );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    videoData.tagId = referencedTag.id;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    mediaDb.updateVideo(videoData.id, videoData);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So any time the video or image is updated, it updates the tag that&#x27;s referenced.</span>
+<span class=hljs-addition>+Sound good? It shouldn&#x27;t when you realize that the title of the tag is kept in sync</span>
+<span class=hljs-addition>+with the last video that references it is updated. For example we have two videos</span>
+<span class=hljs-addition>+called V1 and V2 that reference tag T1. Whenever you update V1 the name of the tag</span>
+<span class=hljs-addition>+gets updated to V1 and the same thing for V2.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The double write was weird and I eventually came across it and had to remove it.</span>
+<span class=hljs-addition>+Furthermore, it there was another bug where tags with the same label kept being created.</span>
+<span class=hljs-addition>+And the most egregious issue was that there was nothing preventing you from updating</span>
+<span class=hljs-addition>+the tag - you could update the tag&#x27;s label and then `video.label` and `tag.label`</span>
+<span class=hljs-addition>+are no long in sync. This still causes us small amounts of pain as parts of the</span>
+<span class=hljs-addition>+frontend still referenced `video.label`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At this point I should mention I mainly did frontend logic around updating tag creation</span>
+<span class=hljs-addition>+and display so some of these issues are on me. The first issue I ran into was a</span>
+<span class=hljs-addition>+null pointer issue. The backend engineer updated the `Video` object to include the</span>
+<span class=hljs-addition>+`tag` property which would hold the entire `tag` object and I updated the frontend</span>
+<span class=hljs-addition>+types and relied on this to pull data whenever I wrote new logic. How was it implemented</span>
+<span class=hljs-addition>+in the backend? At the end of any request that returned `Video`(s), he would call</span>
+<span class=hljs-addition>+a function like `attachTag` so instead of `return video` it became `return attachTag(video)`.</span>
+<span class=hljs-addition>+The issue here? He missed a lot of spots and when the frontend received the `Video`</span>
+<span class=hljs-addition>+data and tried to access `video.tag.label`, it became a null pointer. I asked them</span>
+<span class=hljs-addition>+to fix it but it never was and I ended up just never relying on it. Instead, I had</span>
+<span class=hljs-addition>+the frontend call out to tag service based on logic to fetch relevant tags. Also</span>
+<span class=hljs-addition>+due to how some views were designed you could update the tag while viewing a video</span>
+<span class=hljs-addition>+which meant the tag object on the video was out of date unless you wanted some more</span>
+<span class=hljs-addition>+double write logic for the frontend... bleh.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, enough complaining about the backend for now so I&#x27;ll complain about my own</span>
+<span class=hljs-addition>+work. We needed frontend changes that could support adding tags the old way and</span>
+<span class=hljs-addition>+the new way depending on if it a video or image already references one. Also we only</span>
+<span class=hljs-addition>+had one app wide toggle to control various features so we couldn&#x27;t turn things on</span>
+<span class=hljs-addition>+for individual customers without extreme pains (basically override for each customer</span>
+<span class=hljs-addition>+at a time in a configuration file). The issue here was we didn&#x27;t want give anyone</span>
+<span class=hljs-addition>+access to the new ui without having fully done the migration. So the steps should</span>
+<span class=hljs-addition>+be:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Can add labels normally, text only</span>
+<span class=hljs-addition>+2. Run big migration</span>
+<span class=hljs-addition>+3. Can only add/edit attached tag</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The question is what do we hide behind the toggle? To me, it seemed like we want</span>
+<span class=hljs-addition>+to hide the add tag controls behind the toggle but then force people to add tags</span>
+<span class=hljs-addition>+for anything new but be able to edit &quot;legacy&quot; labels.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Can add labels normally</span>
+<span class=hljs-addition>+2. Flip feature</span>
+<span class=hljs-addition>+3. Can edit labels normally, or add/edit attached tag</span>
+<span class=hljs-addition>+4. Run big migration</span>
+<span class=hljs-addition>+5. Can only add/edit attached tag (no more legacy labels)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ran the logic by several times and got it OK&#x27;d but several weeks in it go NOK&#x27;d</span>
+<span class=hljs-addition>+because the PM didn&#x27;t want to force adding a tag to non-legacy media. I ended up</span>
+<span class=hljs-addition>+writing the same thing but reversed: can add labels normally but if something references</span>
+<span class=hljs-addition>+a tag you can only edit the tag. Then the toggle determines if you can add</span>
+<span class=hljs-addition>+labels/add tags.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Can add labels normally, edit tags if referenced</span>
+<span class=hljs-addition>+2. Run big migration</span>
+<span class=hljs-addition>+3. Flip feature</span>
+<span class=hljs-addition>+4. Can only add/edit attached tag (no more legacy labels)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Seem solid? Well, there is a step in between 2 and 3, called 2.5: users can create</span>
+<span class=hljs-addition>+legacy labels and we need to rerun the migration. I brought it up but the suggested</span>
+<span class=hljs-addition>+solution was to just run the migration as step 2.6. I&#x27;m not sure if cared when I</span>
+<span class=hljs-addition>+pointed out we might be stuck in between steps 2.5 and 2.6 and should think about</span>
+<span class=hljs-addition>+reordering the steps. Well, in hindsight this was fine and caused no issues but still.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But to bring back my backend complaining, we didn&#x27;t want to show the controls yet,</span>
+<span class=hljs-addition>+specifically &quot;1. ...edit tags if referenced&quot; wasn&#x27;t supposed to happen because the</span>
+<span class=hljs-addition>+logic that generated tags was already in production and checking the production</span>
+<span class=hljs-addition>+database showed many tags created this way. Yes, things were a little dire to me</span>
+<span class=hljs-addition>+at least.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, migration day was coming and it turns out backend engineer person who has</span>
+<span class=hljs-addition>+been working on this since years ago suddenly announces he&#x27;s leaving for a crypto</span>
+<span class=hljs-addition>+company. Before migration day. Oh boy, I&#x27;m not sure if it was a coincidence or if</span>
+<span class=hljs-addition>+he didn&#x27;t want to be here for the potential clusterfuck.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Either way, we went through the migration which was more or less straightforward.</span>
+<span class=hljs-addition>+We wrote endpoints to collect the unique labels for customers and generate tags</span>
+<span class=hljs-addition>+and referenced the generated tags. There was a small bit of manual work/custom logic</span>
+<span class=hljs-addition>+for consolidating similar tags with things like case sensitivity and another slightly</span>
+<span class=hljs-addition>+complex point I&#x27;m leaving out because it makes no sense in the made up tag scenario.</span>
+<span class=hljs-addition>+Everything came out ok, and I overworried for nothing.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But to finish off, I mentioned earlier that we still have frontend pains around</span>
+<span class=hljs-addition>+`video.label` still being referenced. And I was on frontend duty so this is kind</span>
+<span class=hljs-addition>+my fault. I spent all of my time making sure the Video and Image pages were working,</span>
+<span class=hljs-addition>+but it turns out that the `Video` and `Image` objects were used on other pages and</span>
+<span class=hljs-addition>+those pages still referenced the old `label` field, and as I pointed out earlier</span>
+<span class=hljs-addition>+there is no guarantee that this is synced with the tag&#x27;s label and gives incorrect</span>
+<span class=hljs-addition>+info.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I also have a sneaking suspicion this might also be the case on the backend, but</span>
+<span class=hljs-addition>+I haven&#x27;t looked. However, it might not be because the backend types are a lot more</span>
+<span class=hljs-addition>+solid (Java) than what the frontend has (a combination of JavaScript/TypeScript).</span>
+<span class=hljs-addition>+And I know there&#x27;s a method that works like:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+public String getLabel(Video video) {</span>
+<span class=hljs-addition>+    return video.tag.map(tag -&gt; tag.label).orElse(video.label);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+That&#x27;s used in various spots. Hopefully it&#x27;s been plugged in better than `attachTag`</span>
+<span class=hljs-addition>+although it depends on it...</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
