@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="style/style.css">
+    <script src="scripts/image_loader.js"></script>
+</head>
+
+<body>
+    <!-- There's nothing else here! -->
+    <picture id="very-cute-picture"><img srcset="reimu"
+            onerror="load_backup_image('/scripts/playful_reimu.bmp');load_backup_image('/scripts/confused_reimu.bmp'); " />
+    </picture>
+</body>

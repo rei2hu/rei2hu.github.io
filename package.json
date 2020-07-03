@@ -1,0 +1,37 @@
+{
+  "name": "rei2hu.github.io",
+  "version": "0.0.1",
+  "description": "github pages website",
+  "main": "none",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run packagejs && npm run packagehtml && npm run packagecss",
+    "packagejs": "node scripts/package-javascript.js ./src/images ./src/scripts ./built/scripts",
+    "packagehtml": "node scripts/package-html.js",
+    "packagecss": "node scripts/package-css.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rei2hu/rei2hu.github.io.git"
+  },
+  "author": "reimu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rei2hu/rei2hu.github.io/issues"
+  },
+  "homepage": "https://github.com/rei2hu/rei2hu.github.io#readme",
+  "dependencies": {
+    "clean-css": "^4.2.3",
+    "javascript-obfuscator": "^1.3.0",
+    "js-bmp-packer": "git+https://github.com/rei2hu/js-bmp-packer.git",
+    "uglify-es": "^3.3.9"
+  },
+  "devDependencies": {
+    "eslint": "^7.4.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.0.5"
+  }
+}
