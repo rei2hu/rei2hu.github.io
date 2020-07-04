@@ -16,6 +16,7 @@ const path = require("path");
 const pack = require("js-bmp-packer");
 const obfus = require("javascript-obfuscator");
 const uglify = require("uglify-es");
+const { obfusJsOpts } = require("./process-options");
 
 fs.mkdir(target, { recursive: true }).then(() =>
   fs
@@ -37,16 +38,7 @@ fs.mkdir(target, { recursive: true }).then(() =>
                   Buffer.from(
                     uglify.minify(
                       obfus
-                        .obfuscate(b.toString(), {
-                          compact: true,
-                          disableConsoleOutput: true,
-                          identifierNamesGenerator: "hexadecimal",
-                          stringArray: true,
-                          stringArrayEncoding: "base64",
-                          stringArrayThreshold: 0.75,
-                          transformObjectKeys: true,
-                          unicodeEscapeSequence: true,
-                        })
+                        .obfuscate(b.toString(), obfusJsOpts)
                         .getObfuscatedCode()
                     ).code
                   )
@@ -60,16 +52,7 @@ fs.mkdir(target, { recursive: true }).then(() =>
                   buffer: Buffer.from(
                     uglify.minify(
                       obfus
-                        .obfuscate(script.toString(), {
-                          compact: true,
-                          disableConsoleOutput: true,
-                          identifierNamesGenerator: "hexadecimal",
-                          stringArray: true,
-                          stringArrayEncoding: "base64",
-                          stringArrayThreshold: 0.75,
-                          transformObjectKeys: true,
-                          unicodeEscapeSequence: true,
-                        })
+                        .obfuscate(script.toString(), obfusJsOpts)
                         .getObfuscatedCode()
                     ).code
                   ),

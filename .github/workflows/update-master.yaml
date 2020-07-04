@@ -28,7 +28,7 @@ jobs:
       - name: Build site
         run: |
           cd $GITHUB_WORKSPACE/internals;
-          npm install;
+          npm install --production;
           npm run build;
 
       - name: Copy and commit
