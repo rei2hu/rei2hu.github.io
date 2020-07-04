@@ -4,7 +4,7 @@ const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./process-options");
 
-const converter = new showdown.Converter();
+const converter = new showdown.Converter({ strikethrough: true });
 
 const template = fs.readFileSync(
   path.resolve("src", "posts", "template.html"),
@@ -24,30 +24,60 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
     )
   ).then((nameBufObjs) => {
     // eslint-disable-next-line no-console
-    console.log(
-      `Creating scripts for ${nameBufObjs.map((obj) => obj.name).join(", ")}`
-    );
+    console.log(`Creating html for ${nameBufObjs.length} posts`);
     Promise.all(
-      nameBufObjs.map(({ name, contents }) =>
-        fs.promises.writeFile(
-          path.resolve("built", "posts", name),
-          minify(template.replace("$((contents))", contents), minifyHtmlOpts)
+      nameBufObjs
+        // extract the number
+        .sort((a, b) => a.name.split(".")[0] - b.name.split(".")[0])
+        .map(({ name, contents }, i) =>
+          fs.promises.writeFile(
+            path.resolve("built", "posts", name),
+            minify(
+              template
+                .replace("$((contents))", () => contents)
+                // insert the before and after navigation links
+                .replace("$((before))", () =>
+                  nameBufObjs[i - 1]
+                    ? `<a href="/posts/${
+                        nameBufObjs[i - 1].name
+                      }" style="float:left">${nameBufObjs[i - 1].name.slice(
+                        0,
+                        -5
+                      )}</a>`
+                    : ""
+                )
+                .replace("$((after))", () =>
+                  nameBufObjs[i + 1]
+                    ? `<a href="/posts/${
+                        nameBufObjs[i + 1].name
+                      }" style="float:right">${nameBufObjs[i + 1].name.slice(
+                        0,
+                        -5
+                      )}</a>`
+                    : ""
+                ),
+              minifyHtmlOpts
+            )
+          )
         )
-      )
     ).then(() => {
       // create main page
       fs.promises.writeFile(
         path.resolve("built", "posts", "index.html"),
         minify(
-          template.replace(
-            "$((contents))",
-            nameBufObjs
-              .map(
-                ({ name }) =>
-                  `<a href="/posts/${name}"}>${name.slice(0, -5)}</a>`
-              )
-              .join("\n")
-          ),
+          template
+            .replace(
+              "$((contents))",
+              () =>
+                `<ul><li>${nameBufObjs
+                  .map(
+                    ({ name }) =>
+                      `<a href="/posts/${name}"}>${name.slice(0, -5)}</a>`
+                  )
+                  .join("</li><li>")}</li></ul>`
+            )
+            .replace("$((before))", "")
+            .replace("$((after))", ""),
           minifyHtmlOpts
         )
       );

@@ -1,3 +1,4 @@
+// the main page layout
 (function () {
   centerDivLinks();
   bottomRightLinks();

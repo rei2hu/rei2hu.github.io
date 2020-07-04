@@ -1,3 +1,4 @@
+// basically loads a script from a url
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-new-func */

@@ -4,6 +4,10 @@ module.exports = {
     collapseBooleanAttributes: true,
     collapseInlineTagWhitespace: true,
     collapseWhitespace: true,
+    conservativeCollapse: true,
+    minifyJS: true,
+    minifyCSS: true,
+    removeComments: true,
   },
   obfusJsOpts: {
     compact: true,

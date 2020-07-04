@@ -1,3 +1,4 @@
+<!-- a template page for the blog posts -->
 <!DOCTYPE html>
 
 <head>
@@ -8,11 +9,34 @@
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
     <script src="/scripts/image_loader.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']]
+            }
+        };</script>
 </head>
 
-<body style="overflow-y:scroll;">
-    <picture id="very-cute-picture"><img srcset="reimu" onerror="load_backup_image('/scripts/playful_reimu.bmp');" />
+<body style="overflow-y:scroll;margin-right:45%;">
+    <!-- the navigation between individual posts-->
+    <div style="padding-bottom: 1em">
+        $((before))
+        $((after))
+        <!-- <a href="" style="float:left"></a>
+        <a href="" style="float:right"></a> -->
+    </div>
+    <picture id="very-cute-picture"><img srcset="reimu"
+            onerror="load_backup_image('/scripts/playful_reimu.bmp');load_backup_image('/scripts/unamused_reimu.bmp');" />
     </picture>
     $((contents))
+    <ul id="nav" style="top:0;left:1em;padding:0;position:fixed;list-style-type: none;">
+        <li>
+            <a href="/">home</a>
+        </li>
+        <li>
+            <a href="/posts/">posts</a>
+        </li>
+    </ul>
 </body>
