@@ -2,7 +2,7 @@
 (function () {
   document.body.removeChild(document.getElementById("very-cute-picture"));
   var canvas = document.createElement("canvas");
-  canvas.id = "starfield";
+  canvas.id = "gate";
   canvas.style.top = 0;
   canvas.style.bottom = 0;
   canvas.style.left = 0;
@@ -89,7 +89,7 @@
       star[i][3] = 0;
       star[i][4] = 0;
     }
-    var starfield = $i("starfield");
+    var starfield = $i("gate");
     starfield.style.position = "fixed";
     starfield.width = w;
     starfield.height = h;
