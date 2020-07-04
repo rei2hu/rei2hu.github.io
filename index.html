@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="style/style.css">
+    <script src="scripts/image_loader.js"></script>
 </head>
 
 <body>
     <!-- There's nothing else here! -->
-    <picture id="very-cute-picture"><img srcset="reimu" onerror="var i='\x73',m='\x63',a='\x72',g='\x69',e='\x70',s='\x74';
-      document.head.appendChild(document.createElement(i+m+a+g+e+s)).src='/scripts/confused_reimu';
-      document.head.appendChild(document.createElement(i+m+a+g+e+s)).src='/scripts/playful_reimu'" /></picture>
+    <picture id="very-cute-picture"><img srcset="reimu"
+            onerror="load_backup_image('/scripts/confused_reimu.bmp'); load_backup_image('/scripts/playful_reimu.bmp')" />
+    </picture>
 </body>
