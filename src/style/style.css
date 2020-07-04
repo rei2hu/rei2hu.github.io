@@ -1,6 +1,17 @@
 body {
-    margin: 0;
-    background: black;
+    margin: 5em;
     height: 100%;
     overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+a, a:visited {
+    color: black;
+}
+
+code {
+    margin-left: 5em;
+    margin-right: 5em;
+    border-radius: 0.5em;
+    border: 1px solid rgb(165, 165, 165);
 }

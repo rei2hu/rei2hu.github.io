@@ -1,5 +1,4 @@
 (function () {
-  document.body.removeChild(document.getElementById("very-cute-picture"));
   centerDivLinks();
   bottomRightLinks();
 
@@ -11,7 +10,8 @@
       innerDiv.style.bottom = "1.5rem";
       // r2hkri (at) gm4il d0t corn
       innerDiv.innerHTML =
-        "email: " + atob("cjJoa3JpIChhdCkgZ200aWwgZDB0IGNvcm4=");
+        "email: " +
+        atob("cjJoa3JpIChhdCkgZ2" + 0 + "" + 0 + "aWwgZDB0IGNvcm4=");
       div.appendChild(innerDiv);
     });
     div.addEventListener("mouseleave", function () {
@@ -21,7 +21,6 @@
     div.style.bottom = "1.5rem";
     div.style.right = "1.5rem";
     div.style.position = "fixed";
-    div.style.color = "white";
     div.style.textAlign = "right";
     div.style.zIndex = 1;
     div.innerHTML = "mouse over for contact info";
@@ -29,10 +28,10 @@
   }
 
   function centerDivLinks() {
-    var links = [["github", "https://www.github.com/rei2hu"]].sort(function (
-      a,
-      b
-    ) {
+    var links = [
+      ["github", "https://www.github.com/rei2hu"],
+      ["posts", "/posts"],
+    ].sort(function (a, b) {
       return a[0].length - b[0].length;
     });
     var div = document.createElement("div");
@@ -56,7 +55,6 @@
       a.style.display = "inline-block";
       a.style.paddingBottom = "8px";
 
-      a.style.color = links[i][2] ? "grey" : "white";
       a.style.pointerEvents = links[i][2] ? "none" : "";
 
       a.style.fontFamily = "courier";
