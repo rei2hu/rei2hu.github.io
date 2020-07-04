@@ -1,9 +1,9 @@
 module.exports = {
   minifyHtmlOpts: {
-    removeAttributeQuotes: true,
-    collapseBooleanAttributes: true,
-    collapseInlineTagWhitespace: true,
-    collapseWhitespace: true,
+    // removeAttributeQuotes: true,
+    // collapseBooleanAttributes: true,
+    // collapseInlineTagWhitespace: true,
+    // collapseWhitespace: true,
   },
   obfusJsOpts: {
     compact: true,
