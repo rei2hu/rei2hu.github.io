@@ -1,3 +1,4 @@
+// the background effect
 /* eslint-disable */
 (function () {
   document.body.removeChild(document.getElementById("very-cute-picture"));
@@ -156,8 +157,8 @@
 
   function move(evt) {
     evt = evt || event;
-    cursor_x = evt.pageX - canvas_x;
-    cursor_y = evt.pageY - canvas_y;
+    cursor_x = evt.pageX - canvas_x - window.scrollX;
+    cursor_y = evt.pageY - canvas_y - window.scrollY;
   }
 
   function key_manager(evt) {

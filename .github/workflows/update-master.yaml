@@ -36,7 +36,7 @@ jobs:
           GIT_EMAIL: r2hkri@gmail.com
           GIT_NAME: reimu
         run: |
-          rm -rf $GITHUB_WORKSPACE/master/scripts $GITHUB_WORKSPACE/master/style;
+          rm -rf $GITHUB_WORKSPACE/master/scripts $GITHUB_WORKSPACE/master/style $GITHUB_WORKSPACE/master/posts;
           cp -r $GITHUB_WORKSPACE/internals/built/. $GITHUB_WORKSPACE/master/;
           cd $GITHUB_WORKSPACE/master;
 
