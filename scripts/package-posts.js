@@ -34,7 +34,7 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
         .sort((a, b) => a.name.split(".")[0] - b.name.split(".")[0])
         .map(({ name, contents }, i) =>
           fs.promises.writeFile(
-            path.resolve("built", "posts", name),
+            path.resolve("built", "posts", `${name}.html`),
             minify(
               template
                 .replace("$((contents))", () => contents)
