@@ -38,11 +38,14 @@ jobs:
         run: |
           rm -rf $GITHUB_WORKSPACE/master/scripts $GITHUB_WORKSPACE/master/style $GITHUB_WORKSPACE/master/posts;
           cp -r $GITHUB_WORKSPACE/internals/built/. $GITHUB_WORKSPACE/master/;
+
+          cd $GITHUB_WORKSPACE/internals;
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B);
           cd $GITHUB_WORKSPACE/master;
 
           git config user.email $GIT_EMAIL;
           git config user.name $GIT_NAME;
 
           git add .;
-          git commit -m 'test';
+          git commit -m "$COMMIT_MESSAGE";
           git push;
