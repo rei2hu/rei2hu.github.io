@@ -4,7 +4,10 @@ const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./process-options");
 
-const converter = new showdown.Converter({ strikethrough: true });
+const converter = new showdown.Converter({
+  strikethrough: true,
+  ghCompatibleHeaderId: true,
+});
 
 const template = fs.readFileSync(
   path.resolve("src", "posts", "template.html"),
@@ -18,7 +21,7 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
       fs.promises
         .readFile(path.resolve("src", "posts", "md", mdFileName), "utf8")
         .then((contents) => ({
-          name: `${path.basename(mdFileName, ".md")}.html`,
+          name: `${path.basename(mdFileName, ".md")}`,
           contents: converter.makeHtml(contents),
         }))
     )
@@ -40,20 +43,14 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
                   nameBufObjs[i - 1]
                     ? `<a href="/posts/${
                         nameBufObjs[i - 1].name
-                      }" style="float:left">${nameBufObjs[i - 1].name.slice(
-                        0,
-                        -5
-                      )}</a>`
+                      }" style="float:left">${nameBufObjs[i - 1].name}</a>`
                     : ""
                 )
                 .replace("$((after))", () =>
                   nameBufObjs[i + 1]
                     ? `<a href="/posts/${
                         nameBufObjs[i + 1].name
-                      }" style="float:right">${nameBufObjs[i + 1].name.slice(
-                        0,
-                        -5
-                      )}</a>`
+                      }" style="float:right">${nameBufObjs[i + 1].name}</a>`
                     : ""
                 ),
               minifyHtmlOpts
@@ -70,10 +67,7 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
               "$((contents))",
               () =>
                 `<ul><li>${nameBufObjs
-                  .map(
-                    ({ name }) =>
-                      `<a href="/posts/${name}"}>${name.slice(0, -5)}</a>`
-                  )
+                  .map(({ name }) => `<a href="/posts/${name}"}>${name}</a>`)
                   .join("</li><li>")}</li></ul>`
             )
             .replace("$((before))", "")
