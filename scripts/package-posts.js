@@ -54,7 +54,8 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
                         nameBufObjs[i + 1].name
                       }" style="float:right">${nameBufObjs[i + 1].name}</a>`
                     : ""
-                ),
+                )
+                .replace("$((title))", name),
               minifyHtmlOpts
             )
           )
@@ -72,6 +73,7 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
                   .map(({ name }) => `<a href="/posts/${name}"}>${name}</a>`)
                   .join("</li><li>")}</li></ul>`
             )
+            .replace("$((title))", "posts")
             .replace("$((before))", "")
             .replace("$((after))", ""),
           minifyHtmlOpts
