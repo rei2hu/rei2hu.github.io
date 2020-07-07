@@ -30,6 +30,7 @@
 
   function centerDivLinks() {
     var links = [
+      ["404", Math.random().toString(36).slice(2, 7)],
       ["github", "https://www.github.com/rei2hu"],
       ["posts", "/posts"],
     ].sort(function (a, b) {
