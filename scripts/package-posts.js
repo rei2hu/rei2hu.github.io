@@ -17,14 +17,16 @@ const template = fs.readFileSync(
 fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
   const posts = fs.readdirSync(path.resolve("src", "posts", "md"));
   Promise.all(
-    posts.map((mdFileName) =>
-      fs.promises
-        .readFile(path.resolve("src", "posts", "md", mdFileName), "utf8")
-        .then((contents) => ({
-          name: `${path.basename(mdFileName, ".md")}`,
-          contents: converter.makeHtml(contents),
-        }))
-    )
+    posts
+      .filter((name) => name.endsWith(".md"))
+      .map((mdFileName) =>
+        fs.promises
+          .readFile(path.resolve("src", "posts", "md", mdFileName), "utf8")
+          .then((contents) => ({
+            name: `${path.basename(mdFileName, ".md")}`,
+            contents: converter.makeHtml(contents),
+          }))
+      )
   ).then((nameBufObjs) => {
     // eslint-disable-next-line no-console
     console.log(`Creating html for ${nameBufObjs.length} posts`);

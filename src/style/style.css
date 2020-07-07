@@ -10,12 +10,16 @@ a, a:visited {
 }
 
 code {
-    margin-left: 5em;
-    margin-right: 5em;
+    /* margin-left: 5em; */
+    /* margin-right: 5em; */
     border-radius: 0.5em;
     border: 1px solid rgb(165, 165, 165);
 }
 
 picture {
     display: none;
+}
+
+ul {
+    list-style-type: none;
 }
