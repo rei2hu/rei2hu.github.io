@@ -83,7 +83,7 @@
   var fps = 0;
 
   var color = 255;
-  var space_fadein = 0;
+  var space_fadein = 25;
 
   function init() {
     var a = 0;
@@ -112,9 +112,6 @@
     if (color > 0) {
         // 1.0219682709630184191 is the 255th root of 255
         color /= 1.0175;
-        if (color <= 1) {
-            color = 0;
-        }
     }
 
     mouse_x = cursor_x - x;
@@ -185,8 +182,8 @@
     );
     var width2 = context.measureText("you are lost...").width;
     context.fillStyle = oldStyle;
-    if (color == 0) {
-        space_fadein++;
+    if (color <= space_fadein && space_fadein <= 255) {
+        space_fadein = Math.min(255, space_fadein * 1.05);
         context.fillStyle = `rgb(${space_fadein}, ${space_fadein}, ${space_fadein})`;
     }
     context.fillText(
@@ -221,11 +218,8 @@
         star_speed_save = star_speed != 0 ? star_speed : star_speed_save;
         star_speed = star_speed != 0 ? 0 : star_speed_save;
         break;
-      case 13:
-        context.fillStyle = "rgba(0,0,0," + opacity + ")";
-        break;
     }
-    top.status = "key=" + (key < 100 ? "0" : "") + (key < 10 ? "0" : "") + key;
+    // top.status = "key=" + (key < 100 ? "0" : "") + (key < 10 ? "0" : "") + key;
   }
 
   function release() {
@@ -287,12 +281,12 @@
     init();
   }
 
+  // modified
   document.onmousemove = move;
-  document.onkeypress = key_manager;
-  document.onkeyup = release;
-  // document.onmousewheel = mouse_wheel;
-  // if (window.addEventListener)
-    // window.addEventListener("DOMMouseScroll", mouse_wheel, false);
   start();
-  document.body.onresize = resize;
+  clearTimeout(timeout);
+  setTimeout(function() {
+    start();
+    document.body.onresize = resize;
+  }, 1500);
 })();
