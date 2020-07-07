@@ -24,7 +24,7 @@ fs.mkdir(target, { recursive: true }).then(() =>
     .then((files) =>
       Promise.all(
         files
-          .filter((file) => file.endsWith("js"))
+          .filter((file) => file.endsWith(".js"))
           .map((f) => {
             const name = `${path.basename(f, ".js")}.bmp`;
             return Promise.all([
