@@ -1,4 +1,5 @@
-// the background effect
+// the background effect but modified for the 404 page
+// search for modification
 /* eslint-disable */
 (function () {
   document.body.removeChild(document.getElementById("very-cute-picture"));
@@ -61,6 +62,7 @@
   var star_speed_save = 0;
   var star = new Array(n);
   var color;
+  var speed = 6;
   var opacity = 0.1;
 
   var cursor_x = 0;
@@ -79,6 +81,9 @@
 
   var timeout;
   var fps = 0;
+
+  var color = 255;
+  var space_fadein = 0;
 
   function init() {
     var a = 0;
@@ -101,6 +106,17 @@
   }
 
   function anim() {
+    // modified
+    context.fillStyle = `rgb(${color}, ${color}, ${color})`;
+    context.strokeStyle = `rgb(${255 - color}, ${255 - color}, ${255 - color})`;
+    if (color > 0) {
+        // 1.0219682709630184191 is the 255th root of 255
+        color /= 1.0175;
+        if (color <= 1) {
+            color = 0;
+        }
+    }
+
     mouse_x = cursor_x - x;
     mouse_y = cursor_y - y;
     context.fillRect(0, 0, w, h);
@@ -108,7 +124,8 @@
       test = true;
       star_x_save = star[i][3];
       star_y_save = star[i][4];
-      star[i][0] += mouse_x / w * 100;
+      // modified
+      star[i][0] += mouse_x >> speed;
       if (star[i][0] > x << 1) {
         star[i][0] -= w << 1;
         test = false;
@@ -117,7 +134,8 @@
         star[i][0] += w << 1;
         test = false;
       }
-      star[i][1] += mouse_y / w * 100;
+      // modified
+      star[i][1] += mouse_y >> speed;
       if (star[i][1] > y << 1) {
         star[i][1] -= h << 1;
         test = false;
@@ -152,6 +170,31 @@
         context.closePath();
       }
     }
+
+    // modified
+    context.font = 'bold 10em Courier';
+    var oldStyle = context.fillStyle;
+    context.fillStyle = context.strokeStyle;
+    context.fillText("404", 100,  200);
+    var width = context.measureText("404").width / 2;
+    context.font = 'bold 1em Courier';
+    context.fillText(
+        "you are lost...",
+        100 + width,
+        250
+    );
+    var width2 = context.measureText("you are lost...").width;
+    context.fillStyle = oldStyle;
+    if (color == 0) {
+        space_fadein++;
+        context.fillStyle = `rgb(${space_fadein}, ${space_fadein}, ${space_fadein})`;
+    }
+    context.fillText(
+        " in space",
+        100 + width + width2,
+        250
+    );
+
     timeout = setTimeout(anim, fps);
   }
 
