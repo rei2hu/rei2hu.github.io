@@ -23,7 +23,9 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
         fs.promises
           .readFile(path.resolve("src", "posts", "md", mdFileName), "utf8")
           .then((contents) => ({
-            name: `${path.basename(mdFileName, ".md")}`,
+            id: parseInt(mdFileName.split(".")[0], 10),
+            // slice to remove the space after the dot
+            name: path.basename(mdFileName, ".md").split(".")[1].slice(1),
             contents: converter.makeHtml(contents),
           }))
       )
@@ -33,10 +35,10 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
     Promise.all(
       nameBufObjs
         // extract the number
-        .sort((a, b) => a.name.split(".")[0] - b.name.split(".")[0])
-        .map(({ name, contents }, i) =>
+        .sort((a, b) => a.id - b.id)
+        .map(({ id, name, contents }, i) =>
           fs.promises.writeFile(
-            path.resolve("built", "posts", `${name}.html`),
+            path.resolve("built", "posts", `${id}.html`),
             minify(
               template
                 .replace("$((contents))", () => contents)
@@ -44,15 +46,17 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
                 .replace("$((before))", () =>
                   nameBufObjs[i - 1]
                     ? `<a href="/posts/${
-                        nameBufObjs[i - 1].name
-                      }" style="float:left">${nameBufObjs[i - 1].name}</a>`
+                        nameBufObjs[i - 1].id
+                      }" style="float:left">&lt; ${nameBufObjs[i - 1].name}</a>`
                     : ""
                 )
                 .replace("$((after))", () =>
                   nameBufObjs[i + 1]
                     ? `<a href="/posts/${
+                        nameBufObjs[i + 1].id
+                      }" style="float:right">${
                         nameBufObjs[i + 1].name
-                      }" style="float:right">${nameBufObjs[i + 1].name}</a>`
+                      } &gt;</a>`
                     : ""
                 )
                 .replace("$((title))", name),
@@ -70,7 +74,10 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
               "$((contents))",
               () =>
                 `<ul><li>${nameBufObjs
-                  .map(({ name }) => `<a href="/posts/${name}"}>${name}</a>`)
+                  .map(
+                    ({ id, name }) =>
+                      `${id} <a href="/posts/${id}"}>${name}</a>`
+                  )
                   .join("</li><li>")}</li></ul>`
             )
             .replace("$((title))", "posts")
