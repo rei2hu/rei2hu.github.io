@@ -20,6 +20,10 @@ picture {
     display: none;
 }
 
+li {
+    margin-bottom: 0.5em;
+}
+
 ul {
     list-style-type: none;
 }
