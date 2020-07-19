@@ -65,6 +65,9 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
           )
         )
     ).then(() => {
+      const maxLength =
+        Math.floor(Math.log10(Math.max(...nameBufObjs.map((obj) => obj.id)))) +
+        1;
       // create main page
       fs.promises.writeFile(
         path.resolve("built", "posts", "index.html"),
@@ -76,7 +79,11 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
                 `<ul><li>${nameBufObjs
                   .map(
                     ({ id, name }) =>
-                      `${id} <a href="/posts/${id}"}>${name}</a>`
+                      `${String(id).padStart(
+                        maxLength,
+                        // nbsp
+                        "\u00A0"
+                      )}. <a href="/posts/${id}">${name}</a>`
                   )
                   .join("</li><li>")}</li></ul>`
             )
