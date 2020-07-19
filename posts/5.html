@@ -1,0 +1,21 @@
+ <!DOCTYPE html> <head> <meta charset=UTF-8> <link rel=stylesheet href=/style/style.css> <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-light.min.css> <script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script> <script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js></script> <script src=/scripts/image_loader.js></script> <script>hljs.initHighlightingOnLoad(),window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]]}}</script> <title>reducing a list of arguments</title> </head> <body style=overflow-y:scroll;margin-right:45%> <div style=padding-bottom:1em> <a href=/posts/4 style=float:left>&lt; learning haskell</a> <a href=/posts/6 style=float:right>functors and applicatives &gt;</a> </div> <picture id=very-cute-picture><img srcset=reimu onerror='load_backup_image("/scripts/playful_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")'> </picture> <h1 id=reduce-a-list-of-arguments>reduce a list of arguments</h1> <p>I've reached the part of <code>learnyouahaskell</code> about functionally solving problems. I noticed it started out with creating a RPN calculator. This is something I've never done before but I went ahead and did it without reading any further in order to compare my solution with the books. Here is mine:</p> <pre><code class="haskell language-haskell">solveRPN :: (Num a, Read a) =&gt; String -&gt; a
+solveRPN = (solve [0]) .  words
+
+solve :: (Num a, Read a) =&gt; [a] -&gt; [String] -&gt; a
+solve (a:b:st) ("+":xs) = solve ((b + a):st) xs
+solve (a:b:st) ("*":xs) = solve ((b * a):st) xs
+solve (a:b:st) ("-":xs) = solve ((b - a):st) xs
+solve st (x:xs) = solve (read x:st) xs
+solve st [] = head st
+</code></pre> <p>I spent a lot of time trying to get something else working to no avail - some kind of fancy reduce that would work like this:</p> <pre><code class="haskell language-haskell">-- (10 4 3 + 2 * -)
+-- =&gt; 10 (4 3 + 2 * -)
+-- =&gt; 10 4 (3 + 2 * -)
+-- =&gt; 10 4 3 (+ 2 * -)
+-- =&gt; 10 4 ((+ 3) 2 * -), the 3 and + get wrapped into a partially applied function
+-- =&gt; 10 7 (2 * -), maybe there's an intermediate step of 10 (7 2 * -) but who knows
+--                  considering I cant even get it working
+-- =&gt; 10 7 2 (* -)
+-- =&gt; 10 7 ((* 2) -)
+-- =&gt; 10 14 (-)
+-- =&gt; 4
+</code></pre> <p>I guess I'd call them dangling arguments or something if I had to give it a name. Who knows if that's possible? I'm pretty sure I tried something similar once a long time ago when doing something with trees, emphasis on tried.</p> <p>Anyways, it is interesting to see that the solution in <code>learnyouahaskell</code> ended up using <code>foldl</code> which is probably better.</p> <p>And then there's another problem that looks like Djikstra's Algorithm which I didn't attempt. I'm really looking forward to the next section though because it looks like I'll start learning the fancy words (Functors, Applicative Functors, and Monoids).</p> <ul id=nav style=top:0;left:1em;padding:0;position:fixed> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
