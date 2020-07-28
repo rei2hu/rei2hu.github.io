@@ -5,10 +5,9 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="/style/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-light.min.css">
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/haskell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/haskell.min.js"></script>
     <!-- <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css"> -->
-    <script async src="/scripts/tikz_jax.js"></script>
     <script src="/scripts/image_loader.js"></script>
     <script>
         hljs.initHighlightingOnLoad();
@@ -20,6 +19,7 @@
         };
         const rmu_interval = setInterval(() => document.querySelectorAll("text").length && document.querySelectorAll("text").forEach(t => t.style.fontSize = '10px'), 500);
     </script>
+    <script async src="/scripts/tikz_jax.js"></script>
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <title>$((title))</title>
 </head>
