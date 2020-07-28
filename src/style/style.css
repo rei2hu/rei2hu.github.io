@@ -12,7 +12,7 @@ a, a:visited {
 code {
     /* margin-left: 5em; */
     /* margin-right: 5em; */
-    border-radius: 0.5em;
+    border-radius: 0.25em;
     border: 1px solid rgb(165, 165, 165);
 }
 
@@ -27,4 +27,24 @@ li {
 
 ul {
     list-style-type: none;
+}
+
+tr, th {
+    padding: 0.5em;
+}
+
+table, th, td {
+    border: 1px black solid;
+    border-collapse: collapse;
+}
+
+/* for tikzjax */
+
+@font-face {
+    font-family: cmr10;
+    src: url('cmr10.ttf');
+}
+
+svg {
+    left: 10%;
 }
