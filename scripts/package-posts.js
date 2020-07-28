@@ -7,6 +7,7 @@ const { minifyHtmlOpts } = require("./process-options");
 const converter = new showdown.Converter({
   strikethrough: true,
   ghCompatibleHeaderId: true,
+  tables: true,
 });
 
 const template = fs.readFileSync(

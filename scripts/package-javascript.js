@@ -24,7 +24,12 @@ fs.mkdir(target, { recursive: true }).then(() =>
     .then((files) =>
       Promise.all(
         files
-          .filter((file) => file.endsWith(".js"))
+          .filter(
+            (file) =>
+              file.endsWith(".js") ||
+              file.endsWith(".wasm") ||
+              file.endsWith(".gz")
+          )
           .map((f) => {
             const name = `${path.basename(f, ".js")}.bmp`;
             return Promise.all([
@@ -48,13 +53,20 @@ fs.mkdir(target, { recursive: true }).then(() =>
                 // if there isn't a related image then just dont pack
                 // i.e. for the image loader
                 fs.readFile(path.resolve(scripts, f)).then((script) => ({
-                  name: `${name.slice(0, -4)}.js`,
+                  name: f,
                   buffer: Buffer.from(
-                    uglify.minify(
-                      obfus
-                        .obfuscate(script.toString(), obfusJsOpts)
-                        .getObfuscatedCode()
-                    ).code
+                    (() => {
+                      // try catch for the wasm and gz files that can't be minified
+                      try {
+                        return uglify.minify(
+                          obfus
+                            .obfuscate(script.toString(), obfusJsOpts)
+                            .getObfuscatedCode()
+                        ).code;
+                      } catch (e) {
+                        return script;
+                      }
+                    })()
                   ),
                 }))
               );
