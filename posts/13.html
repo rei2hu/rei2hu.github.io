@@ -17,34 +17,29 @@
 Node = namedtuple('Node', ['left', 'right', 'value', 'occurrences'])
 
 
-def makeHuffTree(symbols):
+def make_huff_tree(symbols):
     if len(symbols) == 1:
         return symbols.pop()
 
-    # these two trees should have the lowest occurrence counts
     left = symbols.pop(0)
     right = symbols.pop(0)
-
-    # combine them into a new tree - since this is an inner node
-    # there is no actual value, but we do add up the occurrences
-    symbols.append(Node(left, right, None, left.occurrences
-                   + right.occurrences))
-
-    # inefficient, but basically we want to guarantee that the first two things
+    # this is an inner node so there is no value
+    symbols.append(
+        Node(left, right, None, left.occurrences + right.occurrences))
+    # inefficient, but basically I want to guarantee that the first two things
     # in the list are the ones with the least occurrences - this is typically
     # done with a priority queue
     symbols.sort(key=lambda s: s.occurrences)
-    return makeHuffTree(symbols)
+    return make_huff_tree(symbols)
 
-# make sure the first two things in symbols have the lowest occurrences
-# again, typically with a priority queue, every time you peek/remove, you are
-# guaranteed to get the extreme so that is another way this could be done
-symbols = [Node(None, None, 'A', 5), Node(None, None, 'B', 2),
-           Node(None, None, 'C', 3), Node(None, None, 'D', 4),
-           Node(None, None, 'E', 1)]
+data = "AAAACABBDDECCDD"
+# "fun" way to get char counts
+symbols = list(
+    map(lambda a: Node(None, None, a[0], len(list(a[1]))), groupby(sorted(data))))
 symbols.sort(key=lambda s: s.occurrences)
-print makeHuffTree(symbols)
-</code></pre> <p>This gives us the following output:</p> <pre><code class="python language-python">Node(left=Node(left=Node(left=None, right=None, value='C', occurrences=3), right=Node(left=Node(left=None, right=None, value='E', occurrences=1), right=Node(left=None, right=None, value='B', occurrences=2), value=None, occurrences=3), value=None, occurrences=6), right=Node(left=Node(left=None, right=None, value='D', occurrences=4), right=Node(left=None, right=None, value='A', occurrences=5), value=None, occurrences=9), value=None, occurrences=15)
+
+print(make_huff_tree(symbols))
+</code></pre> <p>This gives us the following output:</p> <pre><code class="python language-python">Node(left=Node(left=Node(left=None, right=None, value='C', occurrences=3), right=Node(left=Node(left=None, right=None, value='E', occurrences=1), right=Node(left=None, right=None, value='B', occurrences=2), value=None, occurrences=3), value=None, occurrences=6), right=Node(left=Node(left=None, right=None, value='D', occurrences=4), right=Node(left=None, right=None, value='A', occurrences=5), value=None, occurrences=9), value=None, occurrences=15))
 </code></pre> <p>Or the following tree (I'm keeping track of the occurences here also, just for reference)</p> <script type=text/tikz> \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
     level 1/.style={sibling distance=30mm},
     level 2/.style={sibling distance=15mm}]
@@ -65,45 +60,46 @@ print makeHuffTree(symbols)
         child { node {A:5} edge from parent node[right, draw=none] {1} }
         edge from parent node[right, draw=none] {1}
       };
-   \end{tikzpicture} </script> <p>And encoding</p> <table> <thead> <tr> <th>Symbol</th> <th>Codeword</th> </tr> </thead> <tbody> <tr> <td>A</td> <td>11</td> </tr> <tr> <td>B</td> <td>011</td> </tr> <tr> <td>C</td> <td>00</td> </tr> <tr> <td>D</td> <td>10</td> </tr> <tr> <td>E</td> <td>010</td> </tr> </tbody> </table> <p>So here we see that instead of using the usual 8 bits per character, we were able to compress it down to using 2 or 3 bits per character. So now we know how to compress data using this algorithm. Now, let's to look at how to store it in a file using the current example.</p> <p>As a quick aside, this is the binary of the original file containing $AAAACABBDDECCDD$</p> <pre><code class="bash language-bash">100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100
-</code></pre> <p>When storing the codebook (translation), the one efficient way to store it encodes a preorder traversal of the tree through bits; imagine 1 is an inner node and 0 is a leaf node. When we reach a leaf node, we append the symbol. Here's another rough block of code that builds off the previous one (we'll use a list of strings for simplicity's sake):</p> <pre><code class="python language-python">tree = makeHuffTree(symbols)
+   \end{tikzpicture} </script> <p>And encoding</p> <table> <thead> <tr> <th>Symbol</th> <th>Codeword</th> </tr> </thead> <tbody> <tr> <td>A</td> <td>11</td> </tr> <tr> <td>B</td> <td>011</td> </tr> <tr> <td>C</td> <td>00</td> </tr> <tr> <td>D</td> <td>10</td> </tr> <tr> <td>E</td> <td>010</td> </tr> </tbody> </table> <p>So here we see that instead of using the usual 8 bits per character, we were able to compress it down to using 2 or 3 bits per character. So now we know how to compress data using this algorithm. Now, let's to look at how to store it in a file using the current example.</p> <p>As a quick aside, this is the binary of the original file containing $AAAACABBDDECCDD$</p> <pre><code class="bash language-bash">0100000101000001010000010100000101000011010000010100001001000010010001000100010001000101010000110100001101000100010001000
+</code></pre> <p>When storing the codebook (translation), the one efficient way to store it encodes a preorder traversal of the tree through bits; imagine 1 is an inner node and 0 is a leaf node. When we reach a leaf node, we append the symbol. Here's another rough block of code that builds off the previous one (we'll use a list of strings for simplicity's sake):</p> <pre><code class="python language-python">tree = make_huff_tree(symbols)
 
-def encodeHuffTree(tree):
+def encode_huff_tree(tree):
     # a leaf node
     if not (tree.left or tree.right):
-        return "0" + tree.value
-    return "1" + encodeHuffTree(tree.left) + encodeHuffTree(tree.right)
+        return ['0', format(ord(tree.value), 'b').zfill(8)]
+    return ['1'] + encode_huff_tree(tree.left) + encode_huff_tree(tree.right)
 
-print(encodeHuffTree(tree))
-</code></pre> <p>Which outputs</p> <pre><code class="python language-python">[1, 1, 0, 'C', 1, 0, 'E', 0, 'B', 1, 0, 'D', 0, 'A']
-</code></pre> <p>And the decoding method:</p> <pre><code class="python language-python">encTree = encodeHuffTree(tree)
+print(encode_huff_tree(tree))
+</code></pre> <p>Which outputs</p> <pre><code class="python language-python">['1', '1', '0', '01000011', '1', '0', '01000101', '0', '01000010', '1', '0', '01000100', '0', '01000001']
+</code></pre> <p>We can see that the symbols still take up their usual 8 bits. And the decoding method:</p> <pre><code class="python language-python">enc_tree = encode_huff_tree(tree)
 RebuiltNode = namedtuple('RebuiltNode', ['left', 'right', 'value'])
 
-def decodeHuffTree(encoded):
+def decode_huff_tree(encoded):
     node = encoded.pop(0)
-    if node == 1:
+    if node == '1':
         # an inner node
-        return RebuiltNode(decodeHuffTree(encoded), decodeHuffTree(encoded), None)
+        return RebuiltNode(decode_huff_tree(encoded), decode_huff_tree(encoded), None)
     else:
         # a leaf node
-        # read the symbol out and set it as the value
-        return RebuiltNode(None, None, encoded.pop(0))
+        r = RebuiltNode(None, None, chr(int(''.join(encoded[0:8]), 2)))
+        del encoded[0:8]
+        return r
 
-print(decodeHuffTree(encTree))
+print(decode_huff_tree(list(''.join(encode_huff_tree(tree)))))
 </code></pre> <p>Which outputs</p> <pre><code class="python language-python">RebuiltNode(left=RebuiltNode(left=RebuiltNode(left=None, right=None, value='C'), right=RebuiltNode(left=RebuiltNode(left=None, right=None, value='E'), right=RebuiltNode(left=None, right=None, value='B'), value=None), value=None), right=RebuiltNode(left=RebuiltNode(left=None, right=None, value='D'), right=RebuiltNode(left=None, right=None, value='A'), value=None), value=None)
-</code></pre> <p>Hey, it's literally the same tree as the one we made all the way back except without the occurrences data, and we conveniently don't need to give the length of the encoded tree data because it knows when to terminate, e.g.</p> <pre><code class="python language-python">encTree = encodeHuffTree(tree)
-encTree = encTree + ['oh no!', 'is the data starting?']
+</code></pre> <p>Hey, it's literally the same tree as the one we made all the way back except without the occurrences data, and we conveniently don't need to give the length of the encoded tree data because it knows when to terminate, e.g.</p> <pre><code class="python language-python">enc_tree = encode_huff_tree(tree)
+enc_tree = enc_tree + ['oh no!', 'is the data starting?']
 
 # ...
 
-print(decodeHuffTree(encTree)) # it still works!
+print(decode_huff_tree(list(''.join(encode_huff_tree(tree)))) # it still works!
 </code></pre> <p>And the leftovers of the list are actual the encoded data. There is only one last thing to do, which is to prepend the encoded tree to the actual data and see how much space we've saved. Let's look at the individual components before combining them.</p> <pre><code class="bash language-bash"># encoded tree
-# [1, 1, 0, 'C', 1, 0, 'E', 0, 'B', 1, 0, 'D', 0, 'A']
+# ['1', '1', '0', '01000011', '1', '0', '01000101', '0', '01000010', '1', '0', '01000100', '0', '01000001']
 110 01000011 1 0 01000101 0 01000010 1 0 01000100 0 01000001
 # actual data
 1111111100110110111010010000010100
 # final (82)
 1100100001110010001010010000101001000100001000001111111110011011011101001000001010
-# original (105)
-100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100
-</code></pre> <p>Wow, a whopping 23 bits saved! Naturally, compression is more useful when dealing with larger data.</p> <p>Whew! That was explanation longer that I initially anticipated - looks like I'll be splitting this into two parts where part 2 will be all my rambling thoughts. Honestly, the actual idea for this post popped in my head at like 3 am.</p> <ul id=nav style=top:0;left:1em;padding:0;position:fixed> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
+# original (120)
+0100000101000001010000010100000101000011010000010100001001000010010001000100010001000101010000110100001101000100010001000
+</code></pre> <p>Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing with larger data. Want to see the full example run end to end? The code can be found <a href=https://github.com/rei2hu/random_stuff/blob/master/python/huffman_example.py>here</a></p> <p>Whew! That was explanation longer that I initially anticipated - looks like I'll be splitting this into two parts where part 2 will be all my rambling thoughts. Honestly, the actual idea for this post popped in my head at like 3 am.</p> <ul id=nav style=top:0;left:1em;padding:0;position:fixed> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
