@@ -1,0 +1,109 @@
+ <!DOCTYPE html> <head> <meta charset=UTF-8> <link rel=stylesheet href=/style/style.css> <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-light.min.css> <script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script> <script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js></script> <script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/haskell.min.js></script> <script src=/scripts/tikz_jax.js></script> <script src=/scripts/image_loader.js></script> <script> hljs.initHighlightingOnLoad();
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']]
+            }
+        };
+        const rmu_interval = setInterval(() => document.querySelectorAll("text").length && document.querySelectorAll("text").forEach(t => t.style.fontSize = '10px'), 500); </script> <title>can more be less - pt 1 - huffman coding, an explanation</title> </head> <body style=overflow-y:scroll;margin-right:45%> <noscript> 100% of this website needs javascript to work. Please enable :( </noscript> <div style=padding-bottom:1em> <a href=/posts/12 style=float:left>&lt; start with a statically typed language</a> </div> <picture id=very-cute-picture><img srcset=reimu onerror='load_backup_image("/scripts/playful_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")'> </picture> <h1 id=can-less-be-more-in-compresson---pt-1---huffman-coding-an-explanation>can less be more in compresson - pt 1 - Huffman coding, an explanation</h1> <p>This probably isn't the best title, but I was wondering if it was possible that breaking data into multiple pieces and compressing them seperately can give better results than compressing it at once.</p> <h2 id=a-basic-compression-technique---huffman-coding>a basic compression technique - Huffman coding</h2> <p>Huffman coding is probably one of the simplest and well known compression techniques considering it is taught as part of the computer science curriculum. I'll be rambling about this in an effort to see whether this idea might be possible, but first, an explanation of how it works.</p> <h3 id=huffman-coding---an-explanationexample>Huffman coding - an explanation/example</h3> <p>The idea behind Huffman coding is to come up with a set of codes that encode less frequently occurring symbols with more bits while encoding more frequently occurring symbols with less bits.</p> <p>Take, for example, a <code>char</code>. This has a size of 1 byte or 8 bits, but if you only have 2 different <code>char</code>s in your file, then in reality, we only need 1 bit to differentiate between the two, for example (spacing for display purposes):</p> <p> A A B B A B $\rightarrow$ 01000001 1000010 1000010 1000010 1000010 1000010 <br> compared to <br> A A B B A B $\rightarrow$ 0 0 1 1 0 1 </p> <p>However, it is not as simple as having the patterns <code>0</code>, <code>1</code>, <code>01</code>, <code>10</code>, etc. because when decoding, you would come across ambiguities. Therefore, the encoding must be a <strong>prefix code</strong> so that none of the codes are prefixes of the other - <code>0</code> and <code>01</code> could not both be in the set because <code>0</code> is a prefix of <code>01</code>.</p> <p>It just so happens that this can be simply done with a binary tree - we treat the edges as a way to represent the code and as long as we leave (haha) the symbols at the leaves, we guarantee that we do not have the prefix conflict. For example:</p> <script type=text/tikz> \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+    \node{}
+      child{ node{A} edge from parent node[left, draw=none] {0} }
+      child{ node {}
+        child{ node{B} edge from parent node[left, draw=none] {0} }
+        child{ node{C} edge from parent node[right, draw=none] {1} }
+      edge from parent node[right, draw=none] {1} };
+   \end{tikzpicture} </script> <p>We can interpret the tree as a prefix code by starting at the root and using the bits along the path to each leaf as the codeword for the symbol at the leaf i.e.</p> <table> <thead> <tr> <th>Symbol</th> <th>Codeword</th> </tr> </thead> <tbody> <tr> <td>A</td> <td>0</td> </tr> <tr> <td>B</td> <td>10</td> </tr> <tr> <td>C</td> <td>11</td> </tr> </tbody> </table> <p>Consider compressing the string <code>AAAACABBDDECCDD</code>.</p> <p>To construct this tree for this example, we start with only the leaves (trees of size 1) - we then combine the two least trees with the least occurring symbols into another tree and keep doing so until we end up with one tree. Here is a rough code example.</p> <pre><code class="python language-python">from collections import namedtuple
+
+Node = namedtuple('Node', ['left', 'right', 'value', 'occurrences'])
+
+
+def makeHuffTree(symbols):
+    if len(symbols) == 1:
+        return symbols.pop()
+
+    # these two trees should have the lowest occurrence counts
+    left = symbols.pop(0)
+    right = symbols.pop(0)
+
+    # combine them into a new tree - since this is an inner node
+    # there is no actual value, but we do add up the occurrences
+    symbols.append(Node(left, right, None, left.occurrences
+                   + right.occurrences))
+
+    # inefficient, but basically we want to guarantee that the first two things
+    # in the list are the ones with the least occurrences - this is typically
+    # done with a priority queue
+    symbols.sort(key=lambda s: s.occurrences)
+    return makeHuffTree(symbols)
+
+# make sure the first two things in symbols have the lowest occurrences
+# again, typically with a priority queue, every time you peek/remove, you are
+# guaranteed to get the extreme so that is another way this could be done
+symbols = [Node(None, None, 'A', 5), Node(None, None, 'B', 2),
+           Node(None, None, 'C', 3), Node(None, None, 'D', 4),
+           Node(None, None, 'E', 1)]
+symbols.sort(key=lambda s: s.occurrences)
+print makeHuffTree(symbols)
+</code></pre> <p>This gives us the following output:</p> <pre><code class="python language-python">Node(left=Node(left=Node(left=None, right=None, value='C', occurrences=3), right=Node(left=Node(left=None, right=None, value='E', occurrences=1), right=Node(left=None, right=None, value='B', occurrences=2), value=None, occurrences=3), value=None, occurrences=6), right=Node(left=Node(left=None, right=None, value='D', occurrences=4), right=Node(left=None, right=None, value='A', occurrences=5), value=None, occurrences=9), value=None, occurrences=15)
+</code></pre> <p>Or the following tree (I'm keeping track of the occurences here also, just for reference)</p> <script type=text/tikz> \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+    level 1/.style={sibling distance=30mm},
+    level 2/.style={sibling distance=15mm}]
+    \node{15}
+      child {
+        child{ node{C:3} edge from parent node[left, draw=none] {0}
+          edge from parent node[left, draw=none] {0}
+        }
+        child{ node {3}
+          child{ node{E:1} edge from parent node[left, draw=none] {0} }
+          child{ node{B:2} edge from parent node[right, draw=none] {1} }
+          edge from parent node[right, draw=none] {1}
+        }
+        edge from parent node[left, draw=none] {0}
+      }
+      child { node {9}
+        child { node {D:4} edge from parent node[left, draw=none] {0} }
+        child { node {A:5} edge from parent node[right, draw=none] {1} }
+        edge from parent node[right, draw=none] {1}
+      };
+   \end{tikzpicture} </script> <p>And encoding</p> <table> <thead> <tr> <th>Symbol</th> <th>Codeword</th> </tr> </thead> <tbody> <tr> <td>A</td> <td>11</td> </tr> <tr> <td>B</td> <td>011</td> </tr> <tr> <td>C</td> <td>00</td> </tr> <tr> <td>D</td> <td>10</td> </tr> <tr> <td>E</td> <td>010</td> </tr> </tbody> </table> <p>So here we see that instead of using the usual 8 bits per character, we were able to compress it down to using 2 or 3 bits per character. So now we know how to compress data using this algorithm. Now, let's to look at how to store it in a file using the current example.</p> <p>As a quick aside, this is the binary of the original file containing $AAAACABBDDECCDD$</p> <pre><code class="bash language-bash">100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100
+</code></pre> <p>When storing the codebook (translation), the one efficient way to store it encodes a preorder traversal of the tree through bits; imagine 1 is an inner node and 0 is a leaf node. When we reach a leaf node, we append the symbol. Here's another rough block of code that builds off the previous one (we'll use a list of strings for simplicity's sake):</p> <pre><code class="python language-python">tree = makeHuffTree(symbols)
+
+def encodeHuffTree(tree):
+    # a leaf node
+    if not (tree.left or tree.right):
+        return "0" + tree.value
+    return "1" + encodeHuffTree(tree.left) + encodeHuffTree(tree.right)
+
+print(encodeHuffTree(tree))
+</code></pre> <p>Which outputs</p> <pre><code class="python language-python">[1, 1, 0, 'C', 1, 0, 'E', 0, 'B', 1, 0, 'D', 0, 'A']
+</code></pre> <p>And the decoding method:</p> <pre><code class="python language-python">encTree = encodeHuffTree(tree)
+RebuiltNode = namedtuple('RebuiltNode', ['left', 'right', 'value'])
+
+def decodeHuffTree(encoded):
+    node = encoded.pop(0)
+    if node == 1:
+        # an inner node
+        return RebuiltNode(decodeHuffTree(encoded), decodeHuffTree(encoded), None)
+    else:
+        # a leaf node
+        # read the symbol out and set it as the value
+        return RebuiltNode(None, None, encoded.pop(0))
+
+print(decodeHuffTree(encTree))
+</code></pre> <p>Which outputs</p> <pre><code class="python language-python">RebuiltNode(left=RebuiltNode(left=RebuiltNode(left=None, right=None, value='C'), right=RebuiltNode(left=RebuiltNode(left=None, right=None, value='E'), right=RebuiltNode(left=None, right=None, value='B'), value=None), value=None), right=RebuiltNode(left=RebuiltNode(left=None, right=None, value='D'), right=RebuiltNode(left=None, right=None, value='A'), value=None), value=None)
+</code></pre> <p>Hey, it's literally the same tree as the one we made all the way back except without the occurrences data, and we conveniently don't need to give the length of the encoded tree data because it knows when to terminate, e.g.</p> <pre><code class="python language-python">encTree = encodeHuffTree(tree)
+encTree = encTree + ['oh no!', 'is the data starting?']
+
+# ...
+
+print(decodeHuffTree(encTree)) # it still works!
+</code></pre> <p>And the leftovers of the list are actual the encoded data. There is only one last thing to do, which is to prepend the encoded tree to the actual data and see how much space we've saved. Let's look at the individual components before combining them.</p> <pre><code class="bash language-bash"># encoded tree
+# [1, 1, 0, 'C', 1, 0, 'E', 0, 'B', 1, 0, 'D', 0, 'A']
+110 1000011 1 0 1000101 0 1000010 1 0 1000100 0 1000001
+# actual data
+111111110011011011101001000001010
+# final (77)
+11010000111010001010100001010100010001000001111111110011011011101001000001010
+# original (105)
+100000110000011000001100000110000111000001100001010000101000100100010010001011000011100001110001001000100
+</code></pre> <p>Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing with larger data.</p> <p>Whew! That was explanation longer that I initially anticipated - looks like I'll be splitting this into two parts where part 2 will be all my rambling thoughts. Honestly, the actual idea for this post popped in my head at like 3 am.</p> <ul id=nav style=top:0;left:1em;padding:0;position:fixed> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
