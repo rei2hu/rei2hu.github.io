@@ -59,7 +59,6 @@
 
       a.style.pointerEvents = links[i][2] ? "none" : "";
 
-      a.style.fontFamily = "courier";
       div.appendChild(a);
       div.appendChild(document.createElement("br"));
     }
