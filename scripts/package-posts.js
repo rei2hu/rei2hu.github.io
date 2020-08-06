@@ -44,14 +44,14 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
               template
                 .replace("$((contents))", () => contents)
                 // insert the before and after navigation links
-                .replace("$((before))", () =>
+                .replace(/\$\(\(before\)\)/g, () =>
                   nameBufObjs[i - 1]
                     ? `<a href="/posts/${
                         nameBufObjs[i - 1].id
                       }" style="float:left">&lt; ${nameBufObjs[i - 1].name}</a>`
                     : ""
                 )
-                .replace("$((after))", () =>
+                .replace(/\$\(\(after\)\)/g, () =>
                   nameBufObjs[i + 1]
                     ? `<a href="/posts/${
                         nameBufObjs[i + 1].id
@@ -89,8 +89,8 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
                   .join("</li><li>")}</li></ul>`
             )
             .replace("$((title))", "posts")
-            .replace("$((before))", "")
-            .replace("$((after))", ""),
+            .replace(/\$\(\(before\)\)/g, "")
+            .replace(/\$\(\(after\)\)/g, ""),
           minifyHtmlOpts
         )
       );

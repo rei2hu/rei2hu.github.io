@@ -48,3 +48,23 @@ table, th, td {
 svg {
     left: 10%;
 }
+
+.sidebar-nav {
+    top: 0;
+    left: 1em;
+    padding: 0;
+    position: fixed;
+}
+
+.posts-nav_bottom {
+    padding-top: 1em
+}
+
+.posts-nav_top {
+    padding-bottom: 1em
+}
+
+.template-body {
+    overflow-y: scroll;
+    margin-right: 45%;
+}
