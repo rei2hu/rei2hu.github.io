@@ -25,10 +25,6 @@ li {
     margin-top: 0.5em;
 }
 
-ul {
-    list-style-type: none;
-}
-
 tr, th {
     padding: 0.5em;
 }
@@ -54,6 +50,7 @@ svg {
     left: 1em;
     padding: 0;
     position: fixed;
+    list-style-type: none;
 }
 
 .posts-nav_bottom {
@@ -67,4 +64,14 @@ svg {
 .template-body {
     overflow-y: scroll;
     margin-right: 45%;
+}
+
+.commit-list {
+    display: block;
+    text-align: center;
+    margin-top: 3em;
+    position: relative;
+    color: gray;
+    font-size: 0.75em;
+    font-style: italic;
 }
