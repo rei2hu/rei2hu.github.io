@@ -2,44 +2,64 @@
 <!DOCTYPE html>
 
 <head>
+    <!-- normal stuff -->
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="/style/style.css">
+    <script src="/scripts/image_loader.js"></script>
+
+    <!-- highlight js things -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/a11y-light.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/haskell.min.js"></script>
-    <!-- <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css"> -->
-    <script src="/scripts/image_loader.js"></script>
     <script>
         hljs.initHighlightingOnLoad();
+    </script>
+
+    <!-- tikz jax stuff -->
+    <!-- <link rel="stylesheet" type="text/css" href="http://tikzjax.com/v1/fonts.css"> -->
+    <script defer src="/scripts/tikz.js"></script>
+
+    <!-- math jax stuff -->
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$']],
                 displayMath: [['$$', '$$']]
             }
         };
-        const rmu_interval = setInterval(() => document.querySelectorAll("text").length && document.querySelectorAll("text").forEach(t => t.style.fontSize = '10px'), 500);
     </script>
-    <script async src="/scripts/tikz_jax.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        const rmu_interval = setInterval(() => document.querySelectorAll("text").length &&
+            document.querySelectorAll("text").forEach(t => t.style.fontSize = '10px'), 500);
+    </script>
     <title>$((title))</title>
 </head>
 
-<body style="overflow-y:scroll;margin-right:45%;">
+<body class="template-body">
     <noscript>
         100% of this website needs javascript to work. Please enable :(
     </noscript>
     <!-- the navigation between individual posts-->
-    <div style="padding-bottom: 1em">
+    <div class="posts-nav_top">
         $((before))
         $((after))
         <!-- <a href="" style="float:left"></a>
         <a href="" style="float:right"></a> -->
     </div>
     <picture id="very-cute-picture"><img srcset="reimu"
-            onerror="load_backup_image('/scripts/playful_reimu.bmp');load_backup_image('/scripts/unamused_reimu.bmp');" />
+            onerror="load_backup_image('/scripts/playful_reimu.bmp'),load_backup_image('/scripts/unamused_reimu.bmp');" />
     </picture>
+    <!-- contents of the page -->
     $((contents))
-    <ul id="nav" style="top:0;left:1em;padding:0;position:fixed;">
+    <!--  navigation but at the bottom-->
+    <div class="posts-nav_bottom">
+        $((before))
+        $((after))
+    </div>
+    <!-- sidebar -->
+    <ul class="sidebar-nav">
         <li>
             <a href="/">home</a>
         </li>

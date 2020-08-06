@@ -40,6 +40,7 @@ fs.mkdir(target, { recursive: true }).then(() =>
                 name,
                 buffer: pack(
                   a,
+                  b,
                   Buffer.from(
                     uglify.minify(
                       obfus
