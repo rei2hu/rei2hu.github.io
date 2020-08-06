@@ -31,8 +31,11 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
             // slice to remove the space after the dot
             name: path.basename(mdFileName, ".md").split(".")[1].slice(1),
             contents: converter.makeHtml(contents),
-            commits: (await exec(`git log --date=short --pretty=format:"%ad - %H" "${filePath}"`))
-              .stdout,
+            commits: (
+              await exec(
+                `git log --date=short --pretty=format:"%ad - %H" "${filePath}"`
+              )
+            ).stdout,
           }));
       })
   ).then((nameBufObjs) => {

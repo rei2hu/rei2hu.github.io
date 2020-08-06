@@ -24,6 +24,7 @@ jobs:
         with:
           ref: site-internals
           path: ./internals
+          fetch-depth: 0
 
       - name: Build site
         run: |
