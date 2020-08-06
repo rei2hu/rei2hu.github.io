@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const showdown = require("showdown");
 const { minify } = require("html-minifier");
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
 const { minifyHtmlOpts } = require("./process-options");
 
 const converter = new showdown.Converter({
@@ -20,16 +22,19 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
   Promise.all(
     posts
       .filter((name) => name.endsWith(".md"))
-      .map((mdFileName) =>
-        fs.promises
-          .readFile(path.resolve("src", "posts", "md", mdFileName), "utf8")
-          .then((contents) => ({
+      .map((mdFileName) => {
+        const filePath = path.resolve("src", "posts", "md", mdFileName);
+        return fs.promises
+          .readFile(filePath, "utf8")
+          .then(async (contents) => ({
             id: parseInt(mdFileName.split(".")[0], 10),
             // slice to remove the space after the dot
             name: path.basename(mdFileName, ".md").split(".")[1].slice(1),
             contents: converter.makeHtml(contents),
-          }))
-      )
+            commits: (await exec(`git log --date=short --pretty=format:"%ad - %H" "${filePath}"`))
+              .stdout,
+          }));
+      })
   ).then((nameBufObjs) => {
     // eslint-disable-next-line no-console
     console.log(`Creating html for ${nameBufObjs.length} posts`);
@@ -37,12 +42,15 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
       nameBufObjs
         // extract the number
         .sort((a, b) => a.id - b.id)
-        .map(({ id, name, contents }, i) =>
+        .map(({ id, name, contents, commits }, i) =>
           fs.promises.writeFile(
             path.resolve("built", "posts", `${id}.html`),
             minify(
               template
                 .replace("$((contents))", () => contents)
+                .replace("$((commits))", () =>
+                  commits.split("\n").join("<br />")
+                )
                 // insert the before and after navigation links
                 .replace(/\$\(\(before\)\)/g, () =>
                   nameBufObjs[i - 1]
@@ -89,6 +97,7 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
                   .join("</li><li>")}</li></ul>`
             )
             .replace("$((title))", "posts")
+            .replace("$((commits))", "")
             .replace(/\$\(\(before\)\)/g, "")
             .replace(/\$\(\(after\)\)/g, ""),
           minifyHtmlOpts
