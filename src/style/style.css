@@ -9,6 +9,11 @@ a, a:visited {
     color: black;
 }
 
+blockquote {
+    padding-left: 1em;
+    border-left: 3px grey solid
+}
+
 code {
     /* margin-left: 5em; */
     /* margin-right: 5em; */
