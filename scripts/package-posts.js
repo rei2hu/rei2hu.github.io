@@ -88,7 +88,7 @@ fs.promises.mkdir("./built/posts", { recursive: true }).then(() => {
             .replace(
               "$((contents))",
               () =>
-                `<ul><li>${nameBufObjs
+                `<ul class="no-list-style"><li>${nameBufObjs
                   .map(
                     ({ id, name }) =>
                       `${String(id).padStart(
