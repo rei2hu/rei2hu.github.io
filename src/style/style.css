@@ -50,12 +50,15 @@ svg {
     left: 10%;
 }
 
+.no-list-style {
+    list-style-type: none;
+}
+
 .sidebar-nav {
     top: 0;
     left: 1em;
     padding: 0;
     position: fixed;
-    list-style-type: none;
 }
 
 .posts-nav_bottom {
