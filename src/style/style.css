@@ -71,7 +71,8 @@ svg {
 
 .template-body {
     overflow-y: scroll;
-    margin-right: 45%;
+    margin-right: 50%;
+    margin-left: 10%;
 }
 
 .commit-list {
