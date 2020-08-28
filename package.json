@@ -5,11 +5,12 @@
   "main": "none",
   "scripts": {
     "test": "cd built && http-server",
-    "build": "npm run packagejs && npm run packagehtml && npm run packagecss && npm run packageposts",
+    "build": "npm run packagejs && npm run packagehtml && npm run packagecss && npm run packageposts && npm run packageblobs",
     "packagejs": "node scripts/package-javascript.js ./src/images ./src/scripts ./built/scripts",
     "packagehtml": "node scripts/package-html.js",
     "packagecss": "node scripts/package-css.js",
-    "packageposts": "node scripts/package-posts.js"
+    "packageposts": "node scripts/package-posts.js",
+    "packageblobs": "node scripts/package-blobs.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "html-minifier": "^4.0.0",
     "javascript-obfuscator": "^1.3.0",
     "js-bmp-packer": "git+https://github.com/rei2hu/js-bmp-packer.git",
+    "ncp": "^2.0.0",
     "showdown": "^1.9.1",
     "uglify-es": "^3.3.9"
   },
