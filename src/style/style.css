@@ -44,6 +44,10 @@ table, th, td {
     border-collapse: collapse;
 }
 
+td {
+    padding: 0.25em;
+}
+
 /* for tikzjax */
 
 @font-face {
