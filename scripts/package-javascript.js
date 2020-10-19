@@ -1,88 +1,67 @@
-// pass a folder of bmps and folder of js files to be packaged into runnable
-// bmps takes all scripts in js folder, searches for one with same name in bmp
-// folder and packs them together and stores result in target dir
-
-const [, , images, scripts, target] = process.argv;
-
-if (!images || !scripts || !target) {
-  // eslint-disable-next-line no-console
-  console.error("missing images, scripts, or target dir");
-  process.exit(1);
-}
-
-const fs = require("fs").promises;
+const fs = require("fs");
 const { Buffer } = require("buffer");
 const path = require("path");
+
 const pack = require("js-bmp-packer");
 const obfus = require("javascript-obfuscator");
 const uglify = require("uglify-es");
 const { obfusJsOpts } = require("./process-options");
 
-fs.mkdir(target, { recursive: true }).then(() =>
-  fs
-    .readdir(path.resolve(scripts))
-    .then((files) =>
-      Promise.all(
-        files
-          .filter(
-            (file) =>
-              file.endsWith(".js") ||
-              file.endsWith(".wasm") ||
-              file.endsWith(".gz")
-          )
-          .map((f) => {
-            const name = `${path.basename(f, ".js")}.bmp`;
-            return Promise.all([
-              fs.readFile(path.resolve(images, name)),
-              fs.readFile(path.resolve(scripts, f)),
-            ])
-              .then(([a, b]) => ({
-                name,
-                buffer: pack(
-                  a,
-                  b,
-                  Buffer.from(
-                    uglify.minify(
-                      obfus
-                        .obfuscate(b.toString(), obfusJsOpts)
-                        .getObfuscatedCode()
-                    ).code
-                  )
-                ),
-              }))
-              .catch(() =>
-                // if there isn't a related image then just dont pack
-                // i.e. for the image loader
-                fs.readFile(path.resolve(scripts, f)).then((script) => ({
-                  name: f,
-                  buffer: Buffer.from(
-                    (() => {
-                      // try catch for the wasm and gz files that can't be minified
-                      try {
-                        return uglify.minify(
-                          obfus
-                            .obfuscate(script.toString(), obfusJsOpts)
-                            .getObfuscatedCode()
-                        ).code;
-                      } catch (e) {
-                        return script;
-                      }
-                    })()
-                  ),
-                }))
-              );
-          })
+fs.promises
+  .mkdir(path.resolve("built", "scripts"), { recursive: true })
+  .then(async () => {
+    const scripts = (
+      await fs.promises.readdir(path.resolve("src", "scripts"))
+    ).filter(
+      (file) =>
+        file.endsWith(".js") || file.endsWith(".wasm") || file.endsWith(".gz")
+    );
+
+    const packedScripts = await Promise.all(
+      scripts.map(async (script) => {
+        const resultName = `${path.basename(script, ".js")}.bmp`;
+
+        const scriptContents = await fs.promises.readFile(
+          path.resolve("src", "scripts", script)
+        );
+
+        const resultScriptBuf = script.endsWith(".js")
+          ? Buffer.from(
+              uglify.minify(
+                obfus
+                  .obfuscate(scriptContents.toString(), obfusJsOpts)
+                  .getObfuscatedCode()
+              ).code
+            )
+          : scriptContents;
+
+        try {
+          const imageContents = await fs.promises.readFile(
+            path.resolve("src", "images", resultName)
+          );
+
+          const obfusImageScript = pack(imageContents, resultScriptBuf);
+          return {
+            name: resultName,
+            buffer: obfusImageScript,
+          };
+        } catch (e) {
+          // if the image didn't exist
+          // or minification failed for a non js file
+          return {
+            name: script,
+            buffer: resultScriptBuf,
+          };
+        }
+      })
+    );
+
+    // eslint-disable-next-line no-console
+    console.log(`building ${packedScripts.length} scripts`);
+
+    await Promise.all(
+      packedScripts.map(({ name, buffer }) =>
+        fs.promises.writeFile(path.resolve("built", "scripts", name), buffer)
       )
-    )
-    .then((nameBufObjs) => {
-      // eslint-disable-next-line no-console
-      console.log(
-        `Creating scripts for ${nameBufObjs.map((obj) => obj.name).join(", ")}`
-      );
-      Promise.all(
-        nameBufObjs.map(({ name, buffer }) =>
-          fs.writeFile(path.resolve(target, name), buffer)
-        )
-      );
-    })
-);
+    );
+  });

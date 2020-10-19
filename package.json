@@ -6,7 +6,7 @@
   "scripts": {
     "test": "cd built && http-server",
     "build": "npm run packagejs && npm run packagehtml && npm run packagecss && npm run packageposts && npm run packageblobs",
-    "packagejs": "node scripts/package-javascript.js ./src/images ./src/scripts ./built/scripts",
+    "packagejs": "node scripts/package-javascript.js",
     "packagehtml": "node scripts/package-html.js",
     "packagecss": "node scripts/package-css.js",
     "packageposts": "node scripts/package-posts.js",
