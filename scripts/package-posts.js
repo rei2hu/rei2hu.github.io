@@ -6,7 +6,14 @@ const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const { minifyHtmlOpts } = require("./process-options");
 
+// make imgs lazy load
+
 const converter = new showdown.Converter({
+  extensions: [{
+    type: 'output',
+    regex: /<img(.*?)>/g,
+    replace: '<img loading="lazy"$1>'
+  }],
   strikethrough: true,
   ghCompatibleHeaderId: true,
   tables: true,
