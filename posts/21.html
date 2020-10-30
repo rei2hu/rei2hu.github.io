@@ -97,7 +97,7 @@ cookies.get_private(session)
         &amp;[id, Time::now()],
         Data::from_row
     )?;
-    rows.next().map_or(Ok, Err(Error::NoRowsReturned))
+    rows.next().unwrap_or(Err(Error::QueryReturnedNoRows)))
 }
 
 // ...
@@ -105,4 +105,4 @@ cookies.get_private(session)
 cookies.get_private(session)
     .map(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value()).ok()) // Option&lt;Option&lt;Data&gt;&gt;
     .flatten() // Option&lt;Data&gt;
-</code></pre> <p>&gt;</p> <h2 id=conclusion>conclusion</h2> <p>So there are a lot of ways to do this, and some looked nicer than others (to me). Which one is the idiomatic approach though? Who knows?</p> <p>Also you could argue that I might want to do something with the errors so I might want to change the type to <code>Result&lt;Data, Error&gt;</code> instead of <code>Option&lt;Data&gt;</code>, which is another thing.</p> <div class=posts-nav_bottom> <a href=/posts/20 style=float:left>&lt; attempting to fingerprint audio</a> </div> <div class=commit-list> 2020-10-28 - a48a0b117ce30d7f9725b0c8cdce7311b738c3b3 </div> <ul id=nav class="sidebar-nav no-list-style"> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
+</code></pre> <p>&gt;</p> <h2 id=conclusion>conclusion</h2> <p>So there are a lot of ways to do this, and some looked nicer than others (to me). Which one is the idiomatic approach though? Who knows?</p> <p>Also you could argue that I might want to do something with the errors so I might want to change the type to <code>Result&lt;Data, Error&gt;</code> instead of <code>Option&lt;Data&gt;</code>, which is another thing.</p> <div class=posts-nav_bottom> <a href=/posts/20 style=float:left>&lt; attempting to fingerprint audio</a> </div> <div class=commit-list> 2020-10-28 - db4ffd2917e98151bcc56288df2bb5d2d9b60c09 </div> <ul id=nav class="sidebar-nav no-list-style"> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
