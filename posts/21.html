@@ -1,0 +1,108 @@
+ <!DOCTYPE html> <head> <meta charset=UTF-8> <link rel=stylesheet href=/style/style.css> <script src=/scripts/image_loader.js></script> <script src=/scripts/highlight.pack.js></script> <link rel=stylesheet href=/style/a11y-light.css> <script>hljs.initHighlightingOnLoad()</script> <script defer src=/scripts/tikz.js></script> <script defer src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script> <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script> <script> const rmu_interval = setInterval(() => document.querySelectorAll("text").length &&
+            document.querySelectorAll("text").forEach(t => t.style.fontSize = '10px'), 500); </script> <title>nested results and options in rust</title> </head> <body class=template-body> <noscript> 100% of this website needs javascript to work. Please enable :( </noscript> <div class=posts-nav_top> <a href=/posts/20 style=float:left>&lt; attempting to fingerprint audio</a> </div> <picture id=very-cute-picture><img srcset=reimu onerror='load_backup_image("/scripts/playful_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")'> </picture> <h1 id=nested-results-and-options-in-rust>nested results and options in rust</h1> <p>So I've been writing a little rust code for my project and I'm using a combination of <a href=https://rocket.rs/ >rocket</a> and <a href=https://github.com/rusqlite/rusqlite>rusqlite</a> to help manage some simple sessions for users.</p> <p>I wanted to write a function that checks a user's cookies for a session identifier, query the database to check if that session identifier is valid, and then return information related to that session. In short, a function like <code>fn get_session_data(connection: SqliteConnection, cookies: Cookies) -&gt; Option&lt;Data&gt;</code></p> <p>Start out by getting the cookie:</p> <pre><code class="rs language-rs">cookies.get_private(session); // Option&lt;Cookie&gt;
+</code></pre> <p>The cookie might exist, but it also might not. I only want to check the cookie if it actually exists. <code>Result</code> and <code>Option</code> types have the <a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.map><code>.map</code></a> method just for this.</p> <pre><code class="rs language-rs">cookes.get_private(session)
+    .map(|cookie| {
+        connection.prepare(sql) // Result&lt;Statement, Error&gt;
+    }) // Option&lt;Result&lt;Statement, Error&gt;&gt;
+</code></pre> <p>The <code>prepare</code> method returns <code>Result&lt;Statement, Error&gt;</code> because this can fail if the <code>&amp;str</code> can't be converted to a C-style string or some generic sql failure occurrs when trying to compile the prepared statement.</p> <p>The return type is starting to get a little complex here. The next steps will include binding values to the statement, querying, and converting to the struct we want in one step using this convenient function <a href=https://docs.rs/rusqlite/0.20.0/rusqlite/struct.Statement.html#method.query_map><code>query_map</code></a>.</p> <pre><code class="rs language-rs">cookies.get_private(session)
+    .map(|cookie| {
+        connection.prepare(sql)
+            .map(|mut statement| {
+                statement.query_map(
+                    &amp;[&amp;session_id, Time::now()],
+                    Data::from_row
+                ) // Result&lt;MappedRows, Error&gt;
+            }) // Result&lt;Result&lt;MappedRows, Error&gt;, Error&gt;
+    }) // Option&lt;Result&lt;Result&lt;MappedRows, Error&gt;, Error&gt;&gt;
+</code></pre> <p>And then extract the data of the first row. And extract Data because there's a chance the mapping function failed.</p> <p>&gt;</p> <pre><code class="rs language-rs">cookies.get_private(session)
+    .map(|cookie| {
+        connection.prepare(sql)
+            .map(|mut statement| {
+                statement.query_map(
+                    &amp;[&amp;cookie.value(), Time::now()],
+                    Data::from_row
+                ).map(|mut rows| rows.next()) // Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;
+            }) // Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;
+    }) // Option&lt;Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;&gt;
+</code></pre> <p>Wow that is complex, but I think it goes to show that all errors are accounted for in the type.</p> <pre><code class="text language-text">Option&lt;
+|   Result&lt;
+|   |   Result&lt;
+|   |   |   Option&lt;
+|   |   |   |   Result&lt;Data&gt;&gt;&gt;&gt;&gt;
+|   |   |   |   |
+|   |   |   |   |
+|   |   |   |   if conversion from row to Data fails
+|   |   |   if no rows returned
+|   |   if binding values to statement fails or query fails
+|   if statement fails to be compiled
+if cookie doesnt exist
+</code></pre> <p>But remember that the end type we are aiming for is <code>Option&lt;Data&gt;</code>. And the point of this post is to show that there are tons of ways to do so, but they all look different. When it comes to nested <code>Result</code> and <code>Option</code> types, I've found several approaches:</p> <ol> <li>You don't have to nest everything exactly</li> <li>Use the <a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.flatten><code>flatten</code></a> method (which is behind a flag at the time of writing for <code>Result</code>)</li> </ol> <h2 id=avoid-nesting>avoid nesting</h2> <p>The levels of indentation in our code is mimicked by the resulting type. We can try flattening our code in order to flatten the type. Unfortunately, we can't level it all the way because there are actual two seperate parts: the database functionality and the cookie part so the best we can do is get it to two levels deep (if at all).</p> <p>I tried bringing out the part that deals with <code>rows</code> up one level. Also, I'm going to use <code>Result&lt;T&gt;</code> as shorthand for <code>Result&lt;T, E&gt;</code> from now on.</p> <pre><code class="rs language-rs">cookies.get_private(session)
+    .map(|cookie| {
+        connection.prepare(sql)
+            .map(|mut statement| {
+                statement.query_map(
+                    &amp;[&amp;cookie.value(), Time::now()],
+                    Data::from_row
+                ) // Result&lt;MappedRows&gt;
+            }) // Result&lt;Result&lt;MappedRows&gt;&gt;
+            .map(|rowsResult|
+                rowsResult.map(
+                    |mut rows| rows.next() // Option&lt;Result&lt;Data&gt;&gt;
+                ) // Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;
+            ) // Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;
+    }) // Option&lt;Result&lt;Option&lt;Result&lt;Data&gt;&gt;&gt;&gt;
+</code></pre> <p>Well it looks like it lowered it down from 5 to 4. Except you can't do this because of how rusqlite is implemented. The MappedRows struct contains a reference to Statement. Statement only lives as long as the closure in <code>.map(|mut statement|{...})</code> so it looks like we have to keep these things together otherwise we would have a dangling reference.</p> <h2 id=avoid-nesting-with->avoid nesting with <code>?</code></h2> <p>The short explanation of this operator is it does something like this</p> <pre><code class="rs language-rs">    ($expr:expr) =&gt; {
+        match $expr {
+            $crate::result::Result::Ok(val) =&gt; val,
+            $crate::result::Result::Err(err) =&gt; {
+                return $crate::result::Result::Err($crate::convert::From::from(err));
+            }
+        }
+    };
+</code></pre> <p>So it's basically an early return if there's an error or unwraps from the <code>Result</code> if it's <code>Ok</code>. This is possible by refactoring the inner part out to another function.</p> <p>Specifically, we can pull out the database operations into another function that return <code>Result&lt;T&gt;</code> like so:</p> <p>&gt;</p> <pre><code class="rs language-rs">fn get_session_data_by_id(connection: &amp;SqliteConnection, id: &amp;str) -&gt; Result&lt;Data, Error&gt; {
+    let mut statement = connection.prepare(sql)?;
+    let mut rows = statement.query_map(
+        &amp;[id, Time::now()],
+        Data::from_row
+    )?;
+    rows.next().map_or(Ok, Err(Error::NoRowsReturned))
+}
+
+// ...
+
+cookies.get_private(session)
+    .map(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value())) // Option&lt;Result&lt;Data, Error&gt;&gt;
+</code></pre> <p>&gt;</p> <p>Which is a lot cleaner. Of course, we still haven't hit our target of <code>Option&lt;Data&gt;</code>. But the rest is quick.</p> <h2 id=using-flatten>using <code>flatten</code></h2> <p><code>flatten</code> takes <code>Option&lt;Option&lt;T&gt;&gt;</code> or <code>Result&lt;Result&lt;T&gt;&gt;</code> to <code>Option&lt;T&gt;</code> and <code>Result&lt;T&gt;</code> respectively. This can be useful if we look at our original type: <code>Option&lt;Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;&gt;</code>. We do need to convert all of these to either all <code>Option</code> or all <code>Result</code> though to get this to work. For this, we can convert <code>Result&lt;T&gt;</code> to <code>Option&lt;T&gt;</code> with the <a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.ok><code>.ok()</code></a> method.</p> <p>Let's go back to our starting code and dump in some <code>.ok()</code>s and <code>.flatten()</code>s.</p> <p>&gt;</p> <pre><code class="rs language-rs">cookies.get_private(session)
+    .map(|cookie| {
+        connection.prepare(sql)
+            .map(|mut statement| {
+                statement.query_map(
+                    &amp;[&amp;cookie.value(), Time::now()],
+                    Data::from_row
+                ).map(|mut rows| {
+                    rows.next()
+                        // added ok here
+                        .map(|maybe_user| maybe_user.ok()) // Option&lt;User&gt;
+                // added ok here
+                }).ok() // Option&lt;Option&lt;User&gt;&gt;
+            // added ok here
+            }).ok() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;
+    }) // Option&lt;Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;&gt;
+    .flatten() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;
+    .flatten() // Option&lt;Option&lt;User&gt;&gt;
+    .flatten() // Option&lt;User&gt;
+</code></pre> <p>And we finally have our result. Similarly, we could use <code>.ok()</code> and <code>.flatten()</code> along with <code>?</code> for something cleaner:</p> <p>&gt;</p> <pre><code class="rs language-rs">fn get_session_data_by_id(connection: &amp;SqliteConnection, id: &amp;str) -&gt; Result&lt;Data, Error&gt; {
+    let mut statement = connection.prepare(sql)?;
+    let mut rows = statement.query_map(
+        &amp;[id, Time::now()],
+        Data::from_row
+    )?;
+    rows.next().map_or(Ok, Err(Error::NoRowsReturned))
+}
+
+// ...
+
+cookies.get_private(session)
+    .map(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value()).ok()) // Option&lt;Option&lt;Data&gt;&gt;
+    .flatten() // Option&lt;Data&gt;
+</code></pre> <p>&gt;</p> <h2 id=conclusion>conclusion</h2> <p>So there are a lot of ways to do this, and some looked nicer than others (to me). Which one is the idiomatic approach though? Who knows?</p> <p>Also you could argue that I might want to do something with the errors so I might want to change the type to <code>Result&lt;Data, Error&gt;</code> instead of <code>Option&lt;Data&gt;</code>, which is another thing.</p> <div class=posts-nav_bottom> <a href=/posts/20 style=float:left>&lt; attempting to fingerprint audio</a> </div> <div class=commit-list> 2020-10-28 - a48a0b117ce30d7f9725b0c8cdce7311b738c3b3 </div> <ul id=nav class="sidebar-nav no-list-style"> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
