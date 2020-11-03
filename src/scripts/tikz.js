@@ -215,7 +215,7 @@ function (_super) {
     var height = textHeight * this.pointsPerDviUnit * dviUnitsPerFontUnit;
     var depth = textDepth * this.pointsPerDviUnit * dviUnitsPerFontUnit;
     var top = this.position.v * this.pointsPerDviUnit;
-    var fontsize = this.font.metrics.designSize / 1048576.0 * this.font.scaleFactor / this.font.designSize;
+    var fontsize = (this.font.metrics.designSize / 1048576.0 * this.font.scaleFactor / this.font.designSize) + "px";
 
     if (this.svgDepth == 0) {
       this.output.write("<span style=\"color: " + this.color + "; font-family: " + this.font.name + "; font-size: " + fontsize + "pt; position: absolute; top: " + (top - height) + "pt; left: " + left + "pt; overflow: visible;\"><span style=\"margin-top: -" + fontsize + "pt; line-height: " + 0 + "pt; height: " + fontsize + "pt; display: inline-block; vertical-align: baseline; \">" + htmlText + "</span><span style=\"display: inline-block; vertical-align: " + height + "pt; height: " + 0 + "pt; line-height: 0;\"></span></span>\n");
