@@ -35,7 +35,7 @@
 |   |   if binding values to statement fails or query fails
 |   if statement fails to be compiled
 if cookie doesnt exist
-</code></pre> <p>But remember that the end type we are aiming for is <code>Option&lt;Data&gt;</code>. And the point of this post is to show that there are tons of ways to do so, but they all look different. When it comes to nested <code>Result</code> and <code>Option</code> types, I've found several approaches:</p> <ol> <li>You don't have to nest everything exactly</li> <li>Use the <a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.flatten><code>flatten</code></a> method (which is behind a flag at the time of writing for <code>Result</code>)</li> </ol> <h2 id=avoid-nesting>avoid nesting</h2> <p>The levels of indentation in our code is mimicked by the resulting type. We can try flattening our code in order to flatten the type. Unfortunately, we can't level it all the way because there are actual two seperate parts: the database functionality and the cookie part so the best we can do is get it to two levels deep (if at all).</p> <p>I tried bringing out the part that deals with <code>rows</code> up one level. Also, I'm going to use <code>Result&lt;T&gt;</code> as shorthand for <code>Result&lt;T, E&gt;</code> from now on.</p> <pre><code class="rs language-rs">cookies.get_private(session)
+</code></pre> <p>But remember that the end type we are aiming for is <code>Option&lt;Data&gt;</code>. And the point of this post is to show that there are tons of ways to do so, but they all look different. When it comes to nested <code>Result</code> and <code>Option</code> types, I've found several approaches:</p> <ol> <li>You don't have to nest everything exactly</li> <li>Use the <a href=https://doc.rust-lang.org/std/result/enum.Result.html#method.flatten><code>flatten</code></a> method (which is behind a flag at the time of writing for <code>Result</code>)</li> </ol> <p>This isn't a comprehensive list of solutions.</p> <h2 id=avoid-nesting>avoid nesting</h2> <p>The levels of indentation in our code is mimicked by the resulting type. We can try flattening our code in order to flatten the type. Unfortunately, we can't level it all the way because there are actual two seperate parts: the database functionality and the cookie part so the best we can do is get it to two levels deep (if at all).</p> <p>I tried bringing out the part that deals with <code>rows</code> up one level. Also, I'm going to use <code>Result&lt;T&gt;</code> as shorthand for <code>Result&lt;T, E&gt;</code> from now on.</p> <pre><code class="rs language-rs">cookies.get_private(session)
     .map(|cookie| {
         connection.prepare(sql)
             .map(|mut statement| {
@@ -81,15 +81,15 @@ cookies.get_private(session)
                 ).map(|mut rows| {
                     rows.next()
                         // added ok here
-                        .map(|maybe_user| maybe_user.ok()) // Option&lt;User&gt;
+                        .map(|maybe_data| maybe_data.ok()) // Option&lt;Data&gt;
                 // added ok here
-                }).ok() // Option&lt;Option&lt;User&gt;&gt;
+                }).ok() // Option&lt;Option&lt;Data&gt;&gt;
             // added ok here
-            }).ok() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;
-    }) // Option&lt;Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;&gt;
-    .flatten() // Option&lt;Option&lt;Option&lt;User&gt;&gt;&gt;
-    .flatten() // Option&lt;Option&lt;User&gt;&gt;
-    .flatten() // Option&lt;User&gt;
+            }).ok() // Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;
+    }) // Option&lt;Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;&gt;
+    .flatten() // Option&lt;Option&lt;Option&lt;Data&gt;&gt;&gt;
+    .flatten() // Option&lt;Option&lt;Data&gt;&gt;
+    .flatten() // Option&lt;Data&gt;
 </code></pre> <p>And we finally have our result. Similarly, we could use <code>.ok()</code> and <code>.flatten()</code> along with <code>?</code> for something cleaner:</p> <p>&gt;</p> <pre><code class="rs language-rs">fn get_session_data_by_id(connection: &amp;SqliteConnection, id: &amp;str) -&gt; Result&lt;Data, Error&gt; {
     let mut statement = connection.prepare(sql)?;
     let mut rows = statement.query_map(
@@ -104,4 +104,6 @@ cookies.get_private(session)
 cookies.get_private(session)
     .map(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value()).ok()) // Option&lt;Option&lt;Data&gt;&gt;
     .flatten() // Option&lt;Data&gt;
-</code></pre> <p>&gt;</p> <h2 id=conclusion>conclusion</h2> <p>So there are a lot of ways to do this, and some looked nicer than others (to me). Which one is the idiomatic approach though? Who knows?</p> <p>Also you could argue that I might want to do something with the errors so I might want to change the type to <code>Result&lt;Data, Error&gt;</code> instead of <code>Option&lt;Data&gt;</code>, which is another thing.</p> <div class=posts-nav_bottom> <a href=/posts/20 style=float:left>&lt; attempting to fingerprint audio</a> <a href=/posts/22 style=float:right>some job application statistics &gt;</a> </div> <div class=commit-list> 2020-10-28 - db4ffd2917e98151bcc56288df2bb5d2d9b60c09 </div> <ul id=nav class="sidebar-nav no-list-style"> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
+</code></pre> <p>&gt;</p> <p>Or an easier way with <a href=https://doc.rust-lang.org/std/option/enum.Option.html#method.and_then><code>and_then</code></a> which is basically what we try to do with map and flatten.</p> <pre><code class="rs language-rs">cookies.get_private(session)
+    .and_then(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value()).ok())
+</code></pre> <h2 id=conclusion>conclusion</h2> <p>So there are a lot of ways to do this, and some looked nicer than others (to me). Which one is the idiomatic approach though? Who knows?</p> <p>Also you could argue that I might want to do something with the errors so I might want to change the type to <code>Result&lt;Data, Error&gt;</code> instead of <code>Option&lt;Data&gt;</code>, which is another thing.</p> <div class=posts-nav_bottom> <a href=/posts/20 style=float:left>&lt; attempting to fingerprint audio</a> <a href=/posts/22 style=float:right>some job application statistics &gt;</a> </div> <div class=commit-list> 2020-11-13 - e0fe0943c0a88133ff8fb62c57e0d0cd0b160fa1<br>2020-10-28 - db4ffd2917e98151bcc56288df2bb5d2d9b60c09 </div> <ul id=nav class="sidebar-nav no-list-style"> <li> <a href=/ >home</a> </li> <li> <a href=/posts/ >posts</a> </li> </ul> </body>
