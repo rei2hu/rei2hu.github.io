@@ -1,7 +1,7 @@
- <!DOCTYPE html> <head> <meta charset=UTF-8> <link rel=stylesheet href=/style/style.css> <script src=/scripts/image_loader.js></script> <script src=/scripts/highlight.pack.js></script> <link rel=stylesheet href=/style/a11y-light.css> <script>hljs.initHighlightingOnLoad()</script> <script defer src=/scripts/tikz.js></script> <script defer src=/scripts/tex-mml-chtml.js></script> <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script> <title>monads</title> </head> <body class=template-body> <noscript> 100% of this website needs javascript to work. Please enable :( </noscript> <div class=posts-nav_top> <a href=/posts/6 style=float:left>&lt; functors and applicatives</a> <a href=/posts/8 style=float:right>the coin flip example &gt;</a> </div> <picture id=very-cute-picture><img srcset=reimu onerror='load_backup_image("/scripts/playful_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")'> </picture> <h1 id=monads>monads</h1> <p>Monads seem pretty straightforward. However, I think that <code>learnyouahaskell</code> should have gone a little more in-depth into how <code>guard</code> is working instead of showing some examples so I figured I should look into it.</p> <p>First, let's review the types of the operators:</p> <pre><code class="haskell language-haskell">(&gt;&gt;=) :: (Monad m) =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+ <!DOCTYPE html> <head> <meta charset=UTF-8> <link rel=stylesheet href=/style/style.css> <script src=/scripts/image_loader.js></script> <script src=/scripts/highlight.pack.js></script> <link rel=stylesheet href=/style/a11y-light.css> <script>hljs.initHighlightingOnLoad()</script> <script defer src=/scripts/tikz.js></script> <script defer src=/scripts/tex-mml-chtml.js></script> <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script> <title>monads</title> </head> <body class=template-body> <noscript> Code block highlighting and tex/tikz things need javascript to display properly. </noscript> <div class=posts-nav_top> <a href=/posts/6 style=float:left>&lt; functors and applicatives</a> <a href=/posts/8 style=float:right>the coin flip example &gt;</a> </div> <picture id=very-cute-picture><img srcset=reimu onerror='load_backup_image("/scripts/playful_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")'> </picture> <h1 id=monads>monads</h1> <p>Monads seem pretty straightforward. However, I think that <code>learnyouahaskell</code> should have gone a little more in-depth into how <code>guard</code> is working instead of showing some examples so I figured I should look into it.</p> <p>First, let's review the types of the operators:</p> <pre><p></p><code class="haskell language-haskell">(&gt;&gt;=) :: (Monad m) =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 (&gt;&gt;) :: (Monad m) =&gt; m a -&gt; m b -&gt; m b
 x &gt;&gt; y = x &gt;&gt;= \_ -&gt; y
-</code></pre> <p>And we're also given the implementation of <code>guard</code>:</p> <pre><code class="haskell language-haskell">guard :: (MonadPlus m) =&gt; Bool -&gt; m ()
+</code></pre> <p>And we're also given the implementation of <code>guard</code>:</p> <pre><p></p><code class="haskell language-haskell">guard :: (MonadPlus m) =&gt; Bool -&gt; m ()
 guard True = return ()
 guard False = mzero
 -- something to note is that running :t guard actually gives a slightly different
@@ -9,13 +9,13 @@ guard False = mzero
 -- the difference here is the method names and mainly that MonadPlus has a Monad
 -- constraint while Alternative has an Applicative constraint (right now, Applicative
 -- is a superclass of Monad)
-</code></pre> <p>And I wanted to understand exactly how <code>\x -&gt; guard x &gt;&gt; return "cool"</code> worked. We are shown a few things:</p> <pre><code class="haskell language-haskell">guard (2 &gt; 5) :: [()]
+</code></pre> <p>And I wanted to understand exactly how <code>\x -&gt; guard x &gt;&gt; return "cool"</code> worked. We are shown a few things:</p> <pre><p></p><code class="haskell language-haskell">guard (2 &gt; 5) :: [()]
 -- []
 guard (5 &gt; 2) :: [()]
 -- [()]
 guard (5 &gt; 2) &gt;&gt; return "cool" :: [String]
 -- ["cool"]
-</code></pre> <p>I think one problem was that I was thinking of <code>&gt;&gt;</code> as just returning the second argument since the type was <code>m a -&gt; m b -&gt; m b</code> which made me think of <code>x -&gt; y -&gt; y</code>. But really that's pretty far off. So I stepped through it slowly:</p> <pre><code class="haskell language-haskell">-- definition for &gt;&gt;= in the instance Monad []
+</code></pre> <p>I think one problem was that I was thinking of <code>&gt;&gt;</code> as just returning the second argument since the type was <code>m a -&gt; m b -&gt; m b</code> which made me think of <code>x -&gt; y -&gt; y</code>. But really that's pretty far off. So I stepped through it slowly:</p> <pre><p></p><code class="haskell language-haskell">-- definition for &gt;&gt;= in the instance Monad []
 xs &gt;&gt;= f = concat (map f xs)
 -- therefore
 guard (5 &gt; 2) &gt;&gt; return "cool"
@@ -23,7 +23,7 @@ guard (5 &gt; 2) &gt;&gt; return "cool"
 -- =&gt; [()] &gt;&gt;= \_ -&gt; return "cool"
 -- =&gt; concat (map (\_ -&gt; return "cool") [()])
 -- =&gt; ["cool"]
-</code></pre> <p>So when I saw this, I realized that because <code>guard False = mzero</code> is the failure (eg for lists the empty list) it is basically filtered from a the list. As such, when we look at the full example we understand how it works:</p> <pre><code class="haskell language-haskell">[1..50] &gt;&gt;= (\x -&gt; guard ('7' `elem` show x) &gt;&gt; return x)
+</code></pre> <p>So when I saw this, I realized that because <code>guard False = mzero</code> is the failure (eg for lists the empty list) it is basically filtered from a the list. As such, when we look at the full example we understand how it works:</p> <pre><p></p><code class="haskell language-haskell">[1..50] &gt;&gt;= (\x -&gt; guard ('7' `elem` show x) &gt;&gt; return x)
 -- =&gt; concat (map (\x -&gt; guard ('7' `elem` show x) &gt;&gt; return x) [1..50])
 -- example of one
 -- =&gt; (\x -&gt; guard ('7' `elem` show x) &gt;&gt; return x) 27
