@@ -15,6 +15,15 @@ const converter = new showdown.Converter({
       regex: /<img(.*?)>/g,
       replace: '<img loading="lazy"$1>',
     },
+    {
+      type: "output",
+      // code blocks end up being
+      // <pre><code ...>
+      // (code)
+      // </pre></code>
+      regex: /<pre><code(.*?)>((\n|.)*?)<\/code><\/pre>/g,
+      replace: "<pre><p></p><code$1>$2</code></pre>",
+    },
   ],
   strikethrough: true,
   ghCompatibleHeaderId: true,
