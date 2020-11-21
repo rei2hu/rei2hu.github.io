@@ -1,5 +1,4 @@
-// the background effect
-/* eslint-disable */
+// the background effect but modified for the 404 page
 (function () {
   document.body.removeChild(document.getElementById("very-cute-picture"));
   var canvas = document.createElement("canvas");
@@ -8,96 +7,59 @@
   canvas.style.bottom = 0;
   canvas.style.left = 0;
   canvas.style.right = 0;
-  canvas.style.margin = 'auto';
-  canvas.style.textAlign = 'center';
+  canvas.style.margin = "auto";
+  canvas.style.textAlign = "center";
   canvas.style.zIndex = -1;
+  canvas.style.position = "fixed";
+  canvas.width = w;
+  canvas.height = h;
   document.body.appendChild(canvas);
 
-  function $i(id) {
-    return document.getElementById(id);
-  }
-
-  function get_screen_size() {
-    var w = document.documentElement.clientWidth;
-    var h = document.documentElement.clientHeight;
-    return Array(w, h);
-  }
-
-  // number of stars
-  var n = 64;
-
+  var starfield;
+  var test = true;
+  var n = 128;
   var w = 0;
   var h = 0;
-
   var x = 0;
   var y = 0;
   var z = 0;
-
-  var star_color_ratio = 0;
-  var star_x_save;
-  var star_y_save;
-  var star_ratio = 64;
-  var star_speed = 0.5;
+  var colorRatio = 0;
+  var starXSave;
+  var starYSave;
+  var starRatio = 256;
+  var starSpeed = 1;
   var star = new Array(n);
-
-  var cursor_x = 0;
-  var cursor_y = 0;
-
-  var canvas_x = 0;
-  var canvas_y = 0;
+  var cursorX = 0;
+  var cursorY = 0;
+  var mouseX = 0;
+  var mouseY = 0;
+  var canvasX = 0;
+  var canvasY = 0;
   var context;
+  var lastAnim = 0;
 
-  var lastAnim;
-  var fadein = 0;
-
-  function init() {
-    for (var i = 0; i < n; i++) {
-      star[i] = new Array(5);
-
-      // 
-      star[i][0] = Math.random() * w * 2 - x * 2;
-      star[i][1] = Math.random() * h * 2 - y * 2;
-      star[i][2] = Math.round(Math.random() * z);
-
-      // position
-      star[i][3] = 0;
-      star[i][4] = 0;
-    }
-
-    var starfield = $i("gate");
-    starfield.style.position = "fixed";
-    starfield.width = w;
-    starfield.height = h;
-    context = starfield.getContext("2d");
-    context.fillStyle = "rgb(255,255,255)";
-    context.strokeStyle = "rgb(0,0,0)";
-  }
-
-  function anim() {
-    var temp = lastAnim;
-    lastAnim = Date.now();
-    var elapsed = (lastAnim - temp) / 30;
-
-    if (fadein < 1) {
-      fadein += 0.01 * elapsed;
-      var fadein_color = (255 * (1 - fadein)) | 0;
-      context.strokeStyle = "rgb(" +
-        fadein_color + "," +
-        fadein_color + "," +
-        fadein_color + ")";
-    }
-
-    var mouse_x = cursor_x - x;
-    var mouse_y = cursor_y - y;
+  function animate(time) {
     context.fillRect(0, 0, w, h);
 
-    for (var i = 0; i < n; i++) {
-      var test = true;
-      
-      star_x_save = star[i][3];
-      star_y_save = star[i][4];
+    var oldAnim = lastAnim;
+    lastAnim = time;
+    var elapsed = (lastAnim - oldAnim) * 2;
 
-      star[i][0] += mouse_x / w * 100 * elapsed;
+    var nx = cursorX - x;
+    var ny = cursorY - y;
+
+    mouseX = Math.min(Math.max(mouseX - 8, nx), mouseX + 8);
+    mouseY = Math.min(Math.max(mouseY - 8, ny), mouseY + 8);
+
+    var dx = (mouseX / w) * elapsed;
+    var dy = (mouseY / h) * elapsed;
+    var dz = (starSpeed * elapsed) / 100;
+
+    for (var i = 0; i < n; i++) {
+      test = true;
+      [, , , starXSave, starYSave] = star[i];
+
+      star[i][0] += dx;
       if (star[i][0] > x << 1) {
         star[i][0] -= w << 1;
         test = false;
@@ -107,7 +69,7 @@
         test = false;
       }
 
-      star[i][1] += mouse_y / w * 100 * elapsed;
+      star[i][1] += dy;
       if (star[i][1] > y << 1) {
         star[i][1] -= h << 1;
         test = false;
@@ -117,7 +79,7 @@
         test = false;
       }
 
-      star[i][2] -= star_speed * elapsed;
+      star[i][2] -= dz;
       if (star[i][2] > z) {
         star[i][2] -= z;
         test = false;
@@ -127,59 +89,71 @@
         test = false;
       }
 
-
-
-      // new positions = center + x speed
-      star[i][3] = x + (star[i][0] / star[i][2]) * star_ratio;
-      star[i][4] = y + (star[i][1] / star[i][2]) * star_ratio;
+      star[i][3] = x + (star[i][0] / star[i][2]) * starRatio;
+      star[i][4] = y + (star[i][1] / star[i][2]) * starRatio;
 
       if (
-        star_x_save > 0 &&
-        star_x_save < w &&
-        star_y_save > 0 &&
-        star_y_save < h &&
+        elapsed < 40 &&
+        starXSave > 0 &&
+        starXSave < w &&
+        starYSave > 0 &&
+        starYSave < h &&
         test
       ) {
-        context.lineWidth = (1 - star_color_ratio * star[i][2]) * 2;
+        context.lineWidth = (1 - colorRatio * star[i][2]) * 4;
         context.beginPath();
-        context.moveTo(star_x_save, star_y_save);
+        context.moveTo(starXSave, starYSave);
         context.lineTo(star[i][3], star[i][4]);
         context.stroke();
-        context.closePath();
       }
     }
 
-    // timeout = setTimeout(anim, fps);
-    timeout = window.requestAnimationFrame(anim);
-  }
-
-  function move(evt) {
-    evt = evt || event;
-    cursor_x = evt.pageX - canvas_x - window.scrollX;
-    cursor_y = evt.pageY - canvas_y - window.scrollY;
+    requestAnimationFrame(animate);
   }
 
   function start() {
-    resize();
-    lastAnim = Date.now();
-    anim();
+    updateSize();
+    resetStars();
   }
 
-  function resize() {
-    var sizes = get_screen_size();
-    w = sizes[0];
-    h = sizes[1];
+  function resetStars() {
+    for (var i = 0; i < n; i++) {
+      star[i] = new Array(5);
+      star[i][0] = Math.random() * w * 2 - x * 2;
+      star[i][1] = Math.random() * h * 2 - y * 2;
+      star[i][2] = Math.round(Math.random() * z);
+      star[i][3] = 0;
+      star[i][4] = 0;
+    }
+
+    starfield = document.getElementById("gate");
+    starfield.style.position = "fixed";
+    starfield.width = w;
+    starfield.height = h;
+    context = starfield.getContext("2d");
+    context.fillStyle = "white";
+    context.strokeStyle = "black";
+  }
+
+  document.addEventListener("mousemove", (evt) => {
+    if (Math.random() > 0.95) return;
+    cursorX = evt.pageX - canvasX - window.scrollX;
+    cursorY = evt.pageY - canvasY - window.scrollY;
+  });
+
+  function updateSize() {
+    w = document.documentElement.clientWidth;
+    h = document.documentElement.clientHeight;
     x = Math.round(w / 2);
     y = Math.round(h / 2);
     z = (w + h) / 2;
-    star_color_ratio = 1 / z;
-    cursor_x = x;
-    cursor_y = y;
-    init();
+    colorRatio = 1 / z;
+    cursorX = x;
+    cursorY = y;
   }
 
-  document.onmousemove = move;
-  document.body.onresize = resize;
-  // start();
-  setTimeout(start, 5000);
+  window.addEventListener("resize", start);
+
+  start();
+  requestAnimationFrame(animate);
 })();
