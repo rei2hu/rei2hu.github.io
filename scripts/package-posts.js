@@ -69,7 +69,7 @@ fs.promises
             contents: converter.makeHtml(contents),
             commits: (
               await exec(
-                `git log --date=short --pretty=format:"%ad - %H" "${filePath}"`
+                `git log --follow --date=short --pretty=format:"%ad - %H" "${filePath}"`
               )
             ).stdout,
           };
