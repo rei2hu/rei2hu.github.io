@@ -1,4 +1,4 @@
-// the background effect but modified for the 404 page
+// unused
 (function () {
   document.body.removeChild(document.getElementById("very-cute-picture"));
   var canvas = document.createElement("canvas");
@@ -108,12 +108,14 @@
       }
     }
 
-    requestAnimationFrame(animate);
+    if (enabled)
+      requestAnimationFrame(animate);
   }
 
   function start() {
     updateSize();
     resetStars();
+    requestAnimationFrame(animate);
   }
 
   function resetStars() {
@@ -154,6 +156,9 @@
 
   window.addEventListener("resize", start);
 
-  start();
-  requestAnimationFrame(animate);
+  let enabled = false;
+  window.addEventListener("hashchange", () => {
+    enabled = !!document.location.hash
+    if (enabled) start();
+  });
 })();

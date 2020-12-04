@@ -28,9 +28,10 @@ fs.promises
         const resultScriptBuf = script.endsWith(".js")
           ? Buffer.from(
               uglify.minify(
-                obfus
-                  .obfuscate(scriptContents.toString(), obfusJsOpts)
-                  .getObfuscatedCode()
+                scriptContents.toString()
+                // obfus
+                //   .obfuscate(scriptContents.toString(), obfusJsOpts)
+                //   .getObfuscatedCode()
               ).code
             )
           : scriptContents;

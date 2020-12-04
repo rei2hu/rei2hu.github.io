@@ -1,5 +1,5 @@
-// the background effect but modified for the 404 page
-(function () {
+ext = ext || {};
+(function (ext = {}) {
   document.body.removeChild(document.getElementById("very-cute-picture"));
   var canvas = document.createElement("canvas");
   canvas.id = "gate";
@@ -108,23 +108,18 @@
       }
     }
 
-    var oldStyle = context.fillStyle;
 
-    context.font = "bold 10em Courier";
-    context.fillStyle = "white";
-    context.fillText("404", 100, 200);
-    var width = context.measureText("404").width / 2;
-    context.font = "bold 1em Courier";
-    context.fillText("you are lost in space", 100 + width, 250);
+    if (ext.canvasFn)
+      ext.canvasFn(context);
 
-    context.fillStyle = oldStyle;
-
-    requestAnimationFrame(animate);
+    if (enabled)
+      requestAnimationFrame(animate);
   }
 
   function start() {
     updateSize();
     resetStars();
+    requestAnimationFrame(animate)
   }
 
   function resetStars() {
@@ -164,6 +159,12 @@
 
   window.addEventListener("resize", start);
 
-  start();
-  requestAnimationFrame(animate);
-})();
+
+  let enabled = false;
+  const fn =() => {
+    enabled = !!document.location.hash
+    if (enabled) start();
+  }
+  window.addEventListener("hashchange", fn);
+  fn();
+})(ext);
