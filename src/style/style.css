@@ -118,3 +118,8 @@ img {
     font-size: 0.75em;
     font-style: italic;
 }
+
+.index-list {
+    display: inline-block;
+    padding-bottom: 8px;
+}

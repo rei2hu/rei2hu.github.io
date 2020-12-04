@@ -119,7 +119,6 @@ ext = ext || {};
   function start() {
     updateSize();
     resetStars();
-    requestAnimationFrame(animate)
   }
 
   function resetStars() {
@@ -162,8 +161,11 @@ ext = ext || {};
 
   let enabled = false;
   const fn =() => {
-    enabled = !!document.location.hash
-    if (enabled) start();
+    enabled = !!document.location.hash;
+    if (enabled) {
+      start();
+      requestAnimationFrame(animate);
+    }
   }
   window.addEventListener("hashchange", fn);
   fn();
