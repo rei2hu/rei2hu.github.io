@@ -6,18 +6,17 @@
     <script src="/scripts/image_loader.js"></script>
     <title>lost in space</title>
     <script>
-        let ext = {
-            canvasFn: (context) => {
-                var oldStyle = context.fillStyle;
-                context.font = "bold 10em Courier";
-                context.fillStyle = "white";
-                context.fillText("404", 100, 200);
-                var width = context.measureText("404").width / 2;
-                context.font = "bold 1em Courier";
-                context.fillText("you are lost in space", 100 + width, 250);
-                context.fillStyle = oldStyle;
-            }
+        ext.canvasFn = (context) => {
+            var oldStyle = context.fillStyle;
+            context.font = "bold 10em Courier";
+            context.fillStyle = "white";
+            context.fillText("404", 100, 200);
+            var width = context.measureText("404").width / 2;
+            context.font = "bold 1em Courier";
+            context.fillText("you are lost in space", 100 + width, 250);
+            context.fillStyle = oldStyle;
         }
+        window.location.hash = "a";
     </script>
 </head>
 

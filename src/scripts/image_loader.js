@@ -16,3 +16,5 @@ var load_backup_image = function (url) {
     };
   }
 };
+
+ext = {};
