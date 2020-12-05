@@ -18,7 +18,9 @@
     <script defer src="/scripts/tikz.js"></script>
 
     <!-- math jax stuff -->
-    <script defer src="/scripts/tex-mml-chtml.js"></script>
+    <!-- <script defer src="/scripts/tex-mml-chtml.js"></script> -->
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
     <script>
         window.MathJax = {
             tex: {
@@ -43,7 +45,7 @@
         <a href="" style="float:right"></a> -->
     </div>
     <picture id="very-cute-picture"><img srcset="reimu"
-            onerror="load_backup_image('/scripts/playful_reimu.bmp'),load_backup_image('/scripts/unamused_reimu.bmp');" />
+            onerror="load_backup_image('/scripts/cozy_reimu.bmp'),load_backup_image('/scripts/unamused_reimu.bmp');" />
     </picture>
     <!-- contents of the page -->
     $((contents))
