@@ -14,8 +14,9 @@ function removeUnneededToggle(self) {
   const code = self.parentElement.querySelector(`code`);
 
   // remove the checkbox if the element doesn't scroll
-  // css sets a max height
-  if (code.scrollHeight <= code.clientHeight) {
+  // +2 because I think the border or something, maybe just +1 though.
+  // helps clear out for single line blocks
+  if (code.scrollHeight <= code.clientHeight + 2) {
     checkbox.remove();
   }
 }
