@@ -18,11 +18,16 @@ const converter = new showdown.Converter({
     {
       type: "output",
       // code blocks end up being
-      // <pre><code ...>
+      // <pre><input /><code ...>
       // (code)
       // </pre></code>
       regex: /<pre><code(.*?)>((\n|.)*?)<\/code><\/pre>/g,
-      replace: "<pre><p></p><code$1>$2</code></pre>",
+      replace: `<pre><input type="checkbox"/><span></span><code$1>$2</code></pre>`,
+    },
+    {
+      type: "output",
+      regex: /<script type="text\/tikz">((\n|.)*?)<\/script>/g,
+      replace: `<noscript>$1</noscript><script type="text/tikz">$1</script>`,
     },
   ],
   strikethrough: true,
