@@ -45,6 +45,13 @@ if (all || css) {
       return minified.warnings.length ? content : minified.styles;
     }
   );
+
+  util.processThenCopyFiles(
+    "./style",
+    "scripts/output/chtml/fonts/woff-v2/",
+    (f) => f.endsWith(".woff"),
+    (content) => content
+  );
 }
 
 function p(scriptContents, file) {

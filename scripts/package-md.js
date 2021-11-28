@@ -90,7 +90,13 @@ module.exports = {
             .map(({ id, name, contents, commits }, i) => {
               const html = fillTemplate({
                 contents: () => contents,
-                commits: () => commits.split("\n").join("<br />"),
+                commits: () =>
+                  commits
+                    .split("\n")
+                    .map(
+                      (commit) => `<span class="de-emphasized">${commit}</span>`
+                    )
+                    .join("<br />"),
                 before: () =>
                   fileObjs[i - 1]
                     ? `<a href="/${targetDir}/${
@@ -121,14 +127,18 @@ module.exports = {
         const html = fillTemplate({
           contents: () =>
             `${desc}<ul class="no-list-style"><li>${fileObjs
-              .map(
-                ({ id, name }) =>
-                  `${String(id).padStart(
-                    maxLength,
-                    // nbsp
-                    "\u00A0"
-                  )}. <a href="/${targetDir}/${id}">${name}</a>`
-              )
+              .map(({ id, name, commits }) => {
+                const commitList = commits.split("\n");
+                return `${String(id).padStart(
+                  maxLength,
+                  // nbsp
+                  "\u00A0"
+                )}. <a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">${
+                  commitList[commitList.length - 1]
+                    ? commitList[commitList.length - 1].split(" ")[0]
+                    : ""
+                }${commitList.length > 1 ? "*" : ""}</span>`;
+              })
               .join("</li><li>")}</li></ul>`,
           title: targetDir,
         });

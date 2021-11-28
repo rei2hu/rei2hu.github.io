@@ -1,3 +1,7 @@
+:root {
+    --left-margin-width: 11vw;
+}
+
 body {
     margin: 5em;
     height: 100%;
@@ -107,7 +111,7 @@ td {
 }
 
 svg {
-    left: 10%;
+    left: var(--left-margin-width);
 }
 
 img {
@@ -120,23 +124,24 @@ img {
 
 .sidebar-nav {
     top: 0;
-    left: 1em;
     padding: 0;
     position: fixed;
+    left: 1vw;
 }
 
 .posts-nav_bottom {
-    padding-top: 1em
+    padding-top: 1em;
 }
 
 .posts-nav_top {
-    padding-bottom: 1em
+    padding-bottom: 1em;
 }
 
 .template-body {
     overflow-y: scroll;
-    margin-right: 50%;
-    margin-left: 10%;
+    margin-left: var(--left-margin-width);
+    min-width: 37.5rem;
+    width: 50vw;
 }
 
 .commit-list {
@@ -144,6 +149,9 @@ img {
     text-align: center;
     margin-top: 3em;
     position: relative;
+}
+
+.de-emphasized {
     color: gray;
     font-size: 0.75em;
     font-style: italic;
