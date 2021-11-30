@@ -141,7 +141,7 @@ img {
     overflow-y: scroll;
     margin-left: var(--left-margin-width);
     min-width: 37.5rem;
-    width: 50vw;
+    width: calc(50vw - var(--left-margin-width));
 }
 
 .commit-list {
