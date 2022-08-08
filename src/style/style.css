@@ -43,7 +43,7 @@ pre > input + span {
 }
 
 pre > input:checked + span:after {
-    content: "[\25b2] Contract"; /* up triangle */
+    content: "[\25b2] Collapse"; /* up triangle */
 }
 
 pre > input:not(:checked) + span:after {
