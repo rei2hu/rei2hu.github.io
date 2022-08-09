@@ -1,5 +1,6 @@
 :root {
-    --left-margin-width: 11vw;
+    --left-margin-width: 5rem;
+    --sidebar-left-padding: 1rem;
 }
 
 body {
@@ -111,7 +112,7 @@ td {
 }
 
 svg {
-    left: var(--left-margin-width);
+    left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
 }
 
 img {
@@ -126,7 +127,7 @@ img {
     top: 0;
     padding: 0;
     position: fixed;
-    left: 1vw;
+    left: var(--sidebar-left-padding);
 }
 
 .posts-nav_bottom {
@@ -139,8 +140,8 @@ img {
 
 .template-body {
     overflow-y: scroll;
-    margin-left: var(--left-margin-width);
-    min-width: 37.5rem;
+    margin-left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
+    min-width: 15rem;
     width: calc(50vw - var(--left-margin-width));
 }
 
