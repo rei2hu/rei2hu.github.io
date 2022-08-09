@@ -78,7 +78,7 @@ module.exports = {
                   await exec(
                     `git log --follow --date=short --pretty=format:"%ad - %H" "${filePath.replace(
                       /\$/g,
-                      "\\$"
+                      process.platform === "win32" ? `"$"` : `\\$`
                     )}"`
                   )
                 ).stdout,
