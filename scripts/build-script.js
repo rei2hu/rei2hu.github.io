@@ -98,8 +98,8 @@ if (all || md) {
     "A blog of sorts. Thoughts may be unorganized and writing quality may be poor."
   );
   processThenCopyMd(
-    "./md/exercises",
-    "./exercises",
-    "Personal solutions for problems from textbooks and such. Should be decent quality. I do not guarantee the correctness of solutions or programs."
+    "./md/puzzles",
+    "./puzzles",
+    "Personal solutions or workthroughs of random puzzles. Should be decent quality. I do not guarantee the correctness of solutions or programs."
   );
 }
