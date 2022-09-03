@@ -2,3 +2,4 @@ built
 node_modules
 key
 .markdownlint.json
+*.bak
