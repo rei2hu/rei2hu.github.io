@@ -1,27 +1,39 @@
 {
-  "env": {
-    "browser": true,
-    "commonjs": true,
-    "es6": true
-  },
-  "extends": ["airbnb-base", "prettier"],
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
-  "parserOptions": {
-    "ecmaVersion": 2018
-  },
-  "plugins": ["prettier"],
-  "rules": {
-    "prettier/prettier": "error",
-    "no-restricted-syntax": ["error", "WithStatement"],
-    "no-continue": "off",
-    "guard-for-in": "off",
-    "no-bitwise": "off",
-    "no-nested-ternary": "off",
-    "no-plusplus": "off",
-    "prefer-promise-reject-errors": "off",
-    "no-case-declarations": "off"
-  }
+  "overrides": [{
+    "files": ["*.js"],
+    "env": {
+      "browser": true,
+      "commonjs": true,
+      "es6": true
+    },
+    "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+      "ecmaVersion": 2018
+    },
+    "plugins": ["prettier"],
+    "extends": ["airbnb-base", "prettier"],
+    "rules": {
+      "prettier/prettier": "error",
+      "no-restricted-syntax": ["error", "WithStatement"],
+      "no-continue": "off",
+      "guard-for-in": "off",
+      "no-bitwise": "off",
+      "no-nested-ternary": "off",
+      "no-plusplus": "off",
+      "prefer-promise-reject-errors": "off",
+      "no-case-declarations": "off"
+    }
+  }, {
+    "files": ["*.md"],
+    "parser": "eslint-plugin-markdownlint/parser",
+    "extends": ["plugin:markdownlint/recommended"],
+    "rules": {
+      "markdownlint/md033": "off",
+      "markdownlint/md034": "off",
+      "markdownlint/md052": "off"
+    }
+  }]
 }
