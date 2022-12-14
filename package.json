@@ -5,6 +5,7 @@
   "main": "none",
   "scripts": {
     "start": "cd built && http-server",
+    "lint": "eslint src/md/**/**.md",
     "build": "node scripts/build-script --all",
     "build:js": "node scripts/build-script --js",
     "build:html": "node scripts/build-script --html",
