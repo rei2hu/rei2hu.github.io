@@ -140,6 +140,11 @@ img {
     padding-bottom: 1em;
 }
 
+.posts-nav_bottom, .posts-nav_top {
+    display: flex;
+    justify-content: space-between;
+}
+
 .template-body {
     overflow-y: scroll;
     margin-left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
