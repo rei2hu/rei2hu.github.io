@@ -1,73 +1,88 @@
 <!-- a template page for the blog posts -->
 <!DOCTYPE html>
 
-<head>
-    <!-- normal stuff -->
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/style/style.css">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <script src="/scripts/image_loader.js"></script>
+<html>
+	<head>
+		<!-- normal stuff -->
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/style/style.css" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<script src="/scripts/image_loader.js"></script>
 
-    <!-- highlight js things -->
-    <script src="/scripts/highlight.pack.js"></script>
-    <link rel="stylesheet" href="/style/a11y-light.css">
-    <script>
-        hljs.initHighlightingOnLoad();
-    </script>
+		<!-- highlight js things -->
+		<script src="/scripts/highlight.pack.js"></script>
+		<link rel="stylesheet" href="/style/a11y.css" />
+		<script>
+			hljs.initHighlightingOnLoad();
+		</script>
 
-    <!-- tikz jax stuff -->
-    <script defer src="/scripts/tikz.js"></script>
+		<!-- tikz jax stuff -->
+		<script defer src="/scripts/tikz.js"></script>
 
-    <!-- math jax stuff -->
-    <script defer src="/scripts/tex-mml-chtml.js"></script>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$']],
-                displayMath: [['$$', '$$']],
-                processEscapes: true
-            }
-        };
-    </script>
-    <title>$((title))</title>
-</head>
+		<!-- math jax stuff -->
+		<script defer src="/scripts/tex-mml-chtml.js"></script>
+		<script>
+			window.MathJax = {
+				tex: {
+					inlineMath: [["$", "$"]],
+					displayMath: [["$$", "$$"]],
+					processEscapes: true,
+				},
+			};
+		</script>
+		<title>$((title))</title>
+	</head>
 
-<body class="template-body">
-    <noscript>
-        <br />
-        Code block highlighting and TeX/TikZ diagrams need javascript to display properly
-    </noscript>
-    <!-- the navigation between individual posts-->
-    <div class="posts-nav_top">
-        $((before))
-        $((after))
-        <!-- <a href="" style="float:left"></a>
+	<body class="template-body">
+		<noscript>
+			<br />
+			Code block highlighting, TeX/TikZ diagrams need Javascript to
+			display properly.
+		</noscript>
+		<!-- the navigation between individual posts-->
+		<div class="posts-nav_top">
+			$((before)) $((after))
+			<!-- <a href="" style="float:left"></a>
         <a href="" style="float:right"></a> -->
-    </div>
-    <picture id="very-cute-picture"><img srcset="reimu"
-            onerror="load_backup_image('/scripts/cozy_reimu.bmp'),load_backup_image('/scripts/unamused_reimu.bmp');" />
-    </picture>
-    <!-- contents of the page -->
-    $((contents))
-    <!--  navigation but at the bottom-->
-    <div class="posts-nav_bottom">
-        $((before))
-        $((after))
-    </div>
-    <div class="commit-list">
-        $((commits))
-    </div>
-    <!-- sidebar -->
-    <ul id="nav" class="sidebar-nav no-list-style">
-        <li>
-            <a href="/">home</a>
-        </li>
-        <li>
-            <a href="/posts/">posts</a>
-        </li>
-        <li>
-            <a href="/puzzles/">puzzles</a>
-        </li>
-    </ul>
-</body>
+		</div>
+		<picture id="very-cute-picture"
+			><img
+				srcset="reimu"
+				onerror="load_backup_image('/scripts/cozy_reimu.bmp'),load_backup_image('/scripts/unamused_reimu.bmp');"
+			/>
+		</picture>
+		<!-- contents of the page -->
+		$((contents))
+		<!--  navigation but at the bottom-->
+		<div class="posts-nav_bottom">
+			$((before)) $((after))
+		</div>
+		<div class="commit-list">
+			$((commits))
+		</div>
+		<!-- sidebar -->
+		<div class="sidebar-nav">
+			<ul id="nav" class="no-list-style">
+				<li>
+					<a href="/">home</a>
+				</li>
+				<li>
+					<a href="/posts/">posts</a>
+				</li>
+				<li>
+					<a href="/puzzles/">puzzles</a>
+				</li>
+			</ul>
+			<div>
+				<label id="lights-label"
+					>Lights
+					<input id="lights" type="checkbox" />
+				</label>
+				<span id="lights-description">
+					May need to click twice if lights already on!
+				</span>
+			</div>
+		</div>
+	</body>
+</html>

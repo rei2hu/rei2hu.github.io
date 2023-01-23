@@ -1,171 +1,266 @@
 :root {
-    --left-margin-width: 5rem;
-    --sidebar-left-padding: 1rem;
+	--left-margin-width: 5rem;
+	--sidebar-left-padding: 1rem;
+}
+
+html {
+	background-color: var(--bg-1);
+	color: var(--fg-4);
 }
 
 body {
-    margin: 5em;
-    height: 100%;
-    overflow: hidden;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 0.9em;
+	margin: 5em;
+	height: 100%;
+	overflow: hidden;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-size: 0.9em;
 }
 
 a {
-    color: black;
+	color: var(--fg-4);
 }
 
 a:visited {
-    color: grey;
+	color: var(--fg-2);
 }
 
 blockquote {
-    padding-left: 1em;
-    border-left: 3px grey solid
+	padding-left: 1em;
+	border-left: 3px var(--fg-3) solid;
 }
 
 /* all code blocks */
 code {
-    font-family: monospace;
-    font-size: 1.2em;
-    border-radius: 0.25em;
-    border: 1px solid rgb(165, 165, 165);
-    position: relative;
+	font-family: monospace;
+	font-size: 1.2em;
+	border-radius: 0.25em;
+	border: 1px solid var(--fg-3);
+	position: relative;
 }
 
 /* checkbox toggle */
 pre > input {
-    opacity: 0;
-    width: 1rem;
-    height: 1rem;
+	opacity: 0;
+	width: 1rem;
+	height: 1rem;
 }
 
 /* toggle styling */
 pre > input + span {
-    margin-left: -1.5rem; /* arbitrarily tuned value */
+	margin-left: -1.5rem; /* arbitrarily tuned value */
 }
 
 pre > input:checked + span:after {
-    content: "[\25b2] Collapse"; /* up triangle */
+	content: "[\25b2] Collapse"; /* up triangle */
 }
 
 pre > input:not(:checked) + span:after {
-    content: "[\25bc] Expand"; /* down triangle */
+	content: "[\25bc] Expand"; /* down triangle */
 }
 
 /* code block styling */
 pre > input + span + code {
-    display: block;
+	display: block;
 }
 
 pre > input:checked + span + code {
-    max-height: auto;
-    overflow-y: hidden;
+	max-height: auto;
+	overflow-y: hidden;
 }
 
 pre > input:not(:checked) + span + code {
-    max-height: 20vh;
-    overflow-y: hidden;
+	max-height: 20vh;
+	overflow-y: hidden;
 }
 
 pre > input:not(:checked) + span + code:after {
-    content: "";
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
-    height: 50%;
-    max-height: 10vh;
-    width: 100%;
-    background: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 90%);
+	content: "";
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	height: 50%;
+	max-height: 10vh;
+	width: 100%;
+	background: linear-gradient(
+		rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 0),
+		rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 1) 90%
+	);
 }
 
 picture {
-    display: none;
+	display: none;
 }
 
 li {
-    margin-bottom: 0.5em;
-    margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	margin-top: 0.5em;
 }
 
-tr, th {
-    padding: 0.5em;
+tr,
+th {
+	padding: 0.5em;
 }
 
 table {
-    margin-left: auto;
-    margin-right: auto;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-table, th, td {
-    border: 1px black solid;
-    border-collapse: collapse;
+table,
+th,
+td {
+	border: 1px var(--fg-3) solid;
+	border-collapse: collapse;
 }
 
 td {
-    padding: 0.25em;
+	padding: 0.25em;
 }
 
 /* for tikzjax */
 
 @font-face {
-    font-family: cmr10;
-    src: url('cmr10.ttf');
+	font-family: cmr10;
+	src: url("cmr10.ttf");
 }
 
 svg {
-    left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
+	left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
+	filter: invert(var(--svg-filter-factor));
 }
 
 img {
-    max-width: 100%;
+	max-width: 100%;
 }
 
 .no-list-style {
-    list-style-type: none;
+	padding: 0;
+	list-style-type: none;
 }
 
 .sidebar-nav {
-    top: 0;
-    padding: 0;
-    position: fixed;
-    left: var(--sidebar-left-padding);
+	top: 1rem;
+	position: fixed;
+	left: var(--sidebar-left-padding);
+	width: var(--left-margin-width);
 }
 
 .posts-nav_bottom {
-    padding-top: 1em;
+	padding-top: 1em;
 }
 
 .posts-nav_top {
-    padding-bottom: 1em;
+	padding-bottom: 1em;
 }
 
-.posts-nav_bottom, .posts-nav_top {
-    display: flex;
-    justify-content: space-between;
+.posts-nav_bottom,
+.posts-nav_top {
+	display: flex;
+	justify-content: space-between;
 }
 
 .template-body {
-    overflow-y: scroll;
-    margin-left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
-    min-width: 15rem;
-    width: calc(50vw - var(--left-margin-width));
+	overflow-y: scroll;
+	margin-left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
+	min-width: 15rem;
+	width: calc(50vw - var(--left-margin-width));
 }
 
 .commit-list {
-    display: block;
-    text-align: center;
-    margin-top: 3em;
-    position: relative;
+	display: block;
+	text-align: center;
+	margin-top: 3em;
+	position: relative;
 }
 
 .de-emphasized {
-    color: gray;
-    font-size: 0.75em;
-    font-style: italic;
+	color: var(--fg-2);
+	font-size: 0.75em;
+	font-style: italic;
 }
 
 .index-list {
-    display: inline-block;
-    padding-bottom: 8px;
+	display: inline-block;
+	padding-bottom: 8px;
+}
+
+/* lights only work with :has support, and even then only with proper support
+ * (Firefox is kind of weird since it doesn't recalculate properly)
+ * */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg-1: #000;
+		--bg-2: #202020;
+		--bg-3: #404040;
+		--bg-4: #606060;
+		--bg-5: #808080;
+		--fg-1: #707070;
+		--fg-2: #909090;
+		--fg-3: #b0b0b0;
+		--fg-4: #d0d0d0;
+		--fg-5: #f0f0f0;
+		--rgb-factor: 0;
+		--svg-filter-factor: 0.9;
+	}
+}
+@media (prefers-color-scheme: light) {
+	:root {
+		--bg-1: #f0f0f0;
+		--bg-2: #d0d0d0;
+		--bg-3: #b0b0b0;
+		--bg-4: #909090;
+		--bg-5: #707070;
+		--fg-1: #808080;
+		--fg-2: #606060;
+		--fg-3: #404040;
+		--fg-4: #202020;
+		--fg-5: #000;
+		--rgb-factor: 240;
+		--svg-filter-factor: 0.1;
+	}
+}
+:root:has(#lights:checked) {
+	/* light */
+	--bg-1: #f0f0f0;
+	--bg-2: #d0d0d0;
+	--bg-3: #b0b0b0;
+	--bg-4: #909090;
+	--bg-5: #707070;
+	--fg-1: #808080;
+	--fg-2: #606060;
+	--fg-3: #404040;
+	--fg-4: #202020;
+	--fg-5: #000;
+	--rgb-factor: 240;
+	--svg-filter-factor: 0.1;
+}
+:root:has(#lights:not(:checked)) {
+	/* dark mode */
+	--bg-1: #000;
+	--bg-2: #202020;
+	--bg-3: #404040;
+	--bg-4: #606060;
+	--bg-5: #808080;
+	--fg-1: #707070;
+	--fg-2: #909090;
+	--fg-3: #b0b0b0;
+	--fg-4: #d0d0d0;
+	--fg-5: #f0f0f0;
+	--rgb-factor: 0;
+	--svg-filter-factor: 0.9;
+}
+#lights-label {
+	display: none;
+}
+#lights-label:has(> #lights) {
+	display: flex;
+	user-select: none;
+	cursor: pointer;
+}
+#lights-description {
+	opacity: 0;
+	background-color: var(--bg-1);
+}
+#lights-label:hover + #lights-description {
+	opacity: 1;
 }

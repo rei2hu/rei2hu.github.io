@@ -1,0 +1,17 @@
+{
+	"printWidth": 80,
+	"tabWidth": 4,
+	"useTabs": true,
+	"htmlWhitespaceSensitivity": "strict",
+	"endOfLine": "lf",
+	"proseWrap": "always",
+	"overrides": [
+		{
+			"files": ["*.md"],
+			"rules": {
+				"tabWidth": 2,
+				"useTabs": false
+			}
+		}
+	]
+}

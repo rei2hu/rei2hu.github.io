@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/style/style.css">
-    <script src="/scripts/image_loader.js"></script>
-    <title>lost in space</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <script>
-        ext.canvasFn = (context) => {
-            var oldStyle = context.fillStyle;
-            context.font = "bold 10em Courier";
-            context.fillStyle = "white";
-            context.fillText("404", 100, 200);
-            var width = context.measureText("404").width / 2;
-            context.font = "bold 1em Courier";
-            context.fillText("you are lost in space", 100 + width, 250);
-            context.fillStyle = oldStyle;
-        }
-        window.location.hash = "a";
-    </script>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="/style/style.css" />
+	<script src="/scripts/image_loader.js"></script>
+	<title>lost in space</title>
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+	<script>
+		ext.canvasFn = (context) => {
+			var oldStyle = context.fillStyle;
+			context.font = "bold 10em Courier";
+			context.fillStyle = "white";
+			context.fillText("404", 100, 200);
+			var width = context.measureText("404").width / 2;
+			context.font = "bold 1em Courier";
+			context.fillText("you are lost in space", 100 + width, 250);
+			context.fillStyle = oldStyle;
+		};
+		window.location.hash = "a";
+	</script>
 </head>
 
 <body>
-    <noscript>
-        This is the 404 page.
-    </noscript>
-    <picture id="very-cute-picture"><img srcset="reimu" onerror="load_backup_image('/scripts/cozy_reimu.bmp')" />
-    </picture>
+	<noscript>
+		This is the 404 page.
+	</noscript>
+	<picture id="very-cute-picture"
+		><img
+			srcset="reimu"
+			onerror="load_backup_image('/scripts/cozy_reimu.bmp')"
+		/>
+	</picture>
 </body>
