@@ -7,6 +7,15 @@ const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./build-options");
 
+const unwantedCommits = new Set([
+	"0357f5d017c8f3485ea8a4bbb91c3efa6bf1d3e5",
+	"889ccd4aa4d88f2289b91c6bbcce085a8d9ed52c",
+	"44029f6eb6320986aca317cf17cc017d72329d41",
+	"60beb54f70b4a02c0a5495c68e9961d83eb5b714",
+	"a7f1bdfd7536ae35b2fcce00410ca1c7665002d2",
+	"204bc51955ef1ed4bcf4cd74e4eabed44ea07a6b",
+]);
+
 const converter = new showdown.Converter({
 	extensions: [
 		// make imgs/iframess lazy load
@@ -93,7 +102,14 @@ module.exports = {
 												: `\\$`
 										)}"`
 									)
-								).stdout,
+								).stdout
+									.split("\n")
+									.filter(
+										(commit) =>
+											!unwantedCommits.has(
+												commit.split("- ")[1]
+											)
+									),
 							};
 						})
 				);
@@ -107,7 +123,6 @@ module.exports = {
 								contents: () => contents,
 								commits: () =>
 									commits
-										.split("\n")
 										.map(
 											(commit) =>
 												`<span class="de-emphasized">${commit}</span>`
@@ -149,7 +164,7 @@ module.exports = {
 					contents: () =>
 						`${desc}<ul class="no-list-style"><li>${fileObjs
 							.map(({ id, name, commits }) => {
-								const commitList = commits.split("\n");
+								const commitList = commits;
 								return `${String(id).padStart(
 									maxLength,
 									// nbsp
@@ -172,7 +187,7 @@ module.exports = {
 					minified
 				);
 
-				await [writeFilesPromise, mainFilePromise];
+				await Promise.all([writeFilesPromise, mainFilePromise]);
 			});
 	},
 };
