@@ -192,8 +192,7 @@ img {
 .template-body {
 	overflow-y: scroll;
 	margin-left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
-	min-width: 80ch;
-	width: calc(50vw - var(--left-margin-width));
+	max-width: 80ch;
 }
 
 .commit-list {
