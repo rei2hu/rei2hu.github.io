@@ -139,7 +139,7 @@ module.exports = {
 										  }">&lt; ${
 												fileObjs[i - 1].name
 										  }</a></div>`
-										: "",
+										: `<div style="width:50%"></div>`,
 								after: () =>
 									fileObjs[i + 1]
 										? `<div><a href="/${targetDir}/${
