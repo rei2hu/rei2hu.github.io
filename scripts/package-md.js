@@ -16,6 +16,7 @@ const unwantedCommits = new Set([
 	"204bc51955ef1ed4bcf4cd74e4eabed44ea07a6b",
 ]);
 
+let codeBlockCounter = 1;
 const converter = new showdown.Converter({
 	extensions: [
 		// make imgs/iframess lazy load
@@ -31,7 +32,10 @@ const converter = new showdown.Converter({
 			// (code)
 			// </pre></code>
 			regex: /<pre><code(.*?)>((\n|.)*?)<\/code><\/pre>/g,
-			replace: `<pre><input type="checkbox"/><span></span><code$1>$2</code></pre>`,
+			replace: (_str, g1, g2) => {
+				const id = `code-block-${codeBlockCounter++}`;
+				return `<pre><input id="${id}" type="checkbox"/><label for="${id}"></label><code${g1}>${g2}</code></pre>`;
+			},
 		},
 		{
 			type: "output",
