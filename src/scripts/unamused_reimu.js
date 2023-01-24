@@ -26,6 +26,6 @@
 	}
 
 	document
-		.querySelectorAll("pre > input + span + code")
+		.querySelectorAll("pre > input + label + code")
 		.forEach((element) => removeUnneededToggle(element));
 })();
