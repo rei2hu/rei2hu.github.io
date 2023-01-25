@@ -89,18 +89,17 @@ pre > input:not(:checked) + label:after {
 }
 
 /* code block styling */
-pre > input + label + code {
+pre > label + code {
 	display: block;
+	overflow-y: hidden;
 }
 
 pre > input:checked + label + code {
 	max-height: auto;
-	overflow-y: hidden;
 }
 
 pre > input:not(:checked) + label + code {
 	max-height: 20vh;
-	overflow-y: hidden;
 }
 
 pre > input:not(:checked) + label + code:after {
