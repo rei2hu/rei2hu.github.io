@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const util = require("util");
+const hljs = require("highlight.js");
 const exec = util.promisify(require("child_process").exec);
-
 const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./build-options");
@@ -28,13 +28,30 @@ const converter = new showdown.Converter({
 		{
 			type: "output",
 			// code blocks end up being
-			// <pre><input /><code ...>
+			// <pre><input /><label /><code ...>
 			// (code)
-			// </pre></code>
-			regex: /<pre><code(.*?)>((\n|.)*?)<\/code><\/pre>/g,
+			// </code></pre>
+			regex: /<pre><code class="(.*?)">((\n|.)*?)<\/code><\/pre>/g,
 			replace: (_str, g1, g2) => {
 				const id = `code-block-${codeBlockCounter++}`;
-				return `<pre><input id="${id}" type="checkbox"/><label for="${id}"></label><code${g1}>${g2}</code></pre>`;
+				// g1 is (lang) language-(lang)
+				const lang = g1.split(" ")[0];
+				// unescape certain html entities because hljs will re-escape
+				const highlighted = hljs.highlight(
+					g2
+						.replace(/&amp;/g, "&")
+						.replace(/&lt;/g, "<")
+						.replace(/&gt;/g, ">")
+						.replace(/&quot;/g, '"')
+						.replace(/&#39;/g, "'"),
+					{ language: lang }
+				);
+				if (highlighted.illegal) {
+					// eslint-disable-next-line no-console
+					console.warn(`Illegal code found in code block ${id}`);
+				}
+				const code = highlighted.value;
+				return `<pre><input id="${id}" type="checkbox"/><label for="${id}"></label><code>${code}</code></pre>`;
 			},
 		},
 		{
