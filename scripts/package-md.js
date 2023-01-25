@@ -14,6 +14,7 @@ const unwantedCommits = new Set([
 	"60beb54f70b4a02c0a5495c68e9961d83eb5b714",
 	"a7f1bdfd7536ae35b2fcce00410ca1c7665002d2",
 	"204bc51955ef1ed4bcf4cd74e4eabed44ea07a6b",
+	"079b7d171821be546234f78da358ce858ab0401c",
 ]);
 
 let codeBlockCounter = 1;
