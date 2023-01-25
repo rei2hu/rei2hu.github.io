@@ -158,7 +158,7 @@ ext = ext || {};
 
 	let enabled = false;
 	const fn = () => {
-		enabled = document.location.hash === "a";
+		enabled = document.location.hash === "#a";
 		if (enabled) {
 			start();
 			requestAnimationFrame(animate);
