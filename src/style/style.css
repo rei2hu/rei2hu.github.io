@@ -35,7 +35,9 @@
 	}
 }
 
-html {
+html,
+body {
+	display: block;
 	background-color: var(--bg-1);
 	color: var(--fg-4);
 }
@@ -210,6 +212,16 @@ img {
 .index-list {
 	display: inline-block;
 	padding-bottom: 8px;
+}
+
+.noscript-warning {
+	background: var(--bg-3);
+	border: 1px solid var(--fg-2);
+	border-left: 5px solid var(--fg-3);
+	color: var(--fg-3);
+	border-radius: 5px;
+	padding: 1rem;
+	margin-bottom: 1rem;
 }
 
 /* lights only work with :has support, and even then only with proper support

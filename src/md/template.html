@@ -4,6 +4,11 @@
 <html>
 	<head>
 		<!-- normal stuff -->
+		<style>
+			html {
+				display: none;
+			}
+		</style>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="stylesheet" href="/style/style.css" />
@@ -32,7 +37,10 @@
 
 	<body class="template-body">
 		<noscript>
-			TeX/TikZ diagrams need Javascript to display properly.
+			<div class="noscript-warning">
+				Javascript necessary for display LaTeX and TikZ diagrams, and it
+				is used for other small cosmetic features.
+			</div>
 		</noscript>
 		<!-- the navigation between individual posts-->
 		<div class="posts-nav_top">

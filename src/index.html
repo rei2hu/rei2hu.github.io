@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<style>
+			html {
+				display: none;
+			}
+		</style>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="stylesheet" href="/style/style.css" />
-		<script src="/scripts/image_loader.js"></script>
-		<script defer src="/scripts/tex-mml-chtml.js"></script>
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-
+		<script src="/scripts/image_loader.js"></script>
+		<script src="/scripts/tex-mml-chtml.js"></script>
 		<title>someone's homepage</title>
 	</head>
 	<body>
 		<picture id="very-cute-picture"
 			><img
 				srcset="reimu"
-				onerror="load_backup_image('/scripts/cozy_reimu.bmp');load_backup_image('/scripts/confused_reimu.bmp');load_backup_image('/scripts/unamused_reimu.bmp');"
+				onerror="load_backup_image('/scripts/cozy_reimu.bmp');load_backup_image('/scripts/confused_reimu.bmp');"
 			/>
 		</picture>
 		<math>
