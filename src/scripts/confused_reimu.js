@@ -3,27 +3,30 @@
 	bottomRightLinks();
 
 	function bottomRightLinks() {
-		var div = document.createElement("div");
-		var innerDiv;
+		var div = document.getElementById("e");
+		var content = "email: (domain without .extension) @ (domain)";
 		div.addEventListener("mouseenter", function () {
-			innerDiv = document.createElement("div");
-			innerDiv.style.bottom = "1.5rem";
-			// r2hkri (at) gm4il d0t corn
-			innerDiv.innerHTML =
+			div.innerHTML =
 				"email: " +
-				atob("cjJoa3JpIChhdCkgZ2" + 0 + "" + 0 + "aWwgZDB0IGNvcm4=");
-			div.appendChild(innerDiv);
+				atob(
+					"cmVpbXUgKGF" +
+						(0x10 & 0) +
+						"KSByZWltdSBkb" +
+						(6 - 3) +
+						"Qgd" +
+						(1 + 2) +
+						"M="
+				);
 		});
 		div.addEventListener("mouseleave", function () {
-			if (innerDiv) div.removeChild(innerDiv);
-			innerDiv = null;
+			div.innerHTML = content;
 		});
 		div.style.bottom = "1.5rem";
 		div.style.right = "1.5rem";
 		div.style.position = "fixed";
 		div.style.textAlign = "right";
 		div.style.zIndex = 1;
-		div.innerHTML = "mouse over for contact info";
+		div.innerHTML = content;
 		document.body.appendChild(div);
 	}
 })();
