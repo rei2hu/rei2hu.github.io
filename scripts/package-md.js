@@ -58,7 +58,7 @@ const converter = new showdown.Converter({
 		{
 			type: "output",
 			regex: /<script type="text\/tikz">((\n|.)*?)<\/script>/g,
-			replace: `<noscript>$1</noscript><script type="text/tikz">$1</script>`,
+			replace: `<noscript><pre>$1</pre></noscript><script type="text/tikz">$1</script>`,
 		},
 	],
 	strikethrough: true,

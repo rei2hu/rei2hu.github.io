@@ -94,6 +94,7 @@ pre > input:not(:checked) + label:after {
 pre > label + code {
 	display: block;
 	overflow-y: hidden;
+	padding: 10px;
 }
 
 pre > input:checked + label + code {
