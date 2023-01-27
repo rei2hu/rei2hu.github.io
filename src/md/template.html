@@ -34,7 +34,7 @@
 	</head>
 
 	<body>
-		<div class="site-nav" id="nav">
+		<nav class="site-nav" id="nav">
 			<a href="/">home</a>
 			<a href="/posts/">posts</a>
 			<a href="/puzzles/">puzzles</a>
@@ -44,24 +44,22 @@
 					<input id="lights" type="checkbox" />
 				</label>
 			</div>
-		</div>
+		</nav>
 		<div class="template-body">
-			<noscript>
-				<div class="noscript-warning">
-					Javascript necessary for displaying LaTeX and TikZ diagrams,
-					and it is also used for other small cosmetic features.
-				</div>
+			<noscript class="noscript-warning">
+				Javascript necessary for displaying LaTeX and TikZ diagrams, and
+				it is also used for other small cosmetic features.
 			</noscript>
 			<!-- the navigation between individual posts-->
-			<div class="posts-nav_top">
+			<nav class="posts-nav_top">
 				$((before)) $((after))
-			</div>
+			</nav>
 			<!-- contents of the page -->
 			$((contents))
 			<!--  navigation but at the bottom-->
-			<div class="posts-nav_bottom">
+			<nav class="posts-nav_bottom">
 				$((before)) $((after))
-			</div>
+			</nav>
 			<div class="commit-list">
 				$((commits))
 			</div>

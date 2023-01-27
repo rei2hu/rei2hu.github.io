@@ -111,6 +111,7 @@ body {
 }
 
 .noscript-warning {
+	display: block;
 	background: var(--bg-3);
 	border: 1px solid var(--fg-2);
 	border-left: 5px solid var(--fg-3);
