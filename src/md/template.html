@@ -12,11 +12,9 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="stylesheet" href="/style/style.css" />
+		<link rel="stylesheet" href="/style/a11y.css" />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<script src="/scripts/image_loader.js"></script>
-
-		<!-- highlight js things -->
-		<link rel="stylesheet" href="/style/a11y.css" />
 
 		<!-- tikz jax stuff -->
 		<script defer src="/scripts/tikz.js"></script>
@@ -35,18 +33,38 @@
 		<title>$((title))</title>
 	</head>
 
-	<body class="template-body">
-		<noscript>
-			<div class="noscript-warning">
-				Javascript necessary for displaying LaTeX and TikZ diagrams, and
-				it is also used for other small cosmetic features.
+	<body>
+		<div class="site-nav" id="nav">
+			<a href="/">home</a>
+			<a href="/posts/">posts</a>
+			<a href="/puzzles/">puzzles</a>
+			<div id="lights-container">
+				<label>
+					lights
+					<input id="lights" type="checkbox" />
+				</label>
 			</div>
-		</noscript>
-		<!-- the navigation between individual posts-->
-		<div class="posts-nav_top">
-			$((before)) $((after))
-			<!-- <a href="" style="float:left"></a>
-        <a href="" style="float:right"></a> -->
+		</div>
+		<div class="template-body">
+			<noscript>
+				<div class="noscript-warning">
+					Javascript necessary for displaying LaTeX and TikZ diagrams,
+					and it is also used for other small cosmetic features.
+				</div>
+			</noscript>
+			<!-- the navigation between individual posts-->
+			<div class="posts-nav_top">
+				$((before)) $((after))
+			</div>
+			<!-- contents of the page -->
+			$((contents))
+			<!--  navigation but at the bottom-->
+			<div class="posts-nav_bottom">
+				$((before)) $((after))
+			</div>
+			<div class="commit-list">
+				$((commits))
+			</div>
 		</div>
 		<picture id="very-cute-picture"
 			><img
@@ -54,37 +72,5 @@
 				onerror="load_backup_image('/scripts/cozy_reimu.bmp'),load_backup_image('/scripts/unamused_reimu.bmp');"
 			/>
 		</picture>
-		<!-- contents of the page -->
-		$((contents))
-		<!--  navigation but at the bottom-->
-		<div class="posts-nav_bottom">
-			$((before)) $((after))
-		</div>
-		<div class="commit-list">
-			$((commits))
-		</div>
-		<!-- sidebar -->
-		<div class="sidebar-nav">
-			<ul id="nav" class="no-list-style">
-				<li>
-					<a href="/">home</a>
-				</li>
-				<li>
-					<a href="/posts/">posts</a>
-				</li>
-				<li>
-					<a href="/puzzles/">puzzles</a>
-				</li>
-			</ul>
-			<div>
-				<label id="lights-label"
-					>Lights
-					<input id="lights" type="checkbox" />
-				</label>
-				<span id="lights-description">
-					Not persistent!
-				</span>
-			</div>
-		</div>
 	</body>
 </html>

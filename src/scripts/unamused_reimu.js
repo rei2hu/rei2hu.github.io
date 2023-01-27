@@ -2,9 +2,10 @@
 (function () {
 	const nav = document.getElementById("nav");
 	if (nav) {
-		for (const c of nav.children) {
-			if (c.children[0].href === document.URL) {
-				c.children[0].removeAttribute("href");
+		const links = nav.getElementsByTagName("a");
+		for (const link of links) {
+			if (link.href === document.URL) {
+				link.removeAttribute("href");
 				break;
 			}
 		}

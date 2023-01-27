@@ -1,7 +1,15 @@
 :root {
-	--left-margin-width: 5rem;
-	--sidebar-left-padding: 1rem;
+	--body-width: 80ch;
+	--nav-padding: 1em;
+
+	--left-margin-width: 5em;
+	--body-with-sidebar-margin: calc(
+		var(--left-margin-width) + var(--nav-padding) * 2
+	);
+
+	--centered-body-margin: 0em;
 }
+
 @media (prefers-color-scheme: dark) {
 	:root {
 		--bg-1: #000;
@@ -18,6 +26,7 @@
 		--svg-filter-factor: 0.9;
 	}
 }
+
 @media (prefers-color-scheme: light) {
 	:root {
 		--bg-1: #f0f0f0;
@@ -35,49 +44,89 @@
 	}
 }
 
-html,
-body {
+/* layout */
+html {
 	display: block;
 	background-color: var(--bg-1);
-	color: var(--fg-4);
 }
 
 body {
-	margin: 5em;
-	height: 100%;
-	overflow: hidden;
-	font-family: Verdana, Geneva, Tahoma, sans-serif;
-	font-size: 0.9em;
-}
-
-a {
 	color: var(--fg-4);
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-a:visited {
-	color: var(--fg-2);
+.template-body {
+	margin: 3em;
+	margin-left: var(--body-with-sidebar-margin);
+	margin-right: var(--body-with-sidebar-margin);
+	max-width: var(--body-width);
+	overflow-x: auto;
 }
 
-blockquote {
-	padding-left: 1em;
-	border-left: 3px var(--fg-3) solid;
+.site-nav {
+	line-height: 2em;
+	padding: var(--nav-padding);
+	position: fixed;
+	width: var(--left-margin-width);
+	background-color: var(--bg-1);
 }
 
-/* all code blocks */
-code {
-	font-family: monospace;
-	font-size: 1.2em;
-	border-radius: 0.25em;
-	border: 1px solid var(--fg-3);
+/* if screen width too small (ideally 80ch and some but cant use calc) */
+@media (max-width: 45em) {
+	.template-body {
+		margin-left: var(--centered-body-margin);
+		margin-right: var(--centered-body-margin);
+	}
+
+	.site-nav {
+		z-index: 100;
+		top: 0;
+		position: sticky;
+		display: flex;
+		width: calc(100% - var(--nav-padding) * 2);
+		text-align: center;
+		justify-content: space-between;
+	}
+}
+
+.posts-nav_bottom {
+	margin-top: 1em;
+}
+
+.posts-nav_top {
+	margin-bottom: 1em;
+}
+
+.posts-nav_bottom,
+.posts-nav_top {
+	display: flex;
+	justify-content: space-between;
+}
+
+.commit-list {
+	display: block;
+	text-align: center;
+	margin-top: 3em;
 	position: relative;
 }
 
-/* checkbox toggle */
+.noscript-warning {
+	background: var(--bg-3);
+	border: 1px solid var(--fg-2);
+	border-left: 5px solid var(--fg-3);
+	color: var(--fg-3);
+	border-radius: 5px;
+	padding: 1em;
+	margin-bottom: 1em;
+}
+
+/* misc */
+
+/* code block styling */
 pre > input {
 	display: none;
 }
 
-/* toggle styling */
 pre > input + label:after {
 	cursor: pointer;
 }
@@ -90,7 +139,6 @@ pre > input:not(:checked) + label:after {
 	content: "[\25bc] Expand"; /* down triangle */
 }
 
-/* code block styling */
 pre > label + code {
 	display: block;
 	overflow-y: hidden;
@@ -117,6 +165,15 @@ pre > input:not(:checked) + label + code:after {
 		rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 0),
 		rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 1) 90%
 	);
+}
+/* end code block styling */
+
+code {
+	font-family: monospace;
+	font-size: 1.2em;
+	border-radius: 0.25em;
+	border: 1px solid var(--fg-3);
+	position: relative;
 }
 
 picture {
@@ -150,14 +207,12 @@ td {
 }
 
 /* for tikzjax */
-
 @font-face {
 	font-family: cmr10;
 	src: url("cmr10.ttf");
 }
 
 svg {
-	left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
 	filter: invert(var(--svg-filter-factor));
 }
 
@@ -165,64 +220,23 @@ img {
 	max-width: 100%;
 }
 
-.no-list-style {
-	padding: 0;
-	list-style-type: none;
+a {
+	color: var(--fg-4);
 }
 
-.sidebar-nav {
-	top: 1rem;
-	position: fixed;
-	left: var(--sidebar-left-padding);
-	width: var(--left-margin-width);
+a:visited {
+	color: var(--fg-2);
 }
 
-.posts-nav_bottom {
-	padding-top: 1em;
-}
-
-.posts-nav_top {
-	padding-bottom: 1em;
-}
-
-.posts-nav_bottom,
-.posts-nav_top {
-	display: flex;
-	justify-content: space-between;
-}
-
-.template-body {
-	overflow-y: scroll;
-	margin-left: calc(var(--left-margin-width) + var(--sidebar-left-padding));
-	max-width: 80ch;
-}
-
-.commit-list {
-	display: block;
-	text-align: center;
-	margin-top: 3em;
-	position: relative;
+blockquote {
+	padding-left: 1em;
+	border-left: 3px var(--fg-3) solid;
 }
 
 .de-emphasized {
 	color: var(--fg-2);
 	font-size: 0.75em;
 	font-style: italic;
-}
-
-.index-list {
-	display: inline-block;
-	padding-bottom: 8px;
-}
-
-.noscript-warning {
-	background: var(--bg-3);
-	border: 1px solid var(--fg-2);
-	border-left: 5px solid var(--fg-3);
-	color: var(--fg-3);
-	border-radius: 5px;
-	padding: 1rem;
-	margin-bottom: 1rem;
 }
 
 /* lights only work with :has support, and even then only with proper support
@@ -243,6 +257,7 @@ img {
 	--rgb-factor: 240;
 	--svg-filter-factor: 0.1;
 }
+
 :root:has(#lights:not(:checked)) {
 	/* dark mode */
 	--bg-1: #000;
@@ -258,18 +273,16 @@ img {
 	--rgb-factor: 0;
 	--svg-filter-factor: 0.9;
 }
-#lights-label {
+
+#lights-container {
 	display: none;
 }
-#lights-label:has(> #lights) {
+
+#lights-container:has(#lights) {
 	display: flex;
+}
+
+#lights-container > label {
 	user-select: none;
 	cursor: pointer;
-}
-#lights-description {
-	display: none;
-	background-color: var(--bg-1);
-}
-#lights-label:hover + #lights-description {
-	display: block;
 }

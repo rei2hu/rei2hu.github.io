@@ -178,20 +178,12 @@ module.exports = {
 				);
 
 				// create main page
-				const maxLength =
-					Math.floor(
-						Math.log10(Math.max(...fileObjs.map((obj) => obj.id)))
-					) + 1;
 				const html = fillTemplate({
 					contents: () =>
-						`${desc}<ul class="no-list-style"><li>${fileObjs
+						`${desc}<ol><li>${fileObjs
 							.map(({ id, name, commits }) => {
 								const commitList = commits;
-								return `${String(id).padStart(
-									maxLength,
-									// nbsp
-									"\u00A0"
-								)}. <a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">${
+								return `<a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">${
 									commitList[commitList.length - 1]
 										? commitList[
 												commitList.length - 1
@@ -199,7 +191,7 @@ module.exports = {
 										: ""
 								}${commitList.length > 1 ? "*" : ""}</span>`;
 							})
-							.join("</li><li>")}</li></ul>`,
+							.join("</li><li>")}</li></ol>`,
 					title: targetDir,
 				});
 				const minified = minify(html, minifyHtmlOpts);
