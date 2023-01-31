@@ -218,6 +218,7 @@ svg {
 	filter: invert(var(--svg-filter-factor));
 }
 
+video,
 img {
 	max-width: 100%;
 }
