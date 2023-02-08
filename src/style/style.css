@@ -284,9 +284,18 @@
 		filter: invert(var(--svg-filter-factor));
 	}
 
+	/* tikzjax generated svg containers so svgs are centered */
+	div.template-body noscript + div {
+		width: 100% !important;
+	}
+
 	video,
 	img {
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
 		max-width: 100%;
+		filter: brightness(calc(-0.33 * var(--svg-filter-factor) + 1));
 	}
 
 	a {
