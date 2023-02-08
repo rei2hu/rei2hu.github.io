@@ -36,6 +36,7 @@
 		position: fixed;
 		width: var(--left-margin-width);
 		background-color: var(--bg-1);
+		text-align: end;
 	}
 
 	/* if screen width too small (ideally 80ch and some but cant use calc) */
@@ -105,6 +106,10 @@
 	#lights-container > label {
 		user-select: none;
 		cursor: pointer;
+	}
+
+	#lights {
+		vertical-align: middle;
 	}
 
 	/* prettier-ignore */
@@ -179,7 +184,7 @@
 		}
 
 		#lights-container:has(#lights) {
-			display: flex;
+			display: block;
 		}
 	}
 }
