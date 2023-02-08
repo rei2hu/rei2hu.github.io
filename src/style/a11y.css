@@ -1,5 +1,40 @@
-@media (prefers-color-scheme: light) {
-	:root {
+/* prettier-ignore */
+@supports not selector(p:has(p)) {
+	@media (prefers-color-scheme: light) {
+		:root {
+			--grey: #696969;
+			--red: #d91e18;
+			--orange: #aa5d00;
+			--yellow: #aa5d00;
+			--green: #008000;
+			--blue: #007faa;
+			--purple: #7928a1;
+			--bg: #fefefe;
+			--fg: #545454;
+		}
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--grey: #d4d0ab;
+			--red: #ffa07a;
+			--orange: #f5ab35;
+			--yellow: #ffd700;
+			--green: #abe338;
+			--blue: #00e0e0;
+			--purple: #dcc6e0;
+			--bg: #2b2b2b;
+			--fg: #f8f8f2;
+		}
+	}
+}
+
+/* prettier-ignore */
+@supports selector(p:has(p)) {
+	/* a11y-light theme */
+	/* Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
+	/* @author: ericwbailey */
+	:root:has(#lights:checked) {
 		--grey: #696969;
 		--red: #d91e18;
 		--orange: #aa5d00;
@@ -10,10 +45,13 @@
 		--bg: #fefefe;
 		--fg: #545454;
 	}
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
+	/*!
+	  Theme: a11y-dark
+	  Author: @ericwbailey
+	  Maintainer: @ericwbailey
+	  Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css
+	*/
+	:root:has(#lights:not(:checked)) {
 		--grey: #d4d0ab;
 		--red: #ffa07a;
 		--orange: #f5ab35;
@@ -24,37 +62,6 @@
 		--bg: #2b2b2b;
 		--fg: #f8f8f2;
 	}
-}
-/* a11y-light theme */
-/* Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
-/* @author: ericwbailey */
-:root:has(#lights:checked) {
-	--grey: #696969;
-	--red: #d91e18;
-	--orange: #aa5d00;
-	--yellow: #aa5d00;
-	--green: #008000;
-	--blue: #007faa;
-	--purple: #7928a1;
-	--bg: #fefefe;
-	--fg: #545454;
-}
-/*!
-  Theme: a11y-dark
-  Author: @ericwbailey
-  Maintainer: @ericwbailey
-  Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css
-*/
-:root:has(#lights:not:checked) {
-	--grey: #d4d0ab;
-	--red: #ffa07a;
-	--orange: #f5ab35;
-	--yellow: #ffd700;
-	--green: #abe338;
-	--blue: #00e0e0;
-	--purple: #dcc6e0;
-	--bg: #2b2b2b;
-	--fg: #f8f8f2;
 }
 
 .hljs-comment,

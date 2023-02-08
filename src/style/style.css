@@ -10,282 +10,301 @@
 	--centered-body-margin: 0em;
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--bg-1: #000;
-		--bg-2: #202020;
-		--bg-3: #404040;
-		--bg-4: #606060;
-		--bg-5: #808080;
-		--fg-1: #707070;
-		--fg-2: #909090;
-		--fg-3: #b0b0b0;
-		--fg-4: #d0d0d0;
-		--fg-5: #f0f0f0;
-		--rgb-factor: 0;
-		--svg-filter-factor: 0.9;
-	}
-}
-
-@media (prefers-color-scheme: light) {
-	:root {
-		--bg-1: #f0f0f0;
-		--bg-2: #d0d0d0;
-		--bg-3: #b0b0b0;
-		--bg-4: #909090;
-		--bg-5: #707070;
-		--fg-1: #808080;
-		--fg-2: #606060;
-		--fg-3: #404040;
-		--fg-4: #202020;
-		--fg-5: #000;
-		--rgb-factor: 240;
-		--svg-filter-factor: 0.1;
-	}
-}
-
 /* layout */
-html {
-	display: block;
-	background-color: var(--bg-1);
-}
+@layer lights, layout, content;
+@layer layout {
+	html {
+		background-color: var(--bg-1);
+	}
 
-body {
-	color: var(--fg-4);
-	font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
+	body {
+		color: var(--fg-4);
+		font-family: Verdana, Geneva, Tahoma, sans-serif;
+	}
 
-.template-body {
-	margin: 3em;
-	margin-left: var(--body-with-sidebar-margin);
-	margin-right: var(--body-with-sidebar-margin);
-	max-width: var(--body-width);
-	overflow-x: auto;
-}
-
-.site-nav {
-	line-height: 2em;
-	padding: var(--nav-padding);
-	position: fixed;
-	width: var(--left-margin-width);
-	background-color: var(--bg-1);
-}
-
-/* if screen width too small (ideally 80ch and some but cant use calc) */
-@media (max-width: 45em) {
 	.template-body {
-		margin-left: var(--centered-body-margin);
-		margin-right: var(--centered-body-margin);
+		margin: 3em;
+		margin-left: var(--body-with-sidebar-margin);
+		margin-right: var(--body-with-sidebar-margin);
+		max-width: var(--body-width);
+		overflow-x: auto;
 	}
 
 	.site-nav {
-		z-index: 100;
-		top: 0;
-		position: sticky;
+		line-height: 175%;
+		padding: var(--nav-padding);
+		position: fixed;
+		width: var(--left-margin-width);
+		background-color: var(--bg-1);
+	}
+
+	/* if screen width too small (ideally 80ch and some but cant use calc) */
+	@media (max-width: 45em) {
+		.template-body {
+			margin-left: var(--centered-body-margin);
+			margin-right: var(--centered-body-margin);
+		}
+
+		.site-nav {
+			z-index: 100;
+			top: 0;
+			position: sticky;
+			display: flex;
+			width: calc(100% - var(--nav-padding) * 2);
+			text-align: center;
+			justify-content: space-between;
+		}
+	}
+
+	.posts-nav_bottom {
+		margin-top: 1em;
+	}
+
+	.posts-nav_top {
+		margin-bottom: 1em;
+	}
+
+	.posts-nav_bottom,
+	.posts-nav_top {
 		display: flex;
-		width: calc(100% - var(--nav-padding) * 2);
-		text-align: center;
 		justify-content: space-between;
 	}
-}
 
-.posts-nav_bottom {
-	margin-top: 1em;
-}
+	.commit-list {
+		display: block;
+		text-align: center;
+		margin-top: 3em;
+		position: relative;
+		white-space: nowrap;
+	}
 
-.posts-nav_top {
-	margin-bottom: 1em;
-}
+	.noscript-warning {
+		display: block;
+		background: var(--bg-3);
+		border: 1px solid var(--fg-2);
+		border-left: 5px solid var(--fg-3);
+		color: var(--fg-3);
+		border-radius: 5px;
+		padding: 1em;
+		margin-bottom: 1em;
+	}
 
-.posts-nav_bottom,
-.posts-nav_top {
-	display: flex;
-	justify-content: space-between;
-}
-
-.commit-list {
-	display: block;
-	text-align: center;
-	margin-top: 3em;
-	position: relative;
-	white-space: nowrap;
-}
-
-.noscript-warning {
-	display: block;
-	background: var(--bg-3);
-	border: 1px solid var(--fg-2);
-	border-left: 5px solid var(--fg-3);
-	color: var(--fg-3);
-	border-radius: 5px;
-	padding: 1em;
-	margin-bottom: 1em;
-}
-
-/* misc */
-
-/* code block styling */
-pre > input {
-	display: none;
-}
-
-pre > input + label:after {
-	cursor: pointer;
-}
-
-pre > input:checked + label:after {
-	content: "[\25b2] Collapse"; /* up triangle */
-}
-
-pre > input:not(:checked) + label:after {
-	content: "[\25bc] Expand"; /* down triangle */
-}
-
-pre > label + code {
-	display: block;
-	overflow-y: hidden;
-	padding: 10px;
-}
-
-pre > input:checked + label + code {
-	max-height: auto;
-}
-
-pre > input:not(:checked) + label + code {
-	max-height: 20vh;
-}
-
-pre > input:not(:checked) + label + code:after {
-	content: "";
-	position: absolute;
-	bottom: 0px;
-	left: 0px;
-	height: 50%;
-	max-height: 10vh;
-	width: 100%;
-	background: linear-gradient(
-		rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 0),
-		rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 1) 90%
-	);
-}
-/* end code block styling */
-
-code {
-	font-family: monospace;
-	font-size: 1.2em;
-	border-radius: 0.25em;
-	border: 1px solid var(--fg-3);
-	position: relative;
-}
-
-picture {
-	display: none;
-}
-
-li {
-	margin-bottom: 0.5em;
-	margin-top: 0.5em;
-}
-
-tr,
-th {
-	padding: 0.5em;
-}
-
-table {
-	margin-left: auto;
-	margin-right: auto;
-}
-
-table,
-th,
-td {
-	border: 1px var(--fg-3) solid;
-	border-collapse: collapse;
-}
-
-td {
-	padding: 0.25em;
-}
-
-/* for tikzjax */
-@font-face {
-	font-family: cmr10;
-	src: url("cmr10.ttf");
-}
-
-svg {
-	filter: invert(var(--svg-filter-factor));
-}
-
-video,
-img {
-	max-width: 100%;
-}
-
-a {
-	color: var(--fg-4);
-}
-
-a:visited {
-	color: var(--fg-2);
-}
-
-blockquote {
-	padding-left: 1em;
-	border-left: 3px var(--fg-3) solid;
-}
-
-.de-emphasized {
-	color: var(--fg-2);
-	font-size: 0.75em;
-	font-style: italic;
+	picture {
+		display: none;
+	}
 }
 
 /* lights only work with :has support, and even then only with proper support
  * (Firefox is kind of weird since it doesn't recalculate properly)
  * */
-:root:has(#lights:checked) {
-	/* light */
-	--bg-1: #f0f0f0;
-	--bg-2: #d0d0d0;
-	--bg-3: #b0b0b0;
-	--bg-4: #909090;
-	--bg-5: #707070;
-	--fg-1: #808080;
-	--fg-2: #606060;
-	--fg-3: #404040;
-	--fg-4: #202020;
-	--fg-5: #000;
-	--rgb-factor: 240;
-	--svg-filter-factor: 0.1;
+@layer lights {
+	#lights-container {
+		display: none;
+	}
+
+	#lights-container > label {
+		user-select: none;
+		cursor: pointer;
+	}
+
+	/* prettier-ignore */
+	@supports not selector(p:has(p)) {
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--bg-1: #000;
+				--bg-2: #202020;
+				--bg-3: #404040;
+				--bg-4: #606060;
+				--bg-5: #808080;
+				--fg-1: #707070;
+				--fg-2: #909090;
+				--fg-3: #b0b0b0;
+				--fg-4: #d0d0d0;
+				--fg-5: #f0f0f0;
+				--rgb-factor: 0;
+				--svg-filter-factor: 0.9;
+			}
+		}
+
+		@media (prefers-color-scheme: light) {
+			:root {
+				--bg-1: #f0f0f0;
+				--bg-2: #d0d0d0;
+				--bg-3: #b0b0b0;
+				--bg-4: #909090;
+				--bg-5: #707070;
+				--fg-1: #808080;
+				--fg-2: #606060;
+				--fg-3: #404040;
+				--fg-4: #202020;
+				--fg-5: #000;
+				--rgb-factor: 240;
+				--svg-filter-factor: 0.1;
+			}
+		}
+	}
+
+	/* prettier-ignore */
+	@supports selector(p:has(p)) {
+		:root:has(#lights:checked) {
+			/* light */
+			--bg-1: #f0f0f0;
+			--bg-2: #d0d0d0;
+			--bg-3: #b0b0b0;
+			--bg-4: #909090;
+			--bg-5: #707070;
+			--fg-1: #808080;
+			--fg-2: #606060;
+			--fg-3: #404040;
+			--fg-4: #202020;
+			--fg-5: #000;
+			--rgb-factor: 240;
+			--svg-filter-factor: 0.1;
+		}
+
+		:root:has(#lights:not(:checked)) {
+			/* dark mode */
+			--bg-1: #000;
+			--bg-2: #202020;
+			--bg-3: #404040;
+			--bg-4: #606060;
+			--bg-5: #808080;
+			--fg-1: #707070;
+			--fg-2: #909090;
+			--fg-3: #b0b0b0;
+			--fg-4: #d0d0d0;
+			--fg-5: #f0f0f0;
+			--rgb-factor: 0;
+			--svg-filter-factor: 0.9;
+		}
+
+		#lights-container:has(#lights) {
+			display: flex;
+		}
+	}
 }
 
-:root:has(#lights:not(:checked)) {
-	/* dark mode */
-	--bg-1: #000;
-	--bg-2: #202020;
-	--bg-3: #404040;
-	--bg-4: #606060;
-	--bg-5: #808080;
-	--fg-1: #707070;
-	--fg-2: #909090;
-	--fg-3: #b0b0b0;
-	--fg-4: #d0d0d0;
-	--fg-5: #f0f0f0;
-	--rgb-factor: 0;
-	--svg-filter-factor: 0.9;
-}
+@layer content {
+	@layer codeblocks {
+		pre > input {
+			display: none;
+		}
 
-#lights-container {
-	display: none;
-}
+		pre > input + label:after {
+			cursor: pointer;
+		}
 
-#lights-container:has(#lights) {
-	display: flex;
-}
+		pre > input:checked + label:after {
+			content: "[\25b2] Collapse"; /* up triangle */
+		}
 
-#lights-container > label {
-	user-select: none;
-	cursor: pointer;
+		pre > input:not(:checked) + label:after {
+			content: "[\25bc] Expand"; /* down triangle */
+		}
+
+		pre > label + code {
+			display: block;
+			overflow-y: hidden;
+			padding: 10px;
+		}
+
+		pre > input:checked + label + code {
+			max-height: auto;
+		}
+
+		pre > input:not(:checked) + label + code {
+			max-height: 20vh;
+		}
+
+		pre > input:not(:checked) + label + code:after {
+			content: "";
+			position: absolute;
+			bottom: 0px;
+			left: 0px;
+			height: 50%;
+			max-height: 10vh;
+			width: 100%;
+			background: linear-gradient(
+				rgba(
+					var(--rgb-factor),
+					var(--rgb-factor),
+					var(--rgb-factor),
+					0
+				),
+				rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 1)
+					90%
+			);
+		}
+		code {
+			font-family: monospace;
+			font-size: 1.2em;
+			border-radius: 0.25em;
+			border: 1px solid var(--fg-3);
+			position: relative;
+		}
+	}
+
+	p {
+		line-height: 125%;
+	}
+
+	li {
+		margin-bottom: 0.5em;
+		margin-top: 0.5em;
+	}
+
+	tr,
+	th {
+		padding: 0.5em;
+	}
+
+	table {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	table,
+	th,
+	td {
+		border: 1px var(--fg-3) solid;
+		border-collapse: collapse;
+	}
+
+	td {
+		padding: 0.25em;
+	}
+
+	/* for tikzjax */
+	@font-face {
+		font-family: cmr10;
+		src: url("cmr10.ttf");
+	}
+
+	svg {
+		filter: invert(var(--svg-filter-factor));
+	}
+
+	video,
+	img {
+		max-width: 100%;
+	}
+
+	a {
+		color: var(--fg-4);
+	}
+
+	a:visited {
+		color: var(--fg-2);
+	}
+
+	blockquote {
+		padding-left: 1em;
+		border-left: 3px var(--fg-3) solid;
+	}
+
+	.de-emphasized {
+		color: var(--fg-2);
+		font-size: 0.75em;
+		font-style: italic;
+	}
 }
