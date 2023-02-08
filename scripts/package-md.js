@@ -53,7 +53,7 @@ const converter = new showdown.Converter({
 					console.warn(`Illegal code found in code block ${id}`);
 				}
 				const code = highlighted.value;
-				return `<pre><input id="${id}" type="checkbox"/><label for="${id}"></label><code>${code}</code></pre>`;
+				return `<pre class="code-block"><input id="${id}" type="checkbox"/><label for="${id}"></label><code>${code}</code></pre>`;
 			},
 		},
 		{
@@ -181,19 +181,24 @@ module.exports = {
 				// create main page
 				const html = fillTemplate({
 					contents: () =>
-						`${desc}<ol><li>${fileObjs
-							.map(({ id, name, commits }) => {
-								const commitList = commits;
-								return `<a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">${
-									commitList[commitList.length - 1]
-										? commitList[
-												commitList.length - 1
-										  ].split(" ")[0]
-										: ""
-								}${commitList.length > 1 ? "*" : ""}</span>`;
-							})
-							.join("</li><li>")}</li></ol>`,
-					title: targetDir,
+						`<p>${desc}</p>
+							<input type="checkbox" id="list-ordering" checked />
+							<label for="list-ordering"> List Order</label>
+							<ol><li>${fileObjs
+								.map(({ id, name, commits }) => {
+									const commitList = commits;
+									return `<a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">${
+										commitList[commitList.length - 1]
+											? commitList[
+													commitList.length - 1
+											  ].split(" ")[0]
+											: ""
+									}${
+										commitList.length > 1 ? "*" : ""
+									}</span>`;
+								})
+								.join("</li><li>")}</li></ol>`,
+					title: () => targetDir,
 				});
 				const minified = minify(html, minifyHtmlOpts);
 

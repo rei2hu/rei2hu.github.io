@@ -8,10 +8,128 @@
 	);
 
 	--centered-body-margin: 0em;
+
+	--code-border-radius: 0.25em;
+
+	--arrow-up: "\25b2";
+	--arrow-down: "\25bc";
 }
 
-/* layout */
-@layer lights, layout, content;
+/* lights only work with :has support, and even then only with proper support
+ * (Firefox is kind of weird since it doesn't recalculate properly)
+ * */
+@layer lights {
+	#lights-container {
+		display: none;
+	}
+
+	#lights {
+		vertical-align: middle;
+	}
+
+	:root {
+		--__dark-bg-1: rgba(var(--__dark-rgb-factor), 1);
+		--__dark-bg-2: rgba(32, 32, 32, 1);
+		--__dark-bg-3: rgba(64, 64, 64, 1);
+		--__dark-bg-4: rgba(96, 96, 96, 1);
+		--__dark-bg-5: rgba(128, 128, 128, 1);
+		--__dark-fg-1: rgba(112, 112, 112, 1);
+		--__dark-fg-2: rgba(144, 144, 144, 1);
+		--__dark-fg-3: rgba(176, 176, 176, 1);
+		--__dark-fg-4: rgba(208, 208, 208, 1);
+		--__dark-fg-5: rgba(240, 240, 240, 1);
+		--__dark-rgb-factor: 16, 16, 16;
+		--__dark-svg-filter-factor: 0.9;
+
+		--__light-bg-1: rgba(var(--__light-rgb-factor), 1);
+		--__light-bg-2: rgba(208, 208, 208, 1);
+		--__light-bg-3: rgba(176, 176, 176, 1);
+		--__light-bg-4: rgba(144, 144, 144, 1);
+		--__light-bg-5: rgba(112, 112, 112, 1);
+		--__light-fg-1: rgba(128, 128, 128, 1);
+		--__light-fg-2: rgba(96, 96, 96, 1);
+		--__light-fg-3: rgba(64, 64, 64, 1);
+		--__light-fg-4: rgba(32, 32, 32, 1);
+		--__light-fg-5: rgba(16, 16, 16, 1);
+		--__light-rgb-factor: 240, 240, 240;
+		--__light-svg-filter-factor: 0.1;
+	}
+
+	/* prettier-ignore */
+	@supports not selector(p:has(p)) {
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--bg-1: var(--__dark-bg-1);
+				--bg-2: var(--__dark-bg-2);
+				--bg-3: var(--__dark-bg-3);
+				--bg-4: var(--__dark-bg-4);
+				--bg-5: var(--__dark-bg-5);
+				--fg-1: var(--__dark-fg-1);
+				--fg-2: var(--__dark-fg-2);
+				--fg-3: var(--__dark-fg-3);
+				--fg-4: var(--__dark-fg-4);
+				--fg-5: var(--__dark-fg-5);
+				--rgb-factor: var(--__dark-rgb-factor);
+				--svg-filter-factor: var(--__dark-svg-filter-factor);
+			}
+		}
+
+		@media (prefers-color-scheme: light) {
+			:root {
+				--bg-1: var(--__light-bg-1);
+				--bg-2: var(--__light-bg-2);
+				--bg-3: var(--__light-bg-3);
+				--bg-4: var(--__light-bg-4);
+				--bg-5: var(--__light-bg-5);
+				--fg-1: var(--__light-fg-1);
+				--fg-2: var(--__light-fg-2);
+				--fg-3: var(--__light-fg-3);
+				--fg-4: var(--__light-fg-4);
+				--fg-5: var(--__light-fg-5);
+				--rgb-factor: var(--__light-rgb-factor);
+				--svg-filter-factor: var(--__light-svg-filter-factor);
+			}
+		}
+	}
+
+	/* prettier-ignore */
+	@supports selector(p:has(p)) {
+		:root:has(#lights:checked) {
+			--bg-1: var(--__light-bg-1);
+			--bg-2: var(--__light-bg-2);
+			--bg-3: var(--__light-bg-3);
+			--bg-4: var(--__light-bg-4);
+			--bg-5: var(--__light-bg-5);
+			--fg-1: var(--__light-fg-1);
+			--fg-2: var(--__light-fg-2);
+			--fg-3: var(--__light-fg-3);
+			--fg-4: var(--__light-fg-4);
+			--fg-5: var(--__light-fg-5);
+			--rgb-factor: var(--__light-rgb-factor);
+			--svg-filter-factor: var(--__light-svg-filter-factor);
+		}
+
+		:root:has(#lights:not(:checked)) {
+			--bg-1: var(--__dark-bg-1);
+			--bg-2: var(--__dark-bg-2);
+			--bg-3: var(--__dark-bg-3);
+			--bg-4: var(--__dark-bg-4);
+			--bg-5: var(--__dark-bg-5);
+			--fg-1: var(--__dark-fg-1);
+			--fg-2: var(--__dark-fg-2);
+			--fg-3: var(--__dark-fg-3);
+			--fg-4: var(--__dark-fg-4);
+			--fg-5: var(--__dark-fg-5);
+			--rgb-factor: var(--__dark-rgb-factor);
+			--svg-filter-factor: var(--__dark-svg-filter-factor);
+		}
+
+		#lights-container:has(#lights) {
+			display: block;
+		}
+	}
+}
+
 @layer layout {
 	html {
 		background-color: var(--bg-1);
@@ -23,7 +141,8 @@
 	}
 
 	.template-body {
-		margin: 3em;
+		margin-top: 3em;
+		padding-bottom: 3em;
 		margin-left: var(--body-with-sidebar-margin);
 		margin-right: var(--body-with-sidebar-margin);
 		max-width: var(--body-width);
@@ -54,6 +173,7 @@
 			width: calc(100% - var(--nav-padding) * 2);
 			text-align: center;
 			justify-content: space-between;
+			border-bottom: 1px solid var(--fg-3);
 		}
 	}
 
@@ -90,163 +210,61 @@
 		margin-bottom: 1em;
 	}
 
+	.de-emphasized {
+		color: var(--fg-2);
+		font-size: 0.75em;
+		font-style: italic;
+	}
+
+	label {
+		cursor: pointer;
+		user-select: none;
+	}
+
+	/* on-error load image hack */
 	picture {
 		display: none;
 	}
-}
 
-/* lights only work with :has support, and even then only with proper support
- * (Firefox is kind of weird since it doesn't recalculate properly)
- * */
-@layer lights {
-	#lights-container {
-		display: none;
-	}
-
-	#lights-container > label {
-		user-select: none;
-		cursor: pointer;
-	}
-
-	#lights {
-		vertical-align: middle;
-	}
-
-	/* prettier-ignore */
-	@supports not selector(p:has(p)) {
-		@media (prefers-color-scheme: dark) {
-			:root {
-				--bg-1: #000;
-				--bg-2: #202020;
-				--bg-3: #404040;
-				--bg-4: #606060;
-				--bg-5: #808080;
-				--fg-1: #707070;
-				--fg-2: #909090;
-				--fg-3: #b0b0b0;
-				--fg-4: #d0d0d0;
-				--fg-5: #f0f0f0;
-				--rgb-factor: 0;
-				--svg-filter-factor: 0.9;
-			}
+	/* list of posts toggle */
+	@layer list-ordering {
+		#list-ordering {
+			display: none;
 		}
 
-		@media (prefers-color-scheme: light) {
-			:root {
-				--bg-1: #f0f0f0;
-				--bg-2: #d0d0d0;
-				--bg-3: #b0b0b0;
-				--bg-4: #909090;
-				--bg-5: #707070;
-				--fg-1: #808080;
-				--fg-2: #606060;
-				--fg-3: #404040;
-				--fg-4: #202020;
-				--fg-5: #000;
-				--rgb-factor: 240;
-				--svg-filter-factor: 0.1;
-			}
-		}
-	}
-
-	/* prettier-ignore */
-	@supports selector(p:has(p)) {
-		:root:has(#lights:checked) {
-			/* light */
-			--bg-1: #f0f0f0;
-			--bg-2: #d0d0d0;
-			--bg-3: #b0b0b0;
-			--bg-4: #909090;
-			--bg-5: #707070;
-			--fg-1: #808080;
-			--fg-2: #606060;
-			--fg-3: #404040;
-			--fg-4: #202020;
-			--fg-5: #000;
-			--rgb-factor: 240;
-			--svg-filter-factor: 0.1;
+		#list-ordering + :is(label, label:before) {
+			font-family: monospace;
+			font-size: 1.2em;
+			margin-left: 1em;
 		}
 
-		:root:has(#lights:not(:checked)) {
-			/* dark mode */
-			--bg-1: #000;
-			--bg-2: #202020;
-			--bg-3: #404040;
-			--bg-4: #606060;
-			--bg-5: #808080;
-			--fg-1: #707070;
-			--fg-2: #909090;
-			--fg-3: #b0b0b0;
-			--fg-4: #d0d0d0;
-			--fg-5: #f0f0f0;
-			--rgb-factor: 0;
-			--svg-filter-factor: 0.9;
+		#list-ordering:checked + label + ol {
+			display: flex;
+			flex-direction: column-reverse;
 		}
 
-		#lights-container:has(#lights) {
-			display: block;
+		#list-ordering:not(:checked) + label + ol {
+			display: flex;
+			flex-direction: column;
+		}
+
+		#list-ordering:not(:checked) + label:before {
+			content: var(--arrow-up);
+		}
+
+		#list-ordering:checked + label:before {
+			content: var(--arrow-down);
 		}
 	}
 }
 
 @layer content {
-	@layer codeblocks {
-		pre > input {
-			display: none;
-		}
-
-		pre > input + label:after {
-			cursor: pointer;
-		}
-
-		pre > input:checked + label:after {
-			content: "[\25b2] Collapse"; /* up triangle */
-		}
-
-		pre > input:not(:checked) + label:after {
-			content: "[\25bc] Expand"; /* down triangle */
-		}
-
-		pre > label + code {
-			display: block;
-			overflow-y: hidden;
-			padding: 10px;
-		}
-
-		pre > input:checked + label + code {
-			max-height: auto;
-		}
-
-		pre > input:not(:checked) + label + code {
-			max-height: 20vh;
-		}
-
-		pre > input:not(:checked) + label + code:after {
-			content: "";
-			position: absolute;
-			bottom: 0px;
-			left: 0px;
-			height: 50%;
-			max-height: 10vh;
-			width: 100%;
-			background: linear-gradient(
-				rgba(
-					var(--rgb-factor),
-					var(--rgb-factor),
-					var(--rgb-factor),
-					0
-				),
-				rgba(var(--rgb-factor), var(--rgb-factor), var(--rgb-factor), 1)
-					90%
-			);
-		}
-		code {
-			font-family: monospace;
-			font-size: 1.2em;
-			border-radius: 0.25em;
-			border: 1px solid var(--fg-3);
-			position: relative;
-		}
+	code {
+		font-family: monospace;
+		font-size: 1.2em;
+		border-radius: var(--code-border-radius);
+		border: 1px solid var(--fg-3);
+		position: relative;
 	}
 
 	p {
@@ -254,53 +272,7 @@
 	}
 
 	li {
-		margin-bottom: 0.5em;
-		margin-top: 0.5em;
-	}
-
-	tr,
-	th {
-		padding: 0.5em;
-	}
-
-	table {
-		margin-left: auto;
-		margin-right: auto;
-	}
-
-	table,
-	th,
-	td {
-		border: 1px var(--fg-3) solid;
-		border-collapse: collapse;
-	}
-
-	td {
-		padding: 0.25em;
-	}
-
-	/* for tikzjax */
-	@font-face {
-		font-family: cmr10;
-		src: url("cmr10.ttf");
-	}
-
-	svg {
-		filter: invert(var(--svg-filter-factor));
-	}
-
-	/* tikzjax generated svg containers so svgs are centered */
-	div.template-body noscript + div {
-		width: 100% !important;
-	}
-
-	video,
-	img {
-		position: relative;
-		left: 50%;
-		transform: translateX(-50%);
-		max-width: 100%;
-		filter: brightness(calc(-0.33 * var(--svg-filter-factor) + 1));
+		line-height: 150%;
 	}
 
 	a {
@@ -316,9 +288,106 @@
 		border-left: 3px var(--fg-3) solid;
 	}
 
-	.de-emphasized {
-		color: var(--fg-2);
-		font-size: 0.75em;
-		font-style: italic;
+	/* codeblock styling */
+	@layer codeblock-toggle {
+		pre.code-block > label + code {
+			display: block;
+			overflow-y: hidden;
+			padding: 10px;
+		}
+
+		pre.code-block > label {
+			margin-left: var(--code-border-radius);
+		}
+
+		pre.code-block > input {
+			display: none;
+		}
+
+		pre.code-block > input:checked + label:after {
+			content: var(--arrow-up) " Collapse";
+		}
+
+		pre.code-block > input:not(:checked) + label:after {
+			content: var(--arrow-down) " Expand";
+		}
+
+		pre.code-block > input:checked + label + code {
+			max-height: auto;
+		}
+
+		pre.code-block > input:not(:checked) + label + code {
+			max-height: 20vh;
+		}
+
+		pre.code-block > input:not(:checked) + label + code:after {
+			content: "";
+			position: absolute;
+			bottom: 0px;
+			left: 0px;
+			height: 75%;
+			max-height: 15vh;
+			width: 100%;
+			background: linear-gradient(
+				rgba(var(--rgb-factor), 0),
+				rgba(var(--rgb-factor), 1) 90%
+			);
+		}
+	}
+
+	/* tikzjax */
+	@layer tikz {
+		@font-face {
+			font-family: cmr10;
+			src: url("cmr10.ttf");
+		}
+	}
+
+	/* table styling */
+	@layer tables {
+		tr,
+		th {
+			padding: 0.5em;
+		}
+
+		table,
+		th,
+		td {
+			border: 1px var(--fg-3) solid;
+			border-collapse: collapse;
+		}
+
+		td {
+			padding: 0.25em;
+		}
+	}
+
+	/* center various non-text things */
+	@layer centering {
+		/* tikzjax generated svg containers so svgs are centered */
+		div.template-body noscript + div {
+			width: 100% !important;
+		}
+
+		table,
+		video,
+		img {
+			position: relative;
+			left: 50%;
+			transform: translateX(-50%);
+			max-width: 100%;
+		}
+	}
+
+	/* apply filters to media depending on light mode */
+	@layer media-filters {
+		video,
+		img {
+			filter: brightness(calc(-0.33 * var(--svg-filter-factor) + 1));
+		}
+
+		svg {
+			filter: invert(var(--svg-filter-factor));
+		}
 	}
 }
