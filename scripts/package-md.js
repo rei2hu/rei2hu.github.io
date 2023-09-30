@@ -153,15 +153,15 @@ module.exports = {
 										.join("<br />"),
 								before: () =>
 									fileObjs[i - 1]
-										? `<div style="width:50%"><a href="/${targetDir}/${
+										? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
 												fileObjs[i - 1].id
 										  }">&lt; ${
 												fileObjs[i - 1].name
 										  }</a></div>`
-										: `<div style="width:50%"></div>`,
+										: `<div style="flex:0 0 50%"></div>`,
 								after: () =>
 									fileObjs[i + 1]
-										? `<div><a href="/${targetDir}/${
+										? `<div style="text-align:end"><a href="/${targetDir}/${
 												fileObjs[i + 1].id
 										  }">${
 												fileObjs[i + 1].name
