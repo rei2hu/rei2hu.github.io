@@ -6,6 +6,7 @@ const CleanCss = require("clean-css");
 const fs = require("fs");
 const path = require("path");
 const pack = require("js-bmp-packer");
+const sharp = require("sharp");
 const util = require("./build-util");
 const { minifyHtmlOpts, obfusJsOpts } = require("./build-options");
 const { processThenCopyMd } = require("./package-md");
@@ -19,7 +20,43 @@ const { blobs, html, css, md, js, all } = Object.fromEntries(opts);
 // blobs
 if (all || blobs) {
 	console.log("Copying blobs");
-	util.copyFiles("blobs", "blobs");
+
+	/* eslint-disable no-await-in-loop */
+	(async () => {
+		await util.copyFiles("blobs", "blobs");
+
+		// technically conflict between different types of mds
+		const numberDirs = await fs.promises.readdir(path.join("src", "blobs"));
+		for (const dir of numberDirs) {
+			const files = await fs.promises.readdir(
+				path.join("src", "blobs", dir)
+			);
+			const imgFiles = files.filter(
+				(file) => file.endsWith("png") || file.endsWith("jpg")
+			);
+
+			for (const file of imgFiles) {
+				let imageData = await fs.promises.readFile(
+					path.join("src", "blobs", dir, file)
+				);
+
+				if (imageData.buffer.byteLength >= 1024 * 1024) {
+					imageData = await sharp(imageData).resize(640).toBuffer();
+				}
+
+				// can we work util.copyFiles into this somehow without
+				// gitignoring a temp directory
+				await fs.promises.mkdir(path.join("built", "blobs", dir), {
+					recursive: true,
+				});
+				await fs.promises.writeFile(
+					path.join("built", "blobs", dir, file),
+					imageData
+				);
+			}
+		}
+	})();
+	/* eslint-enable no-await-in-loop */
 }
 
 // html
