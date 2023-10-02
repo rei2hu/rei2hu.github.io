@@ -18,54 +18,56 @@ const unwantedCommits = new Set([
 	"28187e0280d94ca964b53ce36977c56664a63efd",
 ]);
 
-let codeBlockCounter = 1;
-const converter = new showdown.Converter({
-	extensions: [
-		// make imgs/iframess lazy load
-		{
-			type: "output",
-			regex: /<(img|iframe)(.*?)>/g,
-			replace: '<$1 loading="lazy"$2>',
-		},
-		{
-			type: "output",
-			// code blocks end up being
-			// <pre><input /><label /><code ...>
-			// (code)
-			// </code></pre>
-			regex: /<pre><code class="(.*?)">((\n|.)*?)<\/code><\/pre>/g,
-			replace: (_str, g1, g2) => {
-				const id = `code-block-${codeBlockCounter++}`;
-				// g1 is (lang) language-(lang)
-				const lang = g1.split(" ")[0];
-				// unescape certain html entities because hljs will re-escape
-				const highlighted = hljs.highlight(
-					g2
-						.replace(/&amp;/g, "&")
-						.replace(/&lt;/g, "<")
-						.replace(/&gt;/g, ">")
-						.replace(/&quot;/g, '"')
-						.replace(/&#39;/g, "'"),
-					{ language: lang }
-				);
-				if (highlighted.illegal) {
-					// eslint-disable-next-line no-console
-					console.warn(`Illegal code found in code block ${id}`);
-				}
-				const code = highlighted.value;
-				return `<pre class="code-block"><input id="${id}" type="checkbox"/><label for="${id}"></label><code>${code}</code></pre>`;
+const converter = (mdId) => {
+	let codeBlockCounter = 1;
+	return new showdown.Converter({
+		extensions: [
+			// make imgs/iframess lazy load
+			{
+				type: "output",
+				regex: /<(img|iframe)(.*?)>/g,
+				replace: '<$1 loading="lazy"$2>',
 			},
-		},
-		{
-			type: "output",
-			regex: /<script type="text\/tikz">((\n|.)*?)<\/script>/g,
-			replace: `<noscript><pre>$1</pre></noscript><script type="text/tikz">$1</script>`,
-		},
-	],
-	strikethrough: true,
-	ghCompatibleHeaderId: true,
-	tables: true,
-});
+			{
+				type: "output",
+				// code blocks end up being
+				// <pre><input /><label /><code ...>
+				// (code)
+				// </code></pre>
+				regex: /<pre><code class="(.*?)">((\n|.)*?)<\/code><\/pre>/g,
+				replace: (_str, g1, g2) => {
+					const id = `code-block-${mdId}-${codeBlockCounter++}`;
+					// g1 is (lang) language-(lang)
+					const lang = g1.split(" ")[0];
+					// unescape certain html entities because hljs will re-escape
+					const highlighted = hljs.highlight(
+						g2
+							.replace(/&amp;/g, "&")
+							.replace(/&lt;/g, "<")
+							.replace(/&gt;/g, ">")
+							.replace(/&quot;/g, '"')
+							.replace(/&#39;/g, "'"),
+						{ language: lang }
+					);
+					if (highlighted.illegal) {
+						// eslint-disable-next-line no-console
+						console.warn(`Illegal code found in code block ${id}`);
+					}
+					const code = highlighted.value;
+					return `<pre class="code-block"><input id="${id}" type="checkbox"/><label for="${id}"></label><code>${code}</code></pre>`;
+				},
+			},
+			{
+				type: "output",
+				regex: /<script type="text\/tikz">((\n|.)*?)<\/script>/g,
+				replace: `<noscript><pre>$1</pre></noscript><script type="text/tikz">$1</script>`,
+			},
+		],
+		strikethrough: true,
+		ghCompatibleHeaderId: true,
+		tables: true,
+	});
+};
 
 const template = fs.readFileSync(
 	path.resolve("src", "md", "template.html"),
@@ -108,14 +110,16 @@ module.exports = {
 								filePath,
 								"utf8"
 							);
+							const id = parseInt(mdFileName.split(".")[0], 10);
+
 							return {
-								id: parseInt(mdFileName.split(".")[0], 10),
+								id,
 								// slice to remove the space after the dot
 								name: path
 									.basename(mdFileName, ".md")
 									.split(".")[1]
 									.slice(1),
-								contents: converter.makeHtml(contents),
+								contents: converter(id).makeHtml(contents),
 								commits: (
 									await exec(
 										`git log --follow --date=short --pretty=format:"%ad - %H" "${filePath.replace(
