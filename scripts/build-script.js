@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable global-require */
 const obfus = require("javascript-obfuscator");
 const { minify } = require("html-minifier");
 const CleanCss = require("clean-css");

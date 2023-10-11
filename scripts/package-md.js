@@ -50,7 +50,6 @@ const converter = (mdId) => {
 						{ language: lang }
 					);
 					if (highlighted.illegal) {
-						// eslint-disable-next-line no-console
 						console.warn(`Illegal code found in code block ${id}`);
 					}
 					const code = highlighted.value;

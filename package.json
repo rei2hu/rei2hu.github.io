@@ -5,8 +5,8 @@
 	"main": "none",
 	"scripts": {
 		"start": "cd built && http-server",
-		"format": "prettier --write --loglevel=warn **/*.js **/*.md **/*.json **/*.html **/*.css",
-		"lint": "eslint **/*.md **/*.js --fix",
+		"format": "node scripts/format",
+		"lint": "node scripts/lint",
 		"flint": "npm run format && npm run lint",
 		"build": "node scripts/build-script --all",
 		"build:js": "node scripts/build-script --js",
