@@ -191,12 +191,34 @@
 		justify-content: space-between;
 	}
 
+	.commit-container {
+		display: flex;
+		justify-content: left;
+	}
+
 	.commit-list {
-		display: block;
-		text-align: center;
+		display: flex;
+		flex-direction: column;
 		margin-top: 3em;
 		position: relative;
-		white-space: nowrap;
+		width: 100%;
+	}
+
+	.commit-list > span {
+		/* add details padding and border px */
+		margin-left: calc(1em + 0.25em + 1px);
+		margin-top: 0.25em;
+		display: flex;
+		align-items: center;
+	}
+
+	.commit-list > * {
+		flex: 1 0 20px;
+	}
+
+	.commit-list > details {
+		border: 1px solid var(--fg-1);
+		padding: 0.25em;
 	}
 
 	.noscript-warning {

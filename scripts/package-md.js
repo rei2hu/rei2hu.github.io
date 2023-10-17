@@ -18,6 +18,22 @@ const unwantedCommits = new Set([
 	"28187e0280d94ca964b53ce36977c56664a63efd",
 ]);
 
+const escapeHtml = (html) =>
+	// this doens't need to escape single apostrophes for now
+	html
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;");
+
+const unescapeHtml = (escapedHtml) =>
+	escapedHtml
+		.replace(/&amp;/g, "&")
+		.replace(/&lt;/g, "<")
+		.replace(/&gt;/g, ">")
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;/g, "'");
+
 const converter = (mdId) => {
 	let codeBlockCounter = 1;
 	return new showdown.Converter({
@@ -40,15 +56,9 @@ const converter = (mdId) => {
 					// g1 is (lang) language-(lang)
 					const lang = g1.split(" ")[0];
 					// unescape certain html entities because hljs will re-escape
-					const highlighted = hljs.highlight(
-						g2
-							.replace(/&amp;/g, "&")
-							.replace(/&lt;/g, "<")
-							.replace(/&gt;/g, ">")
-							.replace(/&quot;/g, '"')
-							.replace(/&#39;/g, "'"),
-						{ language: lang }
-					);
+					const highlighted = hljs.highlight(unescapeHtml(g2), {
+						language: lang,
+					});
 					if (highlighted.illegal) {
 						console.warn(`Illegal code found in code block ${id}`);
 					}
@@ -111,6 +121,52 @@ module.exports = {
 							);
 							const id = parseInt(mdFileName.split(".")[0], 10);
 
+							const extractHash = (content) =>
+								content.split("\n")[0].split("- ")[1];
+
+							// there are index, file, and similarity lines here
+							// so try to skip those
+							const extractDiff = (content) =>
+								content
+									.split("\n")
+									// not the best filter for file lines but
+									// it'll do what it does
+									.filter(
+										(row) =>
+											["--- ", "+++ "].every(
+												(chars) =>
+													!row.startsWith(chars)
+											) &&
+											["@", "+", "-"].some((char) =>
+												row.startsWith(char)
+											)
+									)
+									.join("\n");
+
+							const commitsAndDiffs = (
+								await exec(
+									`git log --follow --date=short --pretty=format:"%ad - %H" -p -U0 "${filePath.replace(
+										/\$/g,
+										process.platform === "win32"
+											? `"$"`
+											: `\\$`
+									)}"`
+								)
+							).stdout
+								.split("\n\n")
+								.filter(
+									(output) =>
+										!unwantedCommits.has(
+											extractHash(output)
+										)
+								)
+								.map((output) => {
+									return {
+										commit: output.split("\n")[0],
+										diff: extractDiff(output),
+									};
+								});
+
 							return {
 								id,
 								// slice to remove the space after the dot
@@ -119,23 +175,13 @@ module.exports = {
 									.split(".")[1]
 									.slice(1),
 								contents: converter(id).makeHtml(contents),
-								commits: (
-									await exec(
-										`git log --follow --date=short --pretty=format:"%ad - %H" "${filePath.replace(
-											/\$/g,
-											process.platform === "win32"
-												? `"$"`
-												: `\\$`
-										)}"`
-									)
-								).stdout
-									.split("\n")
-									.filter(
-										(commit) =>
-											!unwantedCommits.has(
-												commit.split("- ")[1]
-											)
-									),
+								commits: commitsAndDiffs.map(
+									(row) => row.commit
+								),
+								// ignore diff for initial creation of file
+								diffs: commitsAndDiffs
+									.slice(0, -1)
+									.map((row) => row.diff),
 							};
 						})
 				);
@@ -144,16 +190,20 @@ module.exports = {
 				const writeFilesPromise = Promise.all(
 					fileObjs
 						.sort((a, b) => a.id - b.id)
-						.map(({ id, name, contents, commits }, i) => {
+						.map(({ id, name, contents, commits, diffs }, i) => {
 							const html = fillTemplate({
 								contents: () => contents,
 								commits: () =>
 									commits
-										.map(
-											(commit) =>
-												`<span class="de-emphasized">${commit}</span>`
+										.map((commit, j) =>
+											diffs[j]
+												? `<details>
+													<summary><span class="de-emphasized">${commit}</span></summary>
+													${converter(commit).makeHtml(`\`\`\`diff\n${escapeHtml(diffs[j])}\n\`\`\``)}
+												</details>`
+												: `<span class="de-emphasized">${commit}</span>`
 										)
-										.join("<br />"),
+										.join(""),
 								before: () =>
 									fileObjs[i - 1]
 										? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
