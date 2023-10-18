@@ -1,13 +1,16 @@
 module.exports = {
 	minifyHtmlOpts: {
-		removeAttributeQuotes: true,
 		collapseBooleanAttributes: true,
 		collapseInlineTagWhitespace: true,
 		collapseWhitespace: true,
 		conservativeCollapse: true,
 		minifyJS: true,
 		minifyCSS: true,
+		removeAttributeQuotes: true,
 		removeComments: true,
+		sortAttributes: true,
+		sortClassName: true,
+		preserveLineBreaks: true,
 	},
 	obfusJsOpts: {
 		simplify: true,

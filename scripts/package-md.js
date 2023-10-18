@@ -178,10 +178,7 @@ module.exports = {
 								commits: commitsAndDiffs.map(
 									(row) => row.commit
 								),
-								// ignore diff for initial creation of file
-								diffs: commitsAndDiffs
-									.slice(0, -1)
-									.map((row) => row.diff),
+								diffs: commitsAndDiffs.map((row) => row.diff),
 							};
 						})
 				);
@@ -194,16 +191,15 @@ module.exports = {
 							const html = fillTemplate({
 								contents: () => contents,
 								commits: () =>
-									commits
-										.map((commit, j) =>
-											diffs[j]
-												? `<details>
+									`<span class="de-emphasized">History:</span>${commits
+										.map(
+											(commit, j) =>
+												`<details>
 													<summary><span class="de-emphasized">${commit}</span></summary>
 													${converter(commit).makeHtml(`\`\`\`diff\n${escapeHtml(diffs[j])}\n\`\`\``)}
 												</details>`
-												: `<span class="de-emphasized">${commit}</span>`
 										)
-										.join(""),
+										.join("")}`,
 								before: () =>
 									fileObjs[i - 1]
 										? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
