@@ -38,12 +38,6 @@ const converter = (mdId) => {
 	let codeBlockCounter = 1;
 	return new showdown.Converter({
 		extensions: [
-			// make imgs/iframess lazy load
-			{
-				type: "output",
-				regex: /<(img|iframe)(.*?)>/g,
-				replace: '<$1 loading="lazy"$2>',
-			},
 			{
 				type: "output",
 				// code blocks end up being
