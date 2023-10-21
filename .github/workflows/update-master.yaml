@@ -34,7 +34,7 @@ jobs:
 
       - name: Copy and commit
         env:
-          GIT_EMAIL: r2hkri@gmail.com
+          GIT_EMAIL: reimu@reimu.ws
           GIT_NAME: reimu
         run: |
           find  $GITHUB_WORKSPACE/master/* -type d -exec rm -rf {} +;
