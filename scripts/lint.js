@@ -4,7 +4,6 @@ const { execSync } = require("child_process");
 execSync("git add -N .");
 
 const diffCommand = "git diff --name-only HEAD";
-console.log(diffCommand);
 const changedFiles = execSync(diffCommand)
 	.toString()
 	.split("\n")

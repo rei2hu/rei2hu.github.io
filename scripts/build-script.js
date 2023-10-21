@@ -1,5 +1,6 @@
 const obfus = require("javascript-obfuscator");
 const { minify } = require("html-minifier");
+const { execSync } = require("child_process");
 const CleanCss = require("clean-css");
 const fs = require("fs");
 const path = require("path");
@@ -13,7 +14,9 @@ const opts = process.argv
 	.slice(2)
 	.filter((arg) => arg.startsWith("--"))
 	.map((arg) => [arg.slice(2), true]);
-const { blobs, html, css, md, js, all } = Object.fromEntries(opts);
+const entries = Object.fromEntries(opts);
+const all = opts.length === 0 ? true : entries.all;
+const { blobs, html, css, md, fmd, js } = entries;
 
 // blobs
 if (all || blobs) {
@@ -75,9 +78,15 @@ if (all || css) {
 		"./style",
 		"./style",
 		(f) => f.endsWith(".css") || f.endsWith(".ttf"),
-		(content) => {
+		(content, file) => {
+			if (file.endsWith(".ttf")) return content;
+
 			const minified = new CleanCss({}).minify(String(content));
-			return minified.warnings.length ? content : minified.styles;
+			if (minified.warnings.length > 0) {
+				console.warn(String(content), minified.warnings);
+				return content;
+			}
+			return minified.styles;
 		}
 	);
 
@@ -125,16 +134,30 @@ if (all || js) {
 	);
 }
 
-if (all || md) {
-	console.log("Processing markdown");
-	processThenCopyMd(
-		"./md/posts",
-		"./posts",
-		"A blog of sorts. Thoughts may be unorganized and writing quality may be poor."
-	);
-	processThenCopyMd(
-		"./md/puzzles",
-		"./puzzles",
-		"Personal solutions or workthroughs of random puzzles. Should be decent quality. I do not guarantee the correctness of solutions or programs."
-	);
+if (all || md || fmd) {
+	// fmd has precedence
+	if (fmd) {
+		console.log("Processing filtered markdown");
+	} else {
+		console.log("Processing markdown");
+	}
+
+	const diffCommand = "git diff --name-only HEAD";
+	const changedFiles = fmd
+		? execSync(diffCommand)
+				.toString()
+				.split("\n")
+				.filter((filePath) => filePath.length > 0)
+		: [];
+
+	processThenCopyMd("./md/posts", "./posts", {
+		desc:
+			"A blog of sorts. Thoughts may be unorganized and writing quality may be poor.",
+		filter: changedFiles,
+	});
+	processThenCopyMd("./md/puzzles", "./puzzles", {
+		desc:
+			"Personal solutions or workthroughs of random puzzles. Should be decent quality. I do not guarantee the correctness of solutions or programs.",
+		filter: changedFiles,
+	});
 }

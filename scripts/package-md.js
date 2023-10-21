@@ -7,6 +7,7 @@ const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./build-options");
 
+// large formatting commits that i dont want to include
 const unwantedCommits = new Set([
 	"0357f5d017c8f3485ea8a4bbb91c3efa6bf1d3e5",
 	"889ccd4aa4d88f2289b91c6bbcce085a8d9ed52c",
@@ -93,7 +94,7 @@ function fillTemplate({
 }
 
 module.exports = {
-	processThenCopyMd(srcDir, targetDir, desc = "") {
+	processThenCopyMd(srcDir, targetDir, { desc = "", filter = [] } = {}) {
 		fs.promises
 			.mkdir(path.resolve("built", targetDir), { recursive: true })
 			.then(async () => {
@@ -103,20 +104,36 @@ module.exports = {
 				const fileObjs = await Promise.all(
 					posts
 						.filter((name) => name.endsWith(".md"))
-						.map(async (mdFileName) => {
+						.map((mdFileName) => {
 							const filePath = path.resolve(
 								"src",
 								srcDir,
 								mdFileName
 							);
+							return { mdFileName, filePath };
+						})
+						.filter(({ filePath }) => {
+							// if filter is empty then allow all, else only
+							// allow things in filter
+							return (
+								filter.length === 0 ||
+								filter.some((filterPath) =>
+									filePath.endsWith(filterPath)
+								)
+							);
+						})
+						.map(async ({ mdFileName, filePath }) => {
 							const contents = await fs.promises.readFile(
 								filePath,
 								"utf8"
 							);
-							const id = parseInt(mdFileName.split(".")[0], 10);
 
+							// extract from git log -p -U0
+							// process %ad - %H format
 							const extractHash = (content) =>
-								content.split("\n")[0].split("- ")[1];
+								content.split("\n")[0].split(" - ")[1];
+							const extractDate = (content) =>
+								content.split("\n")[0].split(" - ")[0];
 
 							// there are index, file, and similarity lines here
 							// so try to skip those
@@ -156,19 +173,24 @@ module.exports = {
 								)
 								.map((output) => {
 									return {
-										commit: output.split("\n")[0],
+										date: extractDate(output),
+										commit: extractHash(output),
 										diff: extractDiff(output),
 									};
 								});
 
+							// extract # from #. title.md
+							const id = parseInt(mdFileName.split(".")[0], 10);
+
 							return {
 								id,
-								// slice to remove the space after the dot
+								// extract "title" from #. title.md
 								name: path
 									.basename(mdFileName, ".md")
 									.split(".")[1]
 									.slice(1),
 								contents: converter(id).makeHtml(contents),
+								dates: commitsAndDiffs.map((row) => row.date),
 								commits: commitsAndDiffs.map(
 									(row) => row.commit
 								),
@@ -177,48 +199,57 @@ module.exports = {
 						})
 				);
 
+				console.log(`Processing ${fileObjs.length} markdown files`);
+
 				// generate html and save all as files
 				const writeFilesPromise = Promise.all(
 					fileObjs
 						.sort((a, b) => a.id - b.id)
-						.map(({ id, name, contents, commits, diffs }, i) => {
-							const html = fillTemplate({
-								contents: () => contents,
-								commits: () =>
-									`<span class="de-emphasized">History:</span>${commits
-										.map(
-											(commit, j) =>
-												`<details>
-													<summary><span class="de-emphasized">${commit}</span></summary>
+						.map(
+							({ id, name, contents, commits, diffs, dates }) => {
+								const html = fillTemplate({
+									contents: () => contents,
+									commits: () =>
+										`<span class="de-emphasized">History:</span>${commits
+											.map(
+												(commit, j) =>
+													`<details>
+													<summary><span class="de-emphasized">${dates[j]} - ${commit}</span></summary>
 													${converter(commit).makeHtml(`\`\`\`diff\n${escapeHtml(diffs[j])}\n\`\`\``)}
 												</details>`
-										)
-										.join("")}`,
-								before: () =>
-									fileObjs[i - 1]
-										? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
-												fileObjs[i - 1].id
-										  }">&lt; ${
-												fileObjs[i - 1].name
-										  }</a></div>`
-										: `<div style="flex:0 0 50%"></div>`,
-								after: () =>
-									fileObjs[i + 1]
-										? `<div style="text-align:end"><a href="/${targetDir}/${
-												fileObjs[i + 1].id
-										  }">${
-												fileObjs[i + 1].name
-										  } &gt;</a></div>`
-										: "",
-								title: name,
-							});
-							const minified = minify(html, minifyHtmlOpts);
+											)
+											.join("")}`,
+									// position of element is id - 1
+									before: () =>
+										id > 1
+											? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
+													id - 1
+											  }">&lt; ${
+													fileObjs[id - 1 - 1].name
+											  }</a></div>`
+											: `<div style="flex:0 0 50%"></div>`,
+									after: () =>
+										id < fileObjs.length
+											? `<div style="text-align:end"><a href="/${targetDir}/${
+													id + 1
+											  }">${
+													fileObjs[id].name
+											  } &gt;</a></div>`
+											: "",
+									title: name,
+								});
+								const minified = minify(html, minifyHtmlOpts);
 
-							return fs.promises.writeFile(
-								path.resolve("built", targetDir, `${id}.html`),
-								minified
-							);
-						})
+								return fs.promises.writeFile(
+									path.resolve(
+										"built",
+										targetDir,
+										`${id}.html`
+									),
+									minified
+								);
+							}
+						)
 				);
 
 				// create main page
@@ -228,19 +259,14 @@ module.exports = {
 							<input type="checkbox" id="list-ordering" checked />
 							<label for="list-ordering"> List Order</label>
 							<ol><li>${fileObjs
-								.map(({ id, name, commits }) => {
-									const commitList = commits;
-									return `<a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">${
-										commitList[commitList.length - 1]
-											? commitList[
-													commitList.length - 1
-											  ].split(" ")[0]
-											: ""
-									}${
-										commitList.length > 1 ? "*" : ""
-									}</span>`;
+								.map(({ id, name, dates }) => {
+									return `<a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">
+										${dates[dates.length - 1]}
+										${dates.length > 1 ? "*" : ""}
+									</span>`;
 								})
-								.join("</li><li>")}</li></ol>`,
+								.join("</li><li>")}
+					</li></ol>`,
 					title: () => targetDir,
 				});
 				const minified = minify(html, minifyHtmlOpts);
