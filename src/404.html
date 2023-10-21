@@ -11,14 +11,17 @@
 		ext.canvasFn = (context) => {
 			var oldStyle = context.fillStyle;
 			context.font = "bold 10em Courier";
-			context.fillStyle = "white";
+			context.fillStyle = getComputedStyle(
+				document.body
+			).getPropertyValue("--fg-1");
 			context.fillText("404", 100, 200);
 			var width = context.measureText("404").width / 2;
 			context.font = "bold 1em Courier";
 			context.fillText("you are lost in space", 100 + width, 250);
 			context.fillStyle = oldStyle;
 		};
-		window.location.hash = "a";
+		if (!window.location.hash)
+			window.location.replace(window.location.href + "#stars");
 	</script>
 </head>
 

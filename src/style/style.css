@@ -154,7 +154,6 @@
 		padding: var(--nav-padding);
 		position: fixed;
 		width: var(--left-margin-width);
-		background-color: var(--bg-1);
 		text-align: end;
 	}
 

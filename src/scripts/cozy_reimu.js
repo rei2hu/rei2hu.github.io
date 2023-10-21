@@ -40,14 +40,18 @@ ext = ext || {};
 	var lastAnim = 0;
 
 	function animate(time) {
+		const styles = getComputedStyle(document.body);
+		context.fillStyle = styles.getPropertyValue("--bg-1");
+		context.strokeStyle = styles.getPropertyValue("--fg-1");
+
 		context.fillRect(0, 0, w, h);
 
 		var oldAnim = lastAnim;
 		lastAnim = time;
 		var elapsed = (lastAnim - oldAnim) * 2;
 
-		var nx = cursorX - x;
-		var ny = cursorY - y;
+		var nx = -cursorX + x;
+		var ny = -cursorY + y;
 
 		mouseX = Math.min(Math.max(mouseX - 32, nx), mouseX + 32);
 		mouseY = Math.min(Math.max(mouseY - 32, ny), mouseY + 32);
@@ -134,8 +138,6 @@ ext = ext || {};
 		starfield.width = w;
 		starfield.height = h;
 		context = starfield.getContext("2d");
-		context.fillStyle = "black";
-		context.strokeStyle = "white";
 	}
 
 	document.addEventListener("mousemove", (evt) => {
@@ -158,7 +160,7 @@ ext = ext || {};
 
 	let enabled = false;
 	const fn = () => {
-		enabled = document.location.hash === "#a";
+		enabled = document.location.hash === "#stars";
 		if (enabled) {
 			start();
 			requestAnimationFrame(animate);

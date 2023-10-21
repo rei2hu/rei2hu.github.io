@@ -3,7 +3,7 @@ const { execSync } = require("child_process");
 // note that diff will not list untracked files, so we add intent
 execSync("git add -N .");
 
-const diffCommand = "git diff --name-only HEAD";
+const diffCommand = "git diff --diff-filter=d --name-only HEAD";
 const changedFiles = execSync(diffCommand)
 	.toString()
 	.split("\n")
