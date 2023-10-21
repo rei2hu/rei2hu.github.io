@@ -242,6 +242,11 @@
 		font-style: italic;
 	}
 
+	.superscript {
+		font-size: 75%;
+		vertical-align: super;
+	}
+
 	label {
 		cursor: pointer;
 		user-select: none;

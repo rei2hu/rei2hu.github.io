@@ -259,10 +259,17 @@ module.exports = {
 							<label for="list-ordering"> List Order</label>
 							<ol><li>${fileObjs
 								.map(({ id, name, dates }) => {
-									return `<a href="/${targetDir}/${id}">${name}</a> <span class="de-emphasized">
-										${dates[dates.length - 1]}
-										${dates.length > 1 ? "*" : ""}
-									</span>`;
+									return `<span class="de-emphasized">${
+										dates[dates.length - 1]
+									}</span>
+												<a href="/${targetDir}/${id}">${name}</a>
+									${
+										dates.length > 1
+											? `<span class="de-emphasized"><span class="superscript"> - ${
+													dates.length - 1
+											  } edit(s)</span></span>`
+											: ""
+									}`;
 								})
 								.join("</li><li>")}
 					</li></ol>`,
