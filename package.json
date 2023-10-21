@@ -28,7 +28,7 @@
 		"js-bmp-packer": "git+https://github.com/rei2hu/js-bmp-packer.git",
 		"ncp": "^2.0.0",
 		"sharp": "^0.32.6",
-		"showdown": "^1.9.1"
+		"showdown": "^2.1.0"
 	},
 	"devDependencies": {
 		"eslint": "^7.4.0",
