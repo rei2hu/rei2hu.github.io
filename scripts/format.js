@@ -10,7 +10,7 @@ const changedFiles = execSync(diffCommand)
 	.filter((filePath) => filePath.length > 0)
 	.map((filePath) => `"${filePath}"`);
 
-const formatCommand = `npx prettier --write --loglevel=warn ${changedFiles.join(
+const formatCommand = `node node_modules/prettier/bin-prettier --write --loglevel=warn ${changedFiles.join(
 	" "
 )}`;
 console.log(formatCommand);

@@ -12,7 +12,9 @@ const changedFiles = execSync(diffCommand)
 	.filter((filePath) => filePath.endsWith(".js") || filePath.endsWith(".md"))
 	.map((filePath) => `"${filePath}"`);
 
-const lintCommand = `npx eslint --fix ${changedFiles.join(" ")}`;
+const lintCommand = `node node_modules/eslint/bin/eslint --fix ${changedFiles.join(
+	" "
+)}`;
 console.log(lintCommand);
 try {
 	execSync(lintCommand, { stdio: [0, 1, 2] });
