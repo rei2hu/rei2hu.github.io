@@ -25,3 +25,7 @@ var load_backup_image = function (url) {
 		};
 	}
 };
+
+// this lets the #star script load properly on any page
+// eslint-disable-next-line no-undef
+ext = {};
