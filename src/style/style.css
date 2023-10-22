@@ -239,7 +239,7 @@
 
 	.de-emphasized {
 		color: var(--fg-3);
-		font-size: 0.75em;
+		font-size: 75%;
 		font-style: italic;
 	}
 
@@ -266,7 +266,7 @@
 
 		#list-ordering + :is(label, label:before) {
 			font-family: monospace;
-			font-size: 1.2em;
+			font-size: 120%;
 			margin-left: 1em;
 		}
 
@@ -293,7 +293,8 @@
 @layer content {
 	code {
 		font-family: monospace;
-		font-size: 1.2em;
+		font-size: 120%;
+		font-style: normal;
 		border-radius: var(--code-border-radius);
 		border: 1px solid var(--fg-2);
 		position: relative;

@@ -208,16 +208,36 @@ module.exports = {
 							({ id, name, contents, commits, diffs, dates }) => {
 								const html = fillTemplate({
 									contents: () => contents,
-									commits: () =>
-										`<span class="de-emphasized">History:</span>${commits
-											.map(
-												(commit, j) =>
-													`<details>
-													<summary><span class="de-emphasized">${dates[j]} - ${commit}</span></summary>
-													${converter(commit).makeHtml(`\`\`\`diff\n${escapeHtml(diffs[j])}\n\`\`\``)}
-												</details>`
-											)
-											.join("")}`,
+									commits: () => {
+										const history = commits
+											.map((commit, j) => {
+												const htmlGen = converter(
+													commit
+												);
+												// remove 1 for the blank at
+												// beginning
+												const diff = diffs[j]
+													.split(/^@@ /m)
+													.slice(1);
+												const individualChanges = diff.map(
+													(change) =>
+														htmlGen.makeHtml(
+															`\`\`\`diff\n${escapeHtml(
+																`@@ ${change}`
+															)}\n\`\`\``
+														)
+												);
+
+												return `
+												<details>
+													<summary>${dates[j]} - ${commit}</summary>
+													${individualChanges.join("\n")}
+												</details>`;
+											})
+											.join("");
+										// span for centering indiviual element
+										return `<span>History:</span>${history}`;
+									},
 									// position of element is id - 1
 									before: () =>
 										id > 1
