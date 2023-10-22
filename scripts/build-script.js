@@ -16,7 +16,11 @@ const opts = process.argv
 	.map((arg) => [arg.slice(2), true]);
 const entries = Object.fromEntries(opts);
 const all = opts.length === 0 ? true : entries.all;
-const { blobs, html, css, md, fmd, js } = entries;
+const { blobs, html, css, md, js } = entries;
+
+// disable for now because bugged due to generating backwards/forwards links
+// needing previous and after mds; also generating the list pages need them too.
+let fmd = false;
 
 // blobs
 if (all || blobs) {
