@@ -3,7 +3,16 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-new-func */
 /* eslint-disable no-eval */
+
+const whitelist = [
+	"/scripts/unamused_reimu.bmp",
+	"/scripts/playful_reimu.bmp",
+	"/scripts/cozy_reimu.bmp",
+];
+
 var load_backup_image = function (url) {
+	if (!whitelist.includes(url)) return;
+
 	if (typeof fetch !== "undefined") {
 		fetch(url)
 			.then((res) => res.text())
@@ -16,6 +25,3 @@ var load_backup_image = function (url) {
 		};
 	}
 };
-
-// eslint-disable-next-line no-undef
-ext = {};
