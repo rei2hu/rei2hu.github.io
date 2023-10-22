@@ -136,7 +136,7 @@
 	}
 
 	body {
-		color: var(--fg-4);
+		color: var(--fg-5);
 		font-family: Verdana, Geneva, Tahoma, sans-serif;
 	}
 
@@ -172,7 +172,8 @@
 			width: calc(100% - var(--nav-padding) * 2);
 			text-align: center;
 			justify-content: space-between;
-			border-bottom: 1px solid var(--fg-3);
+			border-bottom: 1px solid var(--fg-2);
+			background: var(--bg-1);
 		}
 	}
 
@@ -227,17 +228,17 @@
 
 	.noscript-warning {
 		display: block;
-		background: var(--bg-3);
+		background: var(--bg-2);
 		border: 1px solid var(--fg-2);
-		border-left: 5px solid var(--fg-3);
-		color: var(--fg-3);
+		border-left: 5px solid var(--fg-2);
+		color: var(--fg-4);
 		border-radius: 5px;
 		padding: 1em;
 		margin-bottom: 1em;
 	}
 
 	.de-emphasized {
-		color: var(--fg-2);
+		color: var(--fg-3);
 		font-size: 0.75em;
 		font-style: italic;
 	}
@@ -294,7 +295,7 @@
 		font-family: monospace;
 		font-size: 1.2em;
 		border-radius: var(--code-border-radius);
-		border: 1px solid var(--fg-3);
+		border: 1px solid var(--fg-2);
 		position: relative;
 	}
 
@@ -316,7 +317,8 @@
 
 	blockquote {
 		padding-left: 1em;
-		border-left: 3px var(--fg-3) solid;
+		border-left: 4px var(--fg-3) solid;
+		color: var(--fg-3);
 	}
 
 	/* codeblock styling */
@@ -384,7 +386,7 @@
 		table,
 		th,
 		td {
-			border: 1px var(--fg-3) solid;
+			border: 1px var(--fg-2) solid;
 			border-collapse: collapse;
 		}
 
