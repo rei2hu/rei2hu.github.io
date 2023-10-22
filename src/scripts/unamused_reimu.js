@@ -1,16 +1,5 @@
 // for template related scripts
 (function () {
-	const nav = document.getElementById("nav");
-	if (nav) {
-		const links = nav.getElementsByTagName("a");
-		for (const link of links) {
-			if (link.href === document.URL) {
-				link.removeAttribute("href");
-				break;
-			}
-		}
-	}
-
 	function removeUnneededToggle(self) {
 		// whew watch out
 		const checkbox = self.parentElement.querySelector(

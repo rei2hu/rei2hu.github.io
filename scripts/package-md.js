@@ -273,8 +273,13 @@ module.exports = {
 								})
 								.join("</li><li>")}
 					</li></ol>`,
-					title: () => targetDir,
-				});
+					title: () => targetDir.slice(1),
+				})
+					// remove link from page that user is on
+					.replace(
+						new RegExp(`<a href="${targetDir.slice(1)}">(.*?)</a>`),
+						"$1"
+					);
 				const minified = minify(html, minifyHtmlOpts);
 
 				const mainFilePromise = fs.promises.writeFile(
