@@ -205,8 +205,15 @@
 	}
 
 	.commit-list > details > summary {
-		text-align: center;
+		margin-left: 1em;
 		cursor: pointer;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.commit-list > details[open] > summary {
+		white-space: normal;
 	}
 
 	.commit-list > span {

@@ -7,7 +7,8 @@ const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./build-options");
 
-// large formatting commits that i dont want to include
+// formatting commits that i dont want to include
+// (only want to include commits that change actual content)
 const unwantedCommits = new Set([
 	"fc6fd8ff18d2e4575360f43cbe0d3a998dba8c4e",
 	"767a8af1be03806d93292d24a113c51dce3e181b",
@@ -16,6 +17,15 @@ const unwantedCommits = new Set([
 	"b90c38d9c34303ffe309172573129c6d57e1f956",
 	"28e0abe584df7418bde1d954c6f7001533f36efd",
 	"e226319c06c49c07f5f78f683f258241e3a67af7",
+	"a82b73d92ec61205c59ffa4adb3d6ca351841a12",
+	"13fc0e1f0c00d341f868ca56af90a4cff7653023",
+	"6a42f3960f4774627c5c27cd975b93f8c3118013",
+	"2897ef5a1f178cf8ec1290d7d93206d8996ea095",
+	"edc2f81d62ba5573d2561075f6f6e4dd6c6247da",
+	"9707f574c6169632d3c0a7b4d0520c87d0eb3f26",
+	"715819fe25a082f1cf44592b65db6e8e7f7d0ced",
+	"aa2d62d1d5c860cdf9792ccd47fde0e5c8e534f8",
+	"41deec72f5510a5c5183d46df80459738de1d50a",
 ]);
 
 const escapeHtml = (html) =>
@@ -128,11 +138,11 @@ module.exports = {
 							);
 
 							// extract from git log -p -U0
-							// process %ad - %H format
+							// process %ad - %H - %s format
+							const extractDHM = (content) =>
+								content.split("\n")[0].split(" - ");
 							const extractHash = (content) =>
-								content.split("\n")[0].split(" - ")[1];
-							const extractDate = (content) =>
-								content.split("\n")[0].split(" - ")[0];
+								extractDHM(content)[1];
 
 							// there are index, file, and similarity lines here
 							// so try to skip those
@@ -155,7 +165,7 @@ module.exports = {
 
 							const commitsAndDiffs = (
 								await exec(
-									`git log --follow --date=short --pretty=format:"%ad - %H" -p -U0 "${filePath.replace(
+									`git log --follow --date=short --pretty=format:"%ad - %H - %s" -p -U0 "${filePath.replace(
 										/\$/g,
 										process.platform === "win32"
 											? `"$"`
@@ -171,9 +181,13 @@ module.exports = {
 										)
 								)
 								.map((output) => {
+									const [date, hash, message] = extractDHM(
+										output
+									);
 									return {
-										date: extractDate(output),
-										commit: extractHash(output),
+										date,
+										commit: hash,
+										message,
 										diff: extractDiff(output),
 									};
 								});
@@ -189,11 +203,7 @@ module.exports = {
 									.split(".")[1]
 									.slice(1),
 								contents: converter(id).makeHtml(contents),
-								dates: commitsAndDiffs.map((row) => row.date),
-								commits: commitsAndDiffs.map(
-									(row) => row.commit
-								),
-								diffs: commitsAndDiffs.map((row) => row.diff),
+								changes: commitsAndDiffs,
 							};
 						})
 				);
@@ -204,71 +214,71 @@ module.exports = {
 				const writeFilesPromise = Promise.all(
 					fileObjs
 						.sort((a, b) => a.id - b.id)
-						.map(
-							({ id, name, contents, commits, diffs, dates }) => {
-								const html = fillTemplate({
-									contents: () => contents,
-									commits: () => {
-										const history = commits
-											.map((commit, j) => {
+						.map(({ id, name, contents, changes }) => {
+							const html = fillTemplate({
+								contents: () => contents,
+								commits: () => {
+									const history = changes
+										.map(
+											({
+												commit,
+												date,
+												message,
+												diff,
+											}) => {
 												const htmlGen = converter(
 													commit
 												);
 												// remove 1 for the blank at
 												// beginning
-												const diff = diffs[j]
+												const individualChanges = diff
 													.split(/^@@ /m)
-													.slice(1);
-												const individualChanges = diff.map(
-													(change) =>
+													.slice(1)
+													.map((change) =>
 														htmlGen.makeHtml(
 															`\`\`\`diff\n${escapeHtml(
 																`@@ ${change}`
 															)}\n\`\`\``
 														)
-												);
+													);
 
 												return `
 												<details>
-													<summary>${dates[j]} - ${commit}</summary>
+													<summary>${date} - ${message}</summary>
 													${individualChanges.join("\n")}
 												</details>`;
-											})
-											.join("");
-										// span for centering indiviual element
-										return `<span>History:</span>${history}`;
-									},
-									// position of element is id - 1
-									before: () =>
-										id > 1
-											? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
-													id - 1
-											  }">&lt; ${
-													fileObjs[id - 1 - 1].name
-											  }</a></div>`
-											: `<div style="flex:0 0 50%"></div>`,
-									after: () =>
-										id < fileObjs.length
-											? `<div style="text-align:end"><a href="/${targetDir}/${
-													id + 1
-											  }">${
-													fileObjs[id].name
-											  } &gt;</a></div>`
-											: "",
-									title: name,
-								});
-								const minified = minify(html, minifyHtmlOpts);
+											}
+										)
+										.join("");
+									// span for centering indiviual element
+									return `<span>History:</span>${history}`;
+								},
+								// position of element is id - 1
+								before: () =>
+									id > 1
+										? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
+												id - 1
+										  }">&lt; ${
+												fileObjs[id - 1 - 1].name
+										  }</a></div>`
+										: `<div style="flex:0 0 50%"></div>`,
+								after: () =>
+									id < fileObjs.length
+										? `<div style="text-align:end"><a href="/${targetDir}/${
+												id + 1
+										  }">${
+												fileObjs[id].name
+										  } &gt;</a></div>`
+										: "",
+								title: name,
+							});
+							const minified = minify(html, minifyHtmlOpts);
 
-								return fs.promises.writeFile(
-									path.resolve(
-										"built",
-										targetDir,
-										`${id}.html`
-									),
-									minified
-								);
-							}
-						)
+							return fs.promises.writeFile(
+								path.resolve("built", targetDir, `${id}.html`),
+								minified
+							);
+						})
 				);
 
 				// create main page
@@ -278,15 +288,15 @@ module.exports = {
 							<input type="checkbox" id="list-ordering" checked />
 							<label for="list-ordering"> List Order</label>
 							<ol><li>${fileObjs
-								.map(({ id, name, dates }) => {
+								.map(({ id, name, changes }) => {
 									return `<span class="de-emphasized">${
-										dates[dates.length - 1]
+										changes[changes.length - 1].date
 									}</span>
 												<a href="/${targetDir}/${id}">${name}</a>
 									${
-										dates.length > 1
+										changes.length > 1
 											? `<span class="de-emphasized"><span class="superscript"> - ${
-													dates.length - 1
+													changes.length - 1
 											  } edit(s)</span></span>`
 											: ""
 									}`;
