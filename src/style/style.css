@@ -210,6 +210,7 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		line-height: 200%;
 	}
 
 	.commit-list > details[open] > summary {
