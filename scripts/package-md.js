@@ -157,7 +157,7 @@ module.exports = {
 												(chars) =>
 													!row.startsWith(chars)
 											) &&
-											["@", "+", "-"].some((char) =>
+											["@", "+", "-", " "].some((char) =>
 												row.startsWith(char)
 											)
 									)
@@ -165,7 +165,7 @@ module.exports = {
 
 							const commitsAndDiffs = (
 								await exec(
-									`git log --follow --date=short --pretty=format:"%ad - %H - %s" -p -U0 "${filePath.replace(
+									`git log --follow --date=short --pretty=format:"%ad - %H - %s" -p -U1 "${filePath.replace(
 										/\$/g,
 										process.platform === "win32"
 											? `"$"`
