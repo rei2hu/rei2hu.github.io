@@ -40,14 +40,15 @@ jobs:
               env:
                   GIT_EMAIL: reimu@reimu.ws
                   GIT_NAME: reimu
-                  GITHUB_TOKEN: ${{ secrets.TRIGGER_WORKFLOW_ON_PUSH }}
               run: |
                   # Remove everything except the .github folder which contains
                   # the deploy workflow
-                  mkdir DELETE_THIS
-                  mv $GITHUB_WORKSPACE/master/* DELETE_THIS
-                  ls -la DELETE_THIS
-                  rm -rf DELETE_THIS
+                  # mkdir DELETE_THIS
+                  # mv $GITHUB_WORKSPACE/master/* DELETE_THIS
+                  # mv DELETE_THIS/.github $GITHUB_WORKSPACE/master/
+                  # ls -la DELETE_THIS
+                  # rm -rf DELETE_THIS
+                  rm -rf $GITHUB_WORKSPACE/master/*
 
                   cp -r $GITHUB_WORKSPACE/internals/built/. $GITHUB_WORKSPACE/master/;
 
@@ -55,9 +56,20 @@ jobs:
                   COMMIT_MESSAGE=$(git log -1 --pretty=%B);
                   cd $GITHUB_WORKSPACE/master;
 
+                  # make at least one change for testing purposes
+                  # echo $RANDOM > dirty
+
                   git config user.email $GIT_EMAIL;
                   git config user.name $GIT_NAME;
 
                   git add .;
                   git commit -m "$COMMIT_MESSAGE";
                   git push;
+
+            - name: Run Deploy workflow
+              env:
+                  GITHUB_TOKEN: ${{ secrets.TRIGGER_WORKFLOW_ON_PUSH }}
+              run: |
+                cd $GITHUB_WORKSPACE/master;
+                ls -la
+                gh workflow run deploy.yaml -r master
