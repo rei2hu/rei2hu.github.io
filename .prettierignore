@@ -1,5 +1,8 @@
 tex-mml-chtml.js
 tikz.js
+*.svg
+*.txt
+.prettierignore
 blobs/
 images/
 built/

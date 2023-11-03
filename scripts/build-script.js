@@ -16,11 +16,11 @@ const opts = process.argv
 	.map((arg) => [arg.slice(2), true]);
 const entries = Object.fromEntries(opts);
 const all = opts.length === 0 ? true : entries.all;
-const { blobs, html, css, md, js } = entries;
+const { blobs, assets, css, md, js } = entries;
 
 // disable for now because bugged due to generating backwards/forwards links
 // needing previous and after mds; also generating the list pages need them too.
-let fmd = false;
+const fmd = false;
 
 // blobs
 if (all || blobs) {
@@ -64,14 +64,17 @@ if (all || blobs) {
 	/* eslint-enable no-await-in-loop */
 }
 
-// html
-if (all || html) {
-	console.log("Copying root html");
+// assets
+if (all || assets) {
+	console.log("Copying static assets (html, icon, robots)");
 	util.processThenCopyFiles(
 		"./",
 		"./",
-		(f) => f.endsWith(".html"),
-		(content) => minify(String(content), minifyHtmlOpts)
+		(f) => f.endsWith(".html") || f === "favicon.svg" || f === "robots.txt",
+		(content, f) =>
+			f.endsWith(".html")
+				? minify(String(content), minifyHtmlOpts)
+				: content
 	);
 }
 
