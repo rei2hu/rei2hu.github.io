@@ -433,3 +433,18 @@
 		}
 	}
 }
+
+@layer mail {
+	#e > span > span {
+		display: none;
+	}
+	#e > span:hover > .a {
+		display: inline;
+	}
+	#e > span:hover:after {
+		content: "";
+	}
+	#e > span:after {
+		content: "(domain without .extension) at (domain)";
+	}
+}
