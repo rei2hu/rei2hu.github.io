@@ -435,10 +435,27 @@
 }
 
 @layer mail {
-	#e > span > span {
+	#e:before {
+		display: block;
+		content: "(hover for email)";
+	}
+	#e:hover:before {
+		content: "";
+	}
+	/* use specificity so only some show */
+	#e > span:not(div) > :is(.a, .b, .c, .d) {
 		display: none;
 	}
-	#e > span:hover > .a {
+	#e > span:hover > :is(.a) {
+		display: inline;
+	}
+	#e > span:hover > :where(.b) {
+		display: inline;
+	}
+	#e > span:hover > :where(.c) {
+		display: inline;
+	}
+	#e > span:hover > :where(.d) {
 		display: inline;
 	}
 	#e > span:hover:after {
