@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>'we saved x time with y'</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/85>&lt; the urge to consume</a></div>
+</nav>
+<h1 id=we-saved-x-time-with-y>'we saved x time with y'*</h1>
+<p>* across a bajillion users.</p>
+<p>I was recently reading the article
+<a href=https://blog.chromium.org/2023/11/how-core-web-vitals-saved-users-10000.html>How Core Web Vitals saved users 10,000 years of waiting for web pages to load</a>
+this year and I realized that I'm not really a fan of total time saved across all users as a metric. This is not a jab at the Chrome team specifically, but in general, but I'll be using this as an example.</p>
+<p>10.000 years of time is a great number, but what's the impact for individual users? Well that translates into around 315.576.000.000 seconds, and there are estimates up to
+<a href=https://atlasvpn.com/blog/more-than-3-billion-internet-users-now-use-the-google-chrome-browser>3.3 billion</a>
+users as of 2021. To be generous, I'll say there are only 1 billion users, so the time saved per person is a lot higher. This translates to, on average, 315 seconds or 5 minutes saved per user per year.</p>
+<p>Of course, there are both heavy and light users of the browser, so I'd be fine saying something like a heavy user saves 100x of the time a normal user saves, so 500 minutes a year. However, the savings of a heavy user should be spread somewhat evenly over the year because they're constantly using and saving time, so they save like 2 minutes a day. What is someone going to do with 2 extra minutes in their day? And I think I've been pretty generous with the numbers so in reality it's much less than 2 minutes for most people.</p>
+<p>I just don't find it fair to aggregate on time for some reason. Choosing another statistic like electricity saved or something else would be much better. I'm not sure why I have qualms with time though, perhaps it's because it only goes forward and one person's time is so different from another person's that I don't think they should be combined. Using aggregate time is some kind of embellishment technique to look good in my opinion.</p>
+<p>I don't mean to dunk on anyone's work that uses this metric to communicate success, but rather the presentation itself.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/85>&lt; the urge to consume</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-11-08 - add post 86</summary>
+<pre class=code-block><input id=code-block-2d0226f0a38312b5b1516cad6763dfa0909c6afd-1 type=checkbox><label for=code-block-2d0226f0a38312b5b1516cad6763dfa0909c6afd-1></label><code><span class=hljs-meta>@@ -0,0 +1,35 @@</span>
+<span class=hljs-addition>+# &#x27;we saved x time with y&#x27;\*</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+\* across a bajillion users.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was recently reading the article</span>
+<span class=hljs-addition>+[How Core Web Vitals saved users 10,000 years of waiting for web pages to load](https://blog.chromium.org/2023/11/how-core-web-vitals-saved-users-10000.html)</span>
+<span class=hljs-addition>+this year and I realized that I&#x27;m not really a fan of total time saved across</span>
+<span class=hljs-addition>+all users as a metric. This is not a jab at the Chrome team specifically, but in</span>
+<span class=hljs-addition>+general, but I&#x27;ll be using this as an example.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+10.000 years of time is a great number, but what&#x27;s the impact for individual</span>
+<span class=hljs-addition>+users? Well that translates into around 315.576.000.000 seconds, and there are</span>
+<span class=hljs-addition>+estimates up to</span>
+<span class=hljs-addition>+[3.3 billion](https://atlasvpn.com/blog/more-than-3-billion-internet-users-now-use-the-google-chrome-browser)</span>
+<span class=hljs-addition>+users as of 2021. To be generous, I&#x27;ll say there are only 1 billion users, so</span>
+<span class=hljs-addition>+the time saved per person is a lot higher. This translates to, on average, 315</span>
+<span class=hljs-addition>+seconds or 5 minutes saved per user per year.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Of course, there are both heavy and light users of the browser, so I&#x27;d be fine</span>
+<span class=hljs-addition>+saying something like a heavy user saves 100x of the time a normal user saves,</span>
+<span class=hljs-addition>+so 500 minutes a year. However, the savings of a heavy user should be spread</span>
+<span class=hljs-addition>+somewhat evenly over the year because they&#x27;re constantly using and saving time,</span>
+<span class=hljs-addition>+so they save like 2 minutes a day. What is someone going to do with 2 extra</span>
+<span class=hljs-addition>+minutes in their day? And I think I&#x27;ve been pretty generous with the numbers so</span>
+<span class=hljs-addition>+in reality it&#x27;s much less than 2 minutes for most people.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I just don&#x27;t find it fair to aggregate on time for some reason. Choosing another</span>
+<span class=hljs-addition>+statistic like electricity saved or something else would be much better. I&#x27;m not</span>
+<span class=hljs-addition>+sure why I have qualms with time though, perhaps it&#x27;s because it only goes</span>
+<span class=hljs-addition>+forward and one person&#x27;s time is so different from another person&#x27;s that I don&#x27;t</span>
+<span class=hljs-addition>+think they should be combined. Using aggregate time is some kind of</span>
+<span class=hljs-addition>+embellishment technique to look good in my opinion.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I don&#x27;t mean to dunk on anyone&#x27;s work that uses this metric to communicate</span>
+<span class=hljs-addition>+success, but rather the presentation itself.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
