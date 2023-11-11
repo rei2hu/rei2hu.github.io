@@ -297,7 +297,11 @@ module.exports = {
 										changes.length > 1
 											? `<span class="de-emphasized"><span class="superscript"> - ${
 													changes.length - 1
-											  } edit(s)</span></span>`
+											  } edit${
+													changes.length - 1 === 1
+														? ""
+														: "s"
+											  }</span></span>`
 											: ""
 									}`;
 								})
