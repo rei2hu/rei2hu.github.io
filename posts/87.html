@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>can ai judge sources reliability</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/86>&lt; 'we saved x time with y'</a></div>
+</nav>
+<h1 id=can-ai-judge-sources-reliability>can ai judge sources reliability</h1>
+<p>I feel like I'm doing the world a disservice by saying AI but talking about LLMs.</p>
+<p>I've always been apprehensive about the accuracy of LLMs, though I have started using Bing Chat when my normal searches turn up nothing. The main benefit of Bing Chat over ChatGPT is that it aims to cite sources, but may not always do so.</p>
+<p>Recently, a friend showed me
+<a href=https://xyvir.medium.com/dreamworks-set-to-adapt-skibidi-toilet-into-feature-length-movie-823810a1995d>this article</a>
+that claims that there's a Skibidi Toilet movie coming out (I never thought I'd be writing about it but here I am). But quick further investigation shows that this is a joke article, and that the author is a satirist - they have articles such as:</p>
+<ul>
+<li><a href=https://xyvir.medium.com/nist-reports-99-9-7e98d7fc9cfd>NIST Reports 99.9% of Internet Users Keep All Their Passwords in a Public-Facing, SEO-Optimized Tumblr Post</a></li>
+<li><a href=https://xyvir.medium.com/climatologists-switch-to-destroying-the-earth-as-quickly-as-possible-say-its-far-more-ethical-8221aa44b623>Climatologists Switch To Destroying The Earth As Quickly As Possible, Say It's Far More Ethical</a></li>
+<li><a href=https://xyvir.medium.com/department-of-homeland-security-says-ai-disinformation-mills-kinda-cool-actually-004ef1542357>Department of Homeland Security Says “AI Disinformation Mills Kinda Cool, Actually”</a></li>
+</ul>
+<p>However, what I noticed is that this article is one of the top results when searching for the existence or plan for a Skibidi Toilet movie. Would Bing Chat cite this source and say there is actually a movie in the works?</p>
+<p><img alt="bing chat citing fandom and saying there's a
+movie" src=/blobs/87/skibidimovie.png></p>
+<p>What are some of these sources?</p>
+<ul>
+<li>A
+<a href=https://ideas.fandom.com/wiki/Skibidi_Toilet:_The_Movie>page from an ideas fandom wiki</a>
+aka fantasy</li>
+<li>A
+<a href="https://www.youtube.com/watch?v=KgRipuWDp8s">video claiming to be the trailer for a Netflix movie</a>
+that doesn't belong to the Netflix channel</li>
+<li>An <a href=https://www.imdb.com/title/tt27814427/ >imdb link</a> for the actual series itself</li>
+</ul>
+<p>So they're all bogus when it comes to information about a real movie. At least it didn't cite the Medium article, though I'm sure it would have if it could. Does it know that the main citations that it's getting its information from are not real? Why not ask if the sources are reliable:</p>
+<p><img alt="yes my sources are reliable" src=/blobs/87/reliablesources.png></p>
+<p>Seems like they are! But obviously they're not.</p>
+<p>I'm not really interested in prompting it more because I believe the supposed value-add of these LLMs should be correct answers, and having to guide it along and double check its work contradicts that.</p>
+<p>So, at the end of the day, I just use Bing Chat as a way to find sources rather than rely on its generated summary, and only use it once normal searching turns up nothing. I've experienced moments where it pulled the correct sources and said the wrong thing, I've experienced times when it pulled no sources and said the right thing (after figuring it out and confirming for myself), and I've experienced times when it referenced inaccurate sources and said the wrong thing, like now.</p>
+<p>You could argue the value of an LLM is there, but I would say it's a lot less impressive than what is being marketed.</p>
+<p>And I can't write an AI post now without saying something about the OpenAI implosion that started last Friday, but I find it interesting to follow; less so because it will carve out the path of future AI development, but more so about how large companies approach these kinds of events.</p>
+<p>These questions were asked as late as November 20, 2023 using bing chat's precision mode.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/86>&lt; 'we saved x time with y'</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-11-20 - add post 87</summary>
+<pre class=code-block><input id=code-block-f5f7bcc71809c910e761f536ae97572f8ca0b206-1 type=checkbox><label for=code-block-f5f7bcc71809c910e761f536ae97572f8ca0b206-1></label><code><span class=hljs-meta>@@ -0,0 +1,70 @@</span>
+<span class=hljs-addition>+# can ai judge sources reliability</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I feel like I&#x27;m doing the world a disservice by saying AI but talking about</span>
+<span class=hljs-addition>+LLMs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve always been apprehensive about the accuracy of LLMs, though I have started</span>
+<span class=hljs-addition>+using Bing Chat when my normal searches turn up nothing. The main benefit of</span>
+<span class=hljs-addition>+Bing Chat over ChatGPT is that it aims to cite sources, but may not always do</span>
+<span class=hljs-addition>+so.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, a friend showed me</span>
+<span class=hljs-addition>+[this article](https://xyvir.medium.com/dreamworks-set-to-adapt-skibidi-toilet-into-feature-length-movie-823810a1995d)</span>
+<span class=hljs-addition>+that claims that there&#x27;s a Skibidi Toilet movie coming out (I never thought I&#x27;d</span>
+<span class=hljs-addition>+be writing about it but here I am). But quick further investigation shows that</span>
+<span class=hljs-addition>+this is a joke article, and that the author is a satirist - they have articles</span>
+<span class=hljs-addition>+such as:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- [NIST Reports 99.9% of Internet Users Keep All Their Passwords in a Public-Facing, SEO-Optimized Tumblr Post](https://xyvir.medium.com/nist-reports-99-9-7e98d7fc9cfd)</span>
+<span class=hljs-addition>+- [Climatologists Switch To Destroying The Earth As Quickly As Possible, Say It&#x27;s Far More Ethical](https://xyvir.medium.com/climatologists-switch-to-destroying-the-earth-as-quickly-as-possible-say-its-far-more-ethical-8221aa44b623)</span>
+<span class=hljs-addition>+- [Department of Homeland Security Says “AI Disinformation Mills Kinda Cool, Actually”](https://xyvir.medium.com/department-of-homeland-security-says-ai-disinformation-mills-kinda-cool-actually-004ef1542357)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, what I noticed is that this article is one of the top results when</span>
+<span class=hljs-addition>+searching for the existence or plan for a Skibidi Toilet movie. Would Bing Chat</span>
+<span class=hljs-addition>+cite this source and say there is actually a movie in the works?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![bing chat citing fandom and saying there&#x27;s a</span>
+<span class=hljs-addition>+movie](/blobs/87/skibidimovie.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What are some of these sources?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- A</span>
+<span class=hljs-addition>+    [page from an ideas fandom wiki](https://ideas.fandom.com/wiki/Skibidi_Toilet:_The_Movie)</span>
+<span class=hljs-addition>+    aka fantasy</span>
+<span class=hljs-addition>+- A</span>
+<span class=hljs-addition>+    [video claiming to be the trailer for a Netflix movie](https://www.youtube.com/watch?v=KgRipuWDp8s)</span>
+<span class=hljs-addition>+    that doesn&#x27;t belong to the Netflix channel</span>
+<span class=hljs-addition>+- An [imdb link](https://www.imdb.com/title/tt27814427/) for the actual series</span>
+<span class=hljs-addition>+    itself</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So they&#x27;re all bogus when it comes to information about a real movie. At least</span>
+<span class=hljs-addition>+it didn&#x27;t cite the Medium article, though I&#x27;m sure it would have if it could.</span>
+<span class=hljs-addition>+Does it know that the main citations that it&#x27;s getting its information from are</span>
+<span class=hljs-addition>+not real? Why not ask if the sources are reliable:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![yes my sources are reliable](/blobs/87/reliablesources.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Seems like they are! But obviously they&#x27;re not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;m not really interested in prompting it more because I believe the supposed</span>
+<span class=hljs-addition>+value-add of these LLMs should be correct answers, and having to guide it along</span>
+<span class=hljs-addition>+and double check its work contradicts that.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So, at the end of the day, I just use Bing Chat as a way to find sources rather</span>
+<span class=hljs-addition>+than rely on its generated summary, and only use it once normal searching turns</span>
+<span class=hljs-addition>+up nothing. I&#x27;ve experienced moments where it pulled the correct sources and</span>
+<span class=hljs-addition>+said the wrong thing, I&#x27;ve experienced times when it pulled no sources and said</span>
+<span class=hljs-addition>+the right thing (after figuring it out and confirming for myself), and I&#x27;ve</span>
+<span class=hljs-addition>+experienced times when it referenced inaccurate sources and said the wrong</span>
+<span class=hljs-addition>+thing, like now.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You could argue the value of an LLM is there, but I would say it&#x27;s a lot less</span>
+<span class=hljs-addition>+impressive than what is being marketed.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And I can&#x27;t write an AI post now without saying something about the OpenAI</span>
+<span class=hljs-addition>+implosion that started last Friday, but I find it interesting to follow; less so</span>
+<span class=hljs-addition>+because it will carve out the path of future AI development, but more so about</span>
+<span class=hljs-addition>+how large companies approach these kinds of events.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+These questions were asked as late as November 20, 2023 using bing chat&#x27;s</span>
+<span class=hljs-addition>+precision mode.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
