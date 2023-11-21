@@ -29,14 +29,6 @@ const unwantedCommits = new Set([
 	"e2c6af3c4d2e3a56863dcdba8aa553c9b10bd492",
 ]);
 
-const escapeHtml = (html) =>
-	// this doens't need to escape single apostrophes for now
-	html
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;");
-
 const unescapeHtml = (escapedHtml) =>
 	escapedHtml
 		.replace(/&amp;/g, "&")
@@ -293,9 +285,7 @@ module.exports = {
 													.slice(1)
 													.map((change) =>
 														htmlGen.makeHtml(
-															`\`\`\`diff\n${escapeHtml(
-																`@@ ${change}`
-															)}\n\`\`\``
+															`\`\`\`diff\n@@ ${change}\n\`\`\``
 														)
 													);
 
