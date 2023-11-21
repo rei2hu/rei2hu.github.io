@@ -685,9 +685,9 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+we didn&#x27;t fill out). We can express it in terms of itself like so:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    f(i, i) &amp;= true \\</span>
-<span class=hljs-addition>+    f(i, i + 1) &amp;= true \\</span>
-<span class=hljs-addition>+    f(i, j) &amp;= f(i + 1, j - 1) \text { and } x[i] = x[j - 1] \\</span>
+<span class=hljs-addition>+    f(i, i) &amp;amp;= true \\</span>
+<span class=hljs-addition>+    f(i, i + 1) &amp;amp;= true \\</span>
+<span class=hljs-addition>+    f(i, j) &amp;amp;= f(i + 1, j - 1) \text { and } x[i] = x[j - 1] \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+&lt;br /&gt;</span>
@@ -699,12 +699,12 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+modify the equation.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    f(i, i) &amp;= 0 \\</span>
-<span class=hljs-addition>+    f(i, i + 1) &amp;= 1 \\</span>
-<span class=hljs-addition>+    f(i, j) &amp;=</span>
+<span class=hljs-addition>+    f(i, i) &amp;amp;= 0 \\</span>
+<span class=hljs-addition>+    f(i, i + 1) &amp;amp;= 1 \\</span>
+<span class=hljs-addition>+    f(i, j) &amp;amp;=</span>
 <span class=hljs-addition>+        \begin{cases}</span>
-<span class=hljs-addition>+            f(i + 1, j - 1) + 2 &amp; x[i] = x[j - 1], f(i + 1, j - 1) \neq -1 \\</span>
-<span class=hljs-addition>+            -1 &amp; \text{otherwise}</span>
+<span class=hljs-addition>+            f(i + 1, j - 1) + 2 &amp;amp; x[i] = x[j - 1], f(i + 1, j - 1) \neq -1 \\</span>
+<span class=hljs-addition>+            -1 &amp;amp; \text{otherwise}</span>
 <span class=hljs-addition>+        \end{cases}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
@@ -760,12 +760,12 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+lengths, along with a new case.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    f(i, i) &amp;= 0 \\</span>
-<span class=hljs-addition>+    f(i, i + 1) &amp;= 1 \\</span>
-<span class=hljs-addition>+    f(i, j) &amp;=</span>
+<span class=hljs-addition>+    f(i, i) &amp;amp;= 0 \\</span>
+<span class=hljs-addition>+    f(i, i + 1) &amp;amp;= 1 \\</span>
+<span class=hljs-addition>+    f(i, j) &amp;amp;=</span>
 <span class=hljs-addition>+        \begin{cases}</span>
-<span class=hljs-addition>+            f(i + 1, j - 1) + 2 &amp;  x[i] = x[j - 1] \\</span>
-<span class=hljs-addition>+            \max(f(i + 1, j), f(i, j - 1)) &amp; \text{otherwise}</span>
+<span class=hljs-addition>+            f(i + 1, j - 1) + 2 &amp;amp;  x[i] = x[j - 1] \\</span>
+<span class=hljs-addition>+            \max(f(i + 1, j), f(i, j - 1)) &amp;amp; \text{otherwise}</span>
 <span class=hljs-addition>+        \end{cases}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
@@ -774,8 +774,8 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+to one that wasn&#x27;t necessarily at the start of the string. For example:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    x[i...j] &amp;= A, B, C, C, D &amp;\text{ longest } &amp;= C, C \\</span>
-<span class=hljs-addition>+    x[i...j + 1] &amp;= A, B, C, C, D, B &amp;\text{ longest } &amp;= B, C, C, B \\</span>
+<span class=hljs-addition>+    x[i...j] &amp;amp;= A, B, C, C, D &amp;amp;\text{ longest } &amp;amp;= C, C \\</span>
+<span class=hljs-addition>+    x[i...j + 1] &amp;amp;= A, B, C, C, D, B &amp;amp;\text{ longest } &amp;amp;= B, C, C, B \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+Don&#x27;t we need to somehow keep track that $B$ was in $x[i...j]$? The answer is no,</span>

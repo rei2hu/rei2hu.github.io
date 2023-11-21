@@ -86,7 +86,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <li>No emphasis</li>
 </ol>
 <p>And we can also use the bitrate/frequency to determine the frame size</p>
-<p>$$ floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100 + 0) = 626 $$</p>
+<p> $floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100 + 0) = 626$</p>
 <p>This suggests the next frame will start from <code>0x0000008a + 626</code> or <code>0x000002fc</code>, so let's look further.</p>
 <pre class=code-block><input id=code-block-16-2 type=checkbox><label for=code-block-16-2></label><code>000002b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
 000002c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
