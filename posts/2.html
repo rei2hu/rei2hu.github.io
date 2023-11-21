@@ -128,11 +128,11 @@ public <span class=hljs-keyword>static</span> <span class="hljs-title function_"
 <p>If no type conversion is needed for the values in the IN() list, they are all non-JSON constants of the same type, and expr can be compared to each of them as a value of the same type (possibly after type conversion), an optimization takes place. The values the list are sorted and the search for expr is done using a binary search, which makes the IN() operation very quick.</p>
 </blockquote>
 <p>For our data, we have a lot of tasks and according to EXPLAIN there is basically a sequential search. However, for each task, we would have to perform that binary search for the company on the task, which makes it slow i.e.</p>
-<p>
-Let $m$ be the number of tasks <br>
-Let $n$ be the number of companies in the array <br>
-The runtime of the query is something like $$ \begin{align} c_{1} m * c_{2} \log{n} \end{align} $$ Where $c_{1}$ and $c_{2}$ are some constants
-</p>
+<p>Let $m$ be the number of tasks</p>
+<p>Let $n$ be the number of companies in the array</p>
+<p>The runtime of the query is something like</p>
+<p>$$ \begin{align} c_{1} m * c_{2} \log{n} \end{align} $$</p>
+<p>Where $c_{1}$ and $c_{2}$ are some constants</p>
 <p>Which is actually not too bad in my opinion. We can see that the query itself is bound by the number of tasks or the number of companies in the array, so I set out to cut down one of those. Just as an fyi, tasks are records that would be entered by the users so there's no way to cut that down - which leaves just cutting down the companies.</p>
 <h3 id=the-fix>the fix</h3>
 <p>Now let's jump back to the code that is generating this query. The important thing to notice here is that at the end of the builder, in the method

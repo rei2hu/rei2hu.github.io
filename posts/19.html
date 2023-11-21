@@ -153,10 +153,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 </tr>
 </tbody>
 </table>
-<p>This is great and all but then I realized the basic formula to get the sum of the intervals in between the values is something like</p>
-<p> $(x_2 - x_1) + (x_3 - x_2) + ... + (x_n - x_{n - 1}) = (x_n - x_1)$ <br>
-where $x_n$ is the value of the $n$th entry
-</p>
+<p>This is great and all but then I realized the basic formula to get the sum of the intervals in between the values is something like $(x_2 - x_1) + (x_3 - x_2) + ... + (x_n - x_{n - 1}) = (x_n - x_1)$ where $x_n$ is the value of the $n$th entry</p>
 <p>If we apply that to the above, we get Oct 7 - Oct 1 which is 6, the sum we got earlier, which we then divide by $n - 1$ for the average of 1. Weirdly enough, I think I was lucky to realize this as the original formula is simple enough to write and I wouldn't have bothered looking for any optimizations.</p>
 <p>Even at first glance, it was interesting that it boiled down to this but after a quick visualization it makes perfect sense. Here is what it might look like for Part B.</p>
 <pre class=code-block><input id=code-block-19-1 type=checkbox><label for=code-block-19-1></label><code>Oct 1
