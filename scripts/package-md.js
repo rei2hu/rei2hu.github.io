@@ -26,6 +26,7 @@ const unwantedCommits = new Set([
 	"715819fe25a082f1cf44592b65db6e8e7f7d0ced",
 	"aa2d62d1d5c860cdf9792ccd47fde0e5c8e534f8",
 	"41deec72f5510a5c5183d46df80459738de1d50a",
+	"e2c6af3c4d2e3a56863dcdba8aa553c9b10bd492",
 ]);
 
 const escapeHtml = (html) =>
