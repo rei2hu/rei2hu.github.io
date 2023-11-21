@@ -214,7 +214,7 @@ and instead listed all of the possible solutions.</p>
 <span class=hljs-addition>+const seen = new Set();</span>
 <span class=hljs-addition>+const words = require(&quot;fs&quot;).readFileSync(process.argv[2], &quot;utf8&quot;)</span>
 <span class=hljs-addition>+    .split(&quot;\n&quot;)</span>
-<span class=hljs-addition>+    .filter(word =&gt; new Set(word).size === 5 &amp;amp;&amp;amp; word.length === 5) // unique letters</span>
+<span class=hljs-addition>+    .filter(word =&gt; new Set(word).size === 5 &amp;&amp; word.length === 5) // unique letters</span>
 <span class=hljs-addition>+    .filter(word =&gt; { // anagrams</span>
 <span class=hljs-addition>+        const sorted = word.split(&quot;&quot;).sort().join(&quot;&quot;);</span>
 <span class=hljs-addition>+        if (seen.has(sorted)) return false;</span>

@@ -526,11 +526,11 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 </code></pre>
 <pre class=code-block><input id=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-2 type=checkbox><label for=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-2></label><code><span class=hljs-meta>@@ -106,4 +106,4 @@</span> $$
  \begin{bmatrix}
-<span class=hljs-deletion>-  \underline{2}  &amp;amp; 2              &amp;amp; -5            &amp;amp; \underline{2} &amp;amp; -3 \\</span>
-<span class=hljs-deletion>-  -4             &amp;amp; \underline{1}  &amp;amp; \underline{2} &amp;amp; 2             &amp;amp; -1 \\</span>
-<span class=hljs-addition>+  2              &amp;amp; \underline{2}  &amp;amp; -5            &amp;amp; \underline{2} &amp;amp; -3 \\</span>
-<span class=hljs-addition>+  -4             &amp;amp; 1              &amp;amp; \underline{2} &amp;amp; 2             &amp;amp; -1 \\</span>
-   -1             &amp;amp; 0              &amp;amp; 0             &amp;amp; \underline{3} &amp;amp; -4 \\
+<span class=hljs-deletion>-  \underline{2}  &amp; 2              &amp; -5            &amp; \underline{2} &amp; -3 \\</span>
+<span class=hljs-deletion>-  -4             &amp; \underline{1}  &amp; \underline{2} &amp; 2             &amp; -1 \\</span>
+<span class=hljs-addition>+  2              &amp; \underline{2}  &amp; -5            &amp; \underline{2} &amp; -3 \\</span>
+<span class=hljs-addition>+  -4             &amp; 1              &amp; \underline{2} &amp; 2             &amp; -1 \\</span>
+   -1             &amp; 0              &amp; 0             &amp; \underline{3} &amp; -4 \\
 </code></pre>
 <pre class=code-block><input id=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-3 type=checkbox><label for=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-3></label><code><span class=hljs-meta>@@ -112,3 +112,4 @@</span> $$
  $$
@@ -602,17 +602,17 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+is compatible with $t$. In other words</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(0, t) &amp;amp;= 0 \\</span>
-<span class=hljs-addition>+  f(n, t) &amp;amp;= \max \{ f(n - 1, t&#x27;) + val(C_n, t) \mid t&#x27; \in compat(t) \}</span>
+<span class=hljs-addition>+  f(0, t) &amp;= 0 \\</span>
+<span class=hljs-addition>+  f(n, t) &amp;= \max \{ f(n - 1, t&#x27;) + val(C_n, t) \mid t&#x27; \in compat(t) \}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+Let&#x27;s try an example:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{bmatrix}</span>
-<span class=hljs-addition>+  2 &amp;amp; 2 &amp;amp; -5 &amp;amp; 2 &amp;amp; -3 \\</span>
-<span class=hljs-addition>+  -4 &amp;amp; 1 &amp;amp; 2 &amp;amp; 2 &amp;amp; -1 \\</span>
-<span class=hljs-addition>+  -1 &amp;amp; 0 &amp;amp; 0 &amp;amp; 3 &amp;amp; -4 \\</span>
-<span class=hljs-addition>+  1 &amp;amp; -1 &amp;amp; 3 &amp;amp; -1 &amp;amp; -2</span>
+<span class=hljs-addition>+  2 &amp; 2 &amp; -5 &amp; 2 &amp; -3 \\</span>
+<span class=hljs-addition>+  -4 &amp; 1 &amp; 2 &amp; 2 &amp; -1 \\</span>
+<span class=hljs-addition>+  -1 &amp; 0 &amp; 0 &amp; 3 &amp; -4 \\</span>
+<span class=hljs-addition>+  1 &amp; -1 &amp; 3 &amp; -1 &amp; -2</span>
 <span class=hljs-addition>+\end{bmatrix}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We start with a 2d table, with lengths $N$ and $T$. $T$ is the number of types:</span>
@@ -632,10 +632,10 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+What is $f(2, 0)$? According to our recurrence, it is</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(2, 0) &amp;amp;= \max \{ f(1, t&#x27;) + val(C_2, 0) \mid t&#x27; \in compat(0) \} \\</span>
-<span class=hljs-addition>+  &amp;amp;= \max \{ f(1, t&#x27;) + 1 \mid t&#x27; \in \{ 1, 3, 4, 7 \} \} \\</span>
-<span class=hljs-addition>+  &amp;amp;= \max \{ f(1, 1), f(1, 3), f(1, 4), f(1, 7) \} + 1 \\</span>
-<span class=hljs-addition>+  &amp;amp;= 3</span>
+<span class=hljs-addition>+  f(2, 0) &amp;= \max \{ f(1, t&#x27;) + val(C_2, 0) \mid t&#x27; \in compat(0) \} \\</span>
+<span class=hljs-addition>+  &amp;= \max \{ f(1, t&#x27;) + 1 \mid t&#x27; \in \{ 1, 3, 4, 7 \} \} \\</span>
+<span class=hljs-addition>+  &amp;= \max \{ f(1, 1), f(1, 3), f(1, 4), f(1, 7) \} + 1 \\</span>
+<span class=hljs-addition>+  &amp;= 3</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+The we fill out the table and look for the maximum in the last row for the solution.</span>
@@ -656,10 +656,10 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+&lt;p&gt;</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{bmatrix}</span>
-<span class=hljs-addition>+  \underline{2}  &amp;amp; 2              &amp;amp; -5            &amp;amp; \underline{2} &amp;amp; -3 \\</span>
-<span class=hljs-addition>+  -4             &amp;amp; \underline{1}  &amp;amp; \underline{2} &amp;amp; 2             &amp;amp; -1 \\</span>
-<span class=hljs-addition>+  -1             &amp;amp; 0              &amp;amp; 0             &amp;amp; \underline{3} &amp;amp; -4 \\</span>
-<span class=hljs-addition>+  \underline{1}  &amp;amp; -1             &amp;amp; \underline{3} &amp;amp; -1            &amp;amp; -2</span>
+<span class=hljs-addition>+  \underline{2}  &amp; 2              &amp; -5            &amp; \underline{2} &amp; -3 \\</span>
+<span class=hljs-addition>+  -4             &amp; \underline{1}  &amp; \underline{2} &amp; 2             &amp; -1 \\</span>
+<span class=hljs-addition>+  -1             &amp; 0              &amp; 0             &amp; \underline{3} &amp; -4 \\</span>
+<span class=hljs-addition>+  \underline{1}  &amp; -1             &amp; \underline{3} &amp; -1            &amp; -2</span>
 <span class=hljs-addition>+\end{bmatrix}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We actually picked pattern 7 in the last row because they were all negative.</span>
@@ -700,7 +700,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+$k \in [i...j]$ where $a_i, ..., a_k$ and $a_{k + 1}, ... a_j$ are reducible to $a$.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(i, j) &amp;amp;= \max \{ f(i, k)*f(k + 1, j) \mid i \leq k \lt j \}</span>
+<span class=hljs-addition>+  f(i, j) &amp;= \max \{ f(i, k)*f(k + 1, j) \mid i \leq k \lt j \}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+I think the weird part with questions like this is determining the actual base cases.</span>
@@ -756,8 +756,8 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+&lt;!-- markdownlint-disable MD013 --&gt;</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(s, i, i) &amp;amp;= a_i == s \\</span>
-<span class=hljs-addition>+  f(s, i, j) &amp;amp;= s \in \{ m * n \mid n, m \in \{ a, b, c \}, \exists k \in [i, j) \text{ st } f(m, i, k) \text{ and } f(n, k + 1, j) \}</span>
+<span class=hljs-addition>+  f(s, i, i) &amp;= a_i == s \\</span>
+<span class=hljs-addition>+  f(s, i, j) &amp;= s \in \{ m * n \mid n, m \in \{ a, b, c \}, \exists k \in [i, j) \text{ st } f(m, i, k) \text{ and } f(n, k + 1, j) \}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+&lt;!-- markdownlint-enable MD013 --&gt;</span>
@@ -783,9 +783,9 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+Let&#x27;s run a simple example $f(_, 0, 1)$ for all symbols:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(a, 0, 1) &amp;amp;= a \in \{ (b * b) \} = false \\</span>
-<span class=hljs-addition>+  f(b, 0, 1) &amp;amp;= b \in \{ (b * b) \} = true \\</span>
-<span class=hljs-addition>+  f(c, 0, 1) &amp;amp;= c \in \{ (b * b) \} = false \\</span>
+<span class=hljs-addition>+  f(a, 0, 1) &amp;= a \in \{ (b * b) \} = false \\</span>
+<span class=hljs-addition>+  f(b, 0, 1) &amp;= b \in \{ (b * b) \} = true \\</span>
+<span class=hljs-addition>+  f(c, 0, 1) &amp;= c \in \{ (b * b) \} = false \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+So $f(_, 0, 1) = (b)$. Fill out the rest to get this:</span>
@@ -805,20 +805,20 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+directly, but we will work around it.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  &amp;amp;(n, f(n, k + 1, 2)) \forall k \in [0, 2), n \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 0, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 1, 2)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 1, 2)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 1, 2)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 1, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 2, 2)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 2, 2)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 2, 2)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;(m, f(m, 0, k)) \forall k \in [0, 2), m \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 0, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 0, 0)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 0, 0)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 0, 0)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 1, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 0, 1)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 0, 1)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 0, 1)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(n, f(n, k + 1, 2)) \forall k \in [0, 2), n \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 0, &amp;n = a &amp;\implies &amp;(a, f(a, 1, 2)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 1, 2)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 1, 2)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;k = 1, &amp;n = a &amp;\implies &amp;(a, f(a, 2, 2)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 2, 2)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 2, 2)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(m, f(m, 0, k)) \forall k \in [0, 2), m \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 0, &amp;m = a &amp;\implies &amp;(a, f(a, 0, 0)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 0, 0)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 0, 0)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;k = 1, &amp;m = a &amp;\implies &amp;(a, f(a, 0, 1)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 0, 1)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 0, 1)) &amp;\implies &amp;(c, false) \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We get $n \in \{b\}$ and $m \in \{b\}$. Multiplying each element of the sets together</span>
@@ -826,20 +826,20 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+2, 4)$ and $f(c, 2, 4)$ as they are the more interesting ones.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  &amp;amp;(n, f(n, k + 1, 4)) \forall k \in [2, 4), n \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 2, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 3, 4)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 3, 4)) &amp;amp;\implies &amp;amp;(b, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 3, 4)) &amp;amp;\implies &amp;amp;(c, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 3, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 4, 4)) &amp;amp;\implies &amp;amp;(a, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 4, 4)) &amp;amp;\implies &amp;amp;(b, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 4, 4)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;(m, f(m, 2, k)) \forall k \in [2, 4), m \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 2, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 2, 2)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 2, 2)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 2, 2)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 3, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 2, 3)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 2, 3)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 2, 3)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(n, f(n, k + 1, 4)) \forall k \in [2, 4), n \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 2, &amp;n = a &amp;\implies &amp;(a, f(a, 3, 4)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 3, 4)) &amp;\implies &amp;(b, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 3, 4)) &amp;\implies &amp;(c, true) \\</span>
+<span class=hljs-addition>+  &amp;k = 3, &amp;n = a &amp;\implies &amp;(a, f(a, 4, 4)) &amp;\implies &amp;(a, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 4, 4)) &amp;\implies &amp;(b, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 4, 4)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(m, f(m, 2, k)) \forall k \in [2, 4), m \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 2, &amp;m = a &amp;\implies &amp;(a, f(a, 2, 2)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 2, 2)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 2, 2)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;k = 3, &amp;m = a &amp;\implies &amp;(a, f(a, 2, 3)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 2, 3)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 2, 3)) &amp;\implies &amp;(c, false) \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We get $n \in \{c, a\}$ and $m \in \{b\}$ - finally, something interesting.</span>
@@ -863,9 +863,9 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+possibilities for the substring $a_i...a_j$ that meshes better with what the table.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  p(i, i) &amp;amp;= \{a_i\} \\</span>
-<span class=hljs-addition>+  p(i, j) &amp;amp;= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\</span>
-<span class=hljs-addition>+  f(s, i, j) &amp;amp;= s \in p(i, j)</span>
+<span class=hljs-addition>+  p(i, i) &amp;= \{a_i\} \\</span>
+<span class=hljs-addition>+  p(i, j) &amp;= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\</span>
+<span class=hljs-addition>+  f(s, i, j) &amp;= s \in p(i, j)</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+In fact, I basically followed this simpler formula for filling out the table. It</span>

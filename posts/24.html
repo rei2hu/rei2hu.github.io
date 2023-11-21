@@ -869,7 +869,7 @@ rocket.<span class="hljs-title function_ invoke__">ignite</span>().<span class="
 <span class=hljs-addition>+struct AuthorizedUser(i32);</span>
 <span class=hljs-addition>+impl&lt;&#x27;a, &#x27;r&gt; FromRequest&lt;&#x27;a, &#x27;r&gt; for AuthorizedUser {</span>
 <span class=hljs-addition>+    type Error = !;</span>
-<span class=hljs-addition>+    fn from_request(request: &amp;amp;&#x27;a Request&lt;&#x27;r&gt;) -&gt; Outcome&lt;Self, Self::Error&gt; {</span>
+<span class=hljs-addition>+    fn from_request(request: &amp;&#x27;a Request&lt;&#x27;r&gt;) -&gt; Outcome&lt;Self, Self::Error&gt; {</span>
 <span class=hljs-addition>+        // dont follow this implementation please</span>
 <span class=hljs-addition>+        match request.headers.get(&quot;authorization&quot;).find_map(|key| {</span>
 <span class=hljs-addition>+            if is_valid_key(key) {</span>
@@ -973,7 +973,7 @@ rocket.<span class="hljs-title function_ invoke__">ignite</span>().<span class="
 <span class=hljs-addition>+Consider the enum in the above snippet. We can have `syn` parse it like so.</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```rs</span>
-<span class=hljs-addition>+&amp;amp;syn::parse_str(</span>
+<span class=hljs-addition>+&amp;syn::parse_str(</span>
 <span class=hljs-addition>+&quot;</span>
 <span class=hljs-addition>+#[derive(Responder)]</span>
 <span class=hljs-addition>+enum MyResponseEnum {</span>
@@ -1518,7 +1518,7 @@ rocket.<span class="hljs-title function_ invoke__">ignite</span>().<span class="
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+#[post(&quot;/login&quot;, format=&quot;application/json&quot;, data = &quot;&lt;data&gt;&quot;)]</span>
 <span class=hljs-addition>+fn login(user: User, data: LoginData) -&gt; LoginResponse {</span>
-<span class=hljs-addition>+    if username == &quot;a&quot; &amp;amp;&amp;amp; password == &quot;b&quot; {</span>
+<span class=hljs-addition>+    if username == &quot;a&quot; &amp;&amp; password == &quot;b&quot; {</span>
 <span class=hljs-addition>+        LoginResponse::Success(user.id)</span>
 <span class=hljs-addition>+    } else {</span>
 <span class=hljs-addition>+        LoginResponse::Failure(&quot;Bad login&quot;)</span>

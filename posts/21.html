@@ -249,7 +249,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```rs</span>
 <span class=hljs-addition>+cookies.get_private(session)</span>
-<span class=hljs-addition>+    .and_then(|cookie| get_session_data_by_id(&amp;amp;connection, &amp;amp;cookie.value()).ok())</span>
+<span class=hljs-addition>+    .and_then(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value()).ok())</span>
 <span class=hljs-addition>+```</span>
 <span class=hljs-addition>+</span>
  ## conclusion
@@ -288,7 +288,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+```</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+The `prepare` method returns `Result&lt;Statement, Error&gt;` because this</span>
-<span class=hljs-addition>+can fail if the `&amp;amp;str` can&#x27;t be converted to a C-style string or some generic sql</span>
+<span class=hljs-addition>+can fail if the `&amp;str` can&#x27;t be converted to a C-style string or some generic sql</span>
 <span class=hljs-addition>+failure occurrs when trying to compile the prepared statement.</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+The return type is starting to get a little complex here. The next steps will include</span>
@@ -301,7 +301,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+        connection.prepare(sql)</span>
 <span class=hljs-addition>+            .map(|mut statement| {</span>
 <span class=hljs-addition>+                statement.query_map(</span>
-<span class=hljs-addition>+                    &amp;amp;[&amp;amp;session_id, Time::now()],</span>
+<span class=hljs-addition>+                    &amp;[&amp;session_id, Time::now()],</span>
 <span class=hljs-addition>+                    Data::from_row</span>
 <span class=hljs-addition>+                ) // Result&lt;MappedRows, Error&gt;</span>
 <span class=hljs-addition>+            }) // Result&lt;Result&lt;MappedRows, Error&gt;, Error&gt;</span>
@@ -318,7 +318,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+        connection.prepare(sql)</span>
 <span class=hljs-addition>+            .map(|mut statement| {</span>
 <span class=hljs-addition>+                statement.query_map(</span>
-<span class=hljs-addition>+                    &amp;amp;[&amp;amp;cookie.value(), Time::now()],</span>
+<span class=hljs-addition>+                    &amp;[&amp;cookie.value(), Time::now()],</span>
 <span class=hljs-addition>+                    Data::from_row</span>
 <span class=hljs-addition>+                ).map(|mut rows| rows.next()) // Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;</span>
 <span class=hljs-addition>+            }) // Result&lt;Result&lt;Option&lt;Result&lt;Data, Error&gt;&gt;, Error&gt;, Error&gt;</span>
@@ -368,7 +368,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+        connection.prepare(sql)</span>
 <span class=hljs-addition>+            .map(|mut statement| {</span>
 <span class=hljs-addition>+                statement.query_map(</span>
-<span class=hljs-addition>+                    &amp;amp;[&amp;amp;cookie.value(), Time::now()],</span>
+<span class=hljs-addition>+                    &amp;[&amp;cookie.value(), Time::now()],</span>
 <span class=hljs-addition>+                    Data::from_row</span>
 <span class=hljs-addition>+                ) // Result&lt;MappedRows&gt;</span>
 <span class=hljs-addition>+            }) // Result&lt;Result&lt;MappedRows&gt;&gt;</span>
@@ -409,10 +409,10 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;&gt;</span>
 <span class=hljs-addition>+```rs</span>
-<span class=hljs-addition>+fn get_session_data_by_id(connection: &amp;amp;SqliteConnection, id: &amp;amp;str) -&gt; Result&lt;Data, Error&gt; {</span>
+<span class=hljs-addition>+fn get_session_data_by_id(connection: &amp;SqliteConnection, id: &amp;str) -&gt; Result&lt;Data, Error&gt; {</span>
 <span class=hljs-addition>+    let mut statement = connection.prepare(sql)?;</span>
 <span class=hljs-addition>+    let mut rows = statement.query_map(</span>
-<span class=hljs-addition>+        &amp;amp;[id, Time::now()],</span>
+<span class=hljs-addition>+        &amp;[id, Time::now()],</span>
 <span class=hljs-addition>+        Data::from_row</span>
 <span class=hljs-addition>+    )?;</span>
 <span class=hljs-addition>+    rows.next().map_or(Ok, Err(Error::NoRowsReturned))</span>
@@ -421,7 +421,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+// ...</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+cookies.get_private(session)</span>
-<span class=hljs-addition>+    .map(|cookie| get_session_data_by_id(&amp;amp;connection, &amp;amp;cookie.value())) // Option&lt;Result&lt;Data, Error&gt;&gt;</span>
+<span class=hljs-addition>+    .map(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value())) // Option&lt;Result&lt;Data, Error&gt;&gt;</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```</span>
 <span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;&gt;</span>
@@ -447,7 +447,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+        connection.prepare(sql)</span>
 <span class=hljs-addition>+            .map(|mut statement| {</span>
 <span class=hljs-addition>+                statement.query_map(</span>
-<span class=hljs-addition>+                    &amp;amp;[&amp;amp;cookie.value(), Time::now()],</span>
+<span class=hljs-addition>+                    &amp;[&amp;cookie.value(), Time::now()],</span>
 <span class=hljs-addition>+                    Data::from_row</span>
 <span class=hljs-addition>+                ).map(|mut rows| {</span>
 <span class=hljs-addition>+                    rows.next()</span>
@@ -469,10 +469,10 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;&gt;</span>
 <span class=hljs-addition>+```rs</span>
-<span class=hljs-addition>+fn get_session_data_by_id(connection: &amp;amp;SqliteConnection, id: &amp;amp;str) -&gt; Result&lt;Data, Error&gt; {</span>
+<span class=hljs-addition>+fn get_session_data_by_id(connection: &amp;SqliteConnection, id: &amp;str) -&gt; Result&lt;Data, Error&gt; {</span>
 <span class=hljs-addition>+    let mut statement = connection.prepare(sql)?;</span>
 <span class=hljs-addition>+    let mut rows = statement.query_map(</span>
-<span class=hljs-addition>+        &amp;amp;[id, Time::now()],</span>
+<span class=hljs-addition>+        &amp;[id, Time::now()],</span>
 <span class=hljs-addition>+        Data::from_row</span>
 <span class=hljs-addition>+    )?;</span>
 <span class=hljs-addition>+    rows.next().unwrap_or(Err(Error::QueryReturnedNoRows)))</span>
@@ -481,7 +481,7 @@ which is basically what we try to do with map and flatten.</p>
 <span class=hljs-addition>+// ...</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+cookies.get_private(session)</span>
-<span class=hljs-addition>+    .map(|cookie| get_session_data_by_id(&amp;amp;connection, &amp;amp;cookie.value()).ok()) // Option&lt;Option&lt;Data&gt;&gt;</span>
+<span class=hljs-addition>+    .map(|cookie| get_session_data_by_id(&amp;connection, &amp;cookie.value()).ok()) // Option&lt;Option&lt;Data&gt;&gt;</span>
 <span class=hljs-addition>+    .flatten() // Option&lt;Data&gt;</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```</span>

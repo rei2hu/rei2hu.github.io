@@ -261,8 +261,8 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+                // check if value can be in cell</span>
 <span class=hljs-addition>+                for x := 0; x &lt; n; x++ {</span>
-<span class=hljs-addition>+                    possible = possible &amp;amp;&amp;amp;</span>
-<span class=hljs-addition>+                        cells[i][x] != l &amp;amp;&amp;amp; // col</span>
+<span class=hljs-addition>+                    possible = possible &amp;&amp;</span>
+<span class=hljs-addition>+                        cells[i][x] != l &amp;&amp; // col</span>
 <span class=hljs-addition>+                        cells[x][j] != l // row</span>
 <span class=hljs-addition>+                }</span>
 <span class=hljs-addition>+</span>
@@ -271,7 +271,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+                for x := 0; x &lt; sqrt_n; x++ {</span>
 <span class=hljs-addition>+                    for y := 0; y &lt; sqrt_n; y++ {</span>
-<span class=hljs-addition>+                        possible = possible &amp;amp;&amp;amp;</span>
+<span class=hljs-addition>+                        possible = possible &amp;&amp;</span>
 <span class=hljs-addition>+                            cells[tli + x][tlj + y] != l // subbox</span>
 <span class=hljs-addition>+                    }</span>
 <span class=hljs-addition>+                }</span>
@@ -293,7 +293,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+                        for x := 0; x &lt; sqrt_n; x++ {</span>
 <span class=hljs-addition>+                            for y := 0; y &lt; sqrt_n; y++ {</span>
-<span class=hljs-addition>+                                if tli + x != i &amp;amp;&amp;amp; tlj + y != j {</span>
+<span class=hljs-addition>+                                if tli + x != i &amp;&amp; tlj + y != j {</span>
 <span class=hljs-addition>+                                    vertices[tli + x][tlj + y][k2][pos] = nil</span>
 <span class=hljs-addition>+                                }</span>
 <span class=hljs-addition>+                            }</span>
@@ -306,7 +306,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+    for i := 0; i &lt; n; i++ {</span>
 <span class=hljs-addition>+        for j := 0; j &lt; n; j++ {</span>
-<span class=hljs-addition>+            solve_one(&amp;amp;cells, &amp;amp;vertices, &amp;amp;possibilities, i, j)</span>
+<span class=hljs-addition>+            solve_one(&amp;cells, &amp;vertices, &amp;possibilities, i, j)</span>
 <span class=hljs-addition>+        }</span>
 <span class=hljs-addition>+    }</span>
 <span class=hljs-addition>+</span>

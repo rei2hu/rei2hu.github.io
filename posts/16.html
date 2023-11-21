@@ -241,7 +241,7 @@ buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span cl
 <span class=hljs-addition>+00000080: 00 00 00 00 00 00 00 00 00 00 ff fb b0 00 00 00  ................</span>
 <span class=hljs-addition>+00000090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................</span>
 <span class=hljs-addition>+000000a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 49 6e  ..............In</span>
-<span class=hljs-addition>+000000b0: 66 6f 00 00 00 0f 00 00 21 f3 00 53 26 86 00 02  fo......!..S&amp;amp;...</span>
+<span class=hljs-addition>+000000b0: 66 6f 00 00 00 0f 00 00 21 f3 00 53 26 86 00 02  fo......!..S&amp;...</span>
 <span class=hljs-addition>+```</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+The first thing I see is [ID3](https://id3.org/), which indicates some metadata</span>
@@ -309,20 +309,20 @@ buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span cl
 <span class=hljs-addition>+writing. First, a method to find the frame sync.</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```rust</span>
-<span class=hljs-addition>+fn find_frame_header_pos(f: &amp;amp;mut BufReader&lt;File&gt;) -&gt; Option&lt;usize&gt; {</span>
+<span class=hljs-addition>+fn find_frame_header_pos(f: &amp;mut BufReader&lt;File&gt;) -&gt; Option&lt;usize&gt; {</span>
 <span class=hljs-addition>+    let mut next_byte = [0];</span>
 <span class=hljs-addition>+    loop {</span>
 <span class=hljs-addition>+        let check = f</span>
 <span class=hljs-addition>+            // we discard until we find 0xff, which suggests perhaps the start of</span>
 <span class=hljs-addition>+            // the frame header, which will be 0xfff or 0xffe</span>
-<span class=hljs-addition>+            .read_until(0xff, &amp;amp;mut vec![])</span>
-<span class=hljs-addition>+            .and_then(|_| f.read(&amp;amp;mut next_byte));</span>
+<span class=hljs-addition>+            .read_until(0xff, &amp;mut vec![])</span>
+<span class=hljs-addition>+            .and_then(|_| f.read(&amp;mut next_byte));</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+        match check {</span>
 <span class=hljs-addition>+            // no more bytes to read</span>
 <span class=hljs-addition>+            Ok(0) =&gt; return None,</span>
 <span class=hljs-addition>+            // we found 0xffe or 0xfff</span>
-<span class=hljs-addition>+            Ok(_) if next_byte[0] &amp;amp; 0xe0 == 0xe0 =&gt; {</span>
+<span class=hljs-addition>+            Ok(_) if next_byte[0] &amp; 0xe0 == 0xe0 =&gt; {</span>
 <span class=hljs-addition>+                return Some(f.seek(SeekFrom::Current(-2)).unwrap() as usize);</span>
 <span class=hljs-addition>+            }</span>
 <span class=hljs-addition>+            // we found 0xff(not f or e), we dont have to seek backwards because</span>
@@ -339,7 +339,7 @@ buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span cl
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```rust</span>
 <span class=hljs-addition>+let mut buf_reader = BufReader::new(File::open(&quot;tests/otome dissection remix.mp3&quot;)?);</span>
-<span class=hljs-addition>+while let Some(header_pos) = find_frame_header(&amp;amp;mut buf_reader) {</span>
+<span class=hljs-addition>+while let Some(header_pos) = find_frame_header(&amp;mut buf_reader) {</span>
 <span class=hljs-addition>+    // do something with header_pos</span>
 <span class=hljs-addition>+}</span>
 <span class=hljs-addition>+```</span>
@@ -355,8 +355,8 @@ buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span cl
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+impl FrameHeader {</span>
 <span class=hljs-addition>+    // TODO: enums for everything</span>
-<span class=hljs-addition>+    fn get_audio_version(&amp;amp;self) -&gt; u8 {</span>
-<span class=hljs-addition>+        ((self.0 &amp;amp; 0x00180000) &gt;&gt; 19) as u8</span>
+<span class=hljs-addition>+    fn get_audio_version(&amp;self) -&gt; u8 {</span>
+<span class=hljs-addition>+        ((self.0 &amp; 0x00180000) &gt;&gt; 19) as u8</span>
 <span class=hljs-addition>+    }</span>
 <span class=hljs-addition>+    // etc</span>
 <span class=hljs-addition>+}</span>
@@ -377,7 +377,7 @@ buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span cl
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```rust</span>
 <span class=hljs-addition>+let mut header_buf = [0; 4];</span>
-<span class=hljs-addition>+buf_reader.read(&amp;amp;mut header_buf)?;</span>
+<span class=hljs-addition>+buf_reader.read(&amp;mut header_buf)?;</span>
 <span class=hljs-addition>+let frame_header = FrameHeader::from(header_buf);</span>
 <span class=hljs-addition>+```</span>
 <span class=hljs-addition>+</span>
@@ -387,7 +387,7 @@ buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span cl
 <span class=hljs-addition>+function is actually a huge match like this:</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+```rust</span>
-<span class=hljs-addition>+let code = (self.0 &amp;amp; 0x0000F000) &gt;&gt; 12;</span>
+<span class=hljs-addition>+let code = (self.0 &amp; 0x0000F000) &gt;&gt; 12;</span>
 <span class=hljs-addition>+let layer = self.get_layer_description();</span>
 <span class=hljs-addition>+let audio_version = self.get_audio_version();</span>
 <span class=hljs-addition>+</span>

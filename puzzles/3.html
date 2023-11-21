@@ -175,10 +175,10 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <details>
 <summary>2020-12-14 - update exercise 3</summary>
 <pre class=code-block><input id=code-block-5b5753454507a430eb40b0006658298c80a44071-1 type=checkbox><label for=code-block-5b5753454507a430eb40b0006658298c80a44071-1></label><code><span class=hljs-meta>@@ -102,3 +102,3 @@</span> $$
-     y_i &amp;amp;= N / N_i \\
-<span class=hljs-deletion>-    z_i &amp;amp;= y_i^{-1} \text{ mod } N \\</span>
-<span class=hljs-addition>+    z_i &amp;amp;= y_i^{-1} \text{ mod } N_i \\</span>
-     M^3 &amp;amp;= \sum_{i=1}^{3} a_iy_iz_i \\
+     y_i &amp;= N / N_i \\
+<span class=hljs-deletion>-    z_i &amp;= y_i^{-1} \text{ mod } N \\</span>
+<span class=hljs-addition>+    z_i &amp;= y_i^{-1} \text{ mod } N_i \\</span>
+     M^3 &amp;= \sum_{i=1}^{3} a_iy_iz_i \\
 </code></pre>
 <pre class=code-block><input id=code-block-5b5753454507a430eb40b0006658298c80a44071-2 type=checkbox><label for=code-block-5b5753454507a430eb40b0006658298c80a44071-2></label><code><span class=hljs-meta>@@ -126,2 +126,77 @@</span> myself with a few insights because there is less memorization needed and that&#x27;s
  I&#x27;ve approached all technical topics so far.
@@ -188,7 +188,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+example. Start with the first equivalence:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_1 \text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_1 \text{ mod } n_1 \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+A valid solution for $x$ would be $a_1$.</span>
@@ -197,8 +197,8 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+Now what if we want to bring in another equivalence?</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_1 \text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_2 \text{ mod } n_2 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_1 \text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_2 \text{ mod } n_2 \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We do the same thing as before but for the second one and get $a_2$. However, we</span>
@@ -230,9 +230,9 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+end with:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    &amp;amp; (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) &amp;amp;\text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    &amp;amp; (n_2n_3)(a_1) &amp;amp;\text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    &amp;amp; (a_1n_2n_3) &amp;amp;\text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    &amp; (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) &amp;\text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    &amp; (n_2n_3)(a_1) &amp;\text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    &amp; (a_1n_2n_3) &amp;\text{ mod } n_1 \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+All the terms we didn&#x27;t want fell away! (A short aside, I feel like I&#x27;ve seen this</span>
@@ -362,20 +362,20 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <span class=hljs-addition>+remainder theorem, we can get a solution by following the steps.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    N &amp;amp;= (\prod_{i=1}^{3} N_i) \\</span>
-<span class=hljs-addition>+    a_i &amp;amp;= M_i \\</span>
-<span class=hljs-addition>+    y_i &amp;amp;= N / N_i \\</span>
-<span class=hljs-addition>+    z_i &amp;amp;= y_i^{-1} \text{ mod } N \\</span>
-<span class=hljs-addition>+    M^3 &amp;amp;= \sum_{i=1}^{3} a_iy_iz_i \\</span>
+<span class=hljs-addition>+    N &amp;= (\prod_{i=1}^{3} N_i) \\</span>
+<span class=hljs-addition>+    a_i &amp;= M_i \\</span>
+<span class=hljs-addition>+    y_i &amp;= N / N_i \\</span>
+<span class=hljs-addition>+    z_i &amp;= y_i^{-1} \text{ mod } N \\</span>
+<span class=hljs-addition>+    M^3 &amp;= \sum_{i=1}^{3} a_iy_iz_i \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+Honestly speaking, I still don&#x27;t fully get the theorem so I will be revisiting this...</span>
 <span class=hljs-addition>+Thought for a couple minutes and I think I kind of get it, consider the normal formulation:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_1 \text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_2 \text{ mod } n_2 \\</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_k \text{ mod } n_k \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_1 \text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_2 \text{ mod } n_2 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_k \text{ mod } n_k \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+$a_iy_iz_i$ is divisible by $n_j$ if $j \neq i$ because $y_i$ includes $n_j$. This</span>

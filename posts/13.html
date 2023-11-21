@@ -387,8 +387,8 @@ enc_tree = enc_tree + [<span class=hljs-string>&#x27;oh no!&#x27;</span>, <span 
 <p>python -tree = makeHuffTree(symbols) +tree = make<em>huff</em>tree(symbols)</p>
 <p>-def encodeHuffTree(tree): +def encode<em>huff</em>tree(tree): # a leaf node if not (tree.left or tree.right):</p>
 <ul>
-<li>return &quot;0&quot; + tree.value</li>
-<li>return &quot;1&quot; + encodeHuffTree(tree.left) + encodeHuffTree(tree.right)</li>
+<li>return "0" + tree.value</li>
+<li>return "1" + encodeHuffTree(tree.left) + encodeHuffTree(tree.right)</li>
 <li>return ['0', format(ord(tree.value), 'b').zfill(8)]</li>
 <li>return ['1'] + encode<em>huff</em>tree(tree.left) + encode<em>huff</em>tree(tree.right)</li>
 </ul>
@@ -400,12 +400,12 @@ enc_tree = enc_tree + [<span class=hljs-string>&#x27;oh no!&#x27;</span>, <span 
 <span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
 </code></pre>
 <p>python -[1, 1, 0, 'C', 1, 0, 'E', 0, 'B', 1, 0, 'D', 0, 'A'] +['1', '1', '0', '01000011', '1', '0', '01000101', '0', '01000010', '1', '0', '01000100', '0', '01000001']</p>
-<pre><code>+&amp;lt;!-- markdownlint-enable line-length --&amp;gt;
+<pre><code>+&lt;!-- markdownlint-enable line-length --&gt;
 
 -And the decoding method:
 +We can see that the symbols still take up their usual 8 bits. And the decoding method:
 
-+&amp;lt;!-- markdownlint-disable line-length --&amp;gt;
++&lt;!-- markdownlint-disable line-length --&gt;
 </code></pre>
 <p>python -encTree = encodeHuffTree(tree) +enc<em>tree = encode</em>huff_tree(tree) RebuiltNode = namedtuple('RebuiltNode', ['left', 'right', 'value'])</p>
 <p>-def decodeHuffTree(encoded): +def decode<em>huff</em>tree(encoded): node = encoded.pop(0)</p>
@@ -421,7 +421,7 @@ enc_tree = enc_tree + [<span class=hljs-string>&#x27;oh no!&#x27;</span>, <span 
 <li>return r</li>
 </ul>
 <p>-print(decodeHuffTree(encTree)) +print(decode<em>huff</em>tree(list(''.join(encode<em>huff</em>tree(tree)))))</p>
-<pre><code>+&amp;lt;!-- markdownlint-enable line-length --&amp;gt;
+<pre><code>+&lt;!-- markdownlint-enable line-length --&gt;
 </code></pre>
 <pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-7 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-7></label><code><span class=hljs-meta>@@ -213,4 +213,4 @@</span> tree data because it knows when to terminate, e.g.
 </code></pre>
@@ -441,7 +441,7 @@ enc_tree = enc_tree + [<span class=hljs-string>&#x27;oh no!&#x27;</span>, <span 
 <p>```</p>
 <pre class=code-block><input id=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-10 type=checkbox><label for=code-block-1cfa16e4dac539644603ab52a7442f114cc2e8f6-10></label><code><span class=hljs-meta>@@ -237,5 +238,7 @@</span> them.
 </code></pre>
-<p>+&lt;!-- markdownlint-enable line-length --&gt;</p>
+<p>+</p>
 <p>Wow, a whopping 28 bits saved! Naturally, compression is more useful when dealing -with larger data. +with larger data. Want to see the full example run end to end? The code can be found +<a href=https://github.com/rei2hu/random_stuff/blob/master/python/huffman_example.py>here</a></p>
 <p>```</p>
 </details>

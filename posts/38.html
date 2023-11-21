@@ -485,7 +485,7 @@ ipcRenderer.<span class="hljs-title function_">on</span>(<span class=hljs-string
 <span class=hljs-addition>+Napi::ThreadSafeFunction tsfn;</span>
 <span class=hljs-addition>+std::thread thread;</span>
 <span class=hljs-addition>+</span>
-<span class=hljs-addition>+Napi::Value RegisterEmit(const Napi::CallbackInfo&amp;amp; info) {</span>
+<span class=hljs-addition>+Napi::Value RegisterEmit(const Napi::CallbackInfo&amp; info) {</span>
 <span class=hljs-addition>+    auto env = info.Env();</span>
 <span class=hljs-addition>+    tsfn = Napi::ThreadSafeFunction::New(</span>
 <span class=hljs-addition>+        env, info[0].As&lt;Napi::Function&gt;(),</span>
@@ -521,7 +521,7 @@ ipcRenderer.<span class="hljs-title function_">on</span>(<span class=hljs-string
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+    // Get process</span>
 <span class=hljs-addition>+    DWORD pid;</span>
-<span class=hljs-addition>+    if (!GetWindowThreadProcessId(hwnd, &amp;amp;pid)) {</span>
+<span class=hljs-addition>+    if (!GetWindowThreadProcessId(hwnd, &amp;pid)) {</span>
 <span class=hljs-addition>+        return TRUE;</span>
 <span class=hljs-addition>+    }</span>
 <span class=hljs-addition>+</span>
@@ -557,7 +557,7 @@ ipcRenderer.<span class="hljs-title function_">on</span>(<span class=hljs-string
 <span class=hljs-addition>+        std::wstring_convert&lt;std::codecvt_utf8&lt;wchar_t&gt;&gt; myconv;</span>
 <span class=hljs-addition>+        std::string str = myconv.to_bytes(ws);</span>
 <span class=hljs-addition>+</span>
-<span class=hljs-addition>+        if (!str.empty() &amp;amp;&amp;amp; str.compare(&quot;Default IME&quot;) &amp;amp;&amp;amp; !obj.Has(&quot;name&quot;)) {</span>
+<span class=hljs-addition>+        if (!str.empty() &amp;&amp; str.compare(&quot;Default IME&quot;) &amp;&amp; !obj.Has(&quot;name&quot;)) {</span>
 <span class=hljs-addition>+            // Make sure the process has a window with an actual name</span>
 <span class=hljs-addition>+            // Also from testing Default IME pops up a lot...</span>
 <span class=hljs-addition>+            // if obj doesnt have name? or allow a set of names?</span>
@@ -595,10 +595,10 @@ ipcRenderer.<span class="hljs-title function_">on</span>(<span class=hljs-string
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+        auto processList = Napi::Object::New(env);</span>
 <span class=hljs-addition>+        Wrapper objEnv = {</span>
-<span class=hljs-addition>+            &amp;amp;processList, &amp;amp;env</span>
+<span class=hljs-addition>+            &amp;processList, &amp;env</span>
 <span class=hljs-addition>+        };</span>
 <span class=hljs-addition>+</span>
-<span class=hljs-addition>+        EnumWindows(EnumWindowsProc, reinterpret_cast&lt;LPARAM&gt;(&amp;amp;objEnv));</span>
+<span class=hljs-addition>+        EnumWindows(EnumWindowsProc, reinterpret_cast&lt;LPARAM&gt;(&amp;objEnv));</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+        auto watcherMessage = Napi::Object::New(env);</span>
 <span class=hljs-addition>+        watcherMessage.Set(&quot;processes&quot;, processList);</span>
@@ -619,9 +619,9 @@ ipcRenderer.<span class="hljs-title function_">on</span>(<span class=hljs-string
 <span class=hljs-addition>+    );</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+    MSG msg;</span>
-<span class=hljs-addition>+    while (GetMessage(&amp;amp;msg, NULL, 0, 0)){</span>
-<span class=hljs-addition>+        TranslateMessage(&amp;amp;msg);</span>
-<span class=hljs-addition>+        DispatchMessage(&amp;amp;msg);</span>
+<span class=hljs-addition>+    while (GetMessage(&amp;msg, NULL, 0, 0)){</span>
+<span class=hljs-addition>+        TranslateMessage(&amp;msg);</span>
+<span class=hljs-addition>+        DispatchMessage(&amp;msg);</span>
 <span class=hljs-addition>+    };</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+    // TODO: cleanup</span>
