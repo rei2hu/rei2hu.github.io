@@ -44,38 +44,89 @@ const unescapeHtml = (escapedHtml) =>
 		.replace(/&quot;/g, '"')
 		.replace(/&#39;/g, "'");
 
-const converter = (mdId) => {
+const jaxExtensions = () => {
+	const inlineMathContent = [];
+	const displayMathContent = [];
+
+	return [
+		// tikz tag handling
+		// showdown replaces $ with ¨D
+		{
+			type: "lang",
+			regex: /¨D¨D\n(\\begin{tikzpicture}(\n|.)+?\\end{tikzpicture})\n¨D¨D/g,
+			replace: `<noscript><pre>$1</pre></noscript><script type="text/tikz">$1</script>`,
+		},
+		// try not to transform inline mathjax code by encoding it before
+		// transformation then decoding it after
+		{
+			type: "lang",
+			regex: /\s¨D(.+?)¨D/g,
+			replace: (_str, g1) => {
+				inlineMathContent.push(g1);
+				return `MATHJAXINLINECONTENTPLACEHOLDER ${
+					inlineMathContent.length - 1
+				}`;
+			},
+		},
+		{
+			type: "output",
+			regex: /MATHJAXINLINECONTENTPLACEHOLDER (\d+)/g,
+			replace: (_str, contentNum) => {
+				return ` $${inlineMathContent[contentNum]}$`;
+			},
+		},
+		// and the same for display math
+		{
+			type: "lang",
+			regex: /¨D¨D((\n|.)+?)¨D¨D/g,
+			replace: (_str, g1) => {
+				displayMathContent.push(g1);
+				return `MATHJAXDISPLAYCONTENTPLACEHOLDER ${
+					displayMathContent.length - 1
+				}`;
+			},
+		},
+		{
+			type: "output",
+			regex: /MATHJAXDISPLAYCONTENTPLACEHOLDER (\d+)/g,
+			replace: (_str, contentNum) => {
+				return `$$${displayMathContent[contentNum]}$$`;
+			},
+		},
+	];
+};
+
+const codeBlockExtensions = (mdId) => {
 	let codeBlockCounter = 1;
+	return [
+		// code block handling is applied last
+		{
+			type: "output",
+			// code blocks end up being
+			// <pre><input /><label /><code ...>
+			// (code)
+			// </code></pre>
+			regex: /<pre><code class="(.*?)">((\n|.)*?)<\/code><\/pre>/g,
+			replace: (_str, g1, g2) => {
+				const id = `code-block-${mdId}-${codeBlockCounter++}`;
+				// g1 is (lang) language-(lang)
+				const lang = g1.split(" ")[0];
+				// unescape certain html entities because hljs will re-escape
+				const highlighted = hljs.highlight(unescapeHtml(g2), {
+					language: lang,
+				});
+				if (highlighted.illegal) {
+					console.warn(`Illegal code found in code block ${id}`);
+				}
+				const code = highlighted.value;
+				return `<pre class="code-block"><input id="${id}" type="checkbox"/><label for="${id}"></label><code>${code}</code></pre>`;
+			},
+		},
+	];
+};
+const converter = (extensions = []) => {
 	return new showdown.Converter({
-		extensions: [
-			{
-				type: "output",
-				// code blocks end up being
-				// <pre><input /><label /><code ...>
-				// (code)
-				// </code></pre>
-				regex: /<pre><code class="(.*?)">((\n|.)*?)<\/code><\/pre>/g,
-				replace: (_str, g1, g2) => {
-					const id = `code-block-${mdId}-${codeBlockCounter++}`;
-					// g1 is (lang) language-(lang)
-					const lang = g1.split(" ")[0];
-					// unescape certain html entities because hljs will re-escape
-					const highlighted = hljs.highlight(unescapeHtml(g2), {
-						language: lang,
-					});
-					if (highlighted.illegal) {
-						console.warn(`Illegal code found in code block ${id}`);
-					}
-					const code = highlighted.value;
-					return `<pre class="code-block"><input id="${id}" type="checkbox"/><label for="${id}"></label><code>${code}</code></pre>`;
-				},
-			},
-			{
-				type: "output",
-				regex: /<script type="text\/tikz">((\n|.)*?)<\/script>/g,
-				replace: `<noscript><pre>$1</pre></noscript><script type="text/tikz">$1</script>`,
-			},
-		],
+		extensions,
 		strikethrough: true,
 		ghCompatibleHeaderId: true,
 		tables: true,
@@ -202,7 +253,10 @@ module.exports = {
 									.basename(mdFileName, ".md")
 									.split(".")[1]
 									.slice(1),
-								contents: converter(id).makeHtml(contents),
+								contents: converter([
+									...jaxExtensions(),
+									...codeBlockExtensions(id),
+								]).makeHtml(contents),
 								changes: commitsAndDiffs,
 							};
 						})
@@ -226,8 +280,10 @@ module.exports = {
 												message,
 												diff,
 											}) => {
+												// dont want to escape mathjax
+												// things in here
 												const htmlGen = converter(
-													commit
+													codeBlockExtensions(commit)
 												);
 												// remove 1 for the blank at
 												// beginning
