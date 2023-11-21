@@ -175,103 +175,91 @@ Decoded: t8
 </code></pre>
 <p>We were able to cut the data down to 336 bits, compared to the original 371, but it was still worse than the original unencoded length of 256. Also this is when I realized there seemed to be a missing case for encoding when there was only 1 symbol. But that's not important considering what I'm about to explain.</p>
 <p>First, let's determine the size of the encoding of the binary tree relative to the number of symbols. We know that there will be $1:1$ relationship between the number of nodes and the number of 1 and 0 bits in the encoding. We also know that there will be $8*len(symbols)$ of bits to encode the symbol data for the tree (assuming we're using chars which are 1 byte long). We also know that we will always have a full binary tree because we build from the leaves up, so let's find a relationship between number of nodes in a full binary tree and number of leaves. Examples are good to look at.</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
-      child{ node{} }
-      child{ node {} };
-   \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
-      child{ node{} }
-      child{ node {} };
-   \end{tikzpicture}
-</script>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child{ node{} }
+    child{ node {} };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child{ node{} }
+    child{ node {} };
+\end{tikzpicture}</script>
 <p><br></p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child{ node{} }
+    child{ node {}
+      child{ node{} }
+      child{ node{} } };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child{ node{} }
+    child{ node {}
+      child{ node{} }
+      child{ node{} } };
+\end{tikzpicture}</script>
+<p><br></p>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+  level 1/.style={sibling distance=30mm},
+  level 2/.style={sibling distance=15mm}]
+  \node{}
+    child { node {}
+      child { node {} }
+      child { node {} }
+    }
+    child { node{}
+      child{ node{} }
+      child{ node {} }
+    };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+  level 1/.style={sibling distance=30mm},
+  level 2/.style={sibling distance=15mm}]
+  \node{}
+    child { node {}
+      child { node {} }
+      child { node {} }
+    }
+    child { node{}
+      child{ node{} }
+      child{ node {} }
+    };
+\end{tikzpicture}</script>
+<p><br></p>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+  level 1/.style={sibling distance=30mm},
+  level 2/.style={sibling distance=15mm}]
+  \node{}
+    child { node {}
+      child { node {} }
+      child { node {} }
+    }
+    child { node{}
       child{ node{} }
       child{ node {}
         child{ node{} }
-        child{ node{} } };
-   \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
+        child{ node{} }
+      }
+    };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+  level 1/.style={sibling distance=30mm},
+  level 2/.style={sibling distance=15mm}]
+  \node{}
+    child { node {}
+      child { node {} }
+      child { node {} }
+    }
+    child { node{}
       child{ node{} }
       child{ node {}
         child{ node{} }
-        child{ node{} } };
-   \end{tikzpicture}
-</script>
-<p><br></p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
-    level 1/.style={sibling distance=30mm},
-    level 2/.style={sibling distance=15mm}]
-    \node{}
-      child { node {}
-        child { node {} }
-        child { node {} }
-      }
-      child { node{}
         child{ node{} }
-        child{ node {} }
-      };
-   \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
-    level 1/.style={sibling distance=30mm},
-    level 2/.style={sibling distance=15mm}]
-    \node{}
-      child { node {}
-        child { node {} }
-        child { node {} }
       }
-      child { node{}
-        child{ node{} }
-        child{ node {} }
-      };
-   \end{tikzpicture}
-</script>
-<p><br></p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
-    level 1/.style={sibling distance=30mm},
-    level 2/.style={sibling distance=15mm}]
-    \node{}
-      child { node {}
-        child { node {} }
-        child { node {} }
-      }
-      child { node{}
-        child{ node{} }
-        child{ node {}
-          child{ node{} }
-          child{ node{} }
-        }
-      };
-   \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
-    level 1/.style={sibling distance=30mm},
-    level 2/.style={sibling distance=15mm}]
-    \node{}
-      child { node {}
-        child { node {} }
-        child { node {} }
-      }
-      child { node{}
-        child{ node{} }
-        child{ node {}
-          child{ node{} }
-          child{ node{} }
-        }
-      };
-   \end{tikzpicture}
-</script>
+    };
+\end{tikzpicture}</script>
 <p><br></p>
 <table>
 <thead>
@@ -304,44 +292,39 @@ Decoded: t8
 </tbody>
 </table>
 <p>And we should be able to see that we the pattern is $n = 2l - 1$. And remember, the number of leaves is equal to the number of symbols.</p>
-<p>
-Let $s$ be the number of distinct symbols in the data <br>
-$$ \begin{align} 8 * len(symbols) + 2 * len(symbols) - 1 = 10 * len(symbols) - 1 \end{align} $$
-</p>
+<p>Let $s$ be the number of distinct symbols in the data</p>
+<p>$$ \begin{align} 8 * len(symbols) + 2 * len(symbols) - 1 = 10 * len(symbols) - 1 \end{align} $$</p>
 <p>So it takes $10 * s - 1$ bits to encode the binary tree (double check that…). Now we need to think about how the data is actually encoded.</p>
 <p>There is one obvious point where the encoding is no longer worth it, and that is when the encoding for a node ends up being <em>at least</em> 8 bits long - or in other words the depth the leaf nodes of the tree are all at least 8.</p>
 <p>This definitely requires a lot more thought and analysis than my ramble is calling for, but the idea is that there should be some ratio between the occurrence of shorter encoded symbols and longer encoded symbols that, once surpassed, can show Huffman coding to be inefficient. The idea is that a tree like the following:</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
-      child { node {A} }
-      child { node{}
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child { node {A} }
+    child { node{}
+      child{ node{} }
+      child{ node {}
         child{ node{} }
-        child{ node {}
-          child{ node{} }
-          child{ node{}
-            child { node {} }
-            child { node {} }
-          }
+        child{ node{}
+          child { node {} }
+          child { node {} }
         }
-      };
-   \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
-      child { node {A} }
-      child { node{}
+      }
+    };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child { node {A} }
+    child { node{}
+      child{ node{} }
+      child{ node {}
         child{ node{} }
-        child{ node {}
-          child{ node{} }
-          child{ node{}
-            child { node {} }
-            child { node {} }
-          }
+        child{ node{}
+          child { node {} }
+          child { node {} }
         }
-      };
-   \end{tikzpicture}
-</script>
+      }
+    };
+\end{tikzpicture}</script>
 <p>But extended far and deep to the right. We can see that $A$ only takes one bit to encode but the symbols much lower down will - possibly - a lot more than 8 bits to encode, so for Huffman coding to be efficient, there needs to be a certain amount of more $A$s compared to the ones down there - intuition says the ratio is also related to the difference in bit encoding lengths.</p>
 <p>I think the ramble has gone on for some time, so I'd like to just end with one example where chunking beats the unencoded while chunking doesn't - when the data is $ABCABCDEFDEFGHIGHI$.</p>
 <p>Just by looking at it, you can already guess that a good chunk size is going to be 6, and it turns out that is what is best. If we go with encoding the entire thing, we get</p>
@@ -388,6 +371,169 @@ Decoded: GHIGHI
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-11-20 - update tex handling</summary>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1></label><code><span class=hljs-meta>@@ -179,13 +179,52 @@</span> number of leaves. Examples are good to look at.
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-deletion>-    \node{}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node{}</span>
+<span class=hljs-addition>+    child{ node{} }</span>
+<span class=hljs-addition>+    child{ node {} };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node{}</span>
+<span class=hljs-addition>+    child{ node{} }</span>
+<span class=hljs-addition>+    child{ node {}</span>
+<span class=hljs-addition>+      child{ node{} }</span>
+<span class=hljs-addition>+      child{ node{} } };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-addition>+  level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-addition>+  level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-addition>+  \node{}</span>
+<span class=hljs-addition>+    child { node {}</span>
+<span class=hljs-addition>+      child { node {} }</span>
+<span class=hljs-addition>+      child { node {} }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    child { node{}</span>
+       child{ node{} }
+<span class=hljs-deletion>-      child{ node {} };</span>
+<span class=hljs-deletion>-   \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-deletion>-&lt;br&gt;</span>
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-deletion>-    \node{}</span>
+<span class=hljs-addition>+      child{ node {} }</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-addition>+  level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-addition>+  level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-addition>+  \node{}</span>
+<span class=hljs-addition>+    child { node {}</span>
+<span class=hljs-addition>+      child { node {} }</span>
+<span class=hljs-addition>+      child { node {} }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    child { node{}</span>
+       child{ node{} }
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2></label><code><span class=hljs-meta>@@ -193,41 +232,9 @@</span> number of leaves. Examples are good to look at.
+         child{ node{} }
+<span class=hljs-deletion>-        child{ node{} } };</span>
+<span class=hljs-deletion>-   \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-deletion>-&lt;br&gt;</span>
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-deletion>-    level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-deletion>-    level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-deletion>-    \node{}</span>
+<span class=hljs-deletion>-      child { node {}</span>
+<span class=hljs-deletion>-        child { node {} }</span>
+<span class=hljs-deletion>-        child { node {} }</span>
+<span class=hljs-deletion>-      }</span>
+<span class=hljs-deletion>-      child { node{}</span>
+         child{ node{} }
+<span class=hljs-deletion>-        child{ node {} }</span>
+<span class=hljs-deletion>-      };</span>
+<span class=hljs-deletion>-   \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-deletion>-&lt;br&gt;</span>
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-deletion>-    level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-deletion>-    level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-deletion>-    \node{}</span>
+<span class=hljs-deletion>-      child { node {}</span>
+<span class=hljs-deletion>-        child { node {} }</span>
+<span class=hljs-deletion>-        child { node {} }</span>
+       }
+<span class=hljs-deletion>-      child { node{}</span>
+<span class=hljs-deletion>-        child{ node{} }</span>
+<span class=hljs-deletion>-        child{ node {}</span>
+<span class=hljs-deletion>-          child{ node{} }</span>
+<span class=hljs-deletion>-          child{ node{} }</span>
+<span class=hljs-deletion>-        }</span>
+<span class=hljs-deletion>-      };</span>
+<span class=hljs-deletion>-   \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-deletion>-&lt;br&gt;</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3></label><code><span class=hljs-meta>@@ -244,5 +251,6 @@</span> the number of leaves is equal to the number of symbols.
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-Let $s$ be the number of distinct symbols in the data &lt;br /&gt;</span>
+<span class=hljs-addition>+Let $s$ be the number of distinct symbols in the data</span>
+<span class=hljs-addition>+</span>
+ &lt;!--markdownlint-disable no-space-in-emphasis--&gt;
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4></label><code><span class=hljs-meta>@@ -252,4 +260,4 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ &lt;!--markdownlint-enable no-space-in-emphasis--&gt;
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5></label><code><span class=hljs-meta>@@ -268,18 +276,18 @@</span> like the following:
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-deletion>-    \node{}</span>
+<span class=hljs-deletion>-      child { node {A} }</span>
+<span class=hljs-deletion>-      child { node{}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node{}</span>
+<span class=hljs-addition>+    child { node {A} }</span>
+<span class=hljs-addition>+    child { node{}</span>
+<span class=hljs-addition>+      child{ node{} }</span>
+<span class=hljs-addition>+      child{ node {}</span>
+         child{ node{} }
+<span class=hljs-deletion>-        child{ node {}</span>
+<span class=hljs-deletion>-          child{ node{} }</span>
+<span class=hljs-deletion>-          child{ node{}</span>
+<span class=hljs-deletion>-            child { node {} }</span>
+<span class=hljs-deletion>-            child { node {} }</span>
+<span class=hljs-deletion>-          }</span>
+<span class=hljs-addition>+        child{ node{}</span>
+<span class=hljs-addition>+          child { node {} }</span>
+<span class=hljs-addition>+          child { node {} }</span>
+         }
+<span class=hljs-deletion>-      };</span>
+<span class=hljs-deletion>-   \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-addition>+      }</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+</details>
 <details>
 <summary>2020-11-18 - rename some posts</summary>
 <pre class=code-block><input id=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1 type=checkbox><label for=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>

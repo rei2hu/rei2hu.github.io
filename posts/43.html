@@ -38,133 +38,118 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <p>I think the first personal email I had was back around 2005. It was one in a group of emails provided to my family by our then internet provider, as it was hosted on under their domain. I didn't really use it at the time, as I was too young to really know how important it could be. My main memory of using that email is when a good friend of mine started sending me spam, and I had the audacity to (jokingly) type loudly at him in a reply. Back then I wasn't really aware of people getting hacked and stuff.</p>
 <p>However, once I got into the seedy side of gaming, I realized I needed more emails when I received my first ban. This is when I came across the concept of disposable/ temporary emails. This was quite useful as most services at the time didn't seem to have white/blacklists that prevented you from signing up with a shady looking address. I must've made a few hundred emails this way and used them for various reasons, but I eventually came to the conclusion this wasn't ideal as the emails were public as long as anyone knew the username and they couldn't be used reliably - numerous times I tried to work around various game account issues only to be shut down because the email used to register the account was no longer accessible to me.</p>
 <p>Then, I turned to Big Tech. Ehh, just hotmail, gmail, and yahoo. I had the ability to create persistent personal emails at virtually no cost - quite amazing really. I originally started out with several independent emails on these services like so:</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]
-    \node [] (a) {a};
-    \node [right of = a] (b) {b};
-    \node [right of = b] (c) {c};
-    \node [right of = c] (d) {d};
-  \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]
-    \node [] (a) {a};
-    \node [right of = a] (b) {b};
-    \node [right of = b] (c) {c};
-    \node [right of = c] (d) {d};
-  \end{tikzpicture}
-</script>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]
+  \node [] (a) {a};
+  \node [right of = a] (b) {b};
+  \node [right of = b] (c) {c};
+  \node [right of = c] (d) {d};
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]
+  \node [] (a) {a};
+  \node [right of = a] (b) {b};
+  \node [right of = b] (c) {c};
+  \node [right of = c] (d) {d};
+\end{tikzpicture}</script>
 <p>I would check each email individually when I needed to, and it was nice. However, as you may guess, I eventually have a few dozen emails sitting around and end up getting in a state where I have to check them periodically. This was too much work, so I ended up creating a single master email to which all other emails forward their mail:</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{A}
-      child{ node {a} edge from parent node[draw=none]{} }
-      child{ node {b} edge from parent node[draw=none]{} }
-      child{ node {c} edge from parent node[draw=none]{} }
-      child{ node {d} edge from parent node[draw=none]{} };
-  \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{A}
-      child{ node {a} edge from parent node[draw=none]{} }
-      child{ node {b} edge from parent node[draw=none]{} }
-      child{ node {c} edge from parent node[draw=none]{} }
-      child{ node {d} edge from parent node[draw=none]{} };
-  \end{tikzpicture}
-</script>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{A}
+    child{ node {a} edge from parent node[draw=none]{} }
+    child{ node {b} edge from parent node[draw=none]{} }
+    child{ node {c} edge from parent node[draw=none]{} }
+    child{ node {d} edge from parent node[draw=none]{} };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{A}
+    child{ node {a} edge from parent node[draw=none]{} }
+    child{ node {b} edge from parent node[draw=none]{} }
+    child{ node {c} edge from parent node[draw=none]{} }
+    child{ node {d} edge from parent node[draw=none]{} };
+\end{tikzpicture}</script>
 <p>Not bad, now I can read all my emails from <code>A</code>. Furthermore, I specifically don't sign up for anything that I believe to be shady with this email just to keep things nice and neat. And this is the only email that I use info close to my real info with. The main issue now is that sometimes I have to reply to an email, and that gets annoying. Fortunately this can be done through SMTP. But I don't do this because I would have to add a ton of emails every time I set up a new master and I don't have to reply too often from a non master email.</p>
 <p>One day, I learned about the + trick, where you can add a + at the end of an email like <code>me+something@gmail.com</code> and most services will think it's a new email. This is nice and I used it for a while, but I realized that it doesn't really protect you from having your email leaked online because it's pretty straightforward to find the actual email. After doing this practice too much, I lost track of what email did what and couldn't figure out how some emails were receiving certain messages.</p>
 <p>I eventually turned to making a new email for most services - which is not too bad. In fact, I like it because I can determine what leaked my email, although sometimes I set up an email for a specific purpose rather than a specific service e.g. job search and when that gets leaked I have to figure out which job site leaked it.</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]
-    \node{A}
-      child{ node {a} edge from parent node[draw=none]{} }
-      child{ node {b} edge from parent node[draw=none]{} }
-      child{ node {c} edge from parent node[draw=none]{} }
-      child{ node {d} edge from parent node[draw=none]{} }
-      child{ node {e} edge from parent node[draw=none]{} }
-      child{ node {f} edge from parent node[draw=none]{} }
-      child{ node {g} edge from parent node[draw=none]{} };
-  \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]
-    \node{A}
-      child{ node {a} edge from parent node[draw=none]{} }
-      child{ node {b} edge from parent node[draw=none]{} }
-      child{ node {c} edge from parent node[draw=none]{} }
-      child{ node {d} edge from parent node[draw=none]{} }
-      child{ node {e} edge from parent node[draw=none]{} }
-      child{ node {f} edge from parent node[draw=none]{} }
-      child{ node {g} edge from parent node[draw=none]{} };
-  \end{tikzpicture}
-</script>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]
+  \node{A}
+    child{ node {a} edge from parent node[draw=none]{} }
+    child{ node {b} edge from parent node[draw=none]{} }
+    child{ node {c} edge from parent node[draw=none]{} }
+    child{ node {d} edge from parent node[draw=none]{} }
+    child{ node {e} edge from parent node[draw=none]{} }
+    child{ node {f} edge from parent node[draw=none]{} }
+    child{ node {g} edge from parent node[draw=none]{} };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]
+  \node{A}
+    child{ node {a} edge from parent node[draw=none]{} }
+    child{ node {b} edge from parent node[draw=none]{} }
+    child{ node {c} edge from parent node[draw=none]{} }
+    child{ node {d} edge from parent node[draw=none]{} }
+    child{ node {e} edge from parent node[draw=none]{} }
+    child{ node {f} edge from parent node[draw=none]{} }
+    child{ node {g} edge from parent node[draw=none]{} };
+\end{tikzpicture}</script>
 <p>But one day I decided I didn't want to use a certain email anymore because it was spammed to hell, so I created a new master email and had <code>A</code> forward everything but the unwanted emails.</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle}, -]
-  \node{B}
-    child {
-      node{A}
-        child{ node {a} edge from parent node[draw=none]{} }
-        child{ node {b} edge from parent node[draw=none]{} }
-        child{ node {c} edge from parent node[draw=none]{} }
-        child{ node {d} edge from parent node[draw=none]{} }
-        child{ node {e} edge from parent node[draw=none]{} }
-        child{ node {f} edge from parent node[draw=none]{} }
-        child{ node {g} edge from parent node[draw=none]{} }
-      edge from parent node[right, draw=none]{filter}
-    };
-  \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle}, -]
-  \node{B}
-    child {
-      node{A}
-        child{ node {a} edge from parent node[draw=none]{} }
-        child{ node {b} edge from parent node[draw=none]{} }
-        child{ node {c} edge from parent node[draw=none]{} }
-        child{ node {d} edge from parent node[draw=none]{} }
-        child{ node {e} edge from parent node[draw=none]{} }
-        child{ node {f} edge from parent node[draw=none]{} }
-        child{ node {g} edge from parent node[draw=none]{} }
-      edge from parent node[right, draw=none]{filter}
-    };
-  \end{tikzpicture}
-</script>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle}, -]
+\node{B}
+  child {
+    node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} }
+      child{ node {e} edge from parent node[draw=none]{} }
+      child{ node {f} edge from parent node[draw=none]{} }
+      child{ node {g} edge from parent node[draw=none]{} }
+    edge from parent node[right, draw=none]{filter}
+  };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle}, -]
+\node{B}
+  child {
+    node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} }
+      child{ node {e} edge from parent node[draw=none]{} }
+      child{ node {f} edge from parent node[draw=none]{} }
+      child{ node {g} edge from parent node[draw=none]{} }
+    edge from parent node[right, draw=none]{filter}
+  };
+\end{tikzpicture}</script>
 <p>And now when I create new emails for services, I nest them under the latest master rather than at the bottom. This just means theres less forwarding done.</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle}, -]
-  \node{B}
-    child { node {h} edge from parent node[draw=none]{} }
-    child { node {i} edge from parent node[draw=none]{} }
-    child {
-      node{A}
-        child{ node {a} edge from parent node[draw=none]{} }
-        child{ node {b} edge from parent node[draw=none]{} }
-        child{ node {c} edge from parent node[draw=none]{} }
-        child{ node {d} edge from parent node[draw=none]{} }
-        child{ node {e} edge from parent node[draw=none]{} }
-        child{ node {f} edge from parent node[draw=none]{} }
-        child{ node {g} edge from parent node[draw=none]{} }
-      edge from parent node[right, draw=none]{filter}
-    };
-  \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle}, -]
-  \node{B}
-    child { node {h} edge from parent node[draw=none]{} }
-    child { node {i} edge from parent node[draw=none]{} }
-    child {
-      node{A}
-        child{ node {a} edge from parent node[draw=none]{} }
-        child{ node {b} edge from parent node[draw=none]{} }
-        child{ node {c} edge from parent node[draw=none]{} }
-        child{ node {d} edge from parent node[draw=none]{} }
-        child{ node {e} edge from parent node[draw=none]{} }
-        child{ node {f} edge from parent node[draw=none]{} }
-        child{ node {g} edge from parent node[draw=none]{} }
-      edge from parent node[right, draw=none]{filter}
-    };
-  \end{tikzpicture}
-</script>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle}, -]
+\node{B}
+  child { node {h} edge from parent node[draw=none]{} }
+  child { node {i} edge from parent node[draw=none]{} }
+  child {
+    node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} }
+      child{ node {e} edge from parent node[draw=none]{} }
+      child{ node {f} edge from parent node[draw=none]{} }
+      child{ node {g} edge from parent node[draw=none]{} }
+    edge from parent node[right, draw=none]{filter}
+  };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle}, -]
+\node{B}
+  child { node {h} edge from parent node[draw=none]{} }
+  child { node {i} edge from parent node[draw=none]{} }
+  child {
+    node{A}
+      child{ node {a} edge from parent node[draw=none]{} }
+      child{ node {b} edge from parent node[draw=none]{} }
+      child{ node {c} edge from parent node[draw=none]{} }
+      child{ node {d} edge from parent node[draw=none]{} }
+      child{ node {e} edge from parent node[draw=none]{} }
+      child{ node {f} edge from parent node[draw=none]{} }
+      child{ node {g} edge from parent node[draw=none]{} }
+    edge from parent node[right, draw=none]{filter}
+  };
+\end{tikzpicture}</script>
 <p>Now and then, I'll nest things under a new master email just to keep things fresh, but usually only after a certain period of time has passed or I want to "deprecate" one of my emails through a filter.</p>
 <p>I did start having a few reservations about this setup though. The first one is that access to a master email gives insight to a non-trivial part of my activities because some of my emails flow through it. Although, arguably it gives less insight than if you had everything in one account. Another problem is that with this setup, one service going down means I lose emails from all the ones nested below it - I haven't actually mapped out my tree of emails so I'm not exactly sure what would be lost at a glance. Then again, losing a node in this tree means losing less than if you lost your only email. Hmm, maybe it is good after all.</p>
 <p>What I've been thinking of recently is somehow encrypting the received emails so access to any inbox wouldn't yield any information. Unfortunately this requires the services to send the email encrypted which isn't possible in most cases, so I've been thinking of somehow making each node encrypt the message before forwarding it to its parent. For example if <code>c</code> received a message it would be encrypted like <code>B(A(c(message)))</code> and I'd have to decrypt it using those keys. But that requires having the tree mapped out. Which is actually one of my projects that I think I'll never get around to doing, as I looked at some email implementation details it it was pretty complex.</p>
@@ -174,6 +159,149 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-11-20 - update tex handling</summary>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1></label><code><span class=hljs-meta>@@ -29,10 +29,10 @@</span> these services like so:
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]</span>
+<span class=hljs-deletion>-    \node [] (a) {a};</span>
+<span class=hljs-deletion>-    \node [right of = a] (b) {b};</span>
+<span class=hljs-deletion>-    \node [right of = b] (c) {c};</span>
+<span class=hljs-deletion>-    \node [right of = c] (d) {d};</span>
+<span class=hljs-deletion>-  \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -, node distance=3cm]</span>
+<span class=hljs-addition>+  \node [] (a) {a};</span>
+<span class=hljs-addition>+  \node [right of = a] (b) {b};</span>
+<span class=hljs-addition>+  \node [right of = b] (c) {c};</span>
+<span class=hljs-addition>+  \node [right of = c] (d) {d};</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2></label><code><span class=hljs-meta>@@ -44,11 +44,11 @@</span> emails forward their mail:
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-deletion>-    \node{A}</span>
+<span class=hljs-deletion>-      child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-      child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-      child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-      child{ node {d} edge from parent node[draw=none]{} };</span>
+<span class=hljs-deletion>-  \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node{A}</span>
+<span class=hljs-addition>+    child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {d} edge from parent node[draw=none]{} };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3></label><code><span class=hljs-meta>@@ -76,5 +76,24 @@</span> site leaked it.
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]</span>
+<span class=hljs-deletion>-    \node{A}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -]</span>
+<span class=hljs-addition>+  \node{A}</span>
+<span class=hljs-addition>+    child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {d} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {e} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {f} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    child{ node {g} edge from parent node[draw=none]{} };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But one day I decided I didn&#x27;t want to use a certain email anymore because it</span>
+<span class=hljs-addition>+was spammed to hell, so I created a new master email and had `A` forward</span>
+<span class=hljs-addition>+everything but the unwanted emails.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle}, -]</span>
+<span class=hljs-addition>+\node{B}</span>
+<span class=hljs-addition>+  child {</span>
+<span class=hljs-addition>+    node{A}</span>
+       child{ node {a} edge from parent node[draw=none]{} }
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4></label><code><span class=hljs-meta>@@ -85,26 +104,7 @@</span> site leaked it.
+       child{ node {f} edge from parent node[draw=none]{} }
+<span class=hljs-deletion>-      child{ node {g} edge from parent node[draw=none]{} };</span>
+<span class=hljs-deletion>-  \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-deletion>-</span>
+<span class=hljs-deletion>-But one day I decided I didn&#x27;t want to use a certain email anymore because it</span>
+<span class=hljs-deletion>-was spammed to hell, so I created a new master email and had `A` forward</span>
+<span class=hljs-deletion>-everything but the unwanted emails.</span>
+<span class=hljs-deletion>-</span>
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle}, -]</span>
+<span class=hljs-deletion>-  \node{B}</span>
+<span class=hljs-deletion>-    child {</span>
+<span class=hljs-deletion>-      node{A}</span>
+<span class=hljs-deletion>-        child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {d} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {e} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {f} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {g} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-      edge from parent node[right, draw=none]{filter}</span>
+<span class=hljs-deletion>-    };</span>
+<span class=hljs-deletion>-  \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-addition>+      child{ node {g} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    edge from parent node[right, draw=none]{filter}</span>
+<span class=hljs-addition>+  };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5></label><code><span class=hljs-meta>@@ -113,20 +113,20 @@</span> master rather than at the bottom. This just means theres less forwarding done.
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle}, -]</span>
+<span class=hljs-deletion>-  \node{B}</span>
+<span class=hljs-deletion>-    child { node {h} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-    child { node {i} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-    child {</span>
+<span class=hljs-deletion>-      node{A}</span>
+<span class=hljs-deletion>-        child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {d} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {e} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {f} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-        child{ node {g} edge from parent node[draw=none]{} }</span>
+<span class=hljs-deletion>-      edge from parent node[right, draw=none]{filter}</span>
+<span class=hljs-deletion>-    };</span>
+<span class=hljs-deletion>-  \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle}, -]</span>
+<span class=hljs-addition>+\node{B}</span>
+<span class=hljs-addition>+  child { node {h} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+  child { node {i} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+  child {</span>
+<span class=hljs-addition>+    node{A}</span>
+<span class=hljs-addition>+      child{ node {a} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {b} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {c} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {d} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {e} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {f} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+      child{ node {g} edge from parent node[draw=none]{} }</span>
+<span class=hljs-addition>+    edge from parent node[right, draw=none]{filter}</span>
+<span class=hljs-addition>+  };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+</details>
 <details>
 <summary>2021-11-02 - add post 43</summary>
 <pre class=code-block><input id=code-block-5aa09c74302fe86ad3def5ca802f143ac7b2785e-1 type=checkbox><label for=code-block-5aa09c74302fe86ad3def5ca802f143ac7b2785e-1></label><code><span class=hljs-meta>@@ -0,0 +1,151 @@</span>

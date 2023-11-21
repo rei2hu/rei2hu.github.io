@@ -41,35 +41,28 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <h3 id=huffman-coding---an-explanation>Huffman coding - an explanation</h3>
 <p>The idea behind Huffman coding is to come up with a set of codes that encode less frequently occurring symbols with more bits while encoding more frequently occurring symbols with less bits.</p>
 <p>Take, for example, a <code>char</code>. This has a size of 1 byte or 8 bits, but if you only have 2 different <code>char</code>s in your file, then in reality, we only need 1 bit to differentiate between the two, for example (spacing for display purposes):</p>
-<p>
-A A B B A B $\rightarrow$ 01000001 01000001 01000010 01000010 01000001 01000010
-<br>
-compared to
-<br>
-A A B B A B $\rightarrow$ 0 0 1 1 0 1
-</p>
+<p>A A B B A B $\rightarrow$ 01000001 01000001 01000010 01000010 01000001 01000010</p>
+<p>compared to</p>
+<p>A A B B A B $\rightarrow$ 0 0 1 1 0 1</p>
 <p>However, it is not as simple as having the patterns <code>0</code>, <code>1</code>, <code>01</code>, <code>10</code>, etc. because when decoding, you would come across ambiguities. Therefore, the encoding must be a <strong>prefix code</strong> so that none of the codes are prefixes of the other - <code>0</code> and <code>01</code> could not both be in the set because <code>0</code> is a prefix of
 <code>01</code>.</p>
 <p>It just so happens that this can be simply done with a binary tree - we treat the edges as a way to represent the code and as long as we leave (haha) the symbols at the leaves, we guarantee that we do not have the prefix conflict. For example:</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
-      child{ node{A} edge from parent node[left, draw=none] {0} }
-      child{ node {}
-        child{ node{B} edge from parent node[left, draw=none] {0} }
-        child{ node{C} edge from parent node[right, draw=none] {1} }
-      edge from parent node[right, draw=none] {1} };
-   \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node{}
-      child{ node{A} edge from parent node[left, draw=none] {0} }
-      child{ node {}
-        child{ node{B} edge from parent node[left, draw=none] {0} }
-        child{ node{C} edge from parent node[right, draw=none] {1} }
-      edge from parent node[right, draw=none] {1} };
-   \end{tikzpicture}
-</script>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child{ node{A} edge from parent node[left, draw=none] {0} }
+    child{ node {}
+      child{ node{B} edge from parent node[left, draw=none] {0} }
+      child{ node{C} edge from parent node[right, draw=none] {1} }
+    edge from parent node[right, draw=none] {1} };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node{}
+    child{ node{A} edge from parent node[left, draw=none] {0} }
+    child{ node {}
+      child{ node{B} edge from parent node[left, draw=none] {0} }
+      child{ node{C} edge from parent node[right, draw=none] {1} }
+    edge from parent node[right, draw=none] {1} };
+\end{tikzpicture}</script>
 <p>We can interpret the tree as a prefix code by starting at the root and using the bits along the path to each leaf as the codeword for the symbol at the leaf i.e.</p>
 <table>
 <thead>
@@ -128,51 +121,48 @@ symbols.sort(key=<span class=hljs-keyword>lambda</span> s: s.occurrences)
 <pre class=code-block><input id=code-block-13-2 type=checkbox><label for=code-block-13-2></label><code>Node(left=Node(left=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;C&#x27;</span>, occurrences=<span class=hljs-number>3</span>), right=Node(left=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;E&#x27;</span>, occurrences=<span class=hljs-number>1</span>), right=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;B&#x27;</span>, occurrences=<span class=hljs-number>2</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>3</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>6</span>), right=Node(left=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;D&#x27;</span>, occurrences=<span class=hljs-number>4</span>), right=Node(left=<span class=hljs-literal>None</span>, right=<span class=hljs-literal>None</span>, value=<span class=hljs-string>&#x27;A&#x27;</span>, occurrences=<span class=hljs-number>5</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>9</span>), value=<span class=hljs-literal>None</span>, occurrences=<span class=hljs-number>15</span>))
 </code></pre>
 <p>Or the following tree (I'm keeping track of the occurrences here also, just for reference)</p>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
-    level 1/.style={sibling distance=30mm},
-    level 2/.style={sibling distance=15mm}]
-    \node{15}
-      child { node{6}
-        child{ node{C:3} edge from parent node[left, draw=none] {0}
-          edge from parent node[left, draw=none] {0}
-        }
-        child{ node {3}
-          child{ node{E:1} edge from parent node[left, draw=none] {0} }
-          child{ node{B:2} edge from parent node[right, draw=none] {1} }
-          edge from parent node[right, draw=none] {1}
-        }
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+  level 1/.style={sibling distance=30mm},
+  level 2/.style={sibling distance=15mm}]
+  \node{15}
+    child { node{6}
+      child{ node{C:3} edge from parent node[left, draw=none] {0}
         edge from parent node[left, draw=none] {0}
       }
-      child { node {9}
-        child { node {D:4} edge from parent node[left, draw=none] {0} }
-        child { node {A:5} edge from parent node[right, draw=none] {1} }
+      child{ node {3}
+        child{ node{E:1} edge from parent node[left, draw=none] {0} }
+        child{ node{B:2} edge from parent node[right, draw=none] {1} }
         edge from parent node[right, draw=none] {1}
-      };
-   \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
-    level 1/.style={sibling distance=30mm},
-    level 2/.style={sibling distance=15mm}]
-    \node{15}
-      child { node{6}
-        child{ node{C:3} edge from parent node[left, draw=none] {0}
-          edge from parent node[left, draw=none] {0}
-        }
-        child{ node {3}
-          child{ node{E:1} edge from parent node[left, draw=none] {0} }
-          child{ node{B:2} edge from parent node[right, draw=none] {1} }
-          edge from parent node[right, draw=none] {1}
-        }
+      }
+      edge from parent node[left, draw=none] {0}
+    }
+    child { node {9}
+      child { node {D:4} edge from parent node[left, draw=none] {0} }
+      child { node {A:5} edge from parent node[right, draw=none] {1} }
+      edge from parent node[right, draw=none] {1}
+    };
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->,
+  level 1/.style={sibling distance=30mm},
+  level 2/.style={sibling distance=15mm}]
+  \node{15}
+    child { node{6}
+      child{ node{C:3} edge from parent node[left, draw=none] {0}
         edge from parent node[left, draw=none] {0}
       }
-      child { node {9}
-        child { node {D:4} edge from parent node[left, draw=none] {0} }
-        child { node {A:5} edge from parent node[right, draw=none] {1} }
+      child{ node {3}
+        child{ node{E:1} edge from parent node[left, draw=none] {0} }
+        child{ node{B:2} edge from parent node[right, draw=none] {1} }
         edge from parent node[right, draw=none] {1}
-      };
-   \end{tikzpicture}
-</script>
+      }
+      edge from parent node[left, draw=none] {0}
+    }
+    child { node {9}
+      child { node {D:4} edge from parent node[left, draw=none] {0} }
+      child { node {A:5} edge from parent node[right, draw=none] {1} }
+      edge from parent node[right, draw=none] {1}
+    };
+\end{tikzpicture}</script>
 <p>And encoding</p>
 <table>
 <thead>
@@ -270,6 +260,90 @@ enc_tree = enc_tree + [<span class=hljs-string>&#x27;oh no!&#x27;</span>, <span 
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-11-20 - update tex handling</summary>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1></label><code><span class=hljs-meta>@@ -26,9 +26,7 @@</span> to differentiate between the two, for example (spacing for display purposes):
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+ A A B B A B $\rightarrow$ 01000001 01000001 01000010 01000010 01000001 01000010
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+ compared to
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+ A A B B A B $\rightarrow$ 0 0 1 1 0 1
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2></label><code><span class=hljs-meta>@@ -45,12 +43,12 @@</span> example:
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-deletion>-    \node{}</span>
+<span class=hljs-deletion>-      child{ node{A} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-deletion>-      child{ node {}</span>
+<span class=hljs-deletion>-        child{ node{B} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-deletion>-        child{ node{C} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-deletion>-      edge from parent node[right, draw=none] {1} };</span>
+<span class=hljs-deletion>-   \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node{}</span>
+<span class=hljs-addition>+    child{ node{A} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+    child{ node {}</span>
+<span class=hljs-addition>+      child{ node{B} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+      child{ node{C} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+    edge from parent node[right, draw=none] {1} };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3></label><code><span class=hljs-meta>@@ -117,25 +115,25 @@</span> reference)
+
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-deletion>-    level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-deletion>-    level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-deletion>-    \node{15}</span>
+<span class=hljs-deletion>-      child { node{6}</span>
+<span class=hljs-deletion>-        child{ node{C:3} edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-deletion>-          edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-deletion>-        }</span>
+<span class=hljs-deletion>-        child{ node {3}</span>
+<span class=hljs-deletion>-          child{ node{E:1} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-deletion>-          child{ node{B:2} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-deletion>-          edge from parent node[right, draw=none] {1}</span>
+<span class=hljs-deletion>-        }</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-addition>+  level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-addition>+  level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-addition>+  \node{15}</span>
+<span class=hljs-addition>+    child { node{6}</span>
+<span class=hljs-addition>+      child{ node{C:3} edge from parent node[left, draw=none] {0}</span>
+         edge from parent node[left, draw=none] {0}
+       }
+<span class=hljs-deletion>-      child { node {9}</span>
+<span class=hljs-deletion>-        child { node {D:4} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-deletion>-        child { node {A:5} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+      child{ node {3}</span>
+<span class=hljs-addition>+        child{ node{E:1} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+        child{ node{B:2} edge from parent node[right, draw=none] {1} }</span>
+         edge from parent node[right, draw=none] {1}
+<span class=hljs-deletion>-      };</span>
+<span class=hljs-deletion>-   \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-addition>+      }</span>
+<span class=hljs-addition>+      edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    child { node {9}</span>
+<span class=hljs-addition>+      child { node {D:4} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+      child { node {A:5} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+      edge from parent node[right, draw=none] {1}</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+</details>
 <details>
 <summary>2020-11-18 - rename some posts</summary>
 <pre class=code-block><input id=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1 type=checkbox><label for=code-block-676e04c7c5ba7f50055b0ede6c828f4edacf5964-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>

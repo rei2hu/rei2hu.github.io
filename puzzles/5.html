@@ -33,9 +33,11 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <nav class=posts-nav_top>
 <div style="flex:0 0 50%"><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div style=text-align:end><a href=/./puzzles/6>graphs 1 &gt;</a></div>
 </nav>
+<h1 id=divide-and-conquer-1>Divide and Conquer 1</h1>
 <h2 id=question-1>Question 1</h2>
-<p>What is the running time of the median finding algorithm if you break up the list into $n/3$ groups of 3. <br> <br> What about $n/7$ groups of 7? <br>
-<br> First, a quick refreshed on how the median finding algorithm works normally:</p>
+<p>What is the running time of the median finding algorithm if you break up the list into $n/3$ groups of 3.</p>
+<p>What about $n/7$ groups of 7?</p>
+<p>First, a quick refreshed on how the median finding algorithm works normally:</p>
 <ol>
 <li>Break list into groups of 5.</li>
 <li>Sort groups</li>
@@ -45,14 +47,12 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <li>Recursively apply formula on single partition depending on which one contains the index of the median</li>
 </ol>
 <p>What is it with 5? Let's look at the runtime of each step:</p>
-<ol>
-<li>$O(n)$</li>
-<li>$n * O(1) \Rightarrow O(n)$</li>
-<li>$n * O(1) \Rightarrow O(n)$</li>
-<li>$T(n / 5)$</li>
-<li>$O(n)$</li>
-<li>$T(3n / 4)$</li>
-</ol>
+<p>1. $O(n)$</p>
+<p>2. $n * O(1) \Rightarrow O(n)$</p>
+<p>3. $n * O(1) \Rightarrow O(n)$</p>
+<p>4. $T(n / 5)$</p>
+<p>5. $O(n)$</p>
+<p>6. $T(3n / 4)$</p>
 <p>The final equation is something like $T(3n / 4) + T(n / 5) + O(n)$ which is $O(n)$. Breaking the groups into different sizes changes the runtime of steps 4 and 7. If we do break into groups of 3, the runtime turns into something like $T(n / 3) + T(2n / 3) + O(n)$ which doesn't really cut the cases down (through the master theorem it looks to be $O(nlogn)$). Using groups of 7, the equation is $T(n / 7) + T(5n / 7) + O(n)$ which reduces down to $O(n)$.</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div style=text-align:end><a href=/./puzzles/6>graphs 1 &gt;</a></div>
@@ -60,6 +60,37 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-11-20 - update tex handling</summary>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-&lt;!-- markdownlint-disable MD041 --&gt;</span>
+<span class=hljs-addition>+# Divide and Conquer 1</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2></label><code><span class=hljs-meta>@@ -5,5 +5,7 @@</span>
+ What is the running time of the median finding algorithm if you break up the
+<span class=hljs-deletion>-list into $n/3$ groups of 3. &lt;br /&gt; &lt;br /&gt; What about $n/7$ groups of 7? &lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt; First, a quick refreshed on how the median finding algorithm works</span>
+<span class=hljs-deletion>-normally:</span>
+<span class=hljs-addition>+list into $n/3$ groups of 3.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What about $n/7$ groups of 7?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First, a quick refreshed on how the median finding algorithm works normally:</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3></label><code><span class=hljs-meta>@@ -21,6 +23,11 @@</span> What is it with 5? Let&#x27;s look at the runtime of each step:
+ 1. $O(n)$
+<span class=hljs-addition>+</span>
+ 2. $n * O(1) \Rightarrow O(n)$
+<span class=hljs-addition>+</span>
+ 3. $n * O(1) \Rightarrow O(n)$
+<span class=hljs-addition>+</span>
+ 4. $T(n / 5)$
+<span class=hljs-addition>+</span>
+ 5. $O(n)$
+<span class=hljs-addition>+</span>
+ 6. $T(3n / 4)$
+</code></pre>
+</details>
 <details>
 <summary>2020-12-23 - add exercise 5</summary>
 <pre class=code-block><input id=code-block-5b50e89dfddf96baedc30c2dcc43ce863ad09cc2-1 type=checkbox><label for=code-block-5b50e89dfddf96baedc30c2dcc43ce863ad09cc2-1></label><code><span class=hljs-meta>@@ -0,0 +1,36 @@</span>

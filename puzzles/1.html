@@ -33,29 +33,24 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <nav class=posts-nav_top>
 <div style="flex:0 0 50%"></div> <div style=text-align:end><a href=/./puzzles/2>dynamic programming 2 &gt;</a></div>
 </nav>
+<h1 id=dynamic-programming-1>Dynamic Programming 1</h1>
 <h2 id=question-1>Question 1</h2>
-<p>
-Pebbling a checkerboard. We are given a checkerboard which has $4$ rows and $n$ columns, and has an integer written in each square. We are also given a set of $2n$ pebbles, and we want to place some or all of these on the checkerboard (each pebble can be placed on exactly one square) so as to maximize the sum of the integers in the squares that are covered by pebbles. There is one constraint: for a placement of pebbles to be legal, no two of them can be on horizontally or vertically adjacent squares (diagonal adjacency is fine).
-<br>
-<br>
-(a) Determine the number of legal patterns that can occur in any column (in isolation, ignoring the pebbles in adjacent columns) and describe these patterns.
-<br>
-<br>
-Pretend the column is a 0-indexed array with length 4. We can place pebbles at the following indices: $$ [[0, 3], [0, 2], [1, 3], [0], [1], [2], [3], []] $$ Call two patterns compatible if they can be placed on adjacent columns to form a legal placement. Let us consider subproblems consisting of the first $k$ columns $1 \leq k \leq n$. Each subproblem can be assigned a type, which is the pattern occurring in the last column.
-<br>
-<br>
-A couple of observations to make would be:
-</p>
+<p>Pebbling a checkerboard. We are given a checkerboard which has $4$ rows and $n$ columns, and has an integer written in each square. We are also given a set of $2n$ pebbles, and we want to place some or all of these on the checkerboard (each pebble can be placed on exactly one square) so as to maximize the sum of the integers in the squares that are covered by pebbles. There is one constraint: for a placement of pebbles to be legal, no two of them can be on horizontally or vertically adjacent squares (diagonal adjacency is fine).</p>
+<p>(a) Determine the number of legal patterns that can occur in any column (in isolation, ignoring the pebbles in adjacent columns) and describe these patterns.</p>
+<p>Pretend the column is a 0-indexed array with length 4. We can place pebbles at the following indices:</p>
+<p>$$ [[0, 3], [0, 2], [1, 3], [0], [1], [2], [3], []] $$</p>
+<p>Call two patterns compatible if they can be placed on adjacent columns to form a legal placement. Let us consider subproblems consisting of the first $k$ columns $1 \leq k \leq n$. Each subproblem can be assigned a type, which is the pattern occurring in the last column.</p>
+<p>A couple of observations to make would be:</p>
 <ol>
 <li>There are $2n$ pebbles. Because we know that we can put at most $2$ pebbles in each column, we will be able to use any combintion of patterns without running out of pebbles.</li>
 <li>It may be correct to use 1 or 0 pebbles in a column because the column may contain negative values. Will taking a negative value open up an avenue for taking a positive value that outweighs the cost? I'm not entirely sure but this doesn't appear to be the case at a glance.</li>
 </ol>
-<p>
-(b) Using the notions of compatibility and type, give an $O(n)$-time dynamic programming algorithm for computing an optimal placement
-<br>
-<br>
-Start by defining a function $f(n, t)$ that expresses the max value that can be obtained for columns $1...n$ by using pattern $t$ on the last column. We can express the function in terms of itself by saying the maximum value for columns $1..n$ and pattern $t$ is the sum of the maximum value for columns $1...n-1$ and the value of applying pattern $t$ to column $n$. We also need the constraint that the pattern for $n-1$ is compatible with $t$. In other words $$ \begin{align} f(0, t) &= 0 \\ f(n, t) &= \max \{ f(n - 1, t') + val(C_n, t) \mid t' \in compat(t) \} \end{align} $$ Let's try an example: $$ \begin{bmatrix} 2 & 2 & -5 & 2 & -3 \\ -4 & 1 & 2 & 2 & -1 \\ -1 & 0 & 0 & 3 & -4 \\ 1 & -1 & 3 & -1 & -2 \end{bmatrix} $$ We start with a 2d table, with lengths $N$ and $T$. $T$ is the number of types: 8. We'll label them by their index in the first array we constructed for this problem, and fill out $f(0, t)$, and $f(1, t)$ which is straightforward since we do not need to think about compatibility.
-</p>
+<p>(b) Using the notions of compatibility and type, give an $O(n)$-time dynamic programming algorithm for computing an optimal placement</p>
+<p>Start by defining a function $f(n, t)$ that expresses the max value that can be obtained for columns $1...n$ by using pattern $t$ on the last column. We can express the function in terms of itself by saying the maximum value for columns $1..n$ and pattern $t$ is the sum of the maximum value for columns $1...n-1$ and the value of applying pattern $t$ to column $n$. We also need the constraint that the pattern for $n-1$ is compatible with $t$. In other words</p>
+<p>$$ \begin{align} f(0, t) &= 0 \\ f(n, t) &= \max \{ f(n - 1, t') + val(C_n, t) \mid t' \in compat(t) \} \\ \end{align} $$</p>
+<p>Let's try an example:</p>
+<p>$$ \begin{bmatrix} 2 & 2 & -5 & 2 & -3 \\ -4 & 1 & 2 & 2 & -1 \\ -1 & 0 & 0 & 3 & -4 \\ 1 & -1 & 3 & -1 & -2 \end{bmatrix} $$</p>
+<p>We start with a 2d table, with lengths $N$ and $T$. $T$ is the number of types: 8. We'll label them by their index in the first array we constructed for this problem, and fill out $f(0, t)$, and $f(1, t)$ which is straightforward since we do not need to think about compatibility.</p>
 <table>
 <thead>
 <tr>
@@ -117,9 +112,9 @@ Start by defining a function $f(n, t)$ that expresses the max value that can be 
 </tr>
 </tbody>
 </table>
-<p>
-What is $f(2, 0)$? According to our recurrence, it is $$ \begin{align} f(2, 0) &= \max \{ f(1, t') + val(C_2, 0) \mid t' \in compat(0) \} \\ &= \max \{ f(1, t') + 1 \mid t' \in \{ 1, 3, 4, 7 \} \} \\ &= \max \{ f(1, 1), f(1, 3), f(1, 4), f(1, 7) \} + 1 \\ &= 3 \end{align} $$ The we fill out the table and look for the maximum in the last row for the solution.
-</p>
+<p>What is $f(2, 0)$? According to our recurrence, it is</p>
+<p>$$ \begin{align} f(2, 0) &= \max \{ f(1, t') + val(C_2, 0) \mid t' \in compat(0) \} \\ &= \max \{ f(1, t') + 1 \mid t' \in \{ 1, 3, 4, 7 \} \} \\ &= \max \{ f(1, 1), f(1, 3), f(1, 4), f(1, 7) \} + 1 \\ &= 3 \end{align} $$</p>
+<p>The we fill out the table and look for the maximum in the last row for the solution.</p>
 <table>
 <thead>
 <tr>
@@ -204,13 +199,10 @@ What is $f(2, 0)$? According to our recurrence, it is $$ \begin{align} f(2, 0) &
 </tbody>
 </table>
 <p>I did not check if the table is correct, but we can check if the answer we have is at least valid. We see the max score, 13, is obtained pattern 7, on the last column and work our way backwards. The underlined numbers are the ones chosen.</p>
-<p>
-$$ \begin{bmatrix} 2 & \underline{2} & -5 & \underline{2} & -3 \\ -4 & 1 & \underline{2} & 2 & -1 \\ -1 & 0 & 0 & \underline{3} & -4 \\ \underline{1} & -1 & \underline{3} & -1 & -2 \end{bmatrix} $$ Note that on the second column you can either use pattern 1 or 3, then on the first column you can use 1 or 6.
-</p>
+<p>$$ \begin{bmatrix} 2 & \underline{2} & -5 & \underline{2} & -3 \\ -4 & 1 & \underline{2} & 2 & -1 \\ -1 & 0 & 0 & \underline{3} & -4 \\ \underline{1} & -1 & \underline{3} & -1 & -2 \end{bmatrix} $$</p>
+<p>Note that on the second column you can either use pattern 1 or 3, then on the first column you can use 1 or 6.</p>
 <h2 id=question-2>Question 2</h2>
-<p>
-Let us define a multiplication operation on three symbols $a$, $b$, $c$ according to the following table; thus $ab = b$, $ba = c$, and so on. Notice that the multiplication operation defined by the table is neither associative nor commutative.
-</p>
+<p>Let us define a multiplication operation on three symbols $a$, $b$, $c$ according to the following table; thus $ab = b$, $ba = c$, and so on. Notice that the multiplication operation defined by the table is neither associative nor commutative.</p>
 <table>
 <thead>
 <tr>
@@ -241,73 +233,47 @@ Let us define a multiplication operation on three symbols $a$, $b$, $c$ accordin
 </tr>
 </tbody>
 </table>
-<p>
-Find an efficient algorithm that examines a string of these symbols, say $bbbbac$, and decides whether or not it is possible to parenthesize the string in such a way that the value of the resulting expression is $a$. For example, on input $bbbbac$ your algorithm should return yes because $((b(bb))(ba))c = a$.
-<br>
-<br>
-For this question, we can first note that the we will not be able to define the problem in the $f(n) = f(n - 1)$ kind of way due to the nature of how parenthesization works, namely that it doesn't have to end up like $(((a_1)a_2)a_3)$. This most likely requires a tree like approach.
-<br>
-<br>
-Start by defining $f(i, j)$ which determines whether or not the substring starting at $a_i$ and ending at $a_j$ equals $a$.
-<br>
-<br>
-For an expression $a_i, a_{i+1}, ..., a_j$, it is reducible to $a$ if there is some $k \in [i...j]$ where $a_i, ..., a_k$ and $a_{k + 1}, ... a_j$ are reducible to $a$. $$ \begin{align} f(i, j) &= \max \{ f(i, k)*f(k + 1, j) \mid i \leq k \lt j \} \end{align} $$ I think the weird part with questions like this is determining the actual base cases. If I go with $f(i, i)$ and say it starts at $a_i$ and includes $a_i$, then it is straightforward whether or not a single symbol is $a$ or not. However, if I go one level higher - $f(i, i + 1)$ which could be decomposed into $f(i, i)$ and $f(i + 1, i + 1)$, but even if $f(i, i)$ is false, $f(i, i)*f(i + 1, i + 1)$ may not be, depending on the table.
-<br>
-<br>
-One alternative is to say $f(i, i)$ starts at $a_i$ but does not include $a_i$. In other words it is empty. This is trivially 0 (false). But then if we have $f(i, i + 1)$ be the symbol $a$, we would then decompose it to $f(i, i)*f(i+1, i+1)$ which is 2 falses.
-<br>
-<br>
-We end up needing a third argument here. The tree might look like this:
-<br>
-<br>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node {x}
-      child{ node {y} edge from parent node[left, draw=none] {}}
-      child{ node {z} edge from parent node[right, draw=none] {}};
-  \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node {x}
-      child{ node {y} edge from parent node[left, draw=none] {}}
-      child{ node {z} edge from parent node[right, draw=none] {}};
-  \end{tikzpicture}
-</script>
-<br>
-<br>
-If $x$ is the root, we need to determine if $x$ can be $a$. To do this, we need to know possible values for $y$ and $z$. If we go deeper, we can get a subtree rooted at $y$.
-<br>
-<br>
-<noscript><pre>
-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node {x}
-      child{ node {y}
-          child{ node {m} edge from parent node[left, draw=none] {}}
-          child{ node {n} edge from parent node[right, draw=none] {}}
-          edge from parent node[left, draw=none] {}
-      }
-      child{ node {z} edge from parent node[right, draw=none] {}};
-  \end{tikzpicture}
-</pre></noscript><script type=text/tikz>
-\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-    \node {x}
-      child{ node {y}
-          child{ node {m} edge from parent node[left, draw=none] {}}
-          child{ node {n} edge from parent node[right, draw=none] {}}
-          edge from parent node[left, draw=none] {}
-      }
-      child{ node {z} edge from parent node[right, draw=none] {}};
-  \end{tikzpicture}
-</script>
-<br>
-<br>
-At this point, $y$ does not necessarily have to be $a$, as it could be any value as long as the combination of $y$ and $x$ can make $a$. This means the combination of $(mn)x$ should equal $a$. So in addition to having $i$ and $j$, we need another $s$ which determines what are the valid symbols that can be at that position. So we define $f(s, i, j)$ to be if the symbol $s$ can be created from $a_i$ to $a_j$, inclusive.
-$$ \begin{align} f(s, i, i) &= a_i == s \\ f(s, i, j) &= s \in \{ m * n \mid n, m \in \{ a, b, c \}, \exists k \in [i, j) \text{ st } f(m, i, k) \text{ and } f(n, k + 1, j) \} \end{align} $$
-Long story short, $f(s, i, j)$ is true if $s$ can be made from the children's possibilities. My guess is that we will be calculating the set of possibilities until we reach the root, namely $f(_, 0, len)$ at which point we run $f(a, 0, len)$ for the answer.
-<br>
-<br>
-But finally to the example - we keep track of the set of possiblities for parenthesizing $a_i$ to $a_j$
-</p>
+<p>Find an efficient algorithm that examines a string of these symbols, say $bbbbac$, and decides whether or not it is possible to parenthesize the string in such a way that the value of the resulting expression is $a$. For example, on input $bbbbac$ your algorithm should return yes because $((b(bb))(ba))c = a$.</p>
+<p>For this question, we can first note that the we will not be able to define the problem in the $f(n) = f(n - 1)$ kind of way due to the nature of how parenthesization works, namely that it doesn't have to end up like $(((a_1)a_2)a_3)$. This most likely requires a tree like approach.</p>
+<p>Start by defining $f(i, j)$ which determines whether or not the substring starting at $a_i$ and ending at $a_j$ equals $a$.</p>
+<p>For an expression $a_i, a_{i+1}, ..., a_j$, it is reducible to $a$ if there is some $k \in [i...j]$ where $a_i, ..., a_k$ and $a_{k + 1}, ... a_j$ are reducible to $a$.</p>
+<p>$$ \begin{align} f(i, j) &= \max \{ f(i, k)*f(k + 1, j) \mid i \leq k \lt j \} \end{align} $$</p>
+<p>I think the weird part with questions like this is determining the actual base cases. If I go with $f(i, i)$ and say it starts at $a_i$ and includes $a_i$, then it is straightforward whether or not a single symbol is $a$ or not. However, if I go one level higher - $f(i, i + 1)$ which could be decomposed into $f(i, i)$ and $f(i + 1, i + 1)$, but even if $f(i, i)$ is false, $f(i, i)*f(i + 1, i + 1)$ may not be, depending on the table.</p>
+<p>One alternative is to say $f(i, i)$ starts at $a_i$ but does not include $a_i$. In other words it is empty. This is trivially 0 (false). But then if we have $f(i, i + 1)$ be the symbol $a$, we would then decompose it to $f(i, i)*f(i+1, i+1)$ which is 2 falses.</p>
+<p>We end up needing a third argument here. The tree might look like this:</p>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node {x}
+    child{ node {y} edge from parent node[left, draw=none] {}}
+    child{ node {z} edge from parent node[right, draw=none] {}};
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node {x}
+    child{ node {y} edge from parent node[left, draw=none] {}}
+    child{ node {z} edge from parent node[right, draw=none] {}};
+\end{tikzpicture}</script>
+<p>If $x$ is the root, we need to determine if $x$ can be $a$. To do this, we need to know possible values for $y$ and $z$. If we go deeper, we can get a subtree rooted at $y$.</p>
+<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node {x}
+    child{ node {y}
+        child{ node {m} edge from parent node[left, draw=none] {}}
+        child{ node {n} edge from parent node[right, draw=none] {}}
+        edge from parent node[left, draw=none] {}
+    }
+    child{ node {z} edge from parent node[right, draw=none] {}};
+\end{tikzpicture}</pre></noscript>
+<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
+  \node {x}
+    child{ node {y}
+        child{ node {m} edge from parent node[left, draw=none] {}}
+        child{ node {n} edge from parent node[right, draw=none] {}}
+        edge from parent node[left, draw=none] {}
+    }
+    child{ node {z} edge from parent node[right, draw=none] {}};
+\end{tikzpicture}</script>
+<p>At this point, $y$ does not necessarily have to be $a$, as it could be any value as long as the combination of $y$ and $x$ can make $a$. This means the combination of $(mn)x$ should equal $a$. So in addition to having $i$ and $j$, we need another $s$ which determines what are the valid symbols that can be at that position. So we define $f(s, i, j)$ to be if the symbol $s$ can be created from $a_i$ to $a_j$, inclusive.</p>
+<p>$$ \begin{align} f(s, i, i) &= a_i == s \\ f(s, i, j) &= s \in \{ m * n \mid n, m \in \{ a, b, c \}, \exists k \in [i, j) \text{ st } f(m, i, k) \text{ and } f(n, k + 1, j) \} \end{align} $$</p>
+<p>Long story short, $f(s, i, j)$ is true if $s$ can be made from the children's possibilities. My guess is that we will be calculating the set of possibilities until we reach the root, namely $f(_, 0, len)$ at which point we run $f(a, 0, len)$ for the answer.</p>
+<p>But finally to the example - we keep track of the set of possiblities for parenthesizing $a_i$ to $a_j$</p>
 <table>
 <thead>
 <tr>
@@ -377,9 +343,9 @@ But finally to the example - we keep track of the set of possiblities for parent
 </tr>
 </tbody>
 </table>
-<p>
-Let's run a simple example $f(_, 0, 1)$ for all symbols: $$ \begin{align} f(a, 0, 1) &= a \in \{ (b * b) \} = false \\ f(b, 0, 1) &= b \in \{ (b * b) \} = true \\ f(c, 0, 1) &= c \in \{ (b * b) \} = false \\ \end{align} $$ So $f(_, 0, 1) = (b)$. Fill out the rest to get this:
-</p>
+<p>Let's run a simple example $f(_, 0, 1)$ for all symbols:</p>
+<p>$$ \begin{align} f(a, 0, 1) &= a \in \{ (b *b) \} = false \\ f(b, 0, 1) &= b \in \{ (b* b) \} = true \\ f(c, 0, 1) &= c \in \{ (b * b) \} = false \\ \end{align} $$</p>
+<p>So $f(_, 0, 1) = (b)$. Fill out the rest to get this:</p>
 <table>
 <thead>
 <tr>
@@ -449,9 +415,11 @@ Let's run a simple example $f(_, 0, 1)$ for all symbols: $$ \begin{align} f(a, 0
 </tr>
 </tbody>
 </table>
-<p>
-Things get more complex on the next level. $f(a, 0, 2)$. We won't follow the formula directly, but we will work around it. $$ \begin{align} &(n, f(n, k + 1, 2)) \forall k \in [0, 2), n \in \{ a, b, c \} \\ &k = 0, &n = a &\implies &(a, f(a, 1, 2)) &\implies &(a, false) \\ & &n = b &\implies &(b, f(b, 1, 2)) &\implies &(b, true) \\ & &n = c &\implies &(c, f(c, 1, 2)) &\implies &(c, false) \\ &k = 1, &n = a &\implies &(a, f(a, 2, 2)) &\implies &(a, false) \\ & &n = b &\implies &(b, f(b, 2, 2)) &\implies &(b, true) \\ & &n = c &\implies &(c, f(c, 2, 2)) &\implies &(c, false) \\ &(m, f(m, 0, k)) \forall k \in [0, 2), m \in \{ a, b, c \} \\ &k = 0, &m = a &\implies &(a, f(a, 0, 0)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 0, 0)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 0, 0)) &\implies &(c, false) \\ &k = 1, &m = a &\implies &(a, f(a, 0, 1)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 0, 1)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 0, 1)) &\implies &(c, false) \\ \end{align} $$ We get $n \in \{b\}$ and $m \in \{b\}$. Multiplying each element of the sets together gives us $b$, therefore we can only obtain $b$ at this position. Let's try $f(a, 2, 4)$ and $f(c, 2, 4)$ as they are the more interesting ones. $$ \begin{align} &(n, f(n, k + 1, 4)) \forall k \in [2, 4), n \in \{ a, b, c \} \\ &k = 2, &n = a &\implies &(a, f(a, 3, 4)) &\implies &(a, false) \\ & &n = b &\implies &(b, f(b, 3, 4)) &\implies &(b, false) \\ & &n = c &\implies &(c, f(c, 3, 4)) &\implies &(c, true) \\ &k = 3, &n = a &\implies &(a, f(a, 4, 4)) &\implies &(a, true) \\ & &n = b &\implies &(b, f(b, 4, 4)) &\implies &(b, false) \\ & &n = c &\implies &(c, f(c, 4, 4)) &\implies &(c, false) \\ &(m, f(m, 2, k)) \forall k \in [2, 4), m \in \{ a, b, c \} \\ &k = 2, &m = a &\implies &(a, f(a, 2, 2)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 2, 2)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 2, 2)) &\implies &(c, false) \\ &k = 3, &m = a &\implies &(a, f(a, 2, 3)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 2, 3)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 2, 3)) &\implies &(c, false) \\ \end{align} $$ We get $n \in \{c, a\}$ and $m \in \{b\}$ - finally, something interesting. Make sure to keep track of the order, as this multiplication is not commutative. So we end up with $\{ m*n \mid m \in \{b\}, n \in \{c, a \} \}$. we'll go ahead and fill out the rest of the table below.
-</p>
+<p>Things get more complex on the next level. $f(a, 0, 2)$. We won't follow the formula directly, but we will work around it.</p>
+<p>$$ \begin{align} &(n, f(n, k + 1, 2)) \forall k \in [0, 2), n \in \{ a, b, c \} \\ &k = 0, &n = a &\implies &(a, f(a, 1, 2)) &\implies &(a, false) \\ & &n = b &\implies &(b, f(b, 1, 2)) &\implies &(b, true) \\ & &n = c &\implies &(c, f(c, 1, 2)) &\implies &(c, false) \\ &k = 1, &n = a &\implies &(a, f(a, 2, 2)) &\implies &(a, false) \\ & &n = b &\implies &(b, f(b, 2, 2)) &\implies &(b, true) \\ & &n = c &\implies &(c, f(c, 2, 2)) &\implies &(c, false) \\ &(m, f(m, 0, k)) \forall k \in [0, 2), m \in \{ a, b, c \} \\ &k = 0, &m = a &\implies &(a, f(a, 0, 0)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 0, 0)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 0, 0)) &\implies &(c, false) \\ &k = 1, &m = a &\implies &(a, f(a, 0, 1)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 0, 1)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 0, 1)) &\implies &(c, false) \\ \end{align} $$</p>
+<p>We get $n \in \{b\}$ and $m \in \{b\}$. Multiplying each element of the sets together gives us $b$, therefore we can only obtain $b$ at this position. Let's try $f(a, 2, 4)$ and $f(c, 2, 4)$ as they are the more interesting ones.</p>
+<p>$$ \begin{align} &(n, f(n, k + 1, 4)) \forall k \in [2, 4), n \in \{ a, b, c \} \\ &k = 2, &n = a &\implies &(a, f(a, 3, 4)) &\implies &(a, false) \\ & &n = b &\implies &(b, f(b, 3, 4)) &\implies &(b, false) \\ & &n = c &\implies &(c, f(c, 3, 4)) &\implies &(c, true) \\ &k = 3, &n = a &\implies &(a, f(a, 4, 4)) &\implies &(a, true) \\ & &n = b &\implies &(b, f(b, 4, 4)) &\implies &(b, false) \\ & &n = c &\implies &(c, f(c, 4, 4)) &\implies &(c, false) \\ &(m, f(m, 2, k)) \forall k \in [2, 4), m \in \{ a, b, c \} \\ &k = 2, &m = a &\implies &(a, f(a, 2, 2)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 2, 2)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 2, 2)) &\implies &(c, false) \\ &k = 3, &m = a &\implies &(a, f(a, 2, 3)) &\implies &(a, false) \\ & &m = b &\implies &(b, f(b, 2, 3)) &\implies &(b, true) \\ & &m = c &\implies &(c, f(c, 2, 3)) &\implies &(c, false) \\ \end{align} $$</p>
+<p>We get $n \in \{c, a\}$ and $m \in \{b\}$ - finally, something interesting. Make sure to keep track of the order, as this multiplication is not commutative. So we end up with $\{ m*n \mid m \in \{b\}, n \in \{c, a \} \}$. we'll go ahead and fill out the rest of the table below.</p>
 <table>
 <thead>
 <tr>
@@ -521,15 +489,405 @@ Things get more complex on the next level. $f(a, 0, 2)$. We won't follow the for
 </tr>
 </tbody>
 </table>
-<p>
-We can see that the entire string can be reduce to either $a$ or $c$. After filling in the table a bit, I ended up defining a new function $p(i, j)$ which defines the possibilities for the substring $a_i...a_j$ that meshes better with what the table contains. $$ \begin{align} p(i, i) &= \{a_i\} \\ p(i, j) &= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\ f(s, i, j) &= s \in p(i, j) \end{align} $$ In fact, I basically followed this simpler formula for filling out the table. It also shows how dynamic programming optimizes builds from smaller subproblems to solve the large one.
-</p>
+<p>We can see that the entire string can be reduce to either $a$ or $c$. After filling in the table a bit, I ended up defining a new function $p(i, j)$ which defines the possibilities for the substring $a_i...a_j$ that meshes better with what the table contains.</p>
+<p>$$ \begin{align} p(i, i) &= \{a_i\} \\ p(i, j) &= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\ f(s, i, j) &= s \in p(i, j) \\ \end{align} $$</p>
+<p>In fact, I basically followed this simpler formula for filling out the table. It also shows how dynamic programming optimizes builds from smaller subproblems to solve the large one.</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"></div> <div style=text-align:end><a href=/./puzzles/2>dynamic programming 2 &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-11-20 - update tex handling</summary>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-&lt;!-- markdownlint-disable MD041 --&gt;</span>
+<span class=hljs-addition>+# Dynamic Programming 1</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2></label><code><span class=hljs-meta>@@ -4,18 +4,17 @@</span>
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-Pebbling a checkerboard. We are given a checkerboard which has $4$ rows and $n$ columns,</span>
+<span class=hljs-deletion>-and has an integer written in each square. We are also given a set of $2n$ pebbles,</span>
+<span class=hljs-deletion>-and we want to place some or all of these on the checkerboard (each pebble can be</span>
+<span class=hljs-deletion>-placed on exactly one square) so as to maximize the sum of the integers in the squares</span>
+<span class=hljs-deletion>-that are covered by pebbles. There is one constraint: for a placement of pebbles</span>
+<span class=hljs-deletion>-to be legal, no two of them can be on horizontally or vertically adjacent squares</span>
+<span class=hljs-deletion>-(diagonal adjacency is fine).</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-(a) Determine the number of legal patterns that can occur in any column (in isolation,</span>
+<span class=hljs-deletion>-ignoring the pebbles in adjacent columns) and describe these patterns.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-Pretend the column is a 0-indexed array with length 4. We can place pebbles at the</span>
+<span class=hljs-deletion>-following indices:</span>
+<span class=hljs-addition>+Pebbling a checkerboard. We are given a checkerboard which has $4$ rows and $n$</span>
+<span class=hljs-addition>+columns, and has an integer written in each square. We are also given a set of</span>
+<span class=hljs-addition>+$2n$ pebbles, and we want to place some or all of these on the checkerboard</span>
+<span class=hljs-addition>+(each pebble can be placed on exactly one square) so as to maximize the sum of</span>
+<span class=hljs-addition>+the integers in the squares that are covered by pebbles. There is one</span>
+<span class=hljs-addition>+constraint: for a placement of pebbles to be legal, no two of them can be on</span>
+<span class=hljs-addition>+horizontally or vertically adjacent squares (diagonal adjacency is fine).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+(a) Determine the number of legal patterns that can occur in any column (in</span>
+<span class=hljs-addition>+isolation, ignoring the pebbles in adjacent columns) and describe these</span>
+<span class=hljs-addition>+patterns.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Pretend the column is a 0-indexed array with length 4. We can place pebbles at</span>
+<span class=hljs-addition>+the following indices:</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3></label><code><span class=hljs-meta>@@ -23,10 +22,9 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ Call two patterns compatible if they can be placed on adjacent columns to form a
+ legal placement. Let us consider subproblems consisting of the first $k$ columns
+<span class=hljs-deletion>-$1 \leq k \leq n$. Each subproblem can be assigned a type, which is the pattern occurring</span>
+<span class=hljs-deletion>-in the last column.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+$1 \leq k \leq n$. Each subproblem can be assigned a type, which is the pattern</span>
+<span class=hljs-addition>+occurring in the last column.</span>
+<span class=hljs-addition>+</span>
+ A couple of observations to make would be:
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4></label><code><span class=hljs-meta>@@ -40,13 +38,12 @@</span> A couple of observations to make would be:
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-(b) Using the notions of compatibility and type, give an $O(n)$-time dynamic programming</span>
+<span class=hljs-deletion>-algorithm for computing an optimal placement</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-Start by defining a function $f(n, t)$ that expresses the max value that can be obtained</span>
+<span class=hljs-deletion>-for columns $1...n$ by using pattern $t$ on the last column. We can express the function</span>
+<span class=hljs-deletion>-in terms of itself by saying the maximum value for columns $1..n$ and pattern $t$</span>
+<span class=hljs-deletion>-is the sum of the maximum value for columns $1...n-1$ and the value of applying</span>
+<span class=hljs-deletion>-pattern $t$ to column $n$. We also need the constraint that the pattern for $n-1$</span>
+<span class=hljs-deletion>-is compatible with $t$. In other words</span>
+<span class=hljs-addition>+(b) Using the notions of compatibility and type, give an $O(n)$-time dynamic</span>
+<span class=hljs-addition>+programming algorithm for computing an optimal placement</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Start by defining a function $f(n, t)$ that expresses the max value that can be</span>
+<span class=hljs-addition>+obtained for columns $1...n$ by using pattern $t$ on the last column. We can</span>
+<span class=hljs-addition>+express the function in terms of itself by saying the maximum value for columns</span>
+<span class=hljs-addition>+$1..n$ and pattern $t$ is the sum of the maximum value for columns $1...n-1$ and</span>
+<span class=hljs-addition>+the value of applying pattern $t$ to column $n$. We also need the constraint</span>
+<span class=hljs-addition>+that the pattern for $n-1$ is compatible with $t$. In other words</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5></label><code><span class=hljs-meta>@@ -54,6 +51,8 @@</span> $$
+   f(0, t) &amp;= 0 \\
+<span class=hljs-deletion>-  f(n, t) &amp;= \max \{ f(n - 1, t&#x27;) + val(C_n, t) \mid t&#x27; \in compat(t) \}</span>
+<span class=hljs-addition>+  f(n, t) &amp;= \max \{ f(n - 1, t&#x27;) + val(C_n, t) \mid t&#x27; \in compat(t) \} \\</span>
+ \end{align}
+ $$
+<span class=hljs-addition>+</span>
+ Let&#x27;s try an example:
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-6 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-6></label><code><span class=hljs-meta>@@ -66,7 +65,7 @@</span> $$
+ $$
+<span class=hljs-deletion>-We start with a 2d table, with lengths $N$ and $T$. $T$ is the number of types:</span>
+<span class=hljs-deletion>-8. We&#x27;ll label them by their index in the first array we constructed for this problem,</span>
+<span class=hljs-deletion>-and fill out $f(0, t)$, and $f(1, t)$ which is straightforward since we do not need</span>
+<span class=hljs-deletion>-to think about compatibility.</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We start with a 2d table, with lengths $N$ and $T$. $T$ is the number of</span>
+<span class=hljs-addition>+types: 8. We&#x27;ll label them by their index in the first array we constructed for</span>
+<span class=hljs-addition>+this problem, and fill out $f(0, t)$, and $f(1, t)$ which is straightforward</span>
+<span class=hljs-addition>+since we do not need to think about compatibility.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-7 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-7></label><code><span class=hljs-meta>@@ -79,4 +78,4 @@</span> to think about compatibility.
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+ What is $f(2, 0)$? According to our recurrence, it is
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-8 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-8></label><code><span class=hljs-meta>@@ -89,4 +88,5 @@</span> $$
+ $$
+<span class=hljs-deletion>-The we fill out the table and look for the maximum in the last row for the solution.</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The we fill out the table and look for the maximum in the last row for the</span>
+<span class=hljs-addition>+solution.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-9 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-9></label><code><span class=hljs-meta>@@ -105,3 +105,2 @@</span> column and work our way backwards. The underlined numbers are the ones chosen.
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-10 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-10></label><code><span class=hljs-meta>@@ -114,5 +113,5 @@</span> $$
+ $$
+<span class=hljs-deletion>-Note that on the second column you can either use pattern 1 or 3, then on the first</span>
+<span class=hljs-deletion>-column you can use 1 or 6.</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Note that on the second column you can either use pattern 1 or 3, then on the</span>
+<span class=hljs-addition>+first column you can use 1 or 6.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-11 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-11></label><code><span class=hljs-meta>@@ -120,9 +119,8 @@</span> column you can use 1 or 6.
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-Let us define a multiplication operation on three symbols $a$, $b$, $c$ according</span>
+<span class=hljs-deletion>-to the following table; thus $ab = b$, $ba = c$, and so on. Notice that the multiplication</span>
+<span class=hljs-deletion>-operation defined by the table is neither associative nor commutative.</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+Let us define a multiplication operation on three symbols $a$, $b$, $c$</span>
+<span class=hljs-addition>+according to the following table; thus $ab = b$, $ba = c$, and so on. Notice</span>
+<span class=hljs-addition>+that the multiplication operation defined by the table is neither associative</span>
+<span class=hljs-addition>+nor commutative.</span>
+
+<span class=hljs-deletion>-| \\  | a   | b   | c   |</span>
+<span class=hljs-addition>+| \   | a   | b   | c   |</span>
+ | --- | --- | --- | --- |
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-12 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-12></label><code><span class=hljs-meta>@@ -132,21 +130,19 @@</span> operation defined by the table is neither associative nor commutative.
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-Find an efficient algorithm that examines a string of these symbols, say $bbbbac$,</span>
+<span class=hljs-deletion>-and decides whether or not it is possible to parenthesize the string in such a way</span>
+<span class=hljs-deletion>-that the value of the resulting expression is $a$. For example, on input $bbbbac$</span>
+<span class=hljs-deletion>-your algorithm should return yes because $((b(bb))(ba))c = a$.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-For this question, we can first note that the we will not be able to define the problem</span>
+<span class=hljs-deletion>-in the $f(n) = f(n - 1)$ kind of way due to the nature of how parenthesization works,</span>
+<span class=hljs-deletion>-namely that it doesn&#x27;t have to end up like $(((a_1)a_2)a_3)$. This most likely requires</span>
+<span class=hljs-deletion>-a tree like approach.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-Start by defining $f(i, j)$ which determines whether or not the substring starting</span>
+<span class=hljs-deletion>-at $a_i$ and ending at $a_j$ equals $a$.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-For an expression $a_i, a_{i+1}, ..., a_j$, it is reducible to $a$ if there is some</span>
+<span class=hljs-deletion>-$k \in [i...j]$ where $a_i, ..., a_k$ and $a_{k + 1}, ... a_j$ are reducible to $a$.</span>
+<span class=hljs-addition>+Find an efficient algorithm that examines a string of these symbols, say</span>
+<span class=hljs-addition>+$bbbbac$, and decides whether or not it is possible to parenthesize the string</span>
+<span class=hljs-addition>+in such a way that the value of the resulting expression is $a$. For example, on</span>
+<span class=hljs-addition>+input $bbbbac$ your algorithm should return yes because $((b(bb))(ba))c = a$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For this question, we can first note that the we will not be able to define the</span>
+<span class=hljs-addition>+problem in the $f(n) = f(n - 1)$ kind of way due to the nature of how</span>
+<span class=hljs-addition>+parenthesization works, namely that it doesn&#x27;t have to end up like</span>
+<span class=hljs-addition>+$(((a_1)a_2)a_3)$. This most likely requires a tree like approach.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Start by defining $f(i, j)$ which determines whether or not the substring</span>
+<span class=hljs-addition>+starting at $a_i$ and ending at $a_j$ equals $a$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For an expression $a_i, a_{i+1}, ..., a_j$, it is reducible to $a$ if there is</span>
+<span class=hljs-addition>+some $k \in [i...j]$ where $a_i, ..., a_k$ and $a_{k + 1}, ... a_j$ are</span>
+<span class=hljs-addition>+reducible to $a$.</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-13 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-13></label><code><span class=hljs-meta>@@ -156,53 +152,50 @@</span> $$
+ $$
+<span class=hljs-deletion>-I think the weird part with questions like this is determining the actual base cases.</span>
+<span class=hljs-deletion>-If I go with $f(i, i)$ and say it starts at $a_i$ and includes $a_i$, then it is</span>
+<span class=hljs-deletion>-straightforward whether or not a single symbol is $a$ or not. However, if I go one</span>
+<span class=hljs-deletion>-level higher - $f(i, i + 1)$ which could be decomposed into $f(i, i)$ and</span>
+<span class=hljs-deletion>-$f(i + 1, i + 1)$, but even if $f(i, i)$ is false, $f(i, i)*f(i + 1, i + 1)$ may</span>
+<span class=hljs-deletion>-not be, depending on the table.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think the weird part with questions like this is determining the actual base</span>
+<span class=hljs-addition>+cases. If I go with $f(i, i)$ and say it starts at $a_i$ and includes $a_i$,</span>
+<span class=hljs-addition>+then it is straightforward whether or not a single symbol is $a$ or not.</span>
+<span class=hljs-addition>+However, if I go one level higher - $f(i, i + 1)$ which could be decomposed into</span>
+<span class=hljs-addition>+$f(i, i)$ and $f(i + 1, i + 1)$, but even if $f(i, i)$ is false,</span>
+<span class=hljs-addition>+$f(i, i)*f(i + 1, i + 1)$ may not be, depending on the table.</span>
+<span class=hljs-addition>+</span>
+ One alternative is to say $f(i, i)$ starts at $a_i$ but does not include $a_i$.
+ In other words it is empty. This is trivially 0 (false). But then if we have
+<span class=hljs-deletion>-$f(i, i + 1)$ be the symbol $a$, we would then decompose it to $f(i, i)*f(i+1, i+1)$</span>
+<span class=hljs-deletion>-which is 2 falses.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+$f(i, i + 1)$ be the symbol $a$, we would then decompose it to</span>
+<span class=hljs-addition>+$f(i, i)*f(i+1, i+1)$ which is 2 falses.</span>
+<span class=hljs-addition>+</span>
+ We end up needing a third argument here. The tree might look like this:
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-deletion>-    \node {x}</span>
+<span class=hljs-deletion>-      child{ node {y} edge from parent node[left, draw=none] {}}</span>
+<span class=hljs-deletion>-      child{ node {z} edge from parent node[right, draw=none] {}};</span>
+<span class=hljs-deletion>-  \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node {x}</span>
+<span class=hljs-addition>+    child{ node {y} edge from parent node[left, draw=none] {}}</span>
+<span class=hljs-addition>+    child{ node {z} edge from parent node[right, draw=none] {}};</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+ If $x$ is the root, we need to determine if $x$ can be $a$. To do this, we need
+<span class=hljs-deletion>-to know possible values for $y$ and $z$. If we go deeper, we can get a subtree rooted</span>
+<span class=hljs-deletion>-at $y$.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-deletion>-  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-deletion>-    \node {x}</span>
+<span class=hljs-deletion>-      child{ node {y}</span>
+<span class=hljs-deletion>-          child{ node {m} edge from parent node[left, draw=none] {}}</span>
+<span class=hljs-deletion>-          child{ node {n} edge from parent node[right, draw=none] {}}</span>
+<span class=hljs-deletion>-          edge from parent node[left, draw=none] {}</span>
+<span class=hljs-deletion>-      }</span>
+<span class=hljs-deletion>-      child{ node {z} edge from parent node[right, draw=none] {}};</span>
+<span class=hljs-deletion>-  \end{tikzpicture}</span>
+<span class=hljs-deletion>-&lt;/script&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+to know possible values for $y$ and $z$. If we go deeper, we can get a subtree</span>
+<span class=hljs-addition>+rooted at $y$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node {x}</span>
+<span class=hljs-addition>+    child{ node {y}</span>
+<span class=hljs-addition>+        child{ node {m} edge from parent node[left, draw=none] {}}</span>
+<span class=hljs-addition>+        child{ node {n} edge from parent node[right, draw=none] {}}</span>
+<span class=hljs-addition>+        edge from parent node[left, draw=none] {}</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    child{ node {z} edge from parent node[right, draw=none] {}};</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+ At this point, $y$ does not necessarily have to be $a$, as it could be any value
+<span class=hljs-deletion>-as long as the combination of $y$ and $x$ can make $a$. This means the combination</span>
+<span class=hljs-deletion>-of $(mn)x$ should equal $a$. So in addition to having $i$ and $j$, we need another</span>
+<span class=hljs-deletion>-$s$ which determines what are the valid symbols that can be at that position. So</span>
+<span class=hljs-deletion>-we define $f(s, i, j)$ to be if the symbol $s$ can be created from $a_i$ to $a_j$,</span>
+<span class=hljs-deletion>-inclusive.</span>
+<span class=hljs-addition>+as long as the combination of $y$ and $x$ can make $a$. This means the</span>
+<span class=hljs-addition>+combination of $(mn)x$ should equal $a$. So in addition to having $i$ and $j$,</span>
+<span class=hljs-addition>+we need another $s$ which determines what are the valid symbols that can be at</span>
+<span class=hljs-addition>+that position. So we define $f(s, i, j)$ to be if the symbol $s$ can be created</span>
+<span class=hljs-addition>+from $a_i$ to $a_j$, inclusive.</span>
+<span class=hljs-addition>+</span>
+ &lt;!-- markdownlint-disable MD013 --&gt;
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-14 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-14></label><code><span class=hljs-meta>@@ -213,11 +206,12 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ &lt;!-- markdownlint-enable MD013 --&gt;
+<span class=hljs-deletion>-Long story short, $f(s, i, j)$ is true if $s$ can be made from the children&#x27;s possibilities.</span>
+<span class=hljs-deletion>-My guess is that we will be calculating the set of possibilities until we reach</span>
+<span class=hljs-deletion>-the root, namely $f(_, 0, len)$ at which point we run $f(a, 0, len)$ for the answer.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-But finally to the example - we keep track of the set of possiblities for parenthesizing</span>
+<span class=hljs-deletion>-$a_i$ to $a_j$</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Long story short, $f(s, i, j)$ is true if $s$ can be made from the children&#x27;s</span>
+<span class=hljs-addition>+possibilities. My guess is that we will be calculating the set of possibilities</span>
+<span class=hljs-addition>+until we reach the root, namely $f(_, 0, len)$ at which point we run</span>
+<span class=hljs-addition>+$f(a, 0, len)$ for the answer.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But finally to the example - we keep track of the set of possiblities for</span>
+<span class=hljs-addition>+parenthesizing $a_i$ to $a_j$</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-15 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-15></label><code><span class=hljs-meta>@@ -232,8 +226,8 @@</span> $a_i$ to $a_j$
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+ Let&#x27;s run a simple example $f(_, 0, 1)$ for all symbols:
+<span class=hljs-addition>+</span>
+ $$
+ \begin{align}
+<span class=hljs-deletion>-  f(a, 0, 1) &amp;amp;= a \in \{ (b * b) \} = false \\</span>
+<span class=hljs-deletion>-  f(b, 0, 1) &amp;amp;= b \in \{ (b * b) \} = true \\</span>
+<span class=hljs-addition>+  f(a, 0, 1) &amp;amp;= a \in \{ (b *b) \} = false \\</span>
+<span class=hljs-addition>+f(b, 0, 1) &amp;amp;= b \in \{ (b* b) \} = true \\</span>
+   f(c, 0, 1) &amp;amp;= c \in \{ (b * b) \} = false \\
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-16 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-16></label><code><span class=hljs-meta>@@ -241,4 +235,4 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ So $f(_, 0, 1) = (b)$. Fill out the rest to get this:
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-17 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-17></label><code><span class=hljs-meta>@@ -253,5 +247,5 @@</span> So $f(_, 0, 1) = (b)$. Fill out the rest to get this:
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-Things get more complex on the next level. $f(a, 0, 2)$. We won&#x27;t follow the formula</span>
+<span class=hljs-deletion>-directly, but we will work around it.</span>
+<span class=hljs-addition>+Things get more complex on the next level. $f(a, 0, 2)$. We won&#x27;t follow the</span>
+<span class=hljs-addition>+formula directly, but we will work around it.</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-18 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-18></label><code><span class=hljs-meta>@@ -274,5 +268,8 @@</span> $$
+ $$
+<span class=hljs-deletion>-We get $n \in \{b\}$ and $m \in \{b\}$. Multiplying each element of the sets together</span>
+<span class=hljs-deletion>-gives us $b$, therefore we can only obtain $b$ at this position. Let&#x27;s try $f(a,</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We get $n \in \{b\}$ and $m \in \{b\}$. Multiplying each element of the sets</span>
+<span class=hljs-addition>+together gives us $b$, therefore we can only obtain $b$ at this position. Let&#x27;s</span>
+<span class=hljs-addition>+try $f(a,</span>
+ 2, 4)$ and $f(c, 2, 4)$ as they are the more interesting ones.
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-19 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-19></label><code><span class=hljs-meta>@@ -295,7 +292,7 @@</span> $$
+ $$
+<span class=hljs-deletion>-We get $n \in \{c, a\}$ and $m \in \{b\}$ - finally, something interesting.</span>
+<span class=hljs-deletion>-Make sure to keep track of the order, as this multiplication is not commutative.</span>
+<span class=hljs-deletion>-So we end up with $\{ m*n \mid m \in \{b\}, n \in \{c, a \} \}$. we&#x27;ll go ahead and</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We get $n \in \{c, a\}$ and $m \in \{b\}$ - finally, something interesting. Make</span>
+<span class=hljs-addition>+sure to keep track of the order, as this multiplication is not commutative. So</span>
+<span class=hljs-addition>+we end up with $\{ m*n \mid m \in \{b\}, n \in \{c, a \} \}$. we&#x27;ll go ahead and</span>
+ fill out the rest of the table below.
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-20 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-20></label><code><span class=hljs-meta>@@ -310,7 +307,7 @@</span> fill out the rest of the table below.
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-We can see that the entire string can be reduce to either $a$ or $c$. After filling</span>
+<span class=hljs-deletion>-in the table a bit, I ended up defining a new function $p(i, j)$ which defines the</span>
+<span class=hljs-deletion>-possibilities for the substring $a_i...a_j$ that meshes better with what the table</span>
+<span class=hljs-deletion>-contains.</span>
+<span class=hljs-addition>+We can see that the entire string can be reduce to either $a$ or $c$. After</span>
+<span class=hljs-addition>+filling in the table a bit, I ended up defining a new function $p(i, j)$ which</span>
+<span class=hljs-addition>+defines the possibilities for the substring $a_i...a_j$ that meshes better with</span>
+<span class=hljs-addition>+what the table contains.</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-21 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-21></label><code><span class=hljs-meta>@@ -319,8 +316,8 @@</span> $$
+   p(i, j) &amp;= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\
+<span class=hljs-deletion>-  f(s, i, j) &amp;= s \in p(i, j)</span>
+<span class=hljs-addition>+  f(s, i, j) &amp;= s \in p(i, j) \\</span>
+ \end{align}
+ $$
+<span class=hljs-addition>+</span>
+ In fact, I basically followed this simpler formula for filling out the table. It
+<span class=hljs-deletion>-also shows how dynamic programming optimizes builds from smaller subproblems to solve</span>
+<span class=hljs-deletion>-the large one.</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+also shows how dynamic programming optimizes builds from smaller subproblems to</span>
+<span class=hljs-addition>+solve the large one.</span>
+</code></pre>
+</details>
 <details>
 <summary>2020-12-04 - fix some calculations</summary>
 <pre class=code-block><input id=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-1 type=checkbox><label for=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-1></label><code><span class=hljs-meta>@@ -91,13 +91,13 @@</span> The we fill out the table and look for the maximum in the last row for the solut
@@ -634,17 +992,17 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+is compatible with $t$. In other words</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(0, t) &amp;amp;= 0 \\</span>
-<span class=hljs-addition>+  f(n, t) &amp;amp;= \max \{ f(n - 1, t&#x27;) + val(C_n, t) \mid t&#x27; \in compat(t) \}</span>
+<span class=hljs-addition>+  f(0, t) &amp;= 0 \\</span>
+<span class=hljs-addition>+  f(n, t) &amp;= \max \{ f(n - 1, t&#x27;) + val(C_n, t) \mid t&#x27; \in compat(t) \}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+Let&#x27;s try an example:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{bmatrix}</span>
-<span class=hljs-addition>+  2 &amp;amp; 2 &amp;amp; -5 &amp;amp; 2 &amp;amp; -3 \\</span>
-<span class=hljs-addition>+  -4 &amp;amp; 1 &amp;amp; 2 &amp;amp; 2 &amp;amp; -1 \\</span>
-<span class=hljs-addition>+  -1 &amp;amp; 0 &amp;amp; 0 &amp;amp; 3 &amp;amp; -4 \\</span>
-<span class=hljs-addition>+  1 &amp;amp; -1 &amp;amp; 3 &amp;amp; -1 &amp;amp; -2</span>
+<span class=hljs-addition>+  2 &amp; 2 &amp; -5 &amp; 2 &amp; -3 \\</span>
+<span class=hljs-addition>+  -4 &amp; 1 &amp; 2 &amp; 2 &amp; -1 \\</span>
+<span class=hljs-addition>+  -1 &amp; 0 &amp; 0 &amp; 3 &amp; -4 \\</span>
+<span class=hljs-addition>+  1 &amp; -1 &amp; 3 &amp; -1 &amp; -2</span>
 <span class=hljs-addition>+\end{bmatrix}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We start with a 2d table, with lengths $N$ and $T$. $T$ is the number of types:</span>
@@ -664,10 +1022,10 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+What is $f(2, 0)$? According to our recurrence, it is</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(2, 0) &amp;amp;= \max \{ f(1, t&#x27;) + val(C_2, 0) \mid t&#x27; \in compat(0) \} \\</span>
-<span class=hljs-addition>+  &amp;amp;= \max \{ f(1, t&#x27;) + 1 \mid t&#x27; \in \{ 1, 3, 4, 7 \} \} \\</span>
-<span class=hljs-addition>+  &amp;amp;= \max \{ f(1, 1), f(1, 3), f(1, 4), f(1, 7) \} + 1 \\</span>
-<span class=hljs-addition>+  &amp;amp;= 3</span>
+<span class=hljs-addition>+  f(2, 0) &amp;= \max \{ f(1, t&#x27;) + val(C_2, 0) \mid t&#x27; \in compat(0) \} \\</span>
+<span class=hljs-addition>+  &amp;= \max \{ f(1, t&#x27;) + 1 \mid t&#x27; \in \{ 1, 3, 4, 7 \} \} \\</span>
+<span class=hljs-addition>+  &amp;= \max \{ f(1, 1), f(1, 3), f(1, 4), f(1, 7) \} + 1 \\</span>
+<span class=hljs-addition>+  &amp;= 3</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+The we fill out the table and look for the maximum in the last row for the solution.</span>
@@ -688,10 +1046,10 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+&lt;p&gt;</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{bmatrix}</span>
-<span class=hljs-addition>+  \underline{2}  &amp;amp; 2              &amp;amp; -5            &amp;amp; \underline{2} &amp;amp; -3 \\</span>
-<span class=hljs-addition>+  -4             &amp;amp; \underline{1}  &amp;amp; \underline{2} &amp;amp; 2             &amp;amp; -1 \\</span>
-<span class=hljs-addition>+  -1             &amp;amp; 0              &amp;amp; 0             &amp;amp; \underline{3} &amp;amp; -4 \\</span>
-<span class=hljs-addition>+  \underline{1}  &amp;amp; -1             &amp;amp; \underline{3} &amp;amp; -1            &amp;amp; -2</span>
+<span class=hljs-addition>+  \underline{2}  &amp; 2              &amp; -5            &amp; \underline{2} &amp; -3 \\</span>
+<span class=hljs-addition>+  -4             &amp; \underline{1}  &amp; \underline{2} &amp; 2             &amp; -1 \\</span>
+<span class=hljs-addition>+  -1             &amp; 0              &amp; 0             &amp; \underline{3} &amp; -4 \\</span>
+<span class=hljs-addition>+  \underline{1}  &amp; -1             &amp; \underline{3} &amp; -1            &amp; -2</span>
 <span class=hljs-addition>+\end{bmatrix}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We actually picked pattern 7 in the last row because they were all negative.</span>
@@ -732,7 +1090,7 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+$k \in [i...j]$ where $a_i, ..., a_k$ and $a_{k + 1}, ... a_j$ are reducible to $a$.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(i, j) &amp;amp;= \max \{ f(i, k)*f(k + 1, j) \mid i \leq k \lt j \}</span>
+<span class=hljs-addition>+  f(i, j) &amp;= \max \{ f(i, k)*f(k + 1, j) \mid i \leq k \lt j \}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+I think the weird part with questions like this is determining the actual base cases.</span>
@@ -788,8 +1146,8 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+&lt;!-- markdownlint-disable MD013 --&gt;</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(s, i, i) &amp;amp;= a_i == s \\</span>
-<span class=hljs-addition>+  f(s, i, j) &amp;amp;= s \in \{ m * n \mid n, m \in \{ a, b, c \}, \exists k \in [i, j) \text{ st } f(m, i, k) \text{ and } f(n, k + 1, j) \}</span>
+<span class=hljs-addition>+  f(s, i, i) &amp;= a_i == s \\</span>
+<span class=hljs-addition>+  f(s, i, j) &amp;= s \in \{ m * n \mid n, m \in \{ a, b, c \}, \exists k \in [i, j) \text{ st } f(m, i, k) \text{ and } f(n, k + 1, j) \}</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+&lt;!-- markdownlint-enable MD013 --&gt;</span>
@@ -815,9 +1173,9 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+Let&#x27;s run a simple example $f(_, 0, 1)$ for all symbols:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  f(a, 0, 1) &amp;amp;= a \in \{ (b * b) \} = false \\</span>
-<span class=hljs-addition>+  f(b, 0, 1) &amp;amp;= b \in \{ (b * b) \} = true \\</span>
-<span class=hljs-addition>+  f(c, 0, 1) &amp;amp;= c \in \{ (b * b) \} = false \\</span>
+<span class=hljs-addition>+  f(a, 0, 1) &amp;= a \in \{ (b * b) \} = false \\</span>
+<span class=hljs-addition>+  f(b, 0, 1) &amp;= b \in \{ (b * b) \} = true \\</span>
+<span class=hljs-addition>+  f(c, 0, 1) &amp;= c \in \{ (b * b) \} = false \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+So $f(_, 0, 1) = (b)$. Fill out the rest to get this:</span>
@@ -837,20 +1195,20 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+directly, but we will work around it.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  &amp;amp;(n, f(n, k + 1, 2)) \forall k \in [0, 2), n \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 0, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 1, 2)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 1, 2)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 1, 2)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 1, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 2, 2)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 2, 2)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 2, 2)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;(m, f(m, 0, k)) \forall k \in [0, 2), m \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 0, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 0, 0)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 0, 0)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 0, 0)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 1, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 0, 1)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 0, 1)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 0, 1)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(n, f(n, k + 1, 2)) \forall k \in [0, 2), n \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 0, &amp;n = a &amp;\implies &amp;(a, f(a, 1, 2)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 1, 2)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 1, 2)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;k = 1, &amp;n = a &amp;\implies &amp;(a, f(a, 2, 2)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 2, 2)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 2, 2)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(m, f(m, 0, k)) \forall k \in [0, 2), m \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 0, &amp;m = a &amp;\implies &amp;(a, f(a, 0, 0)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 0, 0)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 0, 0)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;k = 1, &amp;m = a &amp;\implies &amp;(a, f(a, 0, 1)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 0, 1)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 0, 1)) &amp;\implies &amp;(c, false) \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We get $n \in \{b\}$ and $m \in \{b\}$. Multiplying each element of the sets together</span>
@@ -858,20 +1216,20 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+2, 4)$ and $f(c, 2, 4)$ as they are the more interesting ones.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  &amp;amp;(n, f(n, k + 1, 4)) \forall k \in [2, 4), n \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 2, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 3, 4)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 3, 4)) &amp;amp;\implies &amp;amp;(b, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 3, 4)) &amp;amp;\implies &amp;amp;(c, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 3, &amp;amp;n = a &amp;amp;\implies &amp;amp;(a, f(a, 4, 4)) &amp;amp;\implies &amp;amp;(a, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = b &amp;amp;\implies &amp;amp;(b, f(b, 4, 4)) &amp;amp;\implies &amp;amp;(b, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;n = c &amp;amp;\implies &amp;amp;(c, f(c, 4, 4)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;(m, f(m, 2, k)) \forall k \in [2, 4), m \in \{ a, b, c \} \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 2, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 2, 2)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 2, 2)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 2, 2)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;k = 3, &amp;amp;m = a &amp;amp;\implies &amp;amp;(a, f(a, 2, 3)) &amp;amp;\implies &amp;amp;(a, false) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = b &amp;amp;\implies &amp;amp;(b, f(b, 2, 3)) &amp;amp;\implies &amp;amp;(b, true) \\</span>
-<span class=hljs-addition>+  &amp;amp;       &amp;amp;m = c &amp;amp;\implies &amp;amp;(c, f(c, 2, 3)) &amp;amp;\implies &amp;amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(n, f(n, k + 1, 4)) \forall k \in [2, 4), n \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 2, &amp;n = a &amp;\implies &amp;(a, f(a, 3, 4)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 3, 4)) &amp;\implies &amp;(b, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 3, 4)) &amp;\implies &amp;(c, true) \\</span>
+<span class=hljs-addition>+  &amp;k = 3, &amp;n = a &amp;\implies &amp;(a, f(a, 4, 4)) &amp;\implies &amp;(a, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = b &amp;\implies &amp;(b, f(b, 4, 4)) &amp;\implies &amp;(b, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;n = c &amp;\implies &amp;(c, f(c, 4, 4)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;(m, f(m, 2, k)) \forall k \in [2, 4), m \in \{ a, b, c \} \\</span>
+<span class=hljs-addition>+  &amp;k = 2, &amp;m = a &amp;\implies &amp;(a, f(a, 2, 2)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 2, 2)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 2, 2)) &amp;\implies &amp;(c, false) \\</span>
+<span class=hljs-addition>+  &amp;k = 3, &amp;m = a &amp;\implies &amp;(a, f(a, 2, 3)) &amp;\implies &amp;(a, false) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = b &amp;\implies &amp;(b, f(b, 2, 3)) &amp;\implies &amp;(b, true) \\</span>
+<span class=hljs-addition>+  &amp;       &amp;m = c &amp;\implies &amp;(c, f(c, 2, 3)) &amp;\implies &amp;(c, false) \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We get $n \in \{c, a\}$ and $m \in \{b\}$ - finally, something interesting.</span>
@@ -895,9 +1253,9 @@ We can see that the entire string can be reduce to either $a$ or $c$. After fill
 <span class=hljs-addition>+possibilities for the substring $a_i...a_j$ that meshes better with what the table.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+  p(i, i) &amp;amp;= \{a_i\} \\</span>
-<span class=hljs-addition>+  p(i, j) &amp;amp;= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\</span>
-<span class=hljs-addition>+  f(s, i, j) &amp;amp;= s \in p(i, j)</span>
+<span class=hljs-addition>+  p(i, i) &amp;= \{a_i\} \\</span>
+<span class=hljs-addition>+  p(i, j) &amp;= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\</span>
+<span class=hljs-addition>+  f(s, i, j) &amp;= s \in p(i, j)</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+In fact, I basically followed this simpler formula for filling out the table. It</span>

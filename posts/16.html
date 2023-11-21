@@ -86,9 +86,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <li>No emphasis</li>
 </ol>
 <p>And we can also use the bitrate/frequency to determine the frame size</p>
-<p>
-$floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100 + 0) = 626$
-</p>
+<p>$$ floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100 + 0) = 626 $$</p>
 <p>This suggests the next frame will start from <code>0x0000008a + 626</code> or <code>0x000002fc</code>, so let's look further.</p>
 <pre class=code-block><input id=code-block-16-2 type=checkbox><label for=code-block-16-2></label><code>000002b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
 000002c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
@@ -180,6 +178,19 @@ buf_reader.<span class="hljs-title function_ invoke__">read</span>(&amp;<span cl
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-11-20 - update tex handling</summary>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1></label><code><span class=hljs-meta>@@ -97,6 +97,5 @@</span> And we can also use the bitrate/frequency to determine the frame size
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-$floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100</span>
+<span class=hljs-deletion>-+ 0) = 626$</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+floor(144 *bitrate / frequency + padding) \rightarrow floor(144* 192000 / 44100 + 0) = 626</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+</details>
 <details>
 <summary>2020-09-04 - change a title</summary>
 <pre class=code-block><input id=code-block-f7621a6be6ad3968ad98eca9c36cb6ed19bd9292-1 type=checkbox><label for=code-block-f7621a6be6ad3968ad98eca9c36cb6ed19bd9292-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>

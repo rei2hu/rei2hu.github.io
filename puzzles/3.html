@@ -33,13 +33,10 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <nav class=posts-nav_top>
 <div style="flex:0 0 50%"><a href=/./puzzles/2>&lt; dynamic programming 2</a></div> <div style=text-align:end><a href=/./puzzles/4>dynamic programming 3 &gt;</a></div>
 </nav>
+<h1 id=randomized-algorithms-1>Randomized Algorithms 1</h1>
 <h2 id=question-1>Question 1</h2>
-<p>
-The Chinese Remainder theorem
-<br>
-<br>
-(a) Make a table with three columns. The first column is all numbers from 0 to 14. The second is the residues of these numbers modulo 3; the third column is the residues modulo 5. What do you observe?
-</p>
+<p>The Chinese Remainder theorem</p>
+<p>(a) Make a table with three columns. The first column is all numbers from 0 to 14. The second is the residues of these numbers modulo 3; the third column is the residues modulo 5. What do you observe?</p>
 <table>
 <thead>
 <tr>
@@ -127,25 +124,13 @@ The Chinese Remainder theorem
 </tbody>
 </table>
 <p>Not sure what to observe here…</p>
-<p>
-(b) Prove that if $p$ and $q$ are distinct primes, then for every pair $(j, k)$ with $0 \leq j \lt p$ and $0 \leq k \lt q$, there is a unique integer $0 \leq i \lt pq$ such that $i \equiv j \text{ mod } p$ and $i \equiv k \text{ mod } q$.
-<br>
-<br>
-So to relate this back to (a) first, the table does look like an example of this $p = 3$ and $q = 5$. Each pair of $(x \text{ mod } 3, x \text{ mod } 5)$ is unique and maps to a number between $0 \le i \lt pq$.
-<br>
-<br>
-This is a hand wavey explanation that I thought of, but basically they don't need to be distinct primes, just relatively prime. Because the result of the modulus operator cycles from $0$ to $n-1$ repeatedly, the only time a duplicate pair would show in the table would be at the lcm. I think. Because the lcm of two primes $p$ and $q$ is $pq$, there will be no duplicate pairs in the range $[0..pq)$. A quick supporting example would be for $x \text{ mod } 4$ and $x \text{ mod } 6$ should have it's first duplicate at 12, which is the lcm of 4 and 6.
-<br>
-<br>
-Maybe will try mathematical approach later. Hope explanation is at least valid.
-</p>
+<p>(b) Prove that if $p$ and $q$ are distinct primes, then for every pair $(j, k)$ with $0 \leq j \lt p$ and $0 \leq k \lt q$, there is a unique integer $0 \leq i \lt pq$ such that $i \equiv j \text{ mod } p$ and $i \equiv k \text{ mod } q$.</p>
+<p>So to relate this back to (a) first, the table does look like an example of this $p = 3$ and $q = 5$. Each pair of $(x \text{ mod } 3, x \text{ mod } 5)$ is unique and maps to a number between $0 \le i \lt pq$.</p>
+<p>This is a hand wavey explanation that I thought of, but basically they don't need to be distinct primes, just relatively prime. Because the result of the modulus operator cycles from $0$ to $n-1$ repeatedly, the only time a duplicate pair would show in the table would be at the lcm. I think. Because the lcm of two primes $p$ and $q$ is $pq$, there will be no duplicate pairs in the range $[0..pq)$. A quick supporting example would be for $x \text{ mod } 4$ and $x \text{ mod } 6$ should have it's first duplicate at 12, which is the lcm of 4 and 6.</p>
+<p>Maybe will try mathematical approach later. Hope explanation is at least valid.</p>
 <h2 id=question-2>Question 2</h2>
-<p>
-Alice and her three friends are all users of the RSA cryptosystem. Her friends have public keys $(N_i, e_i = 3)$, $i = 1, 2, 3$, where as always, $N_i = p_iq_i$ for randomly chosen n-bit primes $p_i$, $q_i$. Show that if Alice sends the same n-bit message $M$ (encrypted using RSA) to each of her friends, then anyone who intercepts all three encrypted messages will be able to efficiently recover $M$.
-<br>
-<br>
-The first thing to do is recall the steps of RSA and how they work.
-</p>
+<p>Alice and her three friends are all users of the RSA cryptosystem. Her friends have public keys $(N_i, e_i = 3)$, $i = 1, 2, 3$, where as always, $N_i = p_iq_i$ for randomly chosen n-bit primes $p_i$, $q_i$. Show that if Alice sends the same n-bit message $M$ (encrypted using RSA) to each of her friends, then anyone who intercepts all three encrypted messages will be able to efficiently recover $M$.</p>
+<p>The first thing to do is recall the steps of RSA and how they work.</p>
 <p>To generate keys:</p>
 <ol>
 <li>Generate 2 random primes $p$ and $q$</li>
@@ -158,29 +143,285 @@ The first thing to do is recall the steps of RSA and how they work.
 <li>Encryption: compute $y = m^e \text{ mod } N$ where $m$ is the message and $y$ is the encrypted message</li>
 <li>Decryption: compute $m = y^d \text{ mod } N$</li>
 </ol>
-<p>
-The encrypted message $M_i$ will be $M^3 \text{ mod } N_i$ for each of her friends. This means we can solve the system $M^3 = M_i \text{ mod } N_i$. According to chinese remainder theorem, we can get a solution by following the steps. $$ \begin{align} N &= (\prod_{i=1}^{3} N_i) \\ a_i &= M_i \\ y_i &= N / N_i \\ z_i &= y_i^{-1} \text{ mod } N_i \\ M^3 &= \sum_{i=1}^{3} a_iy_iz_i \\ \end{align} $$ Honestly speaking, I still don't fully get the theorem so I will be revisiting this... Thought for a couple minutes and I think I kind of get it, consider the normal formulation: $$ \begin{align} x &\equiv a_1 \text{ mod } n_1 \\ x &\equiv a_2 \text{ mod } n_2 \\ x &\equiv a_k \text{ mod } n_k \\ \end{align} $$ $a_iy_iz_i$ is divisible by $n_j$ if $j \neq i$ because $y_i$ includes $n_j$. This means $(\sum_{i=1}^{k} a_iy_iz_i) \text{ mod } n_i$ turns into $(a_iy_iz_i) \text{ mod } n_i$ which then turns into $a_i$ because $y_i$ and $z_i$ are inverses. Then we want to get a unique number so we use $\mod { N }$. Easy to think backwards, but I wonder how the theorem was originally conceived - well that seems to be an overarching theme in math for me.
-<br>
-<br>
-I'll still revisit because I like to be at a place where I can derive the formulas myself with a few insights because there is less memorization needed and that's how I've approached all technical topics so far.
-<br>
-<br>
-Here is one way that chinese remainder theorem might have been derived from a concrete example. Start with the first equivalence: $$ \begin{align} x &\equiv a_1 \text{ mod } n_1 \\ \end{align} $$ A valid solution for $x$ would be $a_1$.
-<br>
-<br>
-Now what if we want to bring in another equivalence? $$ \begin{align} x &\equiv a_1 \text{ mod } n_1 \\ x &\equiv a_2 \text{ mod } n_2 \\ \end{align} $$ We do the same thing as before but for the second one and get $a_2$. However, we somehow want to combine the two equations into one. We know that $a \text{ mod } b$ has solutions of the form $bk + a$ where $k$ is anything, so why don't we start out by trying to add them together? $$ \begin{align} (a_1) + (a_2) \\ \end{align} $$ What we want now is for all of these parenthesized groups to disappear when we do $\text{ mod } n_i$ except for the one for that $i$. This is possible by multiplying each group by the product of the other $n$s. But first, let's expand to three equivalences just for show (it's not as enlightening with only two): $$ \begin{align} (a_1) + (a_2) + (a_3) \\ \end{align} $$ If I want $a_1$ to be divisible by $n_2$, multiply it by $n_2$. Same for $n_3$. In short, multiply each group by the product of the other moduli: $$ \begin{align} (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) \\ \end{align} $$ Now, when we take that equation and do $\text{ mod } n_i$ ($i=1$ for example), we end with: $$ \begin{align} & (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) &\text{ mod } n_1 \\ & (n_2n_3)(a_1) &\text{ mod } n_1 \\ & (a_1n_2n_3) &\text{ mod } n_1 \\ \end{align} $$ All the terms we didn't want fell away! (A short aside, I feel like I've seen this "pattern" in a lot of places before when doing math stuff.)
-<br>
-<br>
-At this point, we need to somehow get rid of $n_2n_3$. This is where we can take advantage of the fact that the moduli are relatively prime. We know $n_2n_3$ is relatively prime to $n_1$ because of this. Therefore, the inverse to $n_2n_3$ exists. Which we can use to obtain $a_1$ again. This means that for each parenthesized group, we should multiply it by the inverse of that product that we created. For example
-$$ \begin{align} ((n_2n_3)^{-1} \text{ mod } n_1)(n_2n_3)(a_1) + ((n_1n_3)^{-1} \text{ mod } n_2)(n_1n_3)(a_2) + ((n_1n_2)^{-1} \text{ mod } n_3)(n_1n_2)(a_3) \\ \end{align} $$
-Look familiar? This is literally the theorem but a bit rearranged. $$ \begin{align} z_1y_1a_1 + z_2y_2a_2 + z_3y_3a_3 \end{align} $$
-</p>
+<p>The encrypted message $M_i$ will be $M^3 \text{ mod } N_i$ for each of her friends. This means we can solve the system $M^3 = M_i \text{ mod } N_i$. According to chinese remainder theorem, we can get a solution by following the steps.</p>
+<p>$$ \begin{align} N &= (\prod_{i=1}^{3} N_i) \\ a_i &= M_i \\ y_i &= N / N_i \\ z_i &= y_i^{-1} \text{ mod } N_i \\ M^3 &= \sum_{i=1}^{3} a_iy_iz_i \\ \end{align} $$</p>
+<p>Honestly speaking, I still don't fully get the theorem so I will be revisiting this… Thought for a couple minutes and I think I kind of get it, consider the normal formulation:</p>
+<p>$$ \begin{align} x &\equiv a_1 \text{ mod } n_1 \\ x &\equiv a_2 \text{ mod } n_2 \\ x &\equiv a_k \text{ mod } n_k \\ \end{align} $$ $a_iy_iz_i$ is divisible by $n_j$ if $j \neq i$ because $y_i$ includes $n_j$. This means $(\sum_{i=1}^{k} a_iy_iz_i) \text{ mod } n_i$ turns into $(a_iy_iz_i) \text{ mod } n_i$ which then turns into $a_i$ because $y_i$ and $z_i$ are inverses. Then we want to get a unique number so we use $\mod { N }$. Easy to think backwards, but I wonder how the theorem was originally conceived - well that seems to be an overarching theme in math for me.</p>
+<p>I'll still revisit because I like to be at a place where I can derive the formulas myself with a few insights because there is less memorization needed and that's how I've approached all technical topics so far.</p>
+<p>Here is one way that chinese remainder theorem might have been derived from a concrete example. Start with the first equivalence:</p>
+<p>$$ \begin{align} x &\equiv a_1 \text{ mod } n_1 \\ \end{align} $$</p>
+<p>A valid solution for $x$ would be $a_1$.</p>
+<p>Now what if we want to bring in another equivalence?</p>
+<p>$$ \begin{align} x &\equiv a_1 \text{ mod } n_1 \\ x &\equiv a_2 \text{ mod } n_2 \\ \end{align} $$</p>
+<p>We do the same thing as before but for the second one and get $a_2$. However, we somehow want to combine the two equations into one. We know that $a \text{ mod } b$ has solutions of the form $bk + a$ where $k$ is anything, so why don't we start out by trying to add them together?</p>
+<p>$$ \begin{align} (a_1) + (a_2) \\ \end{align} $$</p>
+<p>What we want now is for all of these parenthesized groups to disappear when we do $\text{ mod } n_i$ except for the one for that $i$. This is possible by multiplying each group by the product of the other $n$s. But first, let's expand to three equivalences just for show (it's not as enlightening with only two):</p>
+<p>$$ \begin{align} (a_1) + (a_2) + (a_3) \\ \end{align} $$</p>
+<p>If I want $a_1$ to be divisible by $n_2$, multiply it by $n_2$. Same for $n_3$. In short, multiply each group by the product of the other moduli:</p>
+<p>$$ \begin{align} (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) \\ \end{align} $$</p>
+<p>Now, when we take that equation and do $\text{ mod } n_i$ ($i=1$ for example), we end with:</p>
+<p>$$ \begin{align} & (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) &\text{ mod } n_1 \\ & (n_2n_3)(a_1) &\text{ mod } n_1 \\ & (a_1n_2n_3) &\text{ mod } n_1 \\ \end{align} $$</p>
+<p>All the terms we didn't want fell away! (A short aside, I feel like I've seen this "pattern" in a lot of places before when doing math stuff.)</p>
+<p>At this point, we need to somehow get rid of $n_2n_3$. This is where we can take advantage of the fact that the moduli are relatively prime. We know $n_2n_3$ is relatively prime to $n_1$ because of this. Therefore, the inverse to $n_2n_3$ exists. Which we can use to obtain $a_1$ again. This means that for each parenthesized group, we should multiply it by the inverse of that product that we created. For example</p>
+<p>$$ \begin{align} ((n_2n_3)^{-1} \text{ mod } n_1)(n_2n_3)(a_1) + ((n_1n_3)^{-1} \text{ mod } n_2)(n_1n_3)(a_2) + ((n_1n_2)^{-1} \text{ mod } n_3)(n_1n_2)(a_3) \\ \end{align} $$</p>
+<p>Look familiar? This is literally the theorem but a bit rearranged.</p>
+<p>$$ \begin{align} z_1y_1a_1 + z_2y_2a_2 + z_3y_3a_3 \end{align} $$</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./puzzles/2>&lt; dynamic programming 2</a></div> <div style=text-align:end><a href=/./puzzles/4>dynamic programming 3 &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-11-20 - update tex handling</summary>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
+<span class=hljs-deletion>-&lt;!-- markdownlint-disable MD041 --&gt;</span>
+<span class=hljs-addition>+# Randomized Algorithms 1</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-2></label><code><span class=hljs-meta>@@ -4,10 +4,8 @@</span>
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+ The Chinese Remainder theorem
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-(a) Make a table with three columns. The first column is all numbers from 0 to 14.</span>
+<span class=hljs-deletion>-The second is the residues of these numbers modulo 3; the third column is the residues</span>
+<span class=hljs-deletion>-modulo 5. What do you observe?</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+(a) Make a table with three columns. The first column is all numbers from 0</span>
+<span class=hljs-addition>+to 14. The second is the residues of these numbers modulo 3; the third column is</span>
+<span class=hljs-addition>+the residues modulo 5. What do you observe?</span>
+<span class=hljs-addition>+</span>
+ | x   | x mod 3 | x mod 5 |
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-3></label><code><span class=hljs-meta>@@ -32,50 +30,32 @@</span> Not sure what to observe here...
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-(b) Prove that if $p$ and $q$ are distinct primes, then for every pair $(j, k)$ with</span>
+<span class=hljs-deletion>-$0 \leq j \lt p$ and $0 \leq k \lt q$, there is a unique integer $0 \leq i \lt pq$</span>
+<span class=hljs-deletion>-such that $i \equiv j \text{ mod } p$ and $i \equiv k \text{ mod } q$.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+(b) Prove that if $p$ and $q$ are distinct primes, then for every pair $(j, k)$</span>
+<span class=hljs-addition>+with $0 \leq j \lt p$ and $0 \leq k \lt q$, there is a unique integer</span>
+<span class=hljs-addition>+$0 \leq i \lt pq$ such that $i \equiv j \text{ mod } p$ and</span>
+<span class=hljs-addition>+$i \equiv k \text{ mod } q$.</span>
+<span class=hljs-addition>+</span>
+ So to relate this back to (a) first, the table does look like an example of this
+<span class=hljs-deletion>-$p = 3$ and $q = 5$. Each pair of $(x \text{ mod } 3, x \text{ mod } 5)$ is unique</span>
+<span class=hljs-deletion>-and maps to a number between $0 \le i \lt pq$.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-This is a hand wavey explanation that I thought of, but basically they don&#x27;t need</span>
+<span class=hljs-deletion>-to be distinct primes, just relatively prime. Because the result of the modulus</span>
+<span class=hljs-deletion>-operator cycles from $0$ to $n-1$ repeatedly, the only time a duplicate pair would</span>
+<span class=hljs-deletion>-show in the table would be at the lcm. I think. Because the lcm of two primes $p$</span>
+<span class=hljs-deletion>-and $q$ is $pq$, there will be no duplicate pairs in the range $[0..pq)$. A quick</span>
+<span class=hljs-deletion>-supporting example would be for $x \text{ mod } 4$ and $x \text{ mod } 6$ should</span>
+<span class=hljs-deletion>-have it&#x27;s first duplicate at 12, which is the lcm of 4 and 6.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+$p = 3$ and $q = 5$. Each pair of $(x \text{ mod } 3, x \text{ mod } 5)$ is</span>
+<span class=hljs-addition>+unique and maps to a number between $0 \le i \lt pq$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is a hand wavey explanation that I thought of, but basically they don&#x27;t</span>
+<span class=hljs-addition>+need to be distinct primes, just relatively prime. Because the result of the</span>
+<span class=hljs-addition>+modulus operator cycles from $0$ to $n-1$ repeatedly, the only time a duplicate</span>
+<span class=hljs-addition>+pair would show in the table would be at the lcm. I think. Because the lcm of</span>
+<span class=hljs-addition>+two primes $p$ and $q$ is $pq$, there will be no duplicate pairs in the range</span>
+<span class=hljs-addition>+$[0..pq)$. A quick supporting example would be for $x \text{ mod } 4$ and</span>
+<span class=hljs-addition>+$x \text{ mod } 6$ should have it&#x27;s first duplicate at 12, which is the lcm of 4</span>
+<span class=hljs-addition>+and 6.</span>
+<span class=hljs-addition>+</span>
+ Maybe will try mathematical approach later. Hope explanation is at least valid.
+<span class=hljs-deletion>-&lt;!-- &lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-(c) In this one-to-one correspondence between integers and pairs, it is easy to</span>
+<span class=hljs-deletion>-go from $i$ to $(j, k)$. Prove that the following formula takes you the other</span>
+<span class=hljs-deletion>-way:</span>
+<span class=hljs-deletion>-$$</span>
+<span class=hljs-deletion>-\begin{align}</span>
+<span class=hljs-deletion>-    i = {j · q · (q^{−1} \text{ mod } p) + k · p · (p^{−1} \text{ mod } q)}</span>
+<span class=hljs-deletion>-    \text{ mod } pq.</span>
+<span class=hljs-deletion>-\end{align}</span>
+<span class=hljs-deletion>-$$</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-(d) Can you generalize parts (b) and (c) to more than two primes? --&gt;</span>
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+<span class=hljs-addition>+</span>
+ ## Question 2
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-Alice and her three friends are all users of the RSA cryptosystem. Her friends have</span>
+<span class=hljs-deletion>-public keys $(N_i, e_i = 3)$, $i = 1, 2, 3$, where as always, $N_i = p_iq_i$ for</span>
+<span class=hljs-deletion>-randomly chosen n-bit primes $p_i$, $q_i$. Show that if Alice sends the same n-bit</span>
+<span class=hljs-deletion>-message $M$ (encrypted using RSA) to each of her friends, then anyone who intercepts</span>
+<span class=hljs-deletion>-all three encrypted messages will be able to efficiently recover $M$.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+Alice and her three friends are all users of the RSA cryptosystem. Her friends</span>
+<span class=hljs-addition>+have public keys $(N_i, e_i = 3)$, $i = 1, 2, 3$, where as always,</span>
+<span class=hljs-addition>+$N_i = p_iq_i$ for randomly chosen n-bit primes $p_i$, $q_i$. Show that if Alice</span>
+<span class=hljs-addition>+sends the same n-bit message $M$ (encrypted using RSA) to each of her friends,</span>
+<span class=hljs-addition>+then anyone who intercepts all three encrypted messages will be able to</span>
+<span class=hljs-addition>+efficiently recover $M$.</span>
+<span class=hljs-addition>+</span>
+ The first thing to do is recall the steps of RSA and how they work.
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-4></label><code><span class=hljs-meta>@@ -94,6 +74,7 @@</span> For encryption/decryption:
+
+<span class=hljs-deletion>-&lt;p&gt;</span>
+<span class=hljs-deletion>-The encrypted message $M_i$ will be $M^3 \text{ mod } N_i$ for each of her friends.</span>
+<span class=hljs-deletion>-This means we can solve the system $M^3 = M_i \text{ mod } N_i$. According to chinese</span>
+<span class=hljs-deletion>-remainder theorem, we can get a solution by following the steps.</span>
+<span class=hljs-addition>+The encrypted message $M_i$ will be $M^3 \text{ mod } N_i$ for each of her</span>
+<span class=hljs-addition>+friends. This means we can solve the system $M^3 = M_i \text{ mod } N_i$.</span>
+<span class=hljs-addition>+According to chinese remainder theorem, we can get a solution by following the</span>
+<span class=hljs-addition>+steps.</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-5></label><code><span class=hljs-meta>@@ -107,4 +88,7 @@</span> $$
+ $$
+<span class=hljs-deletion>-Honestly speaking, I still don&#x27;t fully get the theorem so I will be revisiting this...</span>
+<span class=hljs-deletion>-Thought for a couple minutes and I think I kind of get it, consider the normal formulation:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Honestly speaking, I still don&#x27;t fully get the theorem so I will be revisiting</span>
+<span class=hljs-addition>+this... Thought for a couple minutes and I think I kind of get it, consider the</span>
+<span class=hljs-addition>+normal formulation:</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-6 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-6></label><code><span class=hljs-meta>@@ -116,17 +100,17 @@</span> $$
+ $$
+<span class=hljs-deletion>-$a_iy_iz_i$ is divisible by $n_j$ if $j \neq i$ because $y_i$ includes $n_j$. This</span>
+<span class=hljs-deletion>-means $(\sum_{i=1}^{k} a_iy_iz_i) \text{ mod } n_i$ turns into</span>
+<span class=hljs-deletion>-$(a_iy_iz_i) \text{ mod } n_i$ which then turns into $a_i$ because $y_i$ and $z_i$</span>
+<span class=hljs-deletion>-are inverses. Then we want to get a unique number so we use $\mod { N }$. Easy to</span>
+<span class=hljs-deletion>-think backwards, but I wonder how the theorem was originally conceived - well that</span>
+<span class=hljs-deletion>-seems to be an overarching theme in math for me.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-I&#x27;ll still revisit because I like to be at a place where I can derive the formulas</span>
+<span class=hljs-deletion>-myself with a few insights because there is less memorization needed and that&#x27;s how</span>
+<span class=hljs-deletion>-I&#x27;ve approached all technical topics so far.</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-Here is one way that chinese remainder theorem might have been derived from a concrete</span>
+<span class=hljs-deletion>-example. Start with the first equivalence:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$a_iy_iz_i$ is divisible by $n_j$ if $j \neq i$ because $y_i$ includes $n_j$.</span>
+<span class=hljs-addition>+This means $(\sum_{i=1}^{k} a_iy_iz_i) \text{ mod } n_i$ turns into</span>
+<span class=hljs-addition>+$(a_iy_iz_i) \text{ mod } n_i$ which then turns into $a_i$ because $y_i$ and</span>
+<span class=hljs-addition>+$z_i$ are inverses. Then we want to get a unique number so we use $\mod { N }$.</span>
+<span class=hljs-addition>+Easy to think backwards, but I wonder how the theorem was originally conceived -</span>
+<span class=hljs-addition>+well that seems to be an overarching theme in math for me.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll still revisit because I like to be at a place where I can derive the</span>
+<span class=hljs-addition>+formulas myself with a few insights because there is less memorization needed</span>
+<span class=hljs-addition>+and that&#x27;s how I&#x27;ve approached all technical topics so far.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here is one way that chinese remainder theorem might have been derived from a</span>
+<span class=hljs-addition>+concrete example. Start with the first equivalence:</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-7 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-7></label><code><span class=hljs-meta>@@ -136,6 +120,7 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ A valid solution for $x$ would be $a_1$.
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+ Now what if we want to bring in another equivalence?
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-8 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-8></label><code><span class=hljs-meta>@@ -146,6 +131,8 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ We do the same thing as before but for the second one and get $a_2$. However, we
+ somehow want to combine the two equations into one. We know that
+<span class=hljs-deletion>-$a \text{ mod } b$ has solutions of the form $bk + a$ where $k$ is anything, so why</span>
+<span class=hljs-deletion>-don&#x27;t we start out by trying to add them together?</span>
+<span class=hljs-addition>+$a \text{ mod } b$ has solutions of the form $bk + a$ where $k$ is anything, so</span>
+<span class=hljs-addition>+why don&#x27;t we start out by trying to add them together?</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-9 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-9></label><code><span class=hljs-meta>@@ -155,6 +142,8 @@</span> $$
+ $$
+<span class=hljs-deletion>-What we want now is for all of these parenthesized groups to disappear when we do</span>
+<span class=hljs-deletion>-$\text{ mod } n_i$ except for the one for that $i$. This is possible by multiplying</span>
+<span class=hljs-deletion>-each group by the product of the other $n$s. But first, let&#x27;s expand to three equivalences</span>
+<span class=hljs-deletion>-just for show (it&#x27;s not as enlightening with only two):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What we want now is for all of these parenthesized groups to disappear when we</span>
+<span class=hljs-addition>+do $\text{ mod } n_i$ except for the one for that $i$. This is possible by</span>
+<span class=hljs-addition>+multiplying each group by the product of the other $n$s. But first, let&#x27;s expand</span>
+<span class=hljs-addition>+to three equivalences just for show (it&#x27;s not as enlightening with only two):</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-10 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-10></label><code><span class=hljs-meta>@@ -164,4 +153,6 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ If I want $a_1$ to be divisible by $n_2$, multiply it by $n_2$. Same for $n_3$.
+ In short, multiply each group by the product of the other moduli:
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-11 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-11></label><code><span class=hljs-meta>@@ -171,4 +162,6 @@</span> $$
+ $$
+<span class=hljs-deletion>-Now, when we take that equation and do $\text{ mod } n_i$ ($i=1$ for example), we</span>
+<span class=hljs-deletion>-end with:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now, when we take that equation and do $\text{ mod } n_i$ ($i=1$ for example),</span>
+<span class=hljs-addition>+we end with:</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-12 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-12></label><code><span class=hljs-meta>@@ -180,12 +173,15 @@</span> $$
+ $$
+<span class=hljs-deletion>-All the terms we didn&#x27;t want fell away! (A short aside, I feel like I&#x27;ve seen this</span>
+<span class=hljs-deletion>-&quot;pattern&quot; in a lot of places before when doing math stuff.)</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-deletion>-&lt;br /&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+All the terms we didn&#x27;t want fell away! (A short aside, I feel like I&#x27;ve seen</span>
+<span class=hljs-addition>+this &quot;pattern&quot; in a lot of places before when doing math stuff.)</span>
+<span class=hljs-addition>+</span>
+ At this point, we need to somehow get rid of $n_2n_3$. This is where we can take
+ advantage of the fact that the moduli are relatively prime. We know $n_2n_3$ is
+<span class=hljs-deletion>-relatively prime to $n_1$ because of this. Therefore, the inverse to $n_2n_3$ exists.</span>
+<span class=hljs-deletion>-Which we can use to obtain $a_1$ again. This means that for each parenthesized group,</span>
+<span class=hljs-deletion>-we should multiply it by the inverse of that product that we created. For example</span>
+<span class=hljs-addition>+relatively prime to $n_1$ because of this. Therefore, the inverse to $n_2n_3$</span>
+<span class=hljs-addition>+exists. Which we can use to obtain $a_1$ again. This means that for each</span>
+<span class=hljs-addition>+parenthesized group, we should multiply it by the inverse of that product that</span>
+<span class=hljs-addition>+we created. For example</span>
+<span class=hljs-addition>+</span>
+ &lt;!-- markdownlint-disable MD013 --&gt;
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-13 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-13></label><code><span class=hljs-meta>@@ -195,4 +191,7 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ &lt;!-- markdownlint-enable MD013 --&gt;
+<span class=hljs-addition>+</span>
+ Look familiar? This is literally the theorem but a bit rearranged.
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-14 type=checkbox><label for=code-block-813e71e60e822c61a676105913b3e88ad56d7d17-14></label><code>@@ -202,2 +201 @@ $$
+ $$
+<span class=hljs-deletion>-&lt;/p&gt;</span>
+</code></pre>
+</details>
 <details>
 <summary>2020-12-14 - update exercise 3</summary>
 <pre class=code-block><input id=code-block-5b5753454507a430eb40b0006658298c80a44071-1 type=checkbox><label for=code-block-5b5753454507a430eb40b0006658298c80a44071-1></label><code><span class=hljs-meta>@@ -102,3 +102,3 @@</span> $$
@@ -197,7 +438,7 @@ Look familiar? This is literally the theorem but a bit rearranged. $$ \begin{ali
 <span class=hljs-addition>+example. Start with the first equivalence:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_1 \text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_1 \text{ mod } n_1 \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+A valid solution for $x$ would be $a_1$.</span>
@@ -206,8 +447,8 @@ Look familiar? This is literally the theorem but a bit rearranged. $$ \begin{ali
 <span class=hljs-addition>+Now what if we want to bring in another equivalence?</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_1 \text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_2 \text{ mod } n_2 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_1 \text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_2 \text{ mod } n_2 \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+We do the same thing as before but for the second one and get $a_2$. However, we</span>
@@ -239,9 +480,9 @@ Look familiar? This is literally the theorem but a bit rearranged. $$ \begin{ali
 <span class=hljs-addition>+end with:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    &amp;amp; (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) &amp;amp;\text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    &amp;amp; (n_2n_3)(a_1) &amp;amp;\text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    &amp;amp; (a_1n_2n_3) &amp;amp;\text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    &amp; (n_2n_3)(a_1) + (n_1n_3)(a_2) + (n_1n_2)(a_3) &amp;\text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    &amp; (n_2n_3)(a_1) &amp;\text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    &amp; (a_1n_2n_3) &amp;\text{ mod } n_1 \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+All the terms we didn&#x27;t want fell away! (A short aside, I feel like I&#x27;ve seen this</span>
@@ -371,20 +612,20 @@ Look familiar? This is literally the theorem but a bit rearranged. $$ \begin{ali
 <span class=hljs-addition>+remainder theorem, we can get a solution by following the steps.</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    N &amp;amp;= (\prod_{i=1}^{3} N_i) \\</span>
-<span class=hljs-addition>+    a_i &amp;amp;= M_i \\</span>
-<span class=hljs-addition>+    y_i &amp;amp;= N / N_i \\</span>
-<span class=hljs-addition>+    z_i &amp;amp;= y_i^{-1} \text{ mod } N \\</span>
-<span class=hljs-addition>+    M^3 &amp;amp;= \sum_{i=1}^{3} a_iy_iz_i \\</span>
+<span class=hljs-addition>+    N &amp;= (\prod_{i=1}^{3} N_i) \\</span>
+<span class=hljs-addition>+    a_i &amp;= M_i \\</span>
+<span class=hljs-addition>+    y_i &amp;= N / N_i \\</span>
+<span class=hljs-addition>+    z_i &amp;= y_i^{-1} \text{ mod } N \\</span>
+<span class=hljs-addition>+    M^3 &amp;= \sum_{i=1}^{3} a_iy_iz_i \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+Honestly speaking, I still don&#x27;t fully get the theorem so I will be revisiting this...</span>
 <span class=hljs-addition>+Thought for a couple minutes and I think I kind of get it, consider the normal formulation:</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+\begin{align}</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_1 \text{ mod } n_1 \\</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_2 \text{ mod } n_2 \\</span>
-<span class=hljs-addition>+    x &amp;amp;\equiv a_k \text{ mod } n_k \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_1 \text{ mod } n_1 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_2 \text{ mod } n_2 \\</span>
+<span class=hljs-addition>+    x &amp;\equiv a_k \text{ mod } n_k \\</span>
 <span class=hljs-addition>+\end{align}</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+$a_iy_iz_i$ is divisible by $n_j$ if $j \neq i$ because $y_i$ includes $n_j$. This</span>
