@@ -52,12 +52,352 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <p>I can definitely see the cdn complying because they were hosting official content, but I'm not so sure about the rest of the things as the client and server are supposedly reversed/written from scratch. And even worse, none of the work is planned to be open sourced.</p>
 <p>Why did this DMCA work on this server when there are other much longer lived servers? Based on the above quote, the developer doesn't have anonymity so whoever is going after them (Nexon?) was able to tie things to their real world identity.</p>
 <p>Sad times…</p>
+<p>The following thread was posted
+<a href=https://old.reddit.com/r/mapleservers/comments/1896jfg/yeou_postmortem/ >on Reddit</a>
+with the title "Yeou Post-Mortem".</p>
+<blockquote>
+<p>Hi, there's some stuff I want to get off my chest regarding what happened, the plans we had for Yeou, and some general thoughts about the whole thing and MSPS in general. And I guess kind of a goodbye note from me from maple server stuff. I figured a reddit post would fit better than a discord announcement as it'll stand the test of time and people have been leaving the discord already. This is going to be very long, sorry 😅</p>
+<h2 id=the-road-to-yeou-and-its-beta>The road to Yeou and its beta</h2>
+<p>My background is that I have been developing private servers since 2008, starting out on the OdinMS development section on their forum before the source code of it and TitanMS came out. I was one of the first to get in-game on a custom private server with the help of some very talented people like jonyleeson, koolk, snow, serpendiem, etc. I quit in 2010 due to big bang and played Maple on and off until I came across OSM in 2019. Almost immediately after playing it I messaged asdf/roar to ask if he needed help as I had some experience from a decade earlier, and I got to work on some cool (non-spyware) client features without having any idea what I was getting into, I was just having a lot of fun. Lots of drama ensued and I ended up helping out at MapleUnity, where I met woof and a bunch of other cool people. After that died I ended up messing around with a bunch of different things, making personal projects built around the v95 client, met a lot of friends that I ended up starting MG2 with to see how far we could take the v0.12 client. I ended up implementing a very proper HD resolution, monster book, guilds, swimming physics, and a bunch of other cool stuff in such an old client. But at this point I started getting really tired of client modding and by chance ended up starting a new very ambitious project that would later end up becoming Yeou.</p>
+<p>As visible in the #dev-timeline channel on the discord, this started from very humble beginnings. At first I tried to emulate the original client a little bit too much, which made it still limited to Windows and carried over some of the restrictions (having to use ZAlloc, being limited to one architecture, large parts of the engine being closed source to me, etc). So a couple months later when I had a somewhat working 'user-space' part of the client, I set out to rewrite the internals as well. After a month of incredibly intensive rewriting I got it to a point where it would even run on a Nintendo Switch, and this is where the project really took off for me. This is when I decided I wanted to make it an actual server as a sort of last hurrah for me regarding MapleStory, and woof wanted to help out too.</p>
+<p>Eventually the alpha came out and it was very barebones. Everyone had "GM powers" (or sandbox as we called it) and was able to spawn a bunch of mobs and give themselves items. This was to stress test the client and to make sure it didn't crash from a bunch of simulated load. It went fairly well and I set off to implement more basic features, skills, social features, proper mob mechanics/AI, to make it feel like an actual game rather than a tech demo. This obviously took a while because doing that accurately meant a ton of reverse engineering and re-implementing. And I think along the way I've rewritten the whole thing like three times over because I wasn't satisfied with the previous attempts. At some point I randomly came across compiling C++ to webassembly using emscripten, and I think it took literally 6 hours to get it to work in a browser for the first time as a little offline tech demo. With the help of Diamondo25 I got it to connect to the actual server and I had a working web version of the game. The alpha was out at this point and was hovering pretty much constantly at about 10-20 CCU for like a year.</p>
+<p>Woof and me were brainstorming daily about ideas we had that we really wanted to implement in the game, but we were kind of stuck recreating the base first before we were able to go ham on custom content. This was a little frustrating for I imagine the both of us, because there was just still so much to do before the base was done enough to really unleash what we wanted to do with the game. Literally everything had to be implemented by hand, world maps, tooltips, sound effects, JQ obstacles, floating NPCs in Orbis, all the different kinds of items, the quest system, NPC dialogs, it really is a lot when you think about it. And woof's incredible eye for detail kept me on point with getting even the smallest details right for a lot of these things. I ended up making some really cool internal systems for things like skills, and backporting some useful data related things like formulas for skill data instead of being static per level. As well as the custom network protocol based on a definition language instead of arbitrary byte decoding/encoding like the original client. That allowed for some really rapid development and made me love working on it again.</p>
+<p>Eventually during the alpha, more stuff started working, the game started feeling more complete, some of the players started reaching higher levels without half their skills being broken and the player count started rising. At some point there was an invasion of Korean players enjoying the game, Korean Yeou discords were made and the world chat was pretty much all Korean. This made it a little (very) hard to moderate, but it was very cool seeing so many people enjoying the game. They eventually left again and we started the final sprint towards a beta release.</p>
+<p>We wanted to stay pretty close to the original game before the beta. This was so that we knew we had a good baseline before starting to implement fundamental changes to the game. The beta was our opportunity for this, and we just went ham on implementing everything that sounded fun to us and was realistic for the beta release. This went on a little bit too much and we ended up in a bunch of time crunch for beta, along with having to moderate the discord that had seen an absolute explosion of growth at this point (2k members in a month). I had a lot of trust issues due to past experiences so we ended up doing all the moderating ourselves and this made it even harder to make the deadline we set for ourselves. We had also never before set a deadline for any Yeou patch so this was a little difficult to get right, but I think we ended up with something decent.</p>
+<p>The server backend itself was always a little bit of a struggle. I was spending most of my time building the client as that was the part I had the most fun with, but the server definitely lagged behind. I tried rebuilding it a couple of times but always went back to the original as some stuff in the rebuilds I didn't really end up liking. The biggest issue it had was that I used EF Core for its change tracking and low effort data saving. This worked perfectly in development, started showing cracks in alpha and absolutely blew up during beta, with small character rollbacks here and there with super cryptic errors. My biggest dev regret in the whole project was probably going with that library for a database saving layer, even though it was probably still much better than the database code OdinMS derivatives have.</p>
+<p>The beta itself was extremely stressful for me due to the saving issues and not having enough time playtesting all the changes we did for beta (I had almost never seen the warp map in game before seeing it in the live game) but all in all it went pretty well. With a constant 300-400 CCU it was probably the most popular beta for a maple private server since OdinMS. At the very last second before beta release I figured I should build some sort of live hotfix system for skill formula data, and I ended up having to use this feature a bunch so I'm happy I did 😅Thank you all for playing, it was amazing, and shoutout to the hackers and DDoSers.</p>
+<h2 id=the-problems-started>The problems started</h2>
+<p>I don't want to get too much into details because I don't really know what repercussions it would have at this point, but after beta we got absolutely barraged with DMCAs and one of our hosting providers actually contacted the legal team and verified that it was real and gave me some more bad details about it. It wasn't necessarily the DMCAs (or the effect they had on our servers, they weren't vulnerable to it so stop saying I should've hosted them in Russia) that made us make the decision to shut down, but the things I can't really talk about that they were preparing for at the same time.</p>
+<p>As I said in the shutdown announcement, Yeou was something truly special to us. It was pretty much my life work for the past two years and making the decision to shut it down was not easy. It was just getting to the point where the base was done and we could go ham on all our ideas, and truly let loose our creativity. I completely get that some people are upset at me for being dumb and not taking the necessary precautions early on, but believe me when I say that I would want nothing more than to turn back time and make better decisions, but unfortunately I didn't have the foresight to see that it would turn out this big which was very stupid, and I apologize for that. I wish it was different too.</p>
+<h2 id=our-unfinished-plans-for-yeou>Our unfinished plans for Yeou</h2>
+<p>We were a little surprised at the feedback Yeou had gotten after the shutdown. We felt like we had only lightly scratched the surface of the changes we wanted to make, just to make the original game a little more fair and playable. It was a very ambitious project, but nothing balancing wise was very groundbreaking to us yet and they were purely meant as preliminary very experimental changes to get some data on stuff. Perhaps it was just the feeling of the whole thing, with an active playerbase, relatively few channels, the world chat, and technical accessibility that made it feel so much like what people loved about the original game (it did for me too), rather than the actual gameplay and balancing.</p>
+<p>That ties into pretty much our biggest philosophy behind the content and ideas for the project. Bringing back the social features and making sure it feels like a cohesive world of activities and socializing before perfecting 6 hour grinds to gain a level. World chat, the faction system (and removal of guilds), the hub/warp map, having to collect drops in your monster book, among other features were all meant to tie into that, and we would've loved to see what it could've become in the future. We were planning a housing feature, a bunch of custom minigames, a mariomaker-esque map creator where you could create your own party quests for people to finish, expanding on factions to make it feel like you were all part of a giant guild, leaderboards, achievements, instruments, and more. Here's a preview of Tetris that had actually already been in the game for quite some time:
+<a href=https://img.fox.tf/yj5ifULenQ.mp4>https://img.fox.tf/yj5ifULenQ.mp4</a></p>
+<p>Our second big philosophy was unlockable QoL. We get that people aren't fans of having to sit on a boat ride for 30 minutes, but also recognize that this is polarizing and at the same time the boat rides are some people's fondest memories about old maple. So we set out to find a middle road for a lot of these things, settling on an unlockable warp map and having to walk to towns before being able to take the taxi, among some other planned things.</p>
+<p>Early on I mentioned to woof that as a kid I was always day dreaming about making a party quest, specifically one set in the deep Ludibrium clock tower. I had at some point bought the art book for MapleStory, and it had an unused design for a Ludi PQ mob. We had already thought of all the lore, stages, and woof even started on designing out the mob for use in the level 90+ PQ. I would've loved to see this in action.</p>
+<p><a href="https://preview.redd.it/poa5xterdw3c1.png?width=800&format=png&auto=webp&s=d70f07e70db2aafec137644778ef03c3398f2e3a">The unused mob design</a></p>
+<p>We were planning to go pretty big on professions as well. We had planned to add mining, herbalism, alchemy, cooking and some other stuff. This is why in beta, Edelstein, Ereve and Rien were added to the world map. These were meant to focus on mining, herbalism and mount training respectively, with Magatia being the alchemy town as that tied into Maple lore. These professions were meant to augment existing mechanics, as well as providing something to do while not spending 6 hours holding down a button to see exp bar go up. Boss mechanics would be designed to be able to counter using stuff created by professions, to artificially limit them by profession preparation rather than having to sit there for 10 hours killing zakum. They would also provide a way to boost your Max HP by creating a difficult to make potion to prevent the whole HP washing thing, while also adding some prepar time.</p>
+<p>The scrolling rework was planned to tie into professions as well, getting rid of the old school scrolling and replacing it with more unique upgrades, where a mage for example could 'scroll' their gear to add one more mob hit to their energy bolt, or add an element to magic claw, or whatever effects you could think of, rather than just a stat boost. Stat boosts would be reworked into more like the new spell trace system, where upgrades wouldn't have inherent success rates but it would rather be based on how many upgrades you had passed and failed upgrades wouldn't take up slots.</p>
+<p>We were also planning on a palette system for more customization without taking up any extra file size and allowing complete character customization. This was actually already largely implemented, we just had to make the data for it. This is a mockup woof made to show what it would look like:</p>
+<p><a href="https://preview.redd.it/8zdt9om6fw3c1.png?width=317&format=png&auto=webp&s=3987f626ce71103f19d62b12137c48262dfdf4e8">Palette system</a></p>
+<p>We had some reworks for classes in mind as well. Buccanneers would become more of an action style fighting game gameplay with animation cancelling, combos and what have you. Corsair would be more of a rapid shooter kind of class where you had reloading and some other unique mechanics. Along the way we were planning to add a reworked cannoneer as well.</p>
+<p>One of the things we had in mind were inherent skills on weapons. Our alpha reward actually already used this tech, and it was one of the ideas we had to make early level mages a little better. Their beginner staff would've had a generic 'shoot' skill on it, which would fire a small magic dart to act as a basic attack like all the other classes have. This could've been expanded to later weapons having some more impactful skills, that could also perform actions on bosses or give like a temporary big buff.</p>
+<p>For pets we wanted to build out the system to where you would actually adopt them in some kind of adoption styled map. You would feed them and actually take care of them to unlock their skills, rather than just spamming 'sit' a bunch of times to make it be able to talk 😂</p>
+<p>We were really happy with some of the changes we made during beta too. Getting rid of Maple Island and expanding on Lith instead was really good. The world chat ended up being a game changer. I really love woof's orbis warp map. And there's probably a lot more I'm having trouble remembering.</p>
+<h2 id=the-private-server-scene>The private server scene</h2>
+<p>I wanted to touch on the private server community itself. As the game is very dear to me I hate how it grew in the past decade. Gone is the passion behind it, and it all turned into a lot of money hunger, manipulation, hostility, and destroying each other just to make a point of how the other server is better. I have my own regrets regarding this, but I deeply wish there was a lot more peace instead of infighting in the community and people would go back to doing it out of passion instead of how big they can grow their bank account with mushroom game. Maybe Nexon wouldn't have come after Yeou so hard if that was the case as well. We prided ourselves in being completely free of voting and donating, and while I get that it's maybe unrealistic for some, the server costs were easily affordable out of pocket (it was about \$100 a month and that's with a lot of overhead) and I never felt the need to ask for any donations, and gtop100 is a useless shithole that only exists to promote out-of-game progression (very extremely bad for game design). Being open and transparent, having pride in what you make, empathy, and passion make for a lot better environment for everyone.</p>
+<p>I've tried to make it a point in the discord a couple of times but to the community, please watch out with installing random private servers and running them on your main computer. Almost all of them have to run as admin and make you disable your antivirus to run them, and it's actually crazy how 'normal' this has become. I have personally seen from unfortunately close distance that these executables/dlls can be extremely dangerous and I would personally not accept this. Always try to run it on a throwaway PC or virtual machine, no matter how reputable the servers are. Or better yet, run it in a browser (😭)</p>
+<h2 id=whats-next-for-us>What's next for us</h2>
+<p>We're done with Maple altogether and are likely going to be making a new MMO type game. This is going to take years but we have had the idea for a while, and I think all the experience we have gained from the project is going to allow us to really go ham on something that's truly our own. If you want to learn more about it when we eventually get to a point where we have something to show off, I'll announce it in the Yeou discord. It'll be a healthier environment for everyone and hopefully it will turn into something really special.</p>
+<p>Thank you for reading, I'm sorry for how it ended up, and good luck &lt;3 If you have any questions you can always DM me on Discord or I'll try to answer them here.</p>
+<p>TLDR: yeou shut down but it was gonna be cool i swear</p>
+</blockquote>
+<p>I largely agree with the "The private server scene" section, and, as both someone who plays on and helps develop private servers sometimes, am familiar with the fact that competition between servers is a huge issue This isn't an issue specific to Maplestory but also exists for many other private servers, and it's very sad to see how this stifles development and innovation.</p>
+<p>I guess that's how competition turns out when there are no controls.</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/87>&lt; can ai judge source reliability</a></div> <div style=text-align:end><a href=/./posts/89>personal yearly reflection 4 &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2023-12-02 - update post 88</summary>
+<pre class=code-block><input id=code-block-d4fdb47a0b5a83cf06e0960642b0ba0d3c5d0246-1 type=checkbox><label for=code-block-d4fdb47a0b5a83cf06e0960642b0ba0d3c5d0246-1></label><code>@@ -83 +83,293 @@ identity.
+ Sad times...
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The following thread was posted</span>
+<span class=hljs-addition>+[on Reddit](https://old.reddit.com/r/mapleservers/comments/1896jfg/yeou_postmortem/)</span>
+<span class=hljs-addition>+with the title &quot;Yeou Post-Mortem&quot;.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Hi, there&#x27;s some stuff I want to get off my chest regarding what happened, the</span>
+<span class=hljs-addition>+&gt; plans we had for Yeou, and some general thoughts about the whole thing and</span>
+<span class=hljs-addition>+&gt; MSPS in general. And I guess kind of a goodbye note from me from maple server</span>
+<span class=hljs-addition>+&gt; stuff. I figured a reddit post would fit better than a discord announcement as</span>
+<span class=hljs-addition>+&gt; it&#x27;ll stand the test of time and people have been leaving the discord already.</span>
+<span class=hljs-addition>+&gt; This is going to be very long, sorry 😅</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ## The road to Yeou and its beta</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; My background is that I have been developing private servers since 2008,</span>
+<span class=hljs-addition>+&gt; starting out on the OdinMS development section on their forum before the</span>
+<span class=hljs-addition>+&gt; source code of it and TitanMS came out. I was one of the first to get in-game</span>
+<span class=hljs-addition>+&gt; on a custom private server with the help of some very talented people like</span>
+<span class=hljs-addition>+&gt; jonyleeson, koolk, snow, serpendiem, etc. I quit in 2010 due to big bang and</span>
+<span class=hljs-addition>+&gt; played Maple on and off until I came across OSM in 2019. Almost immediately</span>
+<span class=hljs-addition>+&gt; after playing it I messaged asdf/roar to ask if he needed help as I had some</span>
+<span class=hljs-addition>+&gt; experience from a decade earlier, and I got to work on some cool (non-spyware)</span>
+<span class=hljs-addition>+&gt; client features without having any idea what I was getting into, I was just</span>
+<span class=hljs-addition>+&gt; having a lot of fun. Lots of drama ensued and I ended up helping out at</span>
+<span class=hljs-addition>+&gt; MapleUnity, where I met woof and a bunch of other cool people. After that died</span>
+<span class=hljs-addition>+&gt; I ended up messing around with a bunch of different things, making personal</span>
+<span class=hljs-addition>+&gt; projects built around the v95 client, met a lot of friends that I ended up</span>
+<span class=hljs-addition>+&gt; starting MG2 with to see how far we could take the v0.12 client. I ended up</span>
+<span class=hljs-addition>+&gt; implementing a very proper HD resolution, monster book, guilds, swimming</span>
+<span class=hljs-addition>+&gt; physics, and a bunch of other cool stuff in such an old client. But at this</span>
+<span class=hljs-addition>+&gt; point I started getting really tired of client modding and by chance ended up</span>
+<span class=hljs-addition>+&gt; starting a new very ambitious project that would later end up becoming Yeou.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; As visible in the #dev-timeline channel on the discord, this started from very</span>
+<span class=hljs-addition>+&gt; humble beginnings. At first I tried to emulate the original client a little</span>
+<span class=hljs-addition>+&gt; bit too much, which made it still limited to Windows and carried over some of</span>
+<span class=hljs-addition>+&gt; the restrictions (having to use ZAlloc, being limited to one architecture,</span>
+<span class=hljs-addition>+&gt; large parts of the engine being closed source to me, etc). So a couple months</span>
+<span class=hljs-addition>+&gt; later when I had a somewhat working &#x27;user-space&#x27; part of the client, I set out</span>
+<span class=hljs-addition>+&gt; to rewrite the internals as well. After a month of incredibly intensive</span>
+<span class=hljs-addition>+&gt; rewriting I got it to a point where it would even run on a Nintendo Switch,</span>
+<span class=hljs-addition>+&gt; and this is where the project really took off for me. This is when I decided I</span>
+<span class=hljs-addition>+&gt; wanted to make it an actual server as a sort of last hurrah for me regarding</span>
+<span class=hljs-addition>+&gt; MapleStory, and woof wanted to help out too.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Eventually the alpha came out and it was very barebones. Everyone had &quot;GM</span>
+<span class=hljs-addition>+&gt; powers&quot; (or sandbox as we called it) and was able to spawn a bunch of mobs and</span>
+<span class=hljs-addition>+&gt; give themselves items. This was to stress test the client and to make sure it</span>
+<span class=hljs-addition>+&gt; didn&#x27;t crash from a bunch of simulated load. It went fairly well and I set off</span>
+<span class=hljs-addition>+&gt; to implement more basic features, skills, social features, proper mob</span>
+<span class=hljs-addition>+&gt; mechanics/AI, to make it feel like an actual game rather than a tech demo.</span>
+<span class=hljs-addition>+&gt; This obviously took a while because doing that accurately meant a ton of</span>
+<span class=hljs-addition>+&gt; reverse engineering and re-implementing. And I think along the way I&#x27;ve</span>
+<span class=hljs-addition>+&gt; rewritten the whole thing like three times over because I wasn&#x27;t satisfied</span>
+<span class=hljs-addition>+&gt; with the previous attempts. At some point I randomly came across compiling C++</span>
+<span class=hljs-addition>+&gt; to webassembly using emscripten, and I think it took literally 6 hours to get</span>
+<span class=hljs-addition>+&gt; it to work in a browser for the first time as a little offline tech demo. With</span>
+<span class=hljs-addition>+&gt; the help of Diamondo25 I got it to connect to the actual server and I had a</span>
+<span class=hljs-addition>+&gt; working web version of the game. The alpha was out at this point and was</span>
+<span class=hljs-addition>+&gt; hovering pretty much constantly at about 10-20 CCU for like a year.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Woof and me were brainstorming daily about ideas we had that we really wanted</span>
+<span class=hljs-addition>+&gt; to implement in the game, but we were kind of stuck recreating the base first</span>
+<span class=hljs-addition>+&gt; before we were able to go ham on custom content. This was a little frustrating</span>
+<span class=hljs-addition>+&gt; for I imagine the both of us, because there was just still so much to do</span>
+<span class=hljs-addition>+&gt; before the base was done enough to really unleash what we wanted to do with</span>
+<span class=hljs-addition>+&gt; the game. Literally everything had to be implemented by hand, world maps,</span>
+<span class=hljs-addition>+&gt; tooltips, sound effects, JQ obstacles, floating NPCs in Orbis, all the</span>
+<span class=hljs-addition>+&gt; different kinds of items, the quest system, NPC dialogs, it really is a lot</span>
+<span class=hljs-addition>+&gt; when you think about it. And woof&#x27;s incredible eye for detail kept me on point</span>
+<span class=hljs-addition>+&gt; with getting even the smallest details right for a lot of these things. I</span>
+<span class=hljs-addition>+&gt; ended up making some really cool internal systems for things like skills, and</span>
+<span class=hljs-addition>+&gt; backporting some useful data related things like formulas for skill data</span>
+<span class=hljs-addition>+&gt; instead of being static per level. As well as the custom network protocol</span>
+<span class=hljs-addition>+&gt; based on a definition language instead of arbitrary byte decoding/encoding</span>
+<span class=hljs-addition>+&gt; like the original client. That allowed for some really rapid development and</span>
+<span class=hljs-addition>+&gt; made me love working on it again.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Eventually during the alpha, more stuff started working, the game started</span>
+<span class=hljs-addition>+&gt; feeling more complete, some of the players started reaching higher levels</span>
+<span class=hljs-addition>+&gt; without half their skills being broken and the player count started rising. At</span>
+<span class=hljs-addition>+&gt; some point there was an invasion of Korean players enjoying the game, Korean</span>
+<span class=hljs-addition>+&gt; Yeou discords were made and the world chat was pretty much all Korean. This</span>
+<span class=hljs-addition>+&gt; made it a little (very) hard to moderate, but it was very cool seeing so many</span>
+<span class=hljs-addition>+&gt; people enjoying the game. They eventually left again and we started the final</span>
+<span class=hljs-addition>+&gt; sprint towards a beta release.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; We wanted to stay pretty close to the original game before the beta. This was</span>
+<span class=hljs-addition>+&gt; so that we knew we had a good baseline before starting to implement</span>
+<span class=hljs-addition>+&gt; fundamental changes to the game. The beta was our opportunity for this, and we</span>
+<span class=hljs-addition>+&gt; just went ham on implementing everything that sounded fun to us and was</span>
+<span class=hljs-addition>+&gt; realistic for the beta release. This went on a little bit too much and we</span>
+<span class=hljs-addition>+&gt; ended up in a bunch of time crunch for beta, along with having to moderate the</span>
+<span class=hljs-addition>+&gt; discord that had seen an absolute explosion of growth at this point (2k</span>
+<span class=hljs-addition>+&gt; members in a month). I had a lot of trust issues due to past experiences so we</span>
+<span class=hljs-addition>+&gt; ended up doing all the moderating ourselves and this made it even harder to</span>
+<span class=hljs-addition>+&gt; make the deadline we set for ourselves. We had also never before set a</span>
+<span class=hljs-addition>+&gt; deadline for any Yeou patch so this was a little difficult to get right, but I</span>
+<span class=hljs-addition>+&gt; think we ended up with something decent.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; The server backend itself was always a little bit of a struggle. I was</span>
+<span class=hljs-addition>+&gt; spending most of my time building the client as that was the part I had the</span>
+<span class=hljs-addition>+&gt; most fun with, but the server definitely lagged behind. I tried rebuilding it</span>
+<span class=hljs-addition>+&gt; a couple of times but always went back to the original as some stuff in the</span>
+<span class=hljs-addition>+&gt; rebuilds I didn&#x27;t really end up liking. The biggest issue it had was that I</span>
+<span class=hljs-addition>+&gt; used EF Core for its change tracking and low effort data saving. This worked</span>
+<span class=hljs-addition>+&gt; perfectly in development, started showing cracks in alpha and absolutely blew</span>
+<span class=hljs-addition>+&gt; up during beta, with small character rollbacks here and there with super</span>
+<span class=hljs-addition>+&gt; cryptic errors. My biggest dev regret in the whole project was probably going</span>
+<span class=hljs-addition>+&gt; with that library for a database saving layer, even though it was probably</span>
+<span class=hljs-addition>+&gt; still much better than the database code OdinMS derivatives have.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; The beta itself was extremely stressful for me due to the saving issues and</span>
+<span class=hljs-addition>+&gt; not having enough time playtesting all the changes we did for beta (I had</span>
+<span class=hljs-addition>+&gt; almost never seen the warp map in game before seeing it in the live game) but</span>
+<span class=hljs-addition>+&gt; all in all it went pretty well. With a constant 300-400 CCU it was probably</span>
+<span class=hljs-addition>+&gt; the most popular beta for a maple private server since OdinMS. At the very</span>
+<span class=hljs-addition>+&gt; last second before beta release I figured I should build some sort of live</span>
+<span class=hljs-addition>+&gt; hotfix system for skill formula data, and I ended up having to use this</span>
+<span class=hljs-addition>+&gt; feature a bunch so I&#x27;m happy I did 😅Thank you all for playing, it was</span>
+<span class=hljs-addition>+&gt; amazing, and shoutout to the hackers and DDoSers.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ## The problems started</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; I don&#x27;t want to get too much into details because I don&#x27;t really know what</span>
+<span class=hljs-addition>+&gt; repercussions it would have at this point, but after beta we got absolutely</span>
+<span class=hljs-addition>+&gt; barraged with DMCAs and one of our hosting providers actually contacted the</span>
+<span class=hljs-addition>+&gt; legal team and verified that it was real and gave me some more bad details</span>
+<span class=hljs-addition>+&gt; about it. It wasn&#x27;t necessarily the DMCAs (or the effect they had on our</span>
+<span class=hljs-addition>+&gt; servers, they weren&#x27;t vulnerable to it so stop saying I should&#x27;ve hosted them</span>
+<span class=hljs-addition>+&gt; in Russia) that made us make the decision to shut down, but the things I can&#x27;t</span>
+<span class=hljs-addition>+&gt; really talk about that they were preparing for at the same time.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; As I said in the shutdown announcement, Yeou was something truly special to</span>
+<span class=hljs-addition>+&gt; us. It was pretty much my life work for the past two years and making the</span>
+<span class=hljs-addition>+&gt; decision to shut it down was not easy. It was just getting to the point where</span>
+<span class=hljs-addition>+&gt; the base was done and we could go ham on all our ideas, and truly let loose</span>
+<span class=hljs-addition>+&gt; our creativity. I completely get that some people are upset at me for being</span>
+<span class=hljs-addition>+&gt; dumb and not taking the necessary precautions early on, but believe me when I</span>
+<span class=hljs-addition>+&gt; say that I would want nothing more than to turn back time and make better</span>
+<span class=hljs-addition>+&gt; decisions, but unfortunately I didn&#x27;t have the foresight to see that it would</span>
+<span class=hljs-addition>+&gt; turn out this big which was very stupid, and I apologize for that. I wish it</span>
+<span class=hljs-addition>+&gt; was different too.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ## Our unfinished plans for Yeou</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; We were a little surprised at the feedback Yeou had gotten after the shutdown.</span>
+<span class=hljs-addition>+&gt; We felt like we had only lightly scratched the surface of the changes we</span>
+<span class=hljs-addition>+&gt; wanted to make, just to make the original game a little more fair and</span>
+<span class=hljs-addition>+&gt; playable. It was a very ambitious project, but nothing balancing wise was very</span>
+<span class=hljs-addition>+&gt; groundbreaking to us yet and they were purely meant as preliminary very</span>
+<span class=hljs-addition>+&gt; experimental changes to get some data on stuff. Perhaps it was just the</span>
+<span class=hljs-addition>+&gt; feeling of the whole thing, with an active playerbase, relatively few</span>
+<span class=hljs-addition>+&gt; channels, the world chat, and technical accessibility that made it feel so</span>
+<span class=hljs-addition>+&gt; much like what people loved about the original game (it did for me too),</span>
+<span class=hljs-addition>+&gt; rather than the actual gameplay and balancing.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; That ties into pretty much our biggest philosophy behind the content and ideas</span>
+<span class=hljs-addition>+&gt; for the project. Bringing back the social features and making sure it feels</span>
+<span class=hljs-addition>+&gt; like a cohesive world of activities and socializing before perfecting 6 hour</span>
+<span class=hljs-addition>+&gt; grinds to gain a level. World chat, the faction system (and removal of</span>
+<span class=hljs-addition>+&gt; guilds), the hub/warp map, having to collect drops in your monster book, among</span>
+<span class=hljs-addition>+&gt; other features were all meant to tie into that, and we would&#x27;ve loved to see</span>
+<span class=hljs-addition>+&gt; what it could&#x27;ve become in the future. We were planning a housing feature, a</span>
+<span class=hljs-addition>+&gt; bunch of custom minigames, a mariomaker-esque map creator where you could</span>
+<span class=hljs-addition>+&gt; create your own party quests for people to finish, expanding on factions to</span>
+<span class=hljs-addition>+&gt; make it feel like you were all part of a giant guild, leaderboards,</span>
+<span class=hljs-addition>+&gt; achievements, instruments, and more. Here&#x27;s a preview of Tetris that had</span>
+<span class=hljs-addition>+&gt; actually already been in the game for quite some time:</span>
+<span class=hljs-addition>+&gt; [https://img.fox.tf/yj5ifULenQ.mp4](https://img.fox.tf/yj5ifULenQ.mp4)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Our second big philosophy was unlockable QoL. We get that people aren&#x27;t fans</span>
+<span class=hljs-addition>+&gt; of having to sit on a boat ride for 30 minutes, but also recognize that this</span>
+<span class=hljs-addition>+&gt; is polarizing and at the same time the boat rides are some people&#x27;s fondest</span>
+<span class=hljs-addition>+&gt; memories about old maple. So we set out to find a middle road for a lot of</span>
+<span class=hljs-addition>+&gt; these things, settling on an unlockable warp map and having to walk to towns</span>
+<span class=hljs-addition>+&gt; before being able to take the taxi, among some other planned things.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Early on I mentioned to woof that as a kid I was always day dreaming about</span>
+<span class=hljs-addition>+&gt; making a party quest, specifically one set in the deep Ludibrium clock tower.</span>
+<span class=hljs-addition>+&gt; I had at some point bought the art book for MapleStory, and it had an unused</span>
+<span class=hljs-addition>+&gt; design for a Ludi PQ mob. We had already thought of all the lore, stages, and</span>
+<span class=hljs-addition>+&gt; woof even started on designing out the mob for use in the level 90+ PQ. I</span>
+<span class=hljs-addition>+&gt; would&#x27;ve loved to see this in action.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; [The unused mob design](https://preview.redd.it/poa5xterdw3c1.png?width=800&amp;format=png&amp;auto=webp&amp;s=d70f07e70db2aafec137644778ef03c3398f2e3a)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; We were planning to go pretty big on professions as well. We had planned to</span>
+<span class=hljs-addition>+&gt; add mining, herbalism, alchemy, cooking and some other stuff. This is why in</span>
+<span class=hljs-addition>+&gt; beta, Edelstein, Ereve and Rien were added to the world map. These were meant</span>
+<span class=hljs-addition>+&gt; to focus on mining, herbalism and mount training respectively, with Magatia</span>
+<span class=hljs-addition>+&gt; being the alchemy town as that tied into Maple lore. These professions were</span>
+<span class=hljs-addition>+&gt; meant to augment existing mechanics, as well as providing something to do</span>
+<span class=hljs-addition>+&gt; while not spending 6 hours holding down a button to see exp bar go up. Boss</span>
+<span class=hljs-addition>+&gt; mechanics would be designed to be able to counter using stuff created by</span>
+<span class=hljs-addition>+&gt; professions, to artificially limit them by profession preparation rather than</span>
+<span class=hljs-addition>+&gt; having to sit there for 10 hours killing zakum. They would also provide a way</span>
+<span class=hljs-addition>+&gt; to boost your Max HP by creating a difficult to make potion to prevent the</span>
+<span class=hljs-addition>+&gt; whole HP washing thing, while also adding some prepar time.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; The scrolling rework was planned to tie into professions as well, getting rid</span>
+<span class=hljs-addition>+&gt; of the old school scrolling and replacing it with more unique upgrades, where</span>
+<span class=hljs-addition>+&gt; a mage for example could &#x27;scroll&#x27; their gear to add one more mob hit to their</span>
+<span class=hljs-addition>+&gt; energy bolt, or add an element to magic claw, or whatever effects you could</span>
+<span class=hljs-addition>+&gt; think of, rather than just a stat boost. Stat boosts would be reworked into</span>
+<span class=hljs-addition>+&gt; more like the new spell trace system, where upgrades wouldn&#x27;t have inherent</span>
+<span class=hljs-addition>+&gt; success rates but it would rather be based on how many upgrades you had passed</span>
+<span class=hljs-addition>+&gt; and failed upgrades wouldn&#x27;t take up slots.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; We were also planning on a palette system for more customization without</span>
+<span class=hljs-addition>+&gt; taking up any extra file size and allowing complete character customization.</span>
+<span class=hljs-addition>+&gt; This was actually already largely implemented, we just had to make the data</span>
+<span class=hljs-addition>+&gt; for it. This is a mockup woof made to show what it would look like:</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; [Palette system](https://preview.redd.it/8zdt9om6fw3c1.png?width=317&amp;format=png&amp;auto=webp&amp;s=3987f626ce71103f19d62b12137c48262dfdf4e8)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; We had some reworks for classes in mind as well. Buccanneers would become more</span>
+<span class=hljs-addition>+&gt; of an action style fighting game gameplay with animation cancelling, combos</span>
+<span class=hljs-addition>+&gt; and what have you. Corsair would be more of a rapid shooter kind of class</span>
+<span class=hljs-addition>+&gt; where you had reloading and some other unique mechanics. Along the way we were</span>
+<span class=hljs-addition>+&gt; planning to add a reworked cannoneer as well.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; One of the things we had in mind were inherent skills on weapons. Our alpha</span>
+<span class=hljs-addition>+&gt; reward actually already used this tech, and it was one of the ideas we had to</span>
+<span class=hljs-addition>+&gt; make early level mages a little better. Their beginner staff would&#x27;ve had a</span>
+<span class=hljs-addition>+&gt; generic &#x27;shoot&#x27; skill on it, which would fire a small magic dart to act as a</span>
+<span class=hljs-addition>+&gt; basic attack like all the other classes have. This could&#x27;ve been expanded to</span>
+<span class=hljs-addition>+&gt; later weapons having some more impactful skills, that could also perform</span>
+<span class=hljs-addition>+&gt; actions on bosses or give like a temporary big buff.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; For pets we wanted to build out the system to where you would actually adopt</span>
+<span class=hljs-addition>+&gt; them in some kind of adoption styled map. You would feed them and actually</span>
+<span class=hljs-addition>+&gt; take care of them to unlock their skills, rather than just spamming &#x27;sit&#x27; a</span>
+<span class=hljs-addition>+&gt; bunch of times to make it be able to talk 😂</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; We were really happy with some of the changes we made during beta too. Getting</span>
+<span class=hljs-addition>+&gt; rid of Maple Island and expanding on Lith instead was really good. The world</span>
+<span class=hljs-addition>+&gt; chat ended up being a game changer. I really love woof&#x27;s orbis warp map. And</span>
+<span class=hljs-addition>+&gt; there&#x27;s probably a lot more I&#x27;m having trouble remembering.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ## The private server scene</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; I wanted to touch on the private server community itself. As the game is very</span>
+<span class=hljs-addition>+&gt; dear to me I hate how it grew in the past decade. Gone is the passion behind</span>
+<span class=hljs-addition>+&gt; it, and it all turned into a lot of money hunger, manipulation, hostility, and</span>
+<span class=hljs-addition>+&gt; destroying each other just to make a point of how the other server is better.</span>
+<span class=hljs-addition>+&gt; I have my own regrets regarding this, but I deeply wish there was a lot more</span>
+<span class=hljs-addition>+&gt; peace instead of infighting in the community and people would go back to doing</span>
+<span class=hljs-addition>+&gt; it out of passion instead of how big they can grow their bank account with</span>
+<span class=hljs-addition>+&gt; mushroom game. Maybe Nexon wouldn&#x27;t have come after Yeou so hard if that was</span>
+<span class=hljs-addition>+&gt; the case as well. We prided ourselves in being completely free of voting and</span>
+<span class=hljs-addition>+&gt; donating, and while I get that it&#x27;s maybe unrealistic for some, the server</span>
+<span class=hljs-addition>+&gt; costs were easily affordable out of pocket (it was about \$100 a month and</span>
+<span class=hljs-addition>+&gt; that&#x27;s with a lot of overhead) and I never felt the need to ask for any</span>
+<span class=hljs-addition>+&gt; donations, and gtop100 is a useless shithole that only exists to promote</span>
+<span class=hljs-addition>+&gt; out-of-game progression (very extremely bad for game design). Being open and</span>
+<span class=hljs-addition>+&gt; transparent, having pride in what you make, empathy, and passion make for a</span>
+<span class=hljs-addition>+&gt; lot better environment for everyone.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; I&#x27;ve tried to make it a point in the discord a couple of times but to the</span>
+<span class=hljs-addition>+&gt; community, please watch out with installing random private servers and running</span>
+<span class=hljs-addition>+&gt; them on your main computer. Almost all of them have to run as admin and make</span>
+<span class=hljs-addition>+&gt; you disable your antivirus to run them, and it&#x27;s actually crazy how &#x27;normal&#x27;</span>
+<span class=hljs-addition>+&gt; this has become. I have personally seen from unfortunately close distance that</span>
+<span class=hljs-addition>+&gt; these executables/dlls can be extremely dangerous and I would personally not</span>
+<span class=hljs-addition>+&gt; accept this. Always try to run it on a throwaway PC or virtual machine, no</span>
+<span class=hljs-addition>+&gt; matter how reputable the servers are. Or better yet, run it in a browser (😭)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ## What&#x27;s next for us</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; We&#x27;re done with Maple altogether and are likely going to be making a new MMO</span>
+<span class=hljs-addition>+&gt; type game. This is going to take years but we have had the idea for a while,</span>
+<span class=hljs-addition>+&gt; and I think all the experience we have gained from the project is going to</span>
+<span class=hljs-addition>+&gt; allow us to really go ham on something that&#x27;s truly our own. If you want to</span>
+<span class=hljs-addition>+&gt; learn more about it when we eventually get to a point where we have something</span>
+<span class=hljs-addition>+&gt; to show off, I&#x27;ll announce it in the Yeou discord. It&#x27;ll be a healthier</span>
+<span class=hljs-addition>+&gt; environment for everyone and hopefully it will turn into something really</span>
+<span class=hljs-addition>+&gt; special.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Thank you for reading, I&#x27;m sorry for how it ended up, and good luck &lt;3 If you</span>
+<span class=hljs-addition>+&gt; have any questions you can always DM me on Discord or I&#x27;ll try to answer them</span>
+<span class=hljs-addition>+&gt; here.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; TLDR: yeou shut down but it was gonna be cool i swear</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I largely agree with the &quot;The private server scene&quot; section, and, as both</span>
+<span class=hljs-addition>+someone who plays on and helps develop private servers sometimes, am familiar</span>
+<span class=hljs-addition>+with the fact that competition between servers is a huge issue This isn&#x27;t an</span>
+<span class=hljs-addition>+issue specific to Maplestory but also exists for many other private servers, and</span>
+<span class=hljs-addition>+it&#x27;s very sad to see how this stifles development and innovation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I guess that&#x27;s how competition turns out when there are no controls.</span>
+</code></pre>
+</details>
 <details>
 <summary>2023-11-30 - rename post 88</summary>
 <pre class=code-block><input id=code-block-7562af00f3ec18669a0d8def1723b10b766691fe-1 type=checkbox><label for=code-block-7562af00f3ec18669a0d8def1723b10b766691fe-1></label><code><span class=hljs-meta>@@ -1,2 +1,2 @@</span>
