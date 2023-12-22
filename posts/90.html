@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>various commonalities for productive programming</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/89>&lt; personal yearly reflection 4</a></div>
+</nav>
+<h1 id=various-commonalities-for-productive-programming>various commonalities for productive programming</h1>
+<p>I've done a lot of projects in a lot of different stacks, and I think being proficient in several foundational skills is necessary for writing code or making changes to an existing code base.</p>
+<ol>
+<li><p>Familiarity with language instructions</p>
+<ul>
+<li><p>At their cores, most, if not all, modern languages should have 4 classes of instructions:</p>
+<ol>
+<li>Memory manipulation (variables, assignment, etc)</li>
+<li>Logic/math (addition, subtraction, conditionals)</li>
+<li>Control flow (if statements, switch case, etc)</li>
+<li>Functions</li></ol>
+<p>Figuring out how to do these things in a new stack is necessary for your project to work out.</p></li></ul></li>
+<li><p>Having a good generic editor</p>
+<ul>
+<li>Maybe you're a Java programmer who heavily relies on IntelliJ and suddenly have Lua, C#, JavaScript, Haskell, and APL projects on your hands and you can't just rely on IntelliJ anymore. Instead of finding several IDEs and setting them up individually, instead find something that can be used for them all. It could be Visual Studio Code, which has a nice extension system or even something more low level like Notepad++. And make sure to be good at navigating project files with basic tools like a find tool over search by reference since the latter may not always work.</li></ul></li>
+<li><p>Having a fast way to test small code changes</p>
+<ul>
+<li>Sometimes you may not know the internals of how a language works and want to run a small example to figure things out since that's faster than finding it in the documentation. Some languages provide a read-eval-print loop (REPL) that can do this, while others may allow you to hot reload code. Getting quick answers to simple questions is quite important when you're starting out and avoiding an entire build or compile step when you make changes helps a lot.</li></ul></li>
+<li><p>Being able to debug and/or have runtime introspection</p>
+<ul>
+<li>In a similar vein, figuring out how to debug your application while it's running is also important. Some people deride debugging with log statements, but it's a technique that's applicable in many, many stacks. You can use it to check the execution flow or variables; it's actually very useful and a lot easier than figuring out how to attach and utilize an actual debugger with a new stack.</li></ul></li>
+<li><p>Being a fast typer</p>
+<ul>
+<li>It's programming, when you write code, you're typing. And I specifically mean without extra tools like IntelliSense since that's not always reliable in these cases. Of course, I'm aware that there are some people who cannot type and code through other means like through voice but what I'm trying to say is that putting words on the screen should not be the limiting factor when you're programming.</li></ul></li>
+<li><p>Familiarity with the command line</p>
+<ul>
+<li>Most tools are just an abstraction over things that could be done on the command line. When you don't have an IDE where all you have to do is press F5 or F6 to compile and debug, you'll have to figure out how to do the same steps in the command line.</li></ul></li>
+</ol>
+<p>If I was to expand and put down some more arbitrary criteria:</p>
+<ol>
+<li><p>If you rely solely on those 4 classes of instructions, you may end up with code that is "ugly" or "verbose". There may not be any issue with it logic-wise, but I would suggest familiarizing yourself with a few concepts which will make things easier.</p>
+<ul>
+<li>composition</li>
+<li>encapsulation</li>
+<li>recursion</li>
+<li>pure functions</li>
+<li>data structures</li></ul>
+<p>You should also learn about common higher order functions like map and filter; at least how they apply to arrays and lists, string operations like find include contains, and regular expressions.</p></li>
+<li><p>My first IDE was Visual Studio 200X which I used for writing C++ (because a tutorial told me to do so) but when I started other things I switched to Notepad++ since I was remote accessing a server and doing development directly in it. Nowadays I use Vim, but I only utilize basic navigation and editing operations in addition to macros - it works out well especially since IDEs typically come with Vim plugins nowadays to bring those keys over, and Vim has a cleaner extension system than before.</p></li>
+<li><p>Nothing much here, a lot of it depends on the stack. You can either have a small skeleton program that is quick to compile, or look for tooling that helps you.</p></li>
+<li><p>As I mentioned, logging is applicable in many cases but other times less so. Depending on your project, you may be interested in figuring out how to access information in another way through things like attaching a debugger, reading memory manually or performing packet inspections through something like Wireshark.</p></li>
+<li><p>I think 100 WPM is a decent target, though I think you should also be in a state where you can freely type and think at the same time.</p></li>
+<li><p>You may also want one scripting language to help perform repetitive manual tasks. It could be something like Bash, but since ~I'm terrible at it and think~ it's a hard to use language, you can use something simpler like Python or node.js.</p></li>
+</ol>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/89>&lt; personal yearly reflection 4</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2023-12-22 - add post 90</summary>
+<pre class=code-block><input id=code-block-7e87134aeb77a3015ba482f718c527d29d0359b5-1 type=checkbox><label for=code-block-7e87134aeb77a3015ba482f718c527d29d0359b5-1></label><code><span class=hljs-meta>@@ -0,0 +1,91 @@</span>
+<span class=hljs-addition>+# various commonalities for productive programming</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve done a lot of projects in a lot of different stacks, and I think being</span>
+<span class=hljs-addition>+proficient in several foundational skills is necessary for writing code or</span>
+<span class=hljs-addition>+making changes to an existing code base.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Familiarity with language instructions</span>
+<span class=hljs-addition>+    - At their cores, most, if not all, modern languages should have 4 classes</span>
+<span class=hljs-addition>+      of instructions:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        1. Memory manipulation (variables, assignment, etc)</span>
+<span class=hljs-addition>+        2. Logic/math (addition, subtraction, conditionals)</span>
+<span class=hljs-addition>+        3. Control flow (if statements, switch case, etc)</span>
+<span class=hljs-addition>+        4. Functions</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+      Figuring out how to do these things in a new stack is necessary for your</span>
+<span class=hljs-addition>+      project to work out.</span>
+<span class=hljs-addition>+2. Having a good generic editor</span>
+<span class=hljs-addition>+    - Maybe you&#x27;re a Java programmer who heavily relies on IntelliJ and suddenly</span>
+<span class=hljs-addition>+      have Lua, C#, JavaScript, Haskell, and APL projects on your hands and you</span>
+<span class=hljs-addition>+      can&#x27;t just rely on IntelliJ anymore. Instead of finding several IDEs and</span>
+<span class=hljs-addition>+      setting them up individually, instead find something that can be used for</span>
+<span class=hljs-addition>+      them all. It could be Visual Studio Code, which has a nice extension</span>
+<span class=hljs-addition>+      system or even something more low level like Notepad++. And make sure to</span>
+<span class=hljs-addition>+      be good at navigating project files with basic tools like a find tool over</span>
+<span class=hljs-addition>+      search by reference since the latter may not always work.</span>
+<span class=hljs-addition>+3. Having a fast way to test small code changes</span>
+<span class=hljs-addition>+    - Sometimes you may not know the internals of how a language works and want</span>
+<span class=hljs-addition>+      to run a small example to figure things out since that&#x27;s faster than</span>
+<span class=hljs-addition>+      finding it in the documentation. Some languages provide a read-eval-print</span>
+<span class=hljs-addition>+      loop (REPL) that can do this, while others may allow you to hot reload</span>
+<span class=hljs-addition>+      code. Getting quick answers to simple questions is quite important when</span>
+<span class=hljs-addition>+      you&#x27;re starting out and avoiding an entire build or compile step when you</span>
+<span class=hljs-addition>+      make changes helps a lot.</span>
+<span class=hljs-addition>+4. Being able to debug and/or have runtime introspection</span>
+<span class=hljs-addition>+    - In a similar vein, figuring out how to debug your application while it&#x27;s</span>
+<span class=hljs-addition>+      running is also important. Some people deride debugging with log</span>
+<span class=hljs-addition>+      statements, but it&#x27;s a technique that&#x27;s applicable in many, many stacks.</span>
+<span class=hljs-addition>+      You can use it to check the execution flow or variables; it&#x27;s actually</span>
+<span class=hljs-addition>+      very useful and a lot easier than figuring out how to attach and utilize</span>
+<span class=hljs-addition>+      an actual debugger with a new stack.</span>
+<span class=hljs-addition>+5. Being a fast typer</span>
+<span class=hljs-addition>+    - It&#x27;s programming, when you write code, you&#x27;re typing. And I specifically</span>
+<span class=hljs-addition>+      mean without extra tools like IntelliSense since that&#x27;s not always</span>
+<span class=hljs-addition>+      reliable in these cases. Of course, I&#x27;m aware that there are some people</span>
+<span class=hljs-addition>+      who cannot type and code through other means like through voice but what</span>
+<span class=hljs-addition>+      I&#x27;m trying to say is that putting words on the screen should not be the</span>
+<span class=hljs-addition>+      limiting factor when you&#x27;re programming.</span>
+<span class=hljs-addition>+6. Familiarity with the command line</span>
+<span class=hljs-addition>+    - Most tools are just an abstraction over things that could be done on the</span>
+<span class=hljs-addition>+      command line. When you don&#x27;t have an IDE where all you have to do is press</span>
+<span class=hljs-addition>+      F5 or F6 to compile and debug, you&#x27;ll have to figure out how to do the</span>
+<span class=hljs-addition>+      same steps in the command line.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If I was to expand and put down some more arbitrary criteria:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. If you rely solely on those 4 classes of instructions, you may end up with</span>
+<span class=hljs-addition>+   code that is &quot;ugly&quot; or &quot;verbose&quot;. There may not be any issue with it</span>
+<span class=hljs-addition>+   logic-wise, but I would suggest familiarizing yourself with a few concepts</span>
+<span class=hljs-addition>+   which will make things easier.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    - composition</span>
+<span class=hljs-addition>+    - encapsulation</span>
+<span class=hljs-addition>+    - recursion</span>
+<span class=hljs-addition>+    - pure functions</span>
+<span class=hljs-addition>+    - data structures</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+   You should also learn about common higher order functions like map and</span>
+<span class=hljs-addition>+   filter; at least how they apply to arrays and lists, string operations like</span>
+<span class=hljs-addition>+   find include contains, and regular expressions.</span>
+<span class=hljs-addition>+2. My first IDE was Visual Studio 200X which I used for writing C++ (because a</span>
+<span class=hljs-addition>+   tutorial told me to do so) but when I started other things I switched to</span>
+<span class=hljs-addition>+   Notepad++ since I was remote accessing a server and doing development</span>
+<span class=hljs-addition>+   directly in it. Nowadays I use Vim, but I only utilize basic navigation and</span>
+<span class=hljs-addition>+   editing operations in addition to macros - it works out well especially since</span>
+<span class=hljs-addition>+   IDEs typically come with Vim plugins nowadays to bring those keys over, and</span>
+<span class=hljs-addition>+   Vim has a cleaner extension system than before.</span>
+<span class=hljs-addition>+3. Nothing much here, a lot of it depends on the stack. You can either have a</span>
+<span class=hljs-addition>+   small skeleton program that is quick to compile, or look for tooling that</span>
+<span class=hljs-addition>+   helps you.</span>
+<span class=hljs-addition>+4. As I mentioned, logging is applicable in many cases but other times less so.</span>
+<span class=hljs-addition>+   Depending on your project, you may be interested in figuring out how to</span>
+<span class=hljs-addition>+   access information in another way through things like attaching a debugger,</span>
+<span class=hljs-addition>+   reading memory manually or performing packet inspections through something</span>
+<span class=hljs-addition>+   like Wireshark.</span>
+<span class=hljs-addition>+5. I think 100 WPM is a decent target, though I think you should also be in a</span>
+<span class=hljs-addition>+   state where you can freely type and think at the same time.</span>
+<span class=hljs-addition>+6. You may also want one scripting language to help perform repetitive manual</span>
+<span class=hljs-addition>+   tasks. It could be something like Bash, but since ~I&#x27;m terrible at it and</span>
+<span class=hljs-addition>+   think~ it&#x27;s a hard to use language, you can use something simpler like Python</span>
+<span class=hljs-addition>+   or node.js.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
