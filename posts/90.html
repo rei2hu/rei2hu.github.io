@@ -34,7 +34,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <div style="flex:0 0 50%"><a href=/./posts/89>&lt; personal yearly reflection 4</a></div>
 </nav>
 <h1 id=various-commonalities-for-productive-programming>various commonalities for productive programming</h1>
-<p>I've done a lot of projects in a lot of different stacks, and I think being proficient in several foundational skills is necessary for writing code or making changes to an existing code base.</p>
+<p>I've done a lot of projects in a lot of different stacks, and I think being proficient in several foundational skills is necessary for writing code or making changes to an existing code base effectively.</p>
 <ol>
 <li><p>Familiarity with language instructions</p>
 <ul>
@@ -45,7 +45,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <li>Control flow (if statements, switch case, etc)</li>
 <li>Functions</li></ol>
 <p>Figuring out how to do these things in a new stack is necessary for your project to work out.</p></li></ul></li>
-<li><p>Having a good generic editor</p>
+<li><p>Having a good generic lightweight text editor</p>
 <ul>
 <li>Maybe you're a Java programmer who heavily relies on IntelliJ and suddenly have Lua, C#, JavaScript, Haskell, and APL projects on your hands and you can't just rely on IntelliJ anymore. Instead of finding several IDEs and setting them up individually, instead find something that can be used for them all. It could be Visual Studio Code, which has a nice extension system or even something more low level like Notepad++. And make sure to be good at navigating project files with basic tools like a find tool over search by reference since the latter may not always work.</li></ul></li>
 <li><p>Having a fast way to test small code changes</p>
@@ -54,16 +54,16 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <li><p>Being able to debug and/or have runtime introspection</p>
 <ul>
 <li>In a similar vein, figuring out how to debug your application while it's running is also important. Some people deride debugging with log statements, but it's a technique that's applicable in many, many stacks. You can use it to check the execution flow or variables; it's actually very useful and a lot easier than figuring out how to attach and utilize an actual debugger with a new stack.</li></ul></li>
-<li><p>Being a fast typer</p>
+<li><p>Being a fast typist</p>
 <ul>
 <li>It's programming, when you write code, you're typing. And I specifically mean without extra tools like IntelliSense since that's not always reliable in these cases. Of course, I'm aware that there are some people who cannot type and code through other means like through voice but what I'm trying to say is that putting words on the screen should not be the limiting factor when you're programming.</li></ul></li>
 <li><p>Familiarity with the command line</p>
 <ul>
 <li>Most tools are just an abstraction over things that could be done on the command line. When you don't have an IDE where all you have to do is press F5 or F6 to compile and debug, you'll have to figure out how to do the same steps in the command line.</li></ul></li>
 </ol>
-<p>If I was to expand and put down some more arbitrary criteria:</p>
+<p>If I was to expand and put down some more arbitrary criteria and anecdotes:</p>
 <ol>
-<li><p>If you rely solely on those 4 classes of instructions, you may end up with code that is "ugly" or "verbose". There may not be any issue with it logic-wise, but I would suggest familiarizing yourself with a few concepts which will make things easier.</p>
+<li><p>If you rely solely on those 4 classes of instructions, you may end up with code that is "ugly" or "verbose". There may not be any issue with it logic-wise, but makes future changes and maintenance more difficult. I would suggest familiarizing yourself with a few concepts which will make things easier down the line:</p>
 <ul>
 <li>composition</li>
 <li>encapsulation</li>
@@ -72,17 +72,68 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <li>data structures</li></ul>
 <p>You should also learn about common higher order functions like map and filter; at least how they apply to arrays and lists, string operations like find include contains, and regular expressions.</p></li>
 <li><p>My first IDE was Visual Studio 200X which I used for writing C++ (because a tutorial told me to do so) but when I started other things I switched to Notepad++ since I was remote accessing a server and doing development directly in it. Nowadays I use Vim, but I only utilize basic navigation and editing operations in addition to macros - it works out well especially since IDEs typically come with Vim plugins nowadays to bring those keys over, and Vim has a cleaner extension system than before.</p></li>
-<li><p>Nothing much here, a lot of it depends on the stack. You can either have a small skeleton program that is quick to compile, or look for tooling that helps you.</p></li>
+<li><p>Nothing much to add here, a lot of it depends on the stack. You can either have a small skeleton program that is quick to compile, or look for tooling that helps you.</p></li>
 <li><p>As I mentioned, logging is applicable in many cases but other times less so. Depending on your project, you may be interested in figuring out how to access information in another way through things like attaching a debugger, reading memory manually or performing packet inspections through something like Wireshark.</p></li>
 <li><p>I think 100 WPM is a decent target, though I think you should also be in a state where you can freely type and think at the same time.</p></li>
 <li><p>You may also want one scripting language to help perform repetitive manual tasks. It could be something like Bash, but since ~I'm terrible at it and think~ it's a hard to use language, you can use something simpler like Python or node.js.</p></li>
 </ol>
+<p>Overall, it's about being self sufficient, being able to find answers to problems relatively quickly, and having a common set of tools that are globally useful.</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/89>&lt; personal yearly reflection 4</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-01-01 - update post 90</summary>
+<pre class=code-block><input id=code-block-a233fd6180b29803ef7215a363906d497be58c2f-1 type=checkbox><label for=code-block-a233fd6180b29803ef7215a363906d497be58c2f-1></label><code><span class=hljs-meta>@@ -4,3 +4,3 @@</span> I&#x27;ve done a lot of projects in a lot of different stacks, and I think being
+ proficient in several foundational skills is necessary for writing code or
+<span class=hljs-deletion>-making changes to an existing code base.</span>
+<span class=hljs-addition>+making changes to an existing code base effectively.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a233fd6180b29803ef7215a363906d497be58c2f-2 type=checkbox><label for=code-block-a233fd6180b29803ef7215a363906d497be58c2f-2></label><code><span class=hljs-meta>@@ -17,3 +17,3 @@</span> making changes to an existing code base.
+       project to work out.
+<span class=hljs-deletion>-2. Having a good generic editor</span>
+<span class=hljs-addition>+2. Having a good generic lightweight text editor</span>
+     - Maybe you&#x27;re a Java programmer who heavily relies on IntelliJ and suddenly
+</code></pre>
+<pre class=code-block><input id=code-block-a233fd6180b29803ef7215a363906d497be58c2f-3 type=checkbox><label for=code-block-a233fd6180b29803ef7215a363906d497be58c2f-3></label><code><span class=hljs-meta>@@ -41,3 +41,3 @@</span> making changes to an existing code base.
+       an actual debugger with a new stack.
+<span class=hljs-deletion>-5. Being a fast typer</span>
+<span class=hljs-addition>+5. Being a fast typist</span>
+     - It&#x27;s programming, when you write code, you&#x27;re typing. And I specifically
+</code></pre>
+<pre class=code-block><input id=code-block-a233fd6180b29803ef7215a363906d497be58c2f-4 type=checkbox><label for=code-block-a233fd6180b29803ef7215a363906d497be58c2f-4></label><code><span class=hljs-meta>@@ -54,3 +54,3 @@</span> making changes to an existing code base.
+
+<span class=hljs-deletion>-If I was to expand and put down some more arbitrary criteria:</span>
+<span class=hljs-addition>+If I was to expand and put down some more arbitrary criteria and anecdotes:</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a233fd6180b29803ef7215a363906d497be58c2f-5 type=checkbox><label for=code-block-a233fd6180b29803ef7215a363906d497be58c2f-5></label><code><span class=hljs-meta>@@ -58,4 +58,5 @@</span> If I was to expand and put down some more arbitrary criteria:
+    code that is &quot;ugly&quot; or &quot;verbose&quot;. There may not be any issue with it
+<span class=hljs-deletion>-   logic-wise, but I would suggest familiarizing yourself with a few concepts</span>
+<span class=hljs-deletion>-   which will make things easier.</span>
+<span class=hljs-addition>+   logic-wise, but makes future changes and maintenance more difficult. I would</span>
+<span class=hljs-addition>+   suggest familiarizing yourself with a few concepts which will make things</span>
+<span class=hljs-addition>+   easier down the line:</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a233fd6180b29803ef7215a363906d497be58c2f-6 type=checkbox><label for=code-block-a233fd6180b29803ef7215a363906d497be58c2f-6></label><code><span class=hljs-meta>@@ -77,5 +78,5 @@</span> If I was to expand and put down some more arbitrary criteria:
+    Vim has a cleaner extension system than before.
+<span class=hljs-deletion>-3. Nothing much here, a lot of it depends on the stack. You can either have a</span>
+<span class=hljs-deletion>-   small skeleton program that is quick to compile, or look for tooling that</span>
+<span class=hljs-deletion>-   helps you.</span>
+<span class=hljs-addition>+3. Nothing much to add here, a lot of it depends on the stack. You can either</span>
+<span class=hljs-addition>+   have a small skeleton program that is quick to compile, or look for tooling</span>
+<span class=hljs-addition>+   that helps you.</span>
+ 4. As I mentioned, logging is applicable in many cases but other times less so.
+</code></pre>
+<pre class=code-block><input id=code-block-a233fd6180b29803ef7215a363906d497be58c2f-7 type=checkbox><label for=code-block-a233fd6180b29803ef7215a363906d497be58c2f-7></label><code>@@ -91 +92,5 @@ If I was to expand and put down some more arbitrary criteria:
+    or node.js.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Overall, it&#x27;s about being self sufficient, being able to find answers to</span>
+<span class=hljs-addition>+problems relatively quickly, and having a common set of tools that are globally</span>
+<span class=hljs-addition>+useful.</span>
+</code></pre>
+</details>
 <details>
 <summary>2023-12-22 - add post 90</summary>
 <pre class=code-block><input id=code-block-7e87134aeb77a3015ba482f718c527d29d0359b5-1 type=checkbox><label for=code-block-7e87134aeb77a3015ba482f718c527d29d0359b5-1></label><code><span class=hljs-meta>@@ -0,0 +1,91 @@</span>
