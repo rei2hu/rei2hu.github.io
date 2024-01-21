@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>high performance computing class 1</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/91>&lt; i forgot to unmute</a></div>
+</nav>
+<h1 id=high-performance-computing-class-1>high performance computing class 1</h1>
+<p>One of the classes I'm taking this semester is one on high performance computing. So far, the concepts covered have been a mix of two classes I took during undergrad - computer architecture and operating systems.</p>
+<p>From computer architecture, topics being covered include</p>
+<ul>
+<li>processor design</li>
+<li>memory hierarchy/caching</li>
+</ul>
+<p>And from operating systems there are topics like</p>
+<ul>
+<li>threads/processes</li>
+<li>virtual/physical memory and paging</li>
+</ul>
+<p>While I do remember most of the high level details from undergrad, the graduate course is more focused on performance implications along with a good heap of historical information. For example, instead of knowing about the memory hierarchy and its components, we specifically go into measuring performance of sample code by hand based on cache hits/misses, clock cycles per instruction, and so on. We also cover the evolution of chip/processor design including things like why frequency has stalled (too much heat) and so on.</p>
+<p>Newer topics that I'm remotely familiar with but were not covered during undergrad:</p>
+<ul>
+<li>tiling</li>
+<li>vectorization</li>
+<li>loop unrolling</li>
+</ul>
+<p>Tiling is something I'm familiar with because I've seen the matrix multiplication optimization example before, though I'm not sure from where. I've read about vectorization because I've looked up SIMD before, and similarly for loop unrolling.</p>
+<p>We're now going into specific profiling tools and techniques, like the obvious use timers, <code>time</code>, and <code>gprof</code>. We're also covering libraries for basic parallel programming like OpenMP.</p>
+<p>Do I think the class has been worth it so far? Yes, as a forward looking statement. While the topics covered so far are things I'm somewhat familiar with, having some guidance on what to cover makes things a lot more streamlined for learning. Furthermore, based on the syllabus, nearly everything in the second half of the semester will be new. There are also resources for filling in whatever gaps of knowledge, like asking the professor, and there are exams which help with making sure I actually understand the topics.</p>
+<p>Also access to a high performance computing cluster.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/91>&lt; i forgot to unmute</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-01-21 - add post 92</summary>
+<pre class=code-block><input id=code-block-2e6d4830f7c2c3a50962c9af46c8c94f920a5ce8-1 type=checkbox><label for=code-block-2e6d4830f7c2c3a50962c9af46c8c94f920a5ce8-1></label><code><span class=hljs-meta>@@ -0,0 +1,49 @@</span>
+<span class=hljs-addition>+# high performance computing class 1</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One of the classes I&#x27;m taking this semester is one on high performance</span>
+<span class=hljs-addition>+computing. So far, the concepts covered have been a mix of two classes I took</span>
+<span class=hljs-addition>+during undergrad - computer architecture and operating systems.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+From computer architecture, topics being covered include</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- processor design</span>
+<span class=hljs-addition>+- memory hierarchy/caching</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And from operating systems there are topics like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- threads/processes</span>
+<span class=hljs-addition>+- virtual/physical memory and paging</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While I do remember most of the high level details from undergrad, the graduate</span>
+<span class=hljs-addition>+course is more focused on performance implications along with a good heap of</span>
+<span class=hljs-addition>+historical information. For example, instead of knowing about the memory</span>
+<span class=hljs-addition>+hierarchy and its components, we specifically go into measuring performance of</span>
+<span class=hljs-addition>+sample code by hand based on cache hits/misses, clock cycles per instruction,</span>
+<span class=hljs-addition>+and so on. We also cover the evolution of chip/processor design including things</span>
+<span class=hljs-addition>+like why frequency has stalled (too much heat) and so on.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Newer topics that I&#x27;m remotely familiar with but were not covered during</span>
+<span class=hljs-addition>+undergrad:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- tiling</span>
+<span class=hljs-addition>+- vectorization</span>
+<span class=hljs-addition>+- loop unrolling</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Tiling is something I&#x27;m familiar with because I&#x27;ve seen the matrix</span>
+<span class=hljs-addition>+multiplication optimization example before, though I&#x27;m not sure from where. I&#x27;ve</span>
+<span class=hljs-addition>+read about vectorization because I&#x27;ve looked up SIMD before, and similarly for</span>
+<span class=hljs-addition>+loop unrolling.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We&#x27;re now going into specific profiling tools and techniques, like the obvious</span>
+<span class=hljs-addition>+use timers, `time`, and `gprof`. We&#x27;re also covering libraries for basic</span>
+<span class=hljs-addition>+parallel programming like OpenMP.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Do I think the class has been worth it so far? Yes, as a forward looking</span>
+<span class=hljs-addition>+statement. While the topics covered so far are things I&#x27;m somewhat familiar</span>
+<span class=hljs-addition>+with, having some guidance on what to cover makes things a lot more streamlined</span>
+<span class=hljs-addition>+for learning. Furthermore, based on the syllabus, nearly everything in the</span>
+<span class=hljs-addition>+second half of the semester will be new. There are also resources for filling in</span>
+<span class=hljs-addition>+whatever gaps of knowledge, like asking the professor, and there are exams which</span>
+<span class=hljs-addition>+help with making sure I actually understand the topics.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also access to a high performance computing cluster.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
