@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>debugging a git push 422 response</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/92>&lt; high performance computing class 1</a></div> <div style=text-align:end><a href=/./posts/94>exposition in technical posts &gt;</a></div>
+</nav>
+<h1 id=debugging-a-git-push-422-response>debugging a git push 422 response</h1>
+<p>If you're receiving a 422 response when interacting with the remote repository AND you are not messing with large files:</p>
+<ol>
+<li>Check what version of <code>git</code> you're using</li>
+<li>If using an old version, check the requests being made with
+<code>GIT_CURL_VERBOSE=1 git push</code></li>
+<li>If any redirects are being made, change your remote url to what the redirect is OR use an updated version of <code>git</code>.</li>
+</ol>
+<p>We're wrapping up our first project in grad school and someone shared that they were having trouble using <code>git</code> on the remote server when pushing. They were receiving the error:</p>
+<pre class=code-block><input id=code-block-93-1 type=checkbox><label for=code-block-93-1></label><code>Counting objects: 14, <span class=hljs-keyword>done</span>.
+Delta compression using up to 16 threads.
+Compressing objects: 100% (11/11), <span class=hljs-keyword>done</span>.
+Writing objects: 100% (12/12), 1.16 KiB | 0 bytes/s, <span class=hljs-keyword>done</span>.
+Total 12 (delta 0), reused 0 (delta 0)
+error: RPC failed; result=22, HTTP code = 422
+fatal: The remote end hung up unexpectedly
+Everything up-to-date
+</code></pre>
+<p>and shared this on the class forum. This is not one of the usual errors that occur when using <code>git</code> so it took a little bit of effort to find the issue. The first thing I asked was for them to try
+<code>GIT_CURL_VERBOSE=1 GIT_TRACE=1 git push</code> for more info, and to share the redacted output. I compared it with the output of my command, which worked, and noticed a difference in output</p>
+<pre class=code-block><input id=code-block-93-2 type=checkbox><label for=code-block-93-2></label><code><span class=hljs-addition>+ git remote-https origin https://domain/user/repo</span>
+<span class=hljs-deletion>- git remote-https origin https://domain/user/repo.git</span>
+</code></pre>
+<p>They were missing the ".git" suffix on their url. Is this an issue? Not necessarily because the logs showed redirects which should have allowed <code>git</code> to push to the "proper" url.</p>
+<pre class=code-block><input id=code-block-93-3 type=checkbox><label for=code-block-93-3></label><code>&lt; HTTP/1.1 301 Moved Permanently
+&lt; Location: https://domain/user/repo.git/info/refs?service=git-receive-pack
+</code></pre>
+<p>However, when I updated my own remote url with <code>git remote set-url</code>, I was able to reproduce the issue. At this point I shared the workaround of updating the remote url to include ".git" and that worked for them.</p>
+<p>But then I wondered how did their remote get set to the url without ".git" initially - it suggests that they were able to clone without that suffix, which should have resulted in the same 422 response. I then tried various operations locally using a remote url without the ".git" suffix and they worked without issue.</p>
+<p>I eventually realized that the ~default~ <code>git</code> binary on the server was
+<code>1.8.3.1</code> while my local version was a much more recent <code>2.38.1.windows.1</code>, so I went out and installed a version I could find that was around the server's:
+<code>1.8.4</code>. Unfortunately when trying to clone something with this version, I ran into the error</p>
+<pre class=code-block><input id=code-block-93-4 type=checkbox><label for=code-block-93-4></label><code>error:1407742E:SSL routines:SSL23_GET_SERVER_HELLO:tlsv1 alert protocol version
+</code></pre>
+<p>which I was able to get around by rebuilding with an updated version of curl, and the issue was reproduced. So it looks like trying to use redirects was an issue in older versions of <code>git</code>. This still doesn't answer the question of how they cloned the repository without the ".git" suffix on the server, but after looking over the project setup instructions, I realized there was a way to load a newer <code>git</code> binary (version 2.19.0).</p>
+<p>So I believe what happened was:</p>
+<ol>
+<li>SSH into server</li>
+<li>Follow instructions, load git 2.19.0 and clone without ".git" suffix</li>
+<li>Time passes</li>
+<li>SSH into server again</li>
+<li>Forget to load git 2.19.0 and push, resulting in the error</li>
+</ol>
+<p>And what do you know, on the weekend of the deadline, several other students shared similar issues and the <code>git remote set-url</code> solution solved their problems, too.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/92>&lt; high performance computing class 1</a></div> <div style=text-align:end><a href=/./posts/94>exposition in technical posts &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-02-03 - add post 93</summary>
+<pre class=code-block><input id=code-block-e14267fbd7ee1e98285740fd62dfe727e0c716d2-1 type=checkbox><label for=code-block-e14267fbd7ee1e98285740fd62dfe727e0c716d2-1></label><code><span class=hljs-meta>@@ -0,0 +1,85 @@</span>
+<span class=hljs-addition>+# debugging a git push 422 response</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If you&#x27;re receiving a 422 response when interacting with the remote repository</span>
+<span class=hljs-addition>+AND you are not messing with large files:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Check what version of `git` you&#x27;re using</span>
+<span class=hljs-addition>+2. If using an old version, check the requests being made with</span>
+<span class=hljs-addition>+   `GIT_CURL_VERBOSE=1 git push`</span>
+<span class=hljs-addition>+3. If any redirects are being made, change your remote url to what the redirect</span>
+<span class=hljs-addition>+   is OR use an updated version of `git`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We&#x27;re wrapping up our first project in grad school and someone shared that they</span>
+<span class=hljs-addition>+were having trouble using `git` on the remote server when pushing. They were</span>
+<span class=hljs-addition>+receiving the error:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+Counting objects: 14, done.</span>
+<span class=hljs-addition>+Delta compression using up to 16 threads.</span>
+<span class=hljs-addition>+Compressing objects: 100% (11/11), done.</span>
+<span class=hljs-addition>+Writing objects: 100% (12/12), 1.16 KiB | 0 bytes/s, done.</span>
+<span class=hljs-addition>+Total 12 (delta 0), reused 0 (delta 0)</span>
+<span class=hljs-addition>+error: RPC failed; result=22, HTTP code = 422</span>
+<span class=hljs-addition>+fatal: The remote end hung up unexpectedly</span>
+<span class=hljs-addition>+Everything up-to-date</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+and shared this on the class forum. This is not one of the usual errors that</span>
+<span class=hljs-addition>+occur when using `git` so it took a little bit of effort to find the issue. The</span>
+<span class=hljs-addition>+first thing I asked was for them to try</span>
+<span class=hljs-addition>+`GIT_CURL_VERBOSE=1 GIT_TRACE=1 git push` for more info, and to share the</span>
+<span class=hljs-addition>+redacted output. I compared it with the output of my command, which worked, and</span>
+<span class=hljs-addition>+noticed a difference in output</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```diff</span>
+<span class=hljs-addition>++ git remote-https origin https://domain/user/repo</span>
+<span class=hljs-addition>+- git remote-https origin https://domain/user/repo.git</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+They were missing the &quot;.git&quot; suffix on their url. Is this an issue? Not</span>
+<span class=hljs-addition>+necessarily because the logs showed redirects which should have allowed `git` to</span>
+<span class=hljs-addition>+push to the &quot;proper&quot; url.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+&lt; HTTP/1.1 301 Moved Permanently</span>
+<span class=hljs-addition>+&lt; Location: https://domain/user/repo.git/info/refs?service=git-receive-pack</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, when I updated my own remote url with `git remote set-url`, I was able</span>
+<span class=hljs-addition>+to reproduce the issue. At this point I shared the workaround of updating the</span>
+<span class=hljs-addition>+remote url to include &quot;.git&quot; and that worked for them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But then I wondered how did their remote get set to the url without &quot;.git&quot;</span>
+<span class=hljs-addition>+initially - it suggests that they were able to clone without that suffix, which</span>
+<span class=hljs-addition>+should have resulted in the same 422 response. I then tried various operations</span>
+<span class=hljs-addition>+locally using a remote url without the &quot;.git&quot; suffix and they worked without</span>
+<span class=hljs-addition>+issue.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I eventually realized that the ~default~ `git` binary on the server was</span>
+<span class=hljs-addition>+`1.8.3.1` while my local version was a much more recent `2.38.1.windows.1`, so I</span>
+<span class=hljs-addition>+went out and installed a version I could find that was around the server&#x27;s:</span>
+<span class=hljs-addition>+`1.8.4`. Unfortunately when trying to clone something with this version, I ran</span>
+<span class=hljs-addition>+into the error</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+error:1407742E:SSL routines:SSL23_GET_SERVER_HELLO:tlsv1 alert protocol version</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+which I was able to get around by rebuilding with an updated version of curl,</span>
+<span class=hljs-addition>+and the issue was reproduced. So it looks like trying to use redirects was an</span>
+<span class=hljs-addition>+issue in older versions of `git`. This still doesn&#x27;t answer the question of how</span>
+<span class=hljs-addition>+they cloned the repository without the &quot;.git&quot; suffix on the server, but after</span>
+<span class=hljs-addition>+looking over the project setup instructions, I realized there was a way to load</span>
+<span class=hljs-addition>+a newer `git` binary (version 2.19.0).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I believe what happened was:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. SSH into server</span>
+<span class=hljs-addition>+2. Follow instructions, load git 2.19.0 and clone without &quot;.git&quot; suffix</span>
+<span class=hljs-addition>+3. Time passes</span>
+<span class=hljs-addition>+4. SSH into server again</span>
+<span class=hljs-addition>+5. Forget to load git 2.19.0 and push, resulting in the error</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And what do you know, on the weekend of the deadline, several other students</span>
+<span class=hljs-addition>+shared similar issues and the `git remote set-url` solution solved their</span>
+<span class=hljs-addition>+problems, too.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
