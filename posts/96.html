@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>arguing against pre-complicating a project</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/95>&lt; grad school semester 1 midpoint</a></div>
+</nav>
+<h1 id=arguing-against-pre-complicating-a-project>arguing against pre-complicating a project</h1>
+<p>At work, we started planning a decently sized project where we pull information from all of our services to calculate a daily overall score for users to see.</p>
+<p>Over the past 2 or 3 days, I've been saying that we shouldn't make things so complex before we know how these queries would perform, but every single day it seems like they forget what I've said and propose a new cache for a new location.</p>
+<p>The first day, we discussed numerous queries that would be hitting our Elasticsearch cluster which doesn't have the best performance. I found it reasonable to break up the several day period into several day long queries whose results were cached in a database by a job on an interval.</p>
+<p>The next day they wanted a table in the service aggregating the information from all the other services and a job to populate that table. Caching here seemed reasonable to me, but the table seemed unnecessary since the information would only be needed for a day based on current requirements. I suggested to instead use an in-memory cache which is populated when the information is first requested. I'm not certain what the final decision there was.</p>
+<p>The next day they then wanted to add a cache to each individual service and a job to calculate the service specific information, which would then be pulled by the aggregating service. This seemed excessive because for the other services, the information boiled down to basic aggregation sql queries - counting how many things fell under a certain condition mainly. I said that we should see how the simple logic performed first before adding caching and jobs to pre-calculate the information. They don't seem to understand my point and keep pushing for this approach.</p>
+<p>I think I'm taking the more sensible path, even if the complex logic is eventually needed. Currently nothing suggests it is, and we'll have to see how it works to know if it needs optimization.</p>
+<p>Anyways, that <del>argument</del> discussion has made me really tired this week. If I ever get an interview question for "name a time you had a disagreement with a colleague", I finally have something to use, though the outcome and results are currently unclear.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/95>&lt; grad school semester 1 midpoint</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-04-10 - add post 96</summary>
+<pre class=code-block><input id=code-block-7d72ee9e421961b6958205d3b7f68a9b66b6e4fb-1 type=checkbox><label for=code-block-7d72ee9e421961b6958205d3b7f68a9b66b6e4fb-1></label><code><span class=hljs-meta>@@ -0,0 +1,39 @@</span>
+<span class=hljs-addition>+# arguing against pre-complicating a project</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At work, we started planning a decently sized project where we pull information</span>
+<span class=hljs-addition>+from all of our services to calculate a daily overall score for users to see.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Over the past 2 or 3 days, I&#x27;ve been saying that we shouldn&#x27;t make things so</span>
+<span class=hljs-addition>+complex before we know how these queries would perform, but every single day it</span>
+<span class=hljs-addition>+seems like they forget what I&#x27;ve said and propose a new cache for a new</span>
+<span class=hljs-addition>+location.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first day, we discussed numerous queries that would be hitting our</span>
+<span class=hljs-addition>+Elasticsearch cluster which doesn&#x27;t have the best performance. I found it</span>
+<span class=hljs-addition>+reasonable to break up the several day period into several day long queries</span>
+<span class=hljs-addition>+whose results were cached in a database by a job on an interval.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The next day they wanted a table in the service aggregating the information</span>
+<span class=hljs-addition>+from all the other services and a job to populate that table. Caching here</span>
+<span class=hljs-addition>+seemed reasonable to me, but the table seemed unnecessary since the information</span>
+<span class=hljs-addition>+would only be needed for a day based on current requirements. I suggested to</span>
+<span class=hljs-addition>+instead use an in-memory cache which is populated when the information is first</span>
+<span class=hljs-addition>+requested. I&#x27;m not certain what the final decision there was.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The next day they then wanted to add a cache to each individual service and a</span>
+<span class=hljs-addition>+job to calculate the service specific information, which would then be pulled by</span>
+<span class=hljs-addition>+the aggregating service. This seemed excessive because for the other services,</span>
+<span class=hljs-addition>+the information boiled down to basic aggregation sql queries - counting how many</span>
+<span class=hljs-addition>+things fell under a certain condition mainly. I said that we should see how the</span>
+<span class=hljs-addition>+simple logic performed first before adding caching and jobs to pre-calculate the</span>
+<span class=hljs-addition>+information. They don&#x27;t seem to understand my point and keep pushing for this</span>
+<span class=hljs-addition>+approach.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think I&#x27;m taking the more sensible path, even if the complex logic is</span>
+<span class=hljs-addition>+eventually needed. Currently nothing suggests it is, and we&#x27;ll have to see how</span>
+<span class=hljs-addition>+it works to know if it needs optimization.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, that ~~argument~~ discussion has made me really tired this week. If I</span>
+<span class=hljs-addition>+ever get an interview question for &quot;name a time you had a disagreement with a</span>
+<span class=hljs-addition>+colleague&quot;, I finally have something to use, though the outcome and results are</span>
+<span class=hljs-addition>+currently unclear.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
