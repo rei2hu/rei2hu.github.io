@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>a weird cpp error</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div>
+</nav>
+<h1 id=a-weird-cpp-error>a weird cpp error</h1>
+<p>Sometimes data is randomly 0ed in cpp when it shouldn't be… maybe?</p>
+<p>I came across an interesting problem when doing a programming project for my hpc (high-performance computing) class. Take a look at the following distilled example:</p>
+<pre class=code-block><input id=code-block-97-1 type=checkbox><label for=code-block-97-1></label><code>std::map&lt;<span class=hljs-type>int</span>, std::vector&lt;<span class=hljs-type>data_t</span>&gt;&gt; data_for_cpu;
+<span class=hljs-comment>// ... vectors are filled and whatnot</span>
+
+std::vector&lt;MPI_Request&gt; requests;
+<span class=hljs-keyword>for</span> (<span class=hljs-keyword>auto</span> [dest, vec]: data_for_cpu) {
+    MPI_Request req;
+    <span class=hljs-built_in>MPI_ISend</span>(&amp;vec[<span class=hljs-number>0</span>], vec.<span class=hljs-built_in>size</span>(), MPI_DATA_T, dest, comm, &amp;req);
+    reqs.<span class=hljs-built_in>push_back</span>(req);
+}
+
+<span class=hljs-keyword>for</span> (<span class=hljs-type>int</span> i = <span class=hljs-number>0</span>; i &lt; reqs.<span class=hljs-built_in>size</span>(); i++) {
+    MPI_Status status;
+    <span class=hljs-built_in>MPI_Probe</span>(MPI_ANY_SOURCE, <span class=hljs-number>0</span>, comm, &amp;status);
+
+    <span class=hljs-type>int</span> incoming_size;
+    <span class=hljs-built_in>MPI_Get_count</span>(&amp;status, MPI_DOUBLE, &amp;incoming_size);
+
+    <span class=hljs-type>data_t</span>* data = <span class=hljs-keyword>new</span> <span class=hljs-type>data_t</span>[incoming_size];
+    <span class=hljs-built_in>MPI_Recv</span>(data, incoming_size, MPI_DATA_T, status.MPI_SOURCE, <span class=hljs-number>0</span>, comm, MPI_STATUS_IGNORE);
+
+    <span class=hljs-keyword>for</span> (<span class=hljs-type>int</span> i = <span class=hljs-number>0</span>; i &lt; incoming_size; i++) {
+        <span class=hljs-comment>// do something with data[i];</span>
+    }
+}
+
+<span class=hljs-built_in>MPI_Waitall</span>(reqs.<span class=hljs-built_in>size</span>(), &amp;reqs[<span class=hljs-number>0</span>], MPI_STATUSES_IGNORE);
+</code></pre>
+<p>First, some info on what MPI and the calls are doing:</p>
+<ul>
+<li>MPI is short for message passing interface and is used for writing message passing programs. In this case, we are sending data between multiple processes (processors).</li>
+<li><code>MPI_ISend</code> is a non-blocking send.</li>
+<li><code>MPI_Recv</code> is a blocking receive.</li>
+<li><code>MPI_Probe</code> and <code>MPI_Get_count</code> is used to get the size of the incoming messages dynamically.</li>
+<li>The same program is run on all processors, so each processor is calculating some data, and sending it to others. <code>vec</code> contains the information being sent and <code>data</code> will hold the incoming information.</li>
+</ul>
+<p>If we add some prints, we can track what's being sent:</p>
+<pre class=code-block><input id=code-block-97-2 type=checkbox><label for=code-block-97-2></label><code>    <span class=hljs-keyword>for</span> (<span class=hljs-keyword>auto</span> d : vec)
+        std::cout &lt;&lt; rank &lt;&lt; <span class=hljs-string>&quot; sends &quot;</span> &lt;&lt; d &lt;&lt; <span class=hljs-string>&quot; to &quot;</span> &lt;&lt; status.MPI_SOURCE &lt;&lt; std::endl;
+    <span class=hljs-built_in>MPI_ISend</span>(&amp;vec[<span class=hljs-number>0</span>], vec.<span class=hljs-built_in>size</span>(), MPI_DATA_T, dest, comm, &amp;req);
+    reqs.<span class=hljs-built_in>push_back</span>(req);
+
+    <span class=hljs-comment>// ...</span>
+
+    <span class=hljs-keyword>for</span> (<span class=hljs-type>int</span> i = <span class=hljs-number>0</span>; i &lt; incoming_size; i++) {
+        std::cout &lt;&lt; rank &lt;&lt; <span class=hljs-string>&quot; gets &quot;</span> &lt;&lt; data[i]
+            &lt;&lt; <span class=hljs-string>&quot; from &quot;</span> &lt;&lt; status.MPI_SOURCE &lt;&lt; std::endl;
+    }
+</code></pre>
+<p>What does this print? Something like</p>
+<pre class=code-block><input id=code-block-97-3 type=checkbox><label for=code-block-97-3></label><code>0 sends 1 to 1
+1 sends 1 to 0
+0 sends 2 to 1
+1 sends 2 to 0
+0 sends 3 to 1
+0 gets 1 from 1
+0 gets 2 from 1
+1 sends 3 to 0
+1 gets 1 from 0
+0 gets 3 from 1
+1 gets 2 from 0
+1 gets 3 from 0
+</code></pre>
+<p>Of course it'll be mixed up as that's the nature of basic logging and parallel programming, but if you split it to two streams then you can see what's happening more clearly.</p>
+<pre class=code-block><input id=code-block-97-4 type=checkbox><label for=code-block-97-4></label><code>0 sends 1 to 1    1 sends 1 to 0
+0 sends 2 to 1    1 sends 2 to 0
+0 sends 3 to 1    1 sends 3 to 0
+0 gets 1 from 1   1 gets 1 from 0
+0 gets 2 from 1   1 gets 2 from 0
+0 gets 3 from 1   1 gets 3 from 0
+</code></pre>
+<p>But what I noticed for a specific scenario was this happening:</p>
+<pre class=code-block><input id=code-block-97-5 type=checkbox><label for=code-block-97-5></label><code>0 sends 1 to 1    1 sends 1 to 0
+0 sends 2 to 1    1 sends 2 to 0
+0 sends 3 to 1    1 sends 3 to 0
+0 gets 1 from 1   1 gets 0 from 0 // 1 gets 0 instead of 1 now
+0 gets 2 from 1   1 gets 2 from 0
+0 gets 3 from 1   1 gets 3 from 0
+</code></pre>
+<p>It would only occur when the program was run on the cluster, and not when running it locally. It always happened in one specific case. What could be the issue?</p>
+<p>I can't say much in terms of how I figured out the issue, because I didn't really do so. Instead, after hours of throwing things at the wall, I found out that changing the loop to use const references avoided the problem.</p>
+<pre class=code-block><input id=code-block-97-6 type=checkbox><label for=code-block-97-6></label><code><span class=hljs-keyword>for</span> (<span class=hljs-keyword>auto</span> <span class=hljs-type>const</span> &amp;[dest, vec]: data_for_cpu) {
+</code></pre>
+<p>Because this change seemed to resolve the issue, I assume the compiler or something else was making a copy of the data for the loop body and cleaning it up before <code>MPI_ISend</code> actually sent the message. Is that the actual case? I don't know!</p>
+<p>It is something that I could probably spend some more time looking into, but the project still has a lot to go and I'll be focusing on that.</p>
+<p>Hey, I get to finally write something about my classes that isn't a scheduled thing!</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-04-22 - add post 97</summary>
+<pre class=code-block><input id=code-block-b9b734f8d6b21bc4565bbb69c7dcb672e4795e08-1 type=checkbox><label for=code-block-b9b734f8d6b21bc4565bbb69c7dcb672e4795e08-1></label><code><span class=hljs-meta>@@ -0,0 +1,129 @@</span>
+<span class=hljs-addition>+# a weird cpp error</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Sometimes data is randomly 0ed in cpp when it shouldn&#x27;t be... maybe?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I came across an interesting problem when doing a programming project for my</span>
+<span class=hljs-addition>+hpc (high-performance computing) class. Take a look at the following distilled</span>
+<span class=hljs-addition>+example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```cpp</span>
+<span class=hljs-addition>+std::map&lt;int, std::vector&lt;data_t&gt;&gt; data_for_cpu;</span>
+<span class=hljs-addition>+// ... vectors are filled and whatnot</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+std::vector&lt;MPI_Request&gt; requests;</span>
+<span class=hljs-addition>+for (auto [dest, vec]: data_for_cpu) {</span>
+<span class=hljs-addition>+    MPI_Request req;</span>
+<span class=hljs-addition>+    MPI_ISend(&amp;vec[0], vec.size(), MPI_DATA_T, dest, comm, &amp;req);</span>
+<span class=hljs-addition>+    reqs.push_back(req);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+for (int i = 0; i &lt; reqs.size(); i++) {</span>
+<span class=hljs-addition>+    MPI_Status status;</span>
+<span class=hljs-addition>+    MPI_Probe(MPI_ANY_SOURCE, 0, comm, &amp;status);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    int incoming_size;</span>
+<span class=hljs-addition>+    MPI_Get_count(&amp;status, MPI_DOUBLE, &amp;incoming_size);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    data_t* data = new data_t[incoming_size];</span>
+<span class=hljs-addition>+    MPI_Recv(data, incoming_size, MPI_DATA_T, status.MPI_SOURCE, 0, comm, MPI_STATUS_IGNORE);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (int i = 0; i &lt; incoming_size; i++) {</span>
+<span class=hljs-addition>+        // do something with data[i];</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+MPI_Waitall(reqs.size(), &amp;reqs[0], MPI_STATUSES_IGNORE);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First, some info on what MPI and the calls are doing:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- MPI is short for message passing interface and is used for writing message</span>
+<span class=hljs-addition>+  passing programs. In this case, we are sending data between multiple processes</span>
+<span class=hljs-addition>+  (processors).</span>
+<span class=hljs-addition>+- `MPI_ISend` is a non-blocking send.</span>
+<span class=hljs-addition>+- `MPI_Recv` is a blocking receive.</span>
+<span class=hljs-addition>+- `MPI_Probe` and `MPI_Get_count` is used to get the size of the incoming</span>
+<span class=hljs-addition>+  messages dynamically.</span>
+<span class=hljs-addition>+- The same program is run on all processors, so each processor is calculating</span>
+<span class=hljs-addition>+  some data, and sending it to others. `vec` contains the information being sent</span>
+<span class=hljs-addition>+  and `data` will hold the incoming information.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If we add some prints, we can track what&#x27;s being sent:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```cpp</span>
+<span class=hljs-addition>+    for (auto d : vec)</span>
+<span class=hljs-addition>+        std::cout &lt;&lt; rank &lt;&lt; &quot; sends &quot; &lt;&lt; d &lt;&lt; &quot; to &quot; &lt;&lt; status.MPI_SOURCE &lt;&lt; std::endl;</span>
+<span class=hljs-addition>+    MPI_ISend(&amp;vec[0], vec.size(), MPI_DATA_T, dest, comm, &amp;req);</span>
+<span class=hljs-addition>+    reqs.push_back(req);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    // ...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (int i = 0; i &lt; incoming_size; i++) {</span>
+<span class=hljs-addition>+        std::cout &lt;&lt; rank &lt;&lt; &quot; gets &quot; &lt;&lt; data[i]</span>
+<span class=hljs-addition>+            &lt;&lt; &quot; from &quot; &lt;&lt; status.MPI_SOURCE &lt;&lt; std::endl;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What does this print? Something like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+0 sends 1 to 1</span>
+<span class=hljs-addition>+1 sends 1 to 0</span>
+<span class=hljs-addition>+0 sends 2 to 1</span>
+<span class=hljs-addition>+1 sends 2 to 0</span>
+<span class=hljs-addition>+0 sends 3 to 1</span>
+<span class=hljs-addition>+0 gets 1 from 1</span>
+<span class=hljs-addition>+0 gets 2 from 1</span>
+<span class=hljs-addition>+1 sends 3 to 0</span>
+<span class=hljs-addition>+1 gets 1 from 0</span>
+<span class=hljs-addition>+0 gets 3 from 1</span>
+<span class=hljs-addition>+1 gets 2 from 0</span>
+<span class=hljs-addition>+1 gets 3 from 0</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Of course it&#x27;ll be mixed up as that&#x27;s the nature of basic logging and parallel</span>
+<span class=hljs-addition>+programming, but if you split it to two streams then you can see what&#x27;s</span>
+<span class=hljs-addition>+happening more clearly.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+0 sends 1 to 1    1 sends 1 to 0</span>
+<span class=hljs-addition>+0 sends 2 to 1    1 sends 2 to 0</span>
+<span class=hljs-addition>+0 sends 3 to 1    1 sends 3 to 0</span>
+<span class=hljs-addition>+0 gets 1 from 1   1 gets 1 from 0</span>
+<span class=hljs-addition>+0 gets 2 from 1   1 gets 2 from 0</span>
+<span class=hljs-addition>+0 gets 3 from 1   1 gets 3 from 0</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But what I noticed for a specific scenario was this happening:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+0 sends 1 to 1    1 sends 1 to 0</span>
+<span class=hljs-addition>+0 sends 2 to 1    1 sends 2 to 0</span>
+<span class=hljs-addition>+0 sends 3 to 1    1 sends 3 to 0</span>
+<span class=hljs-addition>+0 gets 1 from 1   1 gets 0 from 0 // 1 gets 0 instead of 1 now</span>
+<span class=hljs-addition>+0 gets 2 from 1   1 gets 2 from 0</span>
+<span class=hljs-addition>+0 gets 3 from 1   1 gets 3 from 0</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It would only occur when the program was run on the cluster, and not when</span>
+<span class=hljs-addition>+running it locally. It always happened in one specific case. What could be the</span>
+<span class=hljs-addition>+issue?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I can&#x27;t say much in terms of how I figured out the issue, because I didn&#x27;t</span>
+<span class=hljs-addition>+really do so. Instead, after hours of throwing things at the wall, I found out</span>
+<span class=hljs-addition>+that changing the loop to use const references avoided the problem.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```cpp</span>
+<span class=hljs-addition>+for (auto const &amp;[dest, vec]: data_for_cpu) {</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Because this change seemed to resolve the issue, I assume the compiler or</span>
+<span class=hljs-addition>+something else was making a copy of the data for the loop body and cleaning it</span>
+<span class=hljs-addition>+up before `MPI_ISend` actually sent the message. Is that the actual case? I</span>
+<span class=hljs-addition>+don&#x27;t know!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It is something that I could probably spend some more time looking into, but the</span>
+<span class=hljs-addition>+project still has a lot to go and I&#x27;ll be focusing on that.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Hey, I get to finally write something about my classes that isn&#x27;t a scheduled</span>
+<span class=hljs-addition>+thing!</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
