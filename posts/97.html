@@ -119,8 +119,7 @@ std::vector&lt;MPI_Request&gt; requests;
 <pre class=code-block><input id=code-block-97-6 type=checkbox><label for=code-block-97-6></label><code><span class=hljs-keyword>for</span> (<span class=hljs-keyword>auto</span> <span class=hljs-type>const</span> &amp;[dest, vec]: data_for_cpu) {
 </code></pre>
 <p>Because this change seemed to resolve the issue, I assume the compiler or something else was making a copy of the data for the loop body and cleaning it up before <code>MPI_ISend</code> actually sent the message. Is that the actual case? I don't know!</p>
-<p>It is something that I could probably spend some more time looking into, but the project still has a lot to go and I'll be focusing on that.</p>
-<p>Hey, I get to finally write something about my classes that isn't a scheduled thing!</p>
+<p>It is something that I could probably spend some more time looking into, but the project still has a lot to go and I'll be focusing on that. I guess it also goes to show that const'ing everything that can be const'd is probably a good idea, not only in c++ but also in other languages.</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div>
 </nav>
@@ -129,7 +128,7 @@ std::vector&lt;MPI_Request&gt; requests;
 <span>History:</span>
 <details>
 <summary>2024-04-22 - add post 97</summary>
-<pre class=code-block><input id=code-block-b9b734f8d6b21bc4565bbb69c7dcb672e4795e08-1 type=checkbox><label for=code-block-b9b734f8d6b21bc4565bbb69c7dcb672e4795e08-1></label><code><span class=hljs-meta>@@ -0,0 +1,129 @@</span>
+<pre class=code-block><input id=code-block-12b858d85f2adfe1faf8b053bf18e02c87bc9da8-1 type=checkbox><label for=code-block-12b858d85f2adfe1faf8b053bf18e02c87bc9da8-1></label><code><span class=hljs-meta>@@ -0,0 +1,128 @@</span>
 <span class=hljs-addition>+# a weird cpp error</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+Sometimes data is randomly 0ed in cpp when it shouldn&#x27;t be... maybe?</span>
@@ -255,10 +254,9 @@ std::vector&lt;MPI_Request&gt; requests;
 <span class=hljs-addition>+don&#x27;t know!</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+It is something that I could probably spend some more time looking into, but the</span>
-<span class=hljs-addition>+project still has a lot to go and I&#x27;ll be focusing on that.</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+Hey, I get to finally write something about my classes that isn&#x27;t a scheduled</span>
-<span class=hljs-addition>+thing!</span>
+<span class=hljs-addition>+project still has a lot to go and I&#x27;ll be focusing on that. I guess it also goes</span>
+<span class=hljs-addition>+to show that const&#x27;ing everything that can be const&#x27;d is probably a good idea,</span>
+<span class=hljs-addition>+not only in c++ but also in other languages.</span>
 </code></pre>
 </details>
 </div>
