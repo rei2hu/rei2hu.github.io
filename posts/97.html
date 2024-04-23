@@ -34,7 +34,7 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <div style="flex:0 0 50%"><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div>
 </nav>
 <h1 id=a-weird-cpp-error>a weird cpp error</h1>
-<p>Sometimes data is randomly 0ed in cpp when it shouldn't be… maybe?</p>
+<p>Const reference good.</p>
 <p>I came across an interesting problem when doing a programming project for my hpc (high-performance computing) class. Take a look at the following distilled example:</p>
 <pre class=code-block><input id=code-block-97-1 type=checkbox><label for=code-block-97-1></label><code>std::map&lt;<span class=hljs-type>int</span>, std::vector&lt;<span class=hljs-type>data_t</span>&gt;&gt; data_for_cpu;
 <span class=hljs-comment>// ... vectors are filled and whatnot</span>
@@ -118,7 +118,7 @@ std::vector&lt;MPI_Request&gt; requests;
 <p>I can't say much in terms of how I figured out the issue, because I didn't really do so. Instead, after hours of throwing things at the wall, I found out that changing the loop to use const references avoided the problem.</p>
 <pre class=code-block><input id=code-block-97-6 type=checkbox><label for=code-block-97-6></label><code><span class=hljs-keyword>for</span> (<span class=hljs-keyword>auto</span> <span class=hljs-type>const</span> &amp;[dest, vec]: data_for_cpu) {
 </code></pre>
-<p>Because this change seemed to resolve the issue, I assume the compiler or something else was making a copy of the data for the loop body and cleaning it up before <code>MPI_ISend</code> actually sent the message. Is that the actual case? I don't know!</p>
+<p>Because this change seemed to resolve the issue, I assume the compiler or something else was making a copy of the data for the loop body and cleaning it up before <code>MPI_ISend</code> actually sent the message. Is that the actual case? I don't know! It's a little weak based on what I think I know - namely that the memory wouldn't be 0'd out even if it was "cleaned up", since that would take extra cycles. Unless that's a c++ thing.</p>
 <p>It is something that I could probably spend some more time looking into, but the project still has a lot to go and I'll be focusing on that. I guess it also goes to show that const'ing everything that can be const'd is probably a good idea, not only in c++ but also in other languages.</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div>
@@ -126,6 +126,21 @@ std::vector&lt;MPI_Request&gt; requests;
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-04-23 - update post 97</summary>
+<pre class=code-block><input id=code-block-bf4b7132313320a69396bc17204a995e5308a5cf-1 type=checkbox><label for=code-block-bf4b7132313320a69396bc17204a995e5308a5cf-1></label><code><span class=hljs-meta>@@ -2,3 +2,3 @@</span>
+
+<span class=hljs-deletion>-Sometimes data is randomly 0ed in cpp when it shouldn&#x27;t be... maybe?</span>
+<span class=hljs-addition>+Const reference good.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-bf4b7132313320a69396bc17204a995e5308a5cf-2 type=checkbox><label for=code-block-bf4b7132313320a69396bc17204a995e5308a5cf-2></label><code><span class=hljs-meta>@@ -122,3 +122,5 @@</span> something else was making a copy of the data for the loop body and cleaning it
+ up before `MPI_ISend` actually sent the message. Is that the actual case? I
+<span class=hljs-deletion>-don&#x27;t know!</span>
+<span class=hljs-addition>+don&#x27;t know! It&#x27;s a little weak based on what I think I know - namely that the</span>
+<span class=hljs-addition>+memory wouldn&#x27;t be 0&#x27;d out even if it was &quot;cleaned up&quot;, since that would take</span>
+<span class=hljs-addition>+extra cycles. Unless that&#x27;s a c++ thing.</span>
+</code></pre>
+</details>
 <details>
 <summary>2024-04-22 - add post 97</summary>
 <pre class=code-block><input id=code-block-12b858d85f2adfe1faf8b053bf18e02c87bc9da8-1 type=checkbox><label for=code-block-12b858d85f2adfe1faf8b053bf18e02c87bc9da8-1></label><code><span class=hljs-meta>@@ -0,0 +1,128 @@</span>
