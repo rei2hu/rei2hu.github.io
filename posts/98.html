@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>grad school semester 1 end</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/97>&lt; a weird cpp error</a></div>
+</nav>
+<h1 id=grad-school-semester-1-end>grad school semester 1 end</h1>
+<p>The end of my classes for the semester are soon or have passed. What are my thoughts on them overall?</p>
+<p>Wow it feels like I just wrote the halfway post… well it was 3 posts ago.</p>
+<h2 id=databases>Databases</h2>
+<p>I took this course thinking it would cover database internals. It did not. Instead it was more of a practical introduction to databases which for undergraduates.</p>
+<p>The first third of the course focused on different types of databases (mainly relational, document, and graph databases) common operations, and relational algebra. The main project for this course was to implement some of these operations (select, join, etc.) in a skeleton Python program; this was not a proper database implementation, but something rough to work with. I guess this was to help learn how things work, but it seemed to simple for the course.</p>
+<p>The second third (what?) of the course covered actually querying the databases. We went over syntax for MySQL, MongoDB, and Neo4j. Based on what I already know of sql, the syntax being taught was a little dated, and I would say the same for Mongo, though I'm not sure about Neo4j since I have no experience there. The projects for this section were solid, and they mainly consisted of constructing queries to solve a plain english questions. The output was provided so we could tell if our queries were correct ahead of time.</p>
+<p>The last eighth of the course (the database syntax part did take a little more than a third) introduced basic internals like B+ trees, hash tables and their use in indexing. This is the content I was hoping to cover, but in a more advanced format. Unfortunately it never happened.</p>
+<p>The main/final project of the course was to create a webapp that used the 3 aforementioned databases; which was simple and really drives home the "this is a practical database course" theme. I whipped something together over 1 weekend and I think it should be good enough for the class based on the example projects that were given.</p>
+<p>I did not interact much with the class because it was easily completable solo, all grading was strictly defined, and, well, as I mentioned before, the forums were 99% unhelpful spam from people posting to hit the top of the number of posts leaderboards for extra credit.</p>
+<p>I have finished everything for the class, and expect to get some kind of A. Did you know that some places have pluses and minuses? I was unaware, but I guess I'll either get an A or A+ despite rushing the final and losing out on 1% of the total possible grade.</p>
+<h2 id=high-performance-computing-hpc>High Performance Computing (HPC)</h2>
+<p>While databases was mainly focused on practical applications, HPC had a good mix of theoretical and practical application. The content was good but the course was severely unorganized.</p>
+<p>The class started off with basics like memory hierarchy and cache misses, transitioning into actual high performance computing using OpenMP, MPI, and pthreads while touching upon things like locks and atomics. We were shown examples of parallel algorithms with special focus on prefix sums and sorting. Then we got into load balancing, isoefficiency, topologies, and fault tolerance.</p>
+<p>The projects were also, in general, very good and focused on improving program performance by using the topics being taught, and seeing the improvements by benchmarking them on a cluster. The first one was matrix multiplication two ways - tiled and transposed, the second one was another tile based decomposition of a Gauss-Seidel program, the third was a gas particle simulation, and the final was a parallel sort.</p>
+<p>However, as I mentioned earlier, the organization was terrible. Most assignments after the first were released late, and there was minimal feedback for anything. The gas particle simulation only used half of the grading criteria, which meant effort spent on the other half was just wasted. Sometimes the criteria was just outdated, and despite asking about it weeks before the deadline, there would be no answer until the due date.</p>
+<p>While I thought the course was definitely harder compared to databases, this course either has the worst students, is virtually impossible to some, or a combination of both. I'll start off with this one note from the instructor which should put things into perspective:</p>
+<blockquote>
+<p>Hi Everyone, we have already written about this in a post at the beginning of the course but it unfortunately needs to be said again.</p>
+<p>You should NEVER post entire code as that constitutes as cheating.</p>
+<p>You can post errors, ask specific questions, or post a tiny code snippet (i.e. 2-3 lines) to check if you're doing something correctly, but you cannot simply post entire code and ask for people to help you debug it. That is YOUR job as part of the assignment.</p>
+<p>This is an upper-division course so it is concerning that this even needs to be stated. You should know how to debug your code by now, and if you do need help then you can make a private post for instructors only or come to office hours with specific questions.</p>
+</blockquote>
+<p>Yes, multiple people posted their (unformatted) code to the public forums looking for help. People have also posted exam questions and their answers to the forums to check if they're correct or not… during the exam. Pretty crazy for graduate school.</p>
+<p>Unfortunately the forum has the option to be fully anonymous so I'm not sure if all the students could be caught.</p>
+<p>Another thing to look at would be the fact that the gas simulation project was due a couple of weeks ago. While we did have several weeks to complete it, a majority of people must have put it off because there were so, so many people mentioning that the cluster queues were backed up from others using it at the same time (this is exacerbated by the fact that the program itself takes 10 minutes to run normally and people were submitting code that would run until a 1 hour timeout due to deadlocks). I have a suspicion that a lot of people did not do well on that project, though it could just be a vocal few.</p>
+<p>So is my "you're probably not determined/focused enough for graduate school" rant from my last post justified? I'd like to think so.</p>
+<p>The forums were decent outside of the begging for extensions and grade improvements. I actually answered like 60% of the questions there. Where's my extra credit? It even supports latex… I can actually post some of my answers because why not</p>
+<p></p><details>
+<summary>Fault Tolerance</summary>
+Where did you get those equations? I used $$ \tau(\text{opt}) = \sqrt{2\delta(M + R)} $$ For finding the optimal check point period. Previously it was 16: $$ \tau_{old} = 16 = \sqrt{2\delta_1(M + R)} \Rightarrow \delta_1(M + R) = 128 $$ Checkpointing overhead is reduced by 4x, i.e. checkpointing is 4x faster than before $$ \delta_1 = 4\delta_2 \Rightarrow \delta_2(M+R) = 32 $$ Then you can solve it again with that $$ \tau_{new}= \sqrt{2\delta_2(M + R)} = \sqrt{2 * 32} = 8 $$
+</details><p></p>
+<p></p><details>
+<summary>Isoefficiency</summary>
+It's communication divided by computation<p></p>
+<p>problem size ($N$) to work ($w$): $w = N^2 \Rightarrow \sqrt{w} = N$</p>
+<p>communication divided by computation:</p>
+<p>$$ \frac{N *log(p)}{\sqrt{p}} / \frac{N^2}{p} = \frac{p* log(p)}{N\sqrt{p}} = \frac{p * log(p)}{\sqrt{w}\sqrt{p}} $$</p>
+<p>substitute work in:</p>
+<p>$$ k_1 = \frac{p *log(p)}{\sqrt{w}\sqrt{p}} \Rightarrow k_1\sqrt{w} = \frac{p* log(p)}{\sqrt{p}} \Rightarrow {k_1}^2w = p *log(p)^2 \Rightarrow w = k_2* p * log(p)^2 $$ $k_1$ is just a constant so $1/{k_1}^2$ is just another constant I'm calling $k_2$</p>
+<p></p></details><p></p>
+<p>It's really just basic math and knowing what formula to use, but I guess that's computer science.</p>
+<p>For this class, the final sorting project (15%) and the final exam (25%) are still pending. I've finished the project though, so really it's just the final in a week which will be open book anyways. Because the class has been historically difficult, it uses 15 point intervals (85 A, 70 B, etc), which means only an 85% should be necessary for an A, and right now I have around a 58/60, which means I could get 65%s on both final project and final exam and come out with an A.</p>
+<h2 id=summer-semester>summer semester</h2>
+<p>I've also registered for 3 classes this summer. They should be a lot easier than what I'm currently taking.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/97>&lt; a weird cpp error</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-04-29 - add post 98</summary>
+<pre class=code-block><input id=code-block-735da9382be7853b5b919a67f81ca7e7ed2e4243-1 type=checkbox><label for=code-block-735da9382be7853b5b919a67f81ca7e7ed2e4243-1></label><code><span class=hljs-meta>@@ -0,0 +1,184 @@</span>
+<span class=hljs-addition>+# grad school semester 1 end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The end of my classes for the semester are soon or have passed. What are my</span>
+<span class=hljs-addition>+thoughts on them overall?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Wow it feels like I just wrote the halfway post... well it was 3 posts ago.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Databases</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I took this course thinking it would cover database internals. It did not.</span>
+<span class=hljs-addition>+Instead it was more of a practical introduction to databases which for</span>
+<span class=hljs-addition>+undergraduates.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first third of the course focused on different types of databases (mainly</span>
+<span class=hljs-addition>+relational, document, and graph databases) common operations, and relational</span>
+<span class=hljs-addition>+algebra. The main project for this course was to implement some of these</span>
+<span class=hljs-addition>+operations (select, join, etc.) in a skeleton Python program; this was not a</span>
+<span class=hljs-addition>+proper database implementation, but something rough to work with. I guess this</span>
+<span class=hljs-addition>+was to help learn how things work, but it seemed to simple for the course.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The second third (what?) of the course covered actually querying the databases.</span>
+<span class=hljs-addition>+We went over syntax for MySQL, MongoDB, and Neo4j. Based on what I already know</span>
+<span class=hljs-addition>+of sql, the syntax being taught was a little dated, and I would say the same for</span>
+<span class=hljs-addition>+Mongo, though I&#x27;m not sure about Neo4j since I have no experience there. The</span>
+<span class=hljs-addition>+projects for this section were solid, and they mainly consisted of constructing</span>
+<span class=hljs-addition>+queries to solve a plain english questions. The output was provided so we could</span>
+<span class=hljs-addition>+tell if our queries were correct ahead of time.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The last eighth of the course (the database syntax part did take a little more</span>
+<span class=hljs-addition>+than a third) introduced basic internals like B+ trees, hash tables and their</span>
+<span class=hljs-addition>+use in indexing. This is the content I was hoping to cover, but in a more</span>
+<span class=hljs-addition>+advanced format. Unfortunately it never happened.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The main/final project of the course was to create a webapp that used the 3</span>
+<span class=hljs-addition>+aforementioned databases; which was simple and really drives home the &quot;this is a</span>
+<span class=hljs-addition>+practical database course&quot; theme. I whipped something together over 1 weekend</span>
+<span class=hljs-addition>+and I think it should be good enough for the class based on the example projects</span>
+<span class=hljs-addition>+that were given.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I did not interact much with the class because it was easily completable solo,</span>
+<span class=hljs-addition>+all grading was strictly defined, and, well, as I mentioned before, the forums</span>
+<span class=hljs-addition>+were 99% unhelpful spam from people posting to hit the top of the number of</span>
+<span class=hljs-addition>+posts leaderboards for extra credit.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I have finished everything for the class, and expect to get some kind of A. Did</span>
+<span class=hljs-addition>+you know that some places have pluses and minuses? I was unaware, but I guess</span>
+<span class=hljs-addition>+I&#x27;ll either get an A or A+ despite rushing the final and losing out on 1% of the</span>
+<span class=hljs-addition>+total possible grade.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## High Performance Computing (HPC)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While databases was mainly focused on practical applications, HPC had a good mix</span>
+<span class=hljs-addition>+of theoretical and practical application. The content was good but the course</span>
+<span class=hljs-addition>+was severely unorganized.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The class started off with basics like memory hierarchy and cache misses,</span>
+<span class=hljs-addition>+transitioning into actual high performance computing using OpenMP, MPI, and</span>
+<span class=hljs-addition>+pthreads while touching upon things like locks and atomics. We were shown</span>
+<span class=hljs-addition>+examples of parallel algorithms with special focus on prefix sums and sorting.</span>
+<span class=hljs-addition>+Then we got into load balancing, isoefficiency, topologies, and fault tolerance.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The projects were also, in general, very good and focused on improving program</span>
+<span class=hljs-addition>+performance by using the topics being taught, and seeing the improvements by</span>
+<span class=hljs-addition>+benchmarking them on a cluster. The first one was matrix multiplication two</span>
+<span class=hljs-addition>+ways - tiled and transposed, the second one was another tile based decomposition</span>
+<span class=hljs-addition>+of a Gauss-Seidel program, the third was a gas particle simulation, and the</span>
+<span class=hljs-addition>+final was a parallel sort.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, as I mentioned earlier, the organization was terrible. Most assignments</span>
+<span class=hljs-addition>+after the first were released late, and there was minimal feedback for anything.</span>
+<span class=hljs-addition>+The gas particle simulation only used half of the grading criteria, which meant</span>
+<span class=hljs-addition>+effort spent on the other half was just wasted. Sometimes the criteria was just</span>
+<span class=hljs-addition>+outdated, and despite asking about it weeks before the deadline, there would be</span>
+<span class=hljs-addition>+no answer until the due date.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While I thought the course was definitely harder compared to databases, this</span>
+<span class=hljs-addition>+course either has the worst students, is virtually impossible to some, or a</span>
+<span class=hljs-addition>+combination of both. I&#x27;ll start off with this one note from the instructor which</span>
+<span class=hljs-addition>+should put things into perspective:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Hi Everyone, we have already written about this in a post at the beginning of</span>
+<span class=hljs-addition>+&gt; the course but it unfortunately needs to be said again.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; You should NEVER post entire code as that constitutes as cheating.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; You can post errors, ask specific questions, or post a tiny code snippet (i.e.</span>
+<span class=hljs-addition>+&gt; 2-3 lines) to check if you&#x27;re doing something correctly, but you cannot simply</span>
+<span class=hljs-addition>+&gt; post entire code and ask for people to help you debug it. That is YOUR job as</span>
+<span class=hljs-addition>+&gt; part of the assignment.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; This is an upper-division course so it is concerning that this even needs to</span>
+<span class=hljs-addition>+&gt; be stated. You should know how to debug your code by now, and if you do need</span>
+<span class=hljs-addition>+&gt; help then you can make a private post for instructors only or come to office</span>
+<span class=hljs-addition>+&gt; hours with specific questions.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Yes, multiple people posted their (unformatted) code to the public forums</span>
+<span class=hljs-addition>+looking for help. People have also posted exam questions and their answers to</span>
+<span class=hljs-addition>+the forums to check if they&#x27;re correct or not... during the exam. Pretty crazy</span>
+<span class=hljs-addition>+for graduate school.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unfortunately the forum has the option to be fully anonymous so I&#x27;m not sure if</span>
+<span class=hljs-addition>+all the students could be caught.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another thing to look at would be the fact that the gas simulation project was</span>
+<span class=hljs-addition>+due a couple of weeks ago. While we did have several weeks to complete it, a</span>
+<span class=hljs-addition>+majority of people must have put it off because there were so, so many people</span>
+<span class=hljs-addition>+mentioning that the cluster queues were backed up from others using it at the</span>
+<span class=hljs-addition>+same time (this is exacerbated by the fact that the program itself takes 10</span>
+<span class=hljs-addition>+minutes to run normally and people were submitting code that would run until a 1</span>
+<span class=hljs-addition>+hour timeout due to deadlocks). I have a suspicion that a lot of people did not</span>
+<span class=hljs-addition>+do well on that project, though it could just be a vocal few.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So is my &quot;you&#x27;re probably not determined/focused enough for graduate school&quot;</span>
+<span class=hljs-addition>+rant from my last post justified? I&#x27;d like to think so.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The forums were decent outside of the begging for extensions and grade</span>
+<span class=hljs-addition>+improvements. I actually answered like 60% of the questions there. Where&#x27;s my</span>
+<span class=hljs-addition>+extra credit? It even supports latex... I can actually post some of my answers</span>
+<span class=hljs-addition>+because why not</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD033 --&gt;</span>
+<span class=hljs-addition>+&lt;details&gt;</span>
+<span class=hljs-addition>+&lt;summary&gt;Fault Tolerance&lt;/summary&gt;</span>
+<span class=hljs-addition>+Where did you get those equations? I used</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\tau(\text{opt}) = \sqrt{2\delta(M + R)}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+For finding the optimal check point period. Previously it was 16:</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\tau_{old} = 16 = \sqrt{2\delta_1(M + R)} \Rightarrow \delta_1(M + R) = 128</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+Checkpointing overhead is reduced by 4x, i.e. checkpointing is 4x faster than before</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\delta_1 = 4\delta_2 \Rightarrow \delta_2(M+R) = 32</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+Then you can solve it again with that</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\tau_{new}= \sqrt{2\delta_2(M + R)} = \sqrt{2 * 32} = 8</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+&lt;/details&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;details&gt;</span>
+<span class=hljs-addition>+&lt;summary&gt;Isoefficiency&lt;/summary&gt;</span>
+<span class=hljs-addition>+It&#x27;s communication divided by computation</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+problem size ($N$) to work ($w$): $w = N^2 \Rightarrow \sqrt{w} = N$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+communication divided by computation:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\frac{N *log(p)}{\sqrt{p}} /</span>
+<span class=hljs-addition>+\frac{N^2}{p} = \frac{p* log(p)}{N\sqrt{p}} = \frac{p *</span>
+<span class=hljs-addition>+log(p)}{\sqrt{w}\sqrt{p}}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+substitute work in:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+k_1 =  \frac{p *log(p)}{\sqrt{w}\sqrt{p}} \Rightarrow</span>
+<span class=hljs-addition>+k_1\sqrt{w} =  \frac{p* log(p)}{\sqrt{p}} \Rightarrow {k_1}^2w = p *log(p)^2</span>
+<span class=hljs-addition>+\Rightarrow w = k_2* p * log(p)^2</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$k_1$ is just a constant so $1/{k_1}^2$ is just another constant I&#x27;m calling</span>
+<span class=hljs-addition>+$k_2$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/details&gt;</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD033 --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s really just basic math and knowing what formula to use, but I guess that&#x27;s</span>
+<span class=hljs-addition>+computer science.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For this class, the final sorting project (15%) and the final exam (25%) are</span>
+<span class=hljs-addition>+still pending. I&#x27;ve finished the project though, so really it&#x27;s just the final</span>
+<span class=hljs-addition>+in a week which will be open book anyways. Because the class has been</span>
+<span class=hljs-addition>+historically difficult, it uses 15 point intervals (85 A, 70 B, etc), which</span>
+<span class=hljs-addition>+means only an 85% should be necessary for an A, and right now I have around a</span>
+<span class=hljs-addition>+58/60, which means I could get 65%s on both final project and final exam and</span>
+<span class=hljs-addition>+come out with an A.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## summer semester</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve also registered for 3 classes this summer. They should be a lot easier than</span>
+<span class=hljs-addition>+what I&#x27;m currently taking.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
