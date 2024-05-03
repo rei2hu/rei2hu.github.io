@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>another game project</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/98>&lt; grad school semester 1 end</a></div>
+</nav>
+<h1 id=another-game-project>another game project</h1>
+<p>I spent the last 2 months working on a multiplayer game, and I think it's been a pretty successful project. It's been live for 1 month and I thought it would be interesting to discuss the changes to game mechanics and balance that I made so far.</p>
+<p>The premise is that a city is locked down and criminals are freely committing crimes while cops try to stop them… with guns.</p>
+<p>Locations to do crimes at spawn randomly around the area and consist of the following activities:</p>
+<ol>
+<li>Wait in place</li>
+<li>Wait in place while making a ruckus</li>
+<li>Wait in place (requires multiple players)</li>
+<li>Go from point A to point B</li>
+</ol>
+<p>The reward for each crime depends on the activity, and when a crime is committed, there is a chance for the criminal's position to be temporarily revealed, allowing cops to encounter and chase after them more easily.</p>
+<p>Once criminals have exceeded a predefined threshold, all of their positions will be revealed and after some delay holes start appearing in the lockdown border allowing them to escape.</p>
+<p>This was the first iteration of the game and it was pretty well received, though there were a lot of issues, mainly around balance.</p>
+<p>A very big issue was related to the reward quota scaling, which was a multiple of the number of criminals. If too many criminals died early or without doing their fair share, then the few remaining criminals could not complete enough crimes to reach the escape phase. In fact, I don't think many games ever reached the escape phase of the game. Instead of making changes to how efficiently cops could chase or kill criminals, I created a new high value job that would spawn at a criminals death, allowing for others to make up for their lack of contribution.</p>
+<p>That (and random bug fixes) was the main change in the next update. It definitely had the desired effect, as the quota was reached much more often, advancing the game to the escape phase.</p>
+<p>The game was getting popular and had around 30 people in a match but also had upwards of 70. This was not a scale I anticipated, but the game went smoothly though not with an ideal player experience.</p>
+<p>I realized that some scaling numbers, like the total amount of available crime locations at one time, should be hard capped because there were only around 500 set up, and the location was really too small to reveal more than 100 without it feeling cramped. I ended up capping that number among others.</p>
+<p>A new issue was that cops would underperform easily in games. Arguably the funnest part of this game is being a criminal in a chase, but teams are picked randomly. Sometimes a cop would leave, which meant there would be less cops, less chases, and less fun. However, despite chases being low in number, they were also typically lethal - an average cop could kill an average criminal in one or two chases. I ended up doing a few things to handle this:</p>
+<ol>
+<li>Players can choose if they want to be considered for the police team at the start of the match</li>
+<li>Increased the ratio of cops to criminals</li>
+<li>Lowered the damage of police weapons</li>
+<li>Cops get upgraded weapons in the escape phase</li>
+</ol>
+<p>Overall, this meant that chases were more frequent but less lethal in the crime phase, while the escape phase became a slaughter-fest, which was great, as the escape phase really only lasts for a minute at most.</p>
+<p>Another issue was related to dying early, as there are no respawns. This would leave a player stuck in spectator mode until the end of the match, which is quite boring. I decided to write a workaround where they can respawn as a civilian and freely walk around to do random unrelated activities or help spot criminals. It's really a novelty rather than an actual solution, but I thought it would be fun enough to work.</p>
+<p>Those changes (and more bugfixes) made up the next update, and everything seems to be going as planned. Except for the civilian part. Civilians seem to be more interested in stalking police, and police seem more interested in shooting civilians for some reason. It's an interesting dynamic but I don't necessarily mind it.</p>
+<p>The main problems I'm thinking of handling now are:</p>
+<ol>
+<li>Handling the scenario where few criminals are left, and the quota is basically unreachable despite the new jobs</li>
+<li>Most of the jobs are boring activities (wait in a spot)</li>
+</ol>
+<p>There are some pretty simple solutions for the first one, like automatically starting the escape phase, but the second is slightly more difficult as I'm constrained by the system.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/98>&lt; grad school semester 1 end</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-05-03 - add post 99</summary>
+<pre class=code-block><input id=code-block-3fa6bb32b4757cce3cf3b279d38132a39faeaca5-1 type=checkbox><label for=code-block-3fa6bb32b4757cce3cf3b279d38132a39faeaca5-1></label><code><span class=hljs-meta>@@ -0,0 +1,90 @@</span>
+<span class=hljs-addition>+# another game project</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I spent the last 2 months working on a multiplayer game, and I think it&#x27;s been a</span>
+<span class=hljs-addition>+pretty successful project. It&#x27;s been live for 1 month and I thought it would be</span>
+<span class=hljs-addition>+interesting to discuss the changes to game mechanics and balance that I made so</span>
+<span class=hljs-addition>+far.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The premise is that a city is locked down and criminals are freely committing</span>
+<span class=hljs-addition>+crimes while cops try to stop them... with guns.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Locations to do crimes at spawn randomly around the area and consist of the</span>
+<span class=hljs-addition>+following activities:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Wait in place</span>
+<span class=hljs-addition>+2. Wait in place while making a ruckus</span>
+<span class=hljs-addition>+3. Wait in place (requires multiple players)</span>
+<span class=hljs-addition>+4. Go from point A to point B</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The reward for each crime depends on the activity, and when a crime is</span>
+<span class=hljs-addition>+committed, there is a chance for the criminal&#x27;s position to be temporarily</span>
+<span class=hljs-addition>+revealed, allowing cops to encounter and chase after them more easily.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Once criminals have exceeded a predefined threshold, all of their positions will</span>
+<span class=hljs-addition>+be revealed and after some delay holes start appearing in the lockdown border</span>
+<span class=hljs-addition>+allowing them to escape.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This was the first iteration of the game and it was pretty well received, though</span>
+<span class=hljs-addition>+there were a lot of issues, mainly around balance.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A very big issue was related to the reward quota scaling, which was a multiple</span>
+<span class=hljs-addition>+of the number of criminals. If too many criminals died early or without doing</span>
+<span class=hljs-addition>+their fair share, then the few remaining criminals could not complete enough</span>
+<span class=hljs-addition>+crimes to reach the escape phase. In fact, I don&#x27;t think many games ever reached</span>
+<span class=hljs-addition>+the escape phase of the game. Instead of making changes to how efficiently cops</span>
+<span class=hljs-addition>+could chase or kill criminals, I created a new high value job that would spawn</span>
+<span class=hljs-addition>+at a criminals death, allowing for others to make up for their lack of</span>
+<span class=hljs-addition>+contribution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+That (and random bug fixes) was the main change in the next update. It</span>
+<span class=hljs-addition>+definitely had the desired effect, as the quota was reached much more often,</span>
+<span class=hljs-addition>+advancing the game to the escape phase.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The game was getting popular and had around 30 people in a match but also had</span>
+<span class=hljs-addition>+upwards of 70. This was not a scale I anticipated, but the game went smoothly</span>
+<span class=hljs-addition>+though not with an ideal player experience.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I realized that some scaling numbers, like the total amount of available crime</span>
+<span class=hljs-addition>+locations at one time, should be hard capped because there were only around 500</span>
+<span class=hljs-addition>+set up, and the location was really too small to reveal more than 100 without it</span>
+<span class=hljs-addition>+feeling cramped. I ended up capping that number among others.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A new issue was that cops would underperform easily in games. Arguably the</span>
+<span class=hljs-addition>+funnest part of this game is being a criminal in a chase, but teams are picked</span>
+<span class=hljs-addition>+randomly. Sometimes a cop would leave, which meant there would be less cops,</span>
+<span class=hljs-addition>+less chases, and less fun. However, despite chases being low in number, they</span>
+<span class=hljs-addition>+were also typically lethal - an average cop could kill an average criminal in</span>
+<span class=hljs-addition>+one or two chases. I ended up doing a few things to handle this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Players can choose if they want to be considered for the police team at the</span>
+<span class=hljs-addition>+   start of the match</span>
+<span class=hljs-addition>+2. Increased the ratio of cops to criminals</span>
+<span class=hljs-addition>+3. Lowered the damage of police weapons</span>
+<span class=hljs-addition>+4. Cops get upgraded weapons in the escape phase</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Overall, this meant that chases were more frequent but less lethal in the crime</span>
+<span class=hljs-addition>+phase, while the escape phase became a slaughter-fest, which was great, as the</span>
+<span class=hljs-addition>+escape phase really only lasts for a minute at most.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another issue was related to dying early, as there are no respawns. This would</span>
+<span class=hljs-addition>+leave a player stuck in spectator mode until the end of the match, which is</span>
+<span class=hljs-addition>+quite boring. I decided to write a workaround where they can respawn as a</span>
+<span class=hljs-addition>+civilian and freely walk around to do random unrelated activities or help spot</span>
+<span class=hljs-addition>+criminals. It&#x27;s really a novelty rather than an actual solution, but I thought</span>
+<span class=hljs-addition>+it would be fun enough to work.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Those changes (and more bugfixes) made up the next update, and everything seems</span>
+<span class=hljs-addition>+to be going as planned. Except for the civilian part. Civilians seem to be more</span>
+<span class=hljs-addition>+interested in stalking police, and police seem more interested in shooting</span>
+<span class=hljs-addition>+civilians for some reason. It&#x27;s an interesting dynamic but I don&#x27;t necessarily</span>
+<span class=hljs-addition>+mind it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The main problems I&#x27;m thinking of handling now are:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Handling the scenario where few criminals are left, and the quota is</span>
+<span class=hljs-addition>+   basically unreachable despite the new jobs</span>
+<span class=hljs-addition>+2. Most of the jobs are boring activities (wait in a spot)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There are some pretty simple solutions for the first one, like automatically</span>
+<span class=hljs-addition>+starting the escape phase, but the second is slightly more difficult as I&#x27;m</span>
+<span class=hljs-addition>+constrained by the system.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
