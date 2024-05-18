@@ -60,12 +60,22 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <p>Unfortunately the forum has the option to be fully anonymous so I'm not sure if all the students could be caught.</p>
 <p>Another thing to look at would be the fact that the gas simulation project was due a couple of weeks ago. While we did have several weeks to complete it, a majority of people must have put it off because there were so, so many people mentioning that the cluster queues were backed up from others using it at the same time (this is exacerbated by the fact that the program itself takes 10 minutes to run normally and people were submitting code that would run until a 1 hour timeout due to deadlocks). I have a suspicion that a lot of people did not do well on that project, though it could just be a vocal few.</p>
 <p>So is my "you're probably not determined/focused enough for graduate school" rant from my last post justified? I'd like to think so.</p>
-<p>The forums were decent outside of the begging for extensions and grade improvements. I actually answered like 60% of the questions there. Where's my extra credit? It even supports latex… I can actually post some of my answers because why not</p>
+<p>The forums were decent outside of the begging for extensions and grade improvements.</p>
+<p></p><details>
+<summary>asking for an extension on the final project on the day it's due</summary>
+<img alt="student asking for extension" src=/blobs/98/extension.png>
+At some point it's on you for taking too much work, right…?
+</details>
+<details>
+<summary>expecting partial credit for benchmarks on a program that is inaccurate</summary>
+<img alt="student asking for grades" src=/blobs/98/grades.png>
+</details><p></p>
+<p>I actually answered like 60% of the real questions there. Where's my extra credit? It even supported latex, which is pretty cool though I guess is table stakes for higher education forums. I can actually post some of my answers because why not; I took the time to write them out there.</p>
 <p></p><details>
 <summary>Fault Tolerance</summary>
 Where did you get those equations? I used $$ \tau(\text{opt}) = \sqrt{2\delta(M + R)} $$ For finding the optimal check point period. Previously it was 16: $$ \tau_{old} = 16 = \sqrt{2\delta_1(M + R)} \Rightarrow \delta_1(M + R) = 128 $$ Checkpointing overhead is reduced by 4x, i.e. checkpointing is 4x faster than before $$ \delta_1 = 4\delta_2 \Rightarrow \delta_2(M+R) = 32 $$ Then you can solve it again with that $$ \tau_{new}= \sqrt{2\delta_2(M + R)} = \sqrt{2 * 32} = 8 $$
-</details><p></p>
-<p></p><details>
+</details>
+<details>
 <summary>Isoefficiency</summary>
 It's communication divided by computation<p></p>
 <p>problem size ($N$) to work ($w$): $w = N^2 \Rightarrow \sqrt{w} = N$</p>
@@ -85,6 +95,38 @@ It's communication divided by computation<p></p>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-05-17 - update post 98: add more forum details</summary>
+<pre class=code-block><input id=code-block-59619ac747a95ab6e65e6e0ad8ebb99f466ec656-1 type=checkbox><label for=code-block-59619ac747a95ab6e65e6e0ad8ebb99f466ec656-1></label><code><span class=hljs-meta>@@ -116,5 +116,20 @@</span> rant from my last post justified? I&#x27;d like to think so.
+ The forums were decent outside of the begging for extensions and grade
+<span class=hljs-deletion>-improvements. I actually answered like 60% of the questions there. Where&#x27;s my</span>
+<span class=hljs-deletion>-extra credit? It even supports latex... I can actually post some of my answers</span>
+<span class=hljs-deletion>-because why not</span>
+<span class=hljs-addition>+improvements.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD033 --&gt;</span>
+<span class=hljs-addition>+&lt;details&gt;</span>
+<span class=hljs-addition>+&lt;summary&gt;asking for an extension on the final project on the day it&#x27;s due&lt;/summary&gt;</span>
+<span class=hljs-addition>+![student asking for extension](/blobs/98/extension.png)</span>
+<span class=hljs-addition>+At some point it&#x27;s on you for taking too much work, right...?</span>
+<span class=hljs-addition>+&lt;/details&gt;</span>
+<span class=hljs-addition>+&lt;details&gt;</span>
+<span class=hljs-addition>+&lt;summary&gt;expecting partial credit for benchmarks on a program that is inaccurate&lt;/summary&gt;</span>
+<span class=hljs-addition>+![student asking for grades](/blobs/98/grades.png)</span>
+<span class=hljs-addition>+&lt;/details&gt;</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD033 --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I actually answered like 60% of the real questions there. Where&#x27;s my extra</span>
+<span class=hljs-addition>+credit? It even supported latex, which is pretty cool though I guess is table</span>
+<span class=hljs-addition>+stakes for higher education forums. I can actually post some of my answers</span>
+<span class=hljs-addition>+because why not; I took the time to write them out there.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-59619ac747a95ab6e65e6e0ad8ebb99f466ec656-2 type=checkbox><label for=code-block-59619ac747a95ab6e65e6e0ad8ebb99f466ec656-2></label><code><span class=hljs-meta>@@ -140,3 +155,2 @@</span> $$
+ &lt;/details&gt;
+<span class=hljs-deletion>-</span>
+ &lt;details&gt;
+</code></pre>
+</details>
 <details>
 <summary>2024-05-17 - update post 98: add grades</summary>
 <pre class=code-block><input id=code-block-bf214d7ad63db7a0feaa35ac7a43bca9867aaecc-1 type=checkbox><label for=code-block-bf214d7ad63db7a0feaa35ac7a43bca9867aaecc-1></label><code><span class=hljs-meta>@@ -179,2 +179,6 @@</span> come out with an A.
