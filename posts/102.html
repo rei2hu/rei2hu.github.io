@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>dropping a table with constraints</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/101>&lt; an observation of virtual avatars</a></div>
+</nav>
+<h1 id=dropping-a-table-with-constraints>dropping a table with constraints</h1>
+<p>If you can't drop an unused table with constraints due to deadlock issues, try dropping the constraints individually first.</p>
+<p>Recently someone was cleaning up a large table by detaching and dropping an unused partition in postgres. It lead to a deadlock message.</p>
+<pre class=code-block><input id=code-block-102-1 type=checkbox><label for=code-block-102-1></label><code>prod=&gt; drop table r1_partition;
+ERROR: deadlock detected
+DETAIL: Process p1 waits <span class=hljs-keyword>for</span> AccessExclusiveLock on relation r2 of database d1;
+blocked by process p2. Process p2 waits <span class=hljs-keyword>for</span> AccessShareLock on relation r3 of
+database d1; blocked by process p1.
+
+Time: 20000 ms
+</code></pre>
+<p>We can easily see the deadlock where p1 has a lock on what p2 wants, and p2 has a lock on what p1 wants. Checking the server log lead to seeing a query like the following:</p>
+<pre class=code-block><input id=code-block-102-2 type=checkbox><label for=code-block-102-2></label><code><span class=hljs-keyword>select</span> <span class=hljs-operator>*</span> <span class=hljs-keyword>from</span> r2 <span class=hljs-keyword>join</span> r3 <span class=hljs-keyword>join</span> r4
+</code></pre>
+<p>The important thing to note is that this query is not related, at all to r1_partition. However it is joining tables that r1_partition has references to.</p>
+<p>While I haven't verified this explanation, I believe the reason is this:</p>
+<p>Postgres implements foreign key references by using triggers. Deleting a trigger requires Access Exclusive locks on the table, so dropping a table requires Access Exclusive locks on all referenced tables.</p>
+<p>The select requires Access Shared locks on some of those tables which conflicted with the Access Exclusive locks.</p>
+<p>It was able to get a lock on r2 while the drop process was able to acquire its lock for r3, which caused the deadlock when trying to drop the partition.</p>
+<pre class=code-block><input id=code-block-102-3 type=checkbox><label for=code-block-102-3></label><code>Foreign-key constraints:
+    <span class=hljs-string>&quot;fk1&quot;</span> FOREIGN KEY (x) references r2(x)
+    <span class=hljs-string>&quot;fk2&quot;</span> FOREIGN KEY (y) references r3(x)
+</code></pre>
+<p>The way we got around this was to drop the constraint first.</p>
+<pre class=code-block><input id=code-block-102-4 type=checkbox><label for=code-block-102-4></label><code>prod=&gt; alter table r1_partition drop constraint fk1;
+ALTER TABLE
+Time: 25000 ms
+prod =&gt; drop table r1_partition;
+DROP TABLE
+TIME: 100ms
+</code></pre>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/101>&lt; an observation of virtual avatars</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-05-18 - add post 102</summary>
+<pre class=code-block><input id=code-block-c761eab830b73d769b856b5f0e46d0eae828f294-1 type=checkbox><label for=code-block-c761eab830b73d769b856b5f0e46d0eae828f294-1></label><code><span class=hljs-meta>@@ -0,0 +1,57 @@</span>
+<span class=hljs-addition>+# dropping a table with constraints</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If you can&#x27;t drop an unused table with constraints due to deadlock issues, try</span>
+<span class=hljs-addition>+dropping the constraints individually first.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently someone was cleaning up a large table by detaching and dropping an</span>
+<span class=hljs-addition>+unused partition in postgres. It lead to a deadlock message.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+prod=&gt; drop table r1_partition;</span>
+<span class=hljs-addition>+ERROR: deadlock detected</span>
+<span class=hljs-addition>+DETAIL: Process p1 waits for AccessExclusiveLock on relation r2 of database d1;</span>
+<span class=hljs-addition>+blocked by process p2. Process p2 waits for AccessShareLock on relation r3 of</span>
+<span class=hljs-addition>+database d1; blocked by process p1.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Time: 20000 ms</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can easily see the deadlock where p1 has a lock on what p2 wants, and p2 has</span>
+<span class=hljs-addition>+a lock on what p1 wants. Checking the server log lead to seeing a query like the</span>
+<span class=hljs-addition>+following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sql</span>
+<span class=hljs-addition>+select * from r2 join r3 join r4</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The important thing to note is that this query is not related, at all to</span>
+<span class=hljs-addition>+r1\_partition. However it is joining tables that r1_partition has references to.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While I haven&#x27;t verified this explanation, I believe the reason is this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Postgres implements foreign key references by using triggers. Deleting a trigger</span>
+<span class=hljs-addition>+requires Access Exclusive locks on the table, so dropping a table requires</span>
+<span class=hljs-addition>+Access Exclusive locks on all referenced tables.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The select requires Access Shared locks on some of those tables which conflicted</span>
+<span class=hljs-addition>+with the Access Exclusive locks.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It was able to get a lock on r2 while the drop process was able to acquire its</span>
+<span class=hljs-addition>+lock for r3, which caused the deadlock when trying to drop the partition.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+Foreign-key constraints:</span>
+<span class=hljs-addition>+    &quot;fk1&quot; FOREIGN KEY (x) references r2(x)</span>
+<span class=hljs-addition>+    &quot;fk2&quot; FOREIGN KEY (y) references r3(x)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The way we got around this was to drop the constraint first.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```sh</span>
+<span class=hljs-addition>+prod=&gt; alter table r1_partition drop constraint fk1;</span>
+<span class=hljs-addition>+ALTER TABLE</span>
+<span class=hljs-addition>+Time: 25000 ms</span>
+<span class=hljs-addition>+prod =&gt; drop table r1_partition;</span>
+<span class=hljs-addition>+DROP TABLE</span>
+<span class=hljs-addition>+TIME: 100ms</span>
+<span class=hljs-addition>+```</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
