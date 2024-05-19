@@ -1,11 +1,7 @@
-const obfus = require("javascript-obfuscator");
-const { minify } = require("html-minifier");
+/* eslint-disable global-require */
 const { execSync } = require("child_process");
-const CleanCss = require("clean-css");
 const fs = require("fs");
 const path = require("path");
-const pack = require("js-bmp-packer");
-const sharp = require("sharp");
 const util = require("./build-util");
 const { minifyHtmlOpts, obfusJsOpts } = require("./build-options");
 const { processThenCopyMd } = require("./package-md");
@@ -46,7 +42,9 @@ if (all || blobs) {
 				);
 
 				if (imageData.buffer.byteLength >= 1024 * 1024) {
-					imageData = await sharp(imageData).resize(640).toBuffer();
+					imageData = await require("sharp")(imageData)
+						.resize(640)
+						.toBuffer();
 				}
 
 				// can we work util.copyFiles into this somehow without
@@ -73,7 +71,10 @@ if (all || assets) {
 		(f) => f.endsWith(".html") || f === "favicon.svg" || f === "robots.txt",
 		(content, f) =>
 			f.endsWith(".html")
-				? minify(String(content), minifyHtmlOpts)
+				? require("html-minifier").minify(
+						String(content),
+						minifyHtmlOpts
+				  )
 				: content
 	);
 }
@@ -88,7 +89,9 @@ if (all || css) {
 		(content, file) => {
 			if (file.endsWith(".ttf")) return content;
 
-			const minified = new CleanCss({}).minify(String(content));
+			const minified = new (require("clean-css"))({}).minify(
+				String(content)
+			);
 			if (minified.warnings.length > 0) {
 				console.warn(String(content), minified.warnings);
 				return content;
@@ -110,7 +113,7 @@ function p(scriptContents, file) {
 
 	const resultScriptBuf = file.endsWith(".js")
 		? Buffer.from(
-				obfus
+				require("javascript-obfuscator")
 					.obfuscate(scriptContents.toString(), obfusJsOpts)
 					.getObfuscatedCode()
 		  )
@@ -121,7 +124,10 @@ function p(scriptContents, file) {
 			path.resolve("src", "images", resultName)
 		);
 
-		const obfusImageScript = pack(imageContents, resultScriptBuf);
+		const obfusImageScript = require("js-bmp-packer")(
+			imageContents,
+			resultScriptBuf
+		);
 		return {
 			file: resultName,
 			content: obfusImageScript,
