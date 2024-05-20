@@ -1,3 +1,7 @@
+/* clean-css ignore:start */
+@layer content, layout, lights, mail;
+/* clean-css ignore:end */
+
 :root {
 	--body-width: 80ch;
 	--nav-padding: 1em;
@@ -202,15 +206,18 @@
 		margin-top: 3em;
 		position: relative;
 		width: 100%;
+		gap: 3px;
 	}
 
 	.commit-list > details > summary {
-		margin-left: 1em;
-		cursor: pointer;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		line-height: 200%;
+		padding: 0;
+		margin: 0;
+		margin-left: 1em;
+		border: none;
 	}
 
 	.commit-list > details[open] > summary {
@@ -328,6 +335,27 @@
 		padding-left: 1em;
 		border-left: 4px var(--fg-3) solid;
 		color: var(--fg-3);
+	}
+
+	details {
+		border-bottom: 1px solid var(--fg-3);
+		padding: 0.5em;
+	}
+
+	details > summary {
+		cursor: pointer;
+	}
+
+	details[open] {
+		border-bottom: none;
+		padding: 0;
+		padding-bottom: 0.5em;
+	}
+
+	details[open] > summary {
+		border-bottom: 1px solid var(--fg-3);
+		padding: 0.5em;
+		margin-bottom: 0.5em;
 	}
 
 	/* codeblock styling */
