@@ -61,40 +61,212 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <p>Another thing to look at would be the fact that the gas simulation project was due a couple of weeks ago. While we did have several weeks to complete it, a majority of people must have put it off because there were so, so many people mentioning that the cluster queues were backed up from others using it at the same time (this is exacerbated by the fact that the program itself takes 10 minutes to run normally and people were submitting code that would run until a 1 hour timeout due to deadlocks). I have a suspicion that a lot of people did not do well on that project, though it could just be a vocal few.</p>
 <p>So is my "you're probably not determined/focused enough for graduate school" rant from my last post justified? I'd like to think so.</p>
 <p>The forums were decent outside of the begging for extensions and grade improvements.</p>
-<p></p><details>
-<summary>Asking for an extension on the final project on the day it's due</summary>
-<img alt="student asking for extension" src=/blobs/98/extension.png>
-At some point it's on you for taking too much work, right…?
-</details>
-<details>
-<summary>Expecting partial credit for benchmarks on a program that is inaccurate</summary>
-<img alt="student asking for grades" src=/blobs/98/grades.png>
-</details><p></p>
+<p></p><details><summary>asking for an extension on the final project on the day it's due</summary><p>
+<img alt="student asking for extension" src=/blobs/98/extension.png> At some point it's on you for taking too much work, right…?</p></details><p></p>
+<p></p><details><summary>expecting partial credit for benchmarks on a program that is inaccurate</summary><p> <img alt="student asking for grades" src=/blobs/98/grades.png></p></details><p></p>
 <p>I actually answered like 60% of the real questions there. Where's my extra credit? It even supported latex, which is pretty cool though I guess is table stakes for higher education forums. I can actually post some of my answers because why not; I took the time to write them out there.</p>
-<p></p><details>
-<summary>Fault Tolerance</summary>
-Where did you get those equations? I used $$ \tau(\text{opt}) = \sqrt{2\delta(M + R)} $$ For finding the optimal check point period. Previously it was 16: $$ \tau_{old} = 16 = \sqrt{2\delta_1(M + R)} \Rightarrow \delta_1(M + R) = 128 $$ Checkpointing overhead is reduced by 4x, i.e. checkpointing is 4x faster than before $$ \delta_1 = 4\delta_2 \Rightarrow \delta_2(M+R) = 32 $$ Then you can solve it again with that $$ \tau_{new}= \sqrt{2\delta_2(M + R)} = \sqrt{2 * 32} = 8 $$
-</details>
-<details>
-<summary>Isoefficiency</summary>
-It's communication divided by computation<p></p>
+<p></p><details><summary>fault tolerance</summary><p>Where did you get those equations? I used</p>
+<p>$$ \tau(\text{opt}) = \sqrt{2\delta(M + R)} $$</p>
+<p>For finding the optimal check point period. Previously it was 16:</p>
+<p>$$ \tau_{old} = 16 = \sqrt{2\delta_1(M + R)} \Rightarrow \delta_1(M + R) = 128 $$</p>
+<p>Checkpointing overhead is reduced by 4x, i.e. checkpointing is 4x faster than before</p>
+<p>$$ \delta_1 = 4\delta_2 \Rightarrow \delta_2(M+R) = 32 $$</p>
+<p>Then you can solve it again with that</p>
+<p>$$ \tau_{new}= \sqrt{2\delta_2(M + R)} = \sqrt{2 * 32} = 8 $$</p>
+<p>So that's the answer</p></details><p></p>
+<p></p><details><summary>isoefficiency</summary><p>It's communication divided by computation</p>
 <p>problem size ($N$) to work ($w$): $w = N^2 \Rightarrow \sqrt{w} = N$</p>
 <p>communication divided by computation:</p>
 <p>$$ \frac{N *log(p)}{\sqrt{p}} / \frac{N^2}{p} = \frac{p* log(p)}{N\sqrt{p}} = \frac{p * log(p)}{\sqrt{w}\sqrt{p}} $$</p>
 <p>substitute work in:</p>
-<p>$$ k_1 = \frac{p *log(p)}{\sqrt{w}\sqrt{p}} \Rightarrow k_1\sqrt{w} = \frac{p* log(p)}{\sqrt{p}} \Rightarrow {k_1}^2w = p *log(p)^2 \Rightarrow w = k_2* p * log(p)^2 $$ $k_1$ is just a constant so $1/{k_1}^2$ is just another constant I'm calling $k_2$
-</p></details><p></p>
+<p>$$ k_1 = \frac{p *log(p)}{\sqrt{w}\sqrt{p}} \Rightarrow k_1\sqrt{w} = \frac{p* log(p)}{\sqrt{p}} \Rightarrow {k_1}^2w = p *log(p)^2 \Rightarrow w = k_2* p * log(p)^2 $$ $k_1$ is just a constant so $1/{k_1}^2$ is just another constant I'm calling $k_2$</p></details><p></p>
 <p>It's really just basic math and knowing what formula to use, but I guess that's computer science.</p>
 <p>For this class, the final sorting project (15%) and the final exam (25%) are still pending. I've finished the project though, so really it's just the final in a week which will be open book anyways. Because the class has been historically difficult, it uses 15 point intervals (85 A, 70 B, etc), which means only an 85% should be necessary for an A, and right now I have around a 58/60, which means I could get 65%s on both final project and final exam and come out with an A.</p>
 <p>Update: I got an A+ in all of my classes. I honestly did not expect it considering how I slacked off towards the end and started dropping points, but I guess that's the way the cookie crumbles.</p>
 <h2 id=summer-semester>summer semester</h2>
 <p>I've also registered for 3 classes this summer. They should be a lot easier than what I'm currently taking.</p>
+<h2 id=observation-on-llm-usage-by-students>observation on llm usage by students</h2>
+<p>There also looks to be a decent amount of people relying on LLMs for basic information, which is concerning in my opinion.</p>
+<p></p><details><summary>suggesting gpt for cmake</summary><p>
+<img alt="student suggesting gpt to figure out cmake configuration" src=/blobs/98/cmake-gpt.png>
+Opening the cmake file showed <code>set(CMAKE_CXX_FLAGS "-O3 -Wfatal-errors")</code>
+existed but symbols were not being stripped. We even specifically covered optimization levels and other flags so it should be known…</p></details><p></p>
+<p></p><details><summary>using gemini for gitlab cloning instructions</summary><p>
+<img alt="student using gemini to figure out gitlab setup instead of normal docs" src=/blobs/98/gitlab-gemini.png>
+Did you know gitlab has <a href=https://docs.gitlab.com/ee/user/ssh.html>a page</a> for that?</p>
+<p><img alt="student giving a wrong suggestion based on gemini output" src=/blobs/98/gitlab-gemini-2.png>
+Actually the issue was <a href=/posts/93>this</a></p></details><p></p>
+<p></p><details><summary>failing to use chatgpt to figure out case insensitive regexes</summary><p>
+<img alt="student asking for help after gpt answers inaccurately" src=/blobs/98/case-gpt.png>
+To be fair this was more a user issue because the scenario that this was required for was not within a normal python script and they did not know how to use the information.</p></details><p></p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/97>&lt; a weird cpp error</a></div> <div style=text-align:end><a href=/./posts/99>another game project &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-05-20 - update post 98: for new details tagging</summary>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-1 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-1></label><code><span class=hljs-meta>@@ -118,13 +118,8 @@</span> improvements.
+
+<span class=hljs-deletion>-&lt;!-- markdownlint-disable MD033 --&gt;</span>
+<span class=hljs-deletion>-&lt;details&gt;</span>
+<span class=hljs-deletion>-&lt;summary&gt;Asking for an extension on the final project on the day it&#x27;s due&lt;/summary&gt;</span>
+<span class=hljs-deletion>-![student asking for extension](/blobs/98/extension.png)</span>
+<span class=hljs-deletion>-At some point it&#x27;s on you for taking too much work, right...?</span>
+<span class=hljs-deletion>-&lt;/details&gt;</span>
+<span class=hljs-deletion>-&lt;details&gt;</span>
+<span class=hljs-deletion>-&lt;summary&gt;Expecting partial credit for benchmarks on a program that is inaccurate&lt;/summary&gt;</span>
+<span class=hljs-deletion>-![student asking for grades](/blobs/98/grades.png)</span>
+<span class=hljs-deletion>-&lt;/details&gt;</span>
+<span class=hljs-deletion>-&lt;!-- markdownlint-enable MD033 --&gt;</span>
+<span class=hljs-addition>+[^details=asking for an extension on the final project on the day it&#x27;s due^] [^(</span>
+<span class=hljs-addition>+![student asking for extension](/blobs/98/extension.png) At some point it&#x27;s on</span>
+<span class=hljs-addition>+you for taking too much work, right...?)^]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[^details=expecting partial credit for benchmarks on a program that is</span>
+<span class=hljs-addition>+inaccurate^] [^( ![student asking for grades](/blobs/98/grades.png))^]</span>
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-2 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-2></label><code><span class=hljs-meta>@@ -135,6 +130,4 @@</span> because why not; I took the time to write them out there.
+
+<span class=hljs-deletion>-&lt;!-- markdownlint-disable MD033 --&gt;</span>
+<span class=hljs-deletion>-&lt;details&gt;</span>
+<span class=hljs-deletion>-&lt;summary&gt;Fault Tolerance&lt;/summary&gt;</span>
+<span class=hljs-deletion>-Where did you get those equations? I used</span>
+<span class=hljs-addition>+[^details=fault tolerance^] [^(Where did you get those equations? I used</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-3 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-3></label><code><span class=hljs-meta>@@ -142,3 +135,5 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ For finding the optimal check point period. Previously it was 16:
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-4 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-4></label><code><span class=hljs-meta>@@ -146,3 +141,6 @@</span> $$
+ $$
+<span class=hljs-deletion>-Checkpointing overhead is reduced by 4x, i.e. checkpointing is 4x faster than before</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Checkpointing overhead is reduced by 4x, i.e. checkpointing is 4x faster than</span>
+<span class=hljs-addition>+before</span>
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-5 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-5></label><code><span class=hljs-meta>@@ -150,3 +148,5 @@</span> $$
+ $$
+<span class=hljs-addition>+</span>
+ Then you can solve it again with that
+<span class=hljs-addition>+</span>
+ $$
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-6 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-6></label><code><span class=hljs-meta>@@ -154,6 +154,6 @@</span> $$
+ $$
+<span class=hljs-deletion>-&lt;/details&gt;</span>
+<span class=hljs-deletion>-&lt;details&gt;</span>
+<span class=hljs-deletion>-&lt;summary&gt;Isoefficiency&lt;/summary&gt;</span>
+<span class=hljs-deletion>-It&#x27;s communication divided by computation</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So that&#x27;s the answer)^]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[^details=isoefficiency^] [^(It&#x27;s communication divided by computation</span>
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-7 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-7></label><code><span class=hljs-meta>@@ -178,6 +178,3 @@</span> $$
+ $k_1$ is just a constant so $1/{k_1}^2$ is just another constant I&#x27;m calling
+<span class=hljs-deletion>-$k_2$</span>
+<span class=hljs-deletion>-</span>
+<span class=hljs-deletion>-&lt;/details&gt;</span>
+<span class=hljs-deletion>-&lt;!-- markdownlint-enable MD033 --&gt;</span>
+<span class=hljs-addition>+$k_2$)^]</span>
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-8 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-8></label><code><span class=hljs-meta>@@ -208,5 +205,3 @@</span> information, which is concerning in my opinion.
+
+<span class=hljs-deletion>-&lt;!-- markdownlint-disable MD033 --&gt;</span>
+<span class=hljs-deletion>-&lt;details&gt;</span>
+<span class=hljs-deletion>-&lt;summary&gt;suggesting gpt for cmake&lt;/summary&gt;</span>
+<span class=hljs-addition>+[^details=suggesting gpt for cmake^] [^(</span>
+ ![student suggesting gpt to figure out cmake configuration](/blobs/98/cmake-gpt.png)
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-9 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-9></label><code><span class=hljs-meta>@@ -214,6 +209,5 @@</span> Opening the cmake file showed `set(CMAKE_CXX_FLAGS &quot;-O3 -Wfatal-errors&quot;)`
+ existed but symbols were not being stripped. We even specifically covered
+<span class=hljs-deletion>-optimization levels and other flags so it should be known...</span>
+<span class=hljs-deletion>-&lt;/details&gt;</span>
+<span class=hljs-deletion>-&lt;details&gt;</span>
+<span class=hljs-deletion>-&lt;summary&gt;using gemini for gitlab cloning instructions&lt;/summary&gt;</span>
+<span class=hljs-addition>+optimization levels and other flags so it should be known...)^]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[^details=using gemini for gitlab cloning instructions^] [^(</span>
+ ![student using gemini to figure out gitlab setup instead of normal docs](/blobs/98/gitlab-gemini.png)
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-10 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-10></label><code><span class=hljs-meta>@@ -223,7 +217,5 @@</span> that?
+ ![student giving a wrong suggestion based on gemini output](/blobs/98/gitlab-gemini-2.png)
+<span class=hljs-deletion>-Actually the issue was [this](/posts/93)</span>
+<span class=hljs-addition>+Actually the issue was [this](/posts/93))^]</span>
+
+<span class=hljs-deletion>-&lt;/details&gt;</span>
+<span class=hljs-deletion>-&lt;details&gt;</span>
+<span class=hljs-deletion>-&lt;summary&gt;failing to use gpt to figure out case insensitive regexes&lt;/summary&gt;</span>
+<span class=hljs-addition>+[^details=failing to use chatgpt to figure out case insensitive regexes^] [^(</span>
+ ![student asking for help after gpt answers inaccurately](/blobs/98/case-gpt.png)
+</code></pre>
+<pre class=code-block><input id=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-11 type=checkbox><label for=code-block-7326b54287eed33c1a7d494c1dfc8ee161fb0593-11></label><code><span class=hljs-meta>@@ -231,4 +223,2 @@</span> To be fair this was more a user issue because the scenario that this was
+ required for was not within a normal python script and they did not know how to
+<span class=hljs-deletion>-use the information.</span>
+<span class=hljs-deletion>-&lt;/details&gt;</span>
+<span class=hljs-deletion>-&lt;!-- markdownlint-enable MD033 --&gt;</span>
+<span class=hljs-addition>+use the information.)^]</span>
+</code></pre>
+</details>
+<details>
+<summary>2024-05-20 - update post 98: add section about llm usage</summary>
+<pre class=code-block><input id=code-block-60e18f482199ba90e2dd49c09319fc0d24b5d1cc-1 type=checkbox><label for=code-block-60e18f482199ba90e2dd49c09319fc0d24b5d1cc-1></label><code><span class=hljs-meta>@@ -179,2 +179,3 @@</span> $k_1$ is just a constant so $1/{k_1}^2$ is just another constant I&#x27;m calling
+ $k_2$
+<span class=hljs-addition>+</span>
+ &lt;/details&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-60e18f482199ba90e2dd49c09319fc0d24b5d1cc-2 type=checkbox><label for=code-block-60e18f482199ba90e2dd49c09319fc0d24b5d1cc-2></label><code><span class=hljs-meta>@@ -194,4 +195,4 @@</span> come out with an A.
+ Update: I got an A+ in all of my classes. I honestly did not expect it
+<span class=hljs-deletion>-considering how I slacked off towards the end and started dropping points, but</span>
+<span class=hljs-deletion>-I guess that&#x27;s the way the cookie crumbles.</span>
+<span class=hljs-addition>+considering how I slacked off towards the end and started dropping points, but I</span>
+<span class=hljs-addition>+guess that&#x27;s the way the cookie crumbles.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-60e18f482199ba90e2dd49c09319fc0d24b5d1cc-3 type=checkbox><label for=code-block-60e18f482199ba90e2dd49c09319fc0d24b5d1cc-3></label><code>@@ -201 +202,33 @@ I&#x27;ve also registered for 3 classes this summer. They should be a lot easier than
+ what I&#x27;m currently taking.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## observation on llm usage by students</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There also looks to be a decent amount of people relying on LLMs for basic</span>
+<span class=hljs-addition>+information, which is concerning in my opinion.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD033 --&gt;</span>
+<span class=hljs-addition>+&lt;details&gt;</span>
+<span class=hljs-addition>+&lt;summary&gt;suggesting gpt for cmake&lt;/summary&gt;</span>
+<span class=hljs-addition>+![student suggesting gpt to figure out cmake configuration](/blobs/98/cmake-gpt.png)</span>
+<span class=hljs-addition>+Opening the cmake file showed `set(CMAKE_CXX_FLAGS &quot;-O3 -Wfatal-errors&quot;)`</span>
+<span class=hljs-addition>+existed but symbols were not being stripped. We even specifically covered</span>
+<span class=hljs-addition>+optimization levels and other flags so it should be known...</span>
+<span class=hljs-addition>+&lt;/details&gt;</span>
+<span class=hljs-addition>+&lt;details&gt;</span>
+<span class=hljs-addition>+&lt;summary&gt;using gemini for gitlab cloning instructions&lt;/summary&gt;</span>
+<span class=hljs-addition>+![student using gemini to figure out gitlab setup instead of normal docs](/blobs/98/gitlab-gemini.png)</span>
+<span class=hljs-addition>+Did you know gitlab has [a page](https://docs.gitlab.com/ee/user/ssh.html) for</span>
+<span class=hljs-addition>+that?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![student giving a wrong suggestion based on gemini output](/blobs/98/gitlab-gemini-2.png)</span>
+<span class=hljs-addition>+Actually the issue was [this](/posts/93)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/details&gt;</span>
+<span class=hljs-addition>+&lt;details&gt;</span>
+<span class=hljs-addition>+&lt;summary&gt;failing to use gpt to figure out case insensitive regexes&lt;/summary&gt;</span>
+<span class=hljs-addition>+![student asking for help after gpt answers inaccurately](/blobs/98/case-gpt.png)</span>
+<span class=hljs-addition>+To be fair this was more a user issue because the scenario that this was</span>
+<span class=hljs-addition>+required for was not within a normal python script and they did not know how to</span>
+<span class=hljs-addition>+use the information.</span>
+<span class=hljs-addition>+&lt;/details&gt;</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD033 --&gt;</span>
+</code></pre>
+</details>
 <details>
 <summary>2024-05-17 - update post 98: add more forum details</summary>
 <pre class=code-block><input id=code-block-c64e0195e730273d902cbad8ea11927a74155709-1 type=checkbox><label for=code-block-c64e0195e730273d902cbad8ea11927a74155709-1></label><code><span class=hljs-meta>@@ -116,5 +116,20 @@</span> rant from my last post justified? I&#x27;d like to think so.
