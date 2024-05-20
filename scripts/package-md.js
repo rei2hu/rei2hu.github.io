@@ -89,6 +89,18 @@ const jaxExtensions = () => {
 	];
 };
 
+const customElements = () => [
+	{
+		// details elements
+		// [^details=summary^][^(content)^]
+		type: "lang",
+		regex: /\[\^details=((\n|.)*?)\^\] \[\^\(((\n|.)*?)\)\^\]/g,
+		replace: (_str, summary, _, content) => {
+			return `<details><summary>${summary}</summary><p>${content}</p></details>`;
+		},
+	},
+];
+
 const codeBlockExtensions = (mdId) => {
 	let codeBlockCounter = 1;
 	return [
@@ -248,6 +260,7 @@ module.exports = {
 									.slice(1),
 								contents: converter([
 									...jaxExtensions(),
+									...customElements(),
 									...codeBlockExtensions(id),
 								]).makeHtml(contents),
 								changes: commitsAndDiffs,

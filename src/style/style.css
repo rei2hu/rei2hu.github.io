@@ -349,13 +349,17 @@
 	details[open] {
 		border-bottom: none;
 		padding: 0;
-		padding-bottom: 0.5em;
 	}
 
 	details[open] > summary {
 		border-bottom: 1px solid var(--fg-3);
 		padding: 0.5em;
 		margin-bottom: 0.5em;
+	}
+
+	details[open] > p {
+		margin-left: 2em;
+		margin-right: 2em;
 	}
 
 	/* codeblock styling */
