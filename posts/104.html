@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>thoughts on space related data structures</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/103>&lt; hypothesize, implement, test</a></div>
+</nav>
+<h1 id=thoughts-on-space-related-data-structures>thoughts on space related data structures</h1>
+<p>Yesterday, a discussion I was in somehow turned towards quadtrees and their use. Eventually, someone mentioned that spatial hashes and BVH (bounding volume hierarchies) were more common now.</p>
+<p>The first random insight I had was related to trees. Why are quadtrees used for 2d applications while octotrees are used for 3d? Visually, you can see that the spaces break down recursively into 4 or 8 subspaces, but why is that?</p>
+<p>This is because of the number of axes - 2 and 3; the data structures are basically doing a binary partition of each axis in space, which means trees will have $2^d$ children when used to represent areas with $d$ dimensions.</p>
+<p>In fact, this is applicable to 1d too if you look at something like a sorted list, where we use binary trees (or at least could use binary trees conceptually).</p>
+<p>And for higher dimensions? Well, I guess it means you can somehow partition it into 16 spaces and use a 16 tree but that's probably hard to visualize (at least I can't).</p>
+<p>While I'm not familiar with BVH, a quick look over the description makes it sound like a similar idea but with arbitrary partitions instead of binary ones. Spatial hashing does something similar; picking a hash based on what partition(s) objects fall into, though the partitions at every level can also be customized in this case.</p>
+<p>All of the ideas are very similar - grouping objects in space depending on their proximity to one another, and using the grouping to be able to figure out proximity later on.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/103>&lt; hypothesize, implement, test</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-06-21 - add post 104</summary>
+<pre class=code-block><input id=code-block-1ebd8aab6c7b7f2713ef5f4519181b4df00ee9f5-1 type=checkbox><label for=code-block-1ebd8aab6c7b7f2713ef5f4519181b4df00ee9f5-1></label><code><span class=hljs-meta>@@ -0,0 +1,31 @@</span>
+<span class=hljs-addition>+# thoughts on space related data structures</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Yesterday, a discussion I was in somehow turned towards quadtrees and their use.</span>
+<span class=hljs-addition>+Eventually, someone mentioned that spatial hashes and BVH (bounding volume</span>
+<span class=hljs-addition>+hierarchies) were more common now.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first random insight I had was related to trees. Why are quadtrees used for</span>
+<span class=hljs-addition>+2d applications while octotrees are used for 3d? Visually, you can see that the</span>
+<span class=hljs-addition>+spaces break down recursively into 4 or 8 subspaces, but why is that?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is because of the number of axes - 2 and 3; the data structures are</span>
+<span class=hljs-addition>+basically doing a binary partition of each axis in space, which means trees will</span>
+<span class=hljs-addition>+have $2^d$ children when used to represent areas with $d$ dimensions.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In fact, this is applicable to 1d too if you look at something like a sorted</span>
+<span class=hljs-addition>+list, where we use binary trees (or at least could use binary trees</span>
+<span class=hljs-addition>+conceptually).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And for higher dimensions? Well, I guess it means you can somehow partition it</span>
+<span class=hljs-addition>+into 16 spaces and use a 16 tree but that&#x27;s probably hard to visualize (at least</span>
+<span class=hljs-addition>+I can&#x27;t).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While I&#x27;m not familiar with BVH, a quick look over the description makes it</span>
+<span class=hljs-addition>+sound like a similar idea but with arbitrary partitions instead of binary ones.</span>
+<span class=hljs-addition>+Spatial hashing does something similar; picking a hash based on what</span>
+<span class=hljs-addition>+partition(s) objects fall into, though the partitions at every level can also be</span>
+<span class=hljs-addition>+customized in this case.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+All of the ideas are very similar - grouping objects in space depending on their</span>
+<span class=hljs-addition>+proximity to one another, and using the grouping to be able to figure out</span>
+<span class=hljs-addition>+proximity later on.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
