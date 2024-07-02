@@ -111,6 +111,9 @@
 			--fg-5: var(--__light-fg-5);
 			--rgb-factor: var(--__light-rgb-factor);
 			--svg-filter-factor: var(--__light-svg-filter-factor);
+
+			/* transition only when lights are being enabled */
+			transition: background-color 1s ease-out;
 		}
 
 		:root:has(#lights:not(:checked)) {
