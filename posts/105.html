@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>how NOT to handle no-javascript environments</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/104>&lt; thoughts on space related data structures</a></div>
+</nav>
+<h1 id=how-not-to-handle-no-javascript-environments>how NOT to handle no-javascript environments</h1>
+<p>I run <a href=https://noscript.net/ >noscript</a>, which blocks javascript from running on websites and I enable scripts only if a site is interesting/useful enough to warrant enabling it; I do set a pretty low bar so it's kind of whatever.</p>
+<p>On a side note it's kind of sad how many blank pages I get nowadays.</p>
+<p>Recently, I opened a <a href=https://www.notion.so/ >Notion</a> link, and it took me straight to
+<a href=https://www.notion.so/disabled-javascript.html>https://www.notion.so/disabled-javascript.html</a>.</p>
+<p>How did it do that? Well, if you look at the source you'll find</p>
+<pre class=code-block><input id=code-block-105-1 type=checkbox><label for=code-block-105-1></label><code><span class=hljs-tag>&lt;<span class=hljs-name>noscript</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>meta</span>
+        <span class=hljs-attr>http-equiv</span>=<span class=hljs-string>&quot;refresh&quot;</span>
+        <span class=hljs-attr>content</span>=<span class=hljs-string>&quot;0; url=https://www.notion.so/disabled-javascript.html&quot;</span>
+    /&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>noscript</span>&gt;</span>
+</code></pre>
+<p>Pretty cool, right? Well there's an annoying issue with that. Take a look at the
+<a href=https://html.spec.whatwg.org/multipage/semantics.html#shared-declarative-refresh-steps>standard</a>
+specifically the part that says</p>
+<blockquote>
+<p>then navigate document's node navigable to urlRecord using document, with historyHandling set to "replace".</p>
+</blockquote>
+<p>It replaces last entry on the history stack instead of pushing a new one on, which means the original page is gone. If I enable scripts then I'm left on the disabled-javascript page. If I press back, I'm on the page before the one I'm looking for - I have to grab the link again.</p>
+<p>I wonder who came up with the idea to do it this way. With component frameworks nowadays, shouldn't it be simple to embed the disabled javascript content into each page itself? There's not much, though I guess it's not important because not many people disable javascript and sending something unnecessary 99% of the time with all requests is a waste of bandwidth.</p>
+<pre class=code-block><input id=code-block-105-2 type=checkbox><label for=code-block-105-2></label><code><span class=hljs-meta>&lt;!DOCTYPE <span class=hljs-keyword>html</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>html</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>head</span>&gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>meta</span> <span class=hljs-attr>charset</span>=<span class=hljs-string>&quot;utf-8&quot;</span> /&gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>title</span>&gt;</span>Notion<span class=hljs-tag>&lt;/<span class=hljs-name>title</span>&gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>style</span> <span class=hljs-attr>type</span>=<span class=hljs-string>&quot;text/css&quot;</span>&gt;</span><span class=language-css>
+            <span class=hljs-comment>/* ... */</span>
+        </span><span class=hljs-tag>&lt;/<span class=hljs-name>style</span>&gt;</span>
+    <span class=hljs-tag>&lt;/<span class=hljs-name>head</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>body</span>&gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>div</span> <span class=hljs-attr>class</span>=<span class=hljs-string>&quot;main&quot;</span>&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>img</span>
+                <span class=hljs-attr>alt</span>=<span class=hljs-string>&quot;Notion&quot;</span>
+                <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;width: 40px; margin: 0 auto; display: block&quot;</span>
+                <span class=hljs-attr>src</span>=<span class=hljs-string>&quot;data:image/png;base64...&quot;</span>
+            /&gt;</span>
+            <span class=hljs-tag>&lt;<span class=hljs-name>p</span>&gt;</span>
+                JavaScript must be enabled in order to use Notion.<span class=hljs-tag>&lt;<span class=hljs-name>br</span> /&gt;</span>
+                Please enable JavaScript to continue.
+            <span class=hljs-tag>&lt;/<span class=hljs-name>p</span>&gt;</span>
+        <span class=hljs-tag>&lt;/<span class=hljs-name>div</span>&gt;</span>
+    <span class=hljs-tag>&lt;/<span class=hljs-name>body</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>html</span>&gt;</span>
+</code></pre>
+<p>There's also the other question of why javascript is necessary to display what is usually mostly text data. Yes, there are specific interactive parts of the page that would require javascript but you could use similar <code>noscript</code> tags to tell users to enable it, but that runs into the efficiency issue again.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/104>&lt; thoughts on space related data structures</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-07-01 - add post 105</summary>
+<pre class=code-block><input id=code-block-5221c01e673afbd969d8c44c38b477772b3f6390-1 type=checkbox><label for=code-block-5221c01e673afbd969d8c44c38b477772b3f6390-1></label><code><span class=hljs-meta>@@ -0,0 +1,71 @@</span>
+<span class=hljs-addition>+# how NOT to handle no-javascript environments</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I run [noscript](https://noscript.net/), which blocks javascript from running on</span>
+<span class=hljs-addition>+websites and I enable scripts only if a site is interesting/useful enough to</span>
+<span class=hljs-addition>+warrant enabling it; I do set a pretty low bar so it&#x27;s kind of whatever.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On a side note it&#x27;s kind of sad how many blank pages I get nowadays.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I opened a [Notion](https://www.notion.so/) link, and it took me</span>
+<span class=hljs-addition>+straight to</span>
+<span class=hljs-addition>+[https://www.notion.so/disabled-javascript.html](https://www.notion.so/disabled-javascript.html).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+How did it do that? Well, if you look at the source you&#x27;ll find</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;noscript&gt;</span>
+<span class=hljs-addition>+    &lt;meta</span>
+<span class=hljs-addition>+        http-equiv=&quot;refresh&quot;</span>
+<span class=hljs-addition>+        content=&quot;0; url=https://www.notion.so/disabled-javascript.html&quot;</span>
+<span class=hljs-addition>+    /&gt;</span>
+<span class=hljs-addition>+&lt;/noscript&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Pretty cool, right? Well there&#x27;s an annoying issue with that. Take a look at the</span>
+<span class=hljs-addition>+[standard](https://html.spec.whatwg.org/multipage/semantics.html#shared-declarative-refresh-steps)</span>
+<span class=hljs-addition>+specifically the part that says</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; then navigate document&#x27;s node navigable to urlRecord using document, with</span>
+<span class=hljs-addition>+&gt; historyHandling set to &quot;replace&quot;.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It replaces last entry on the history stack instead of pushing a new one on,</span>
+<span class=hljs-addition>+which means the original page is gone. If I enable scripts then I&#x27;m left on the</span>
+<span class=hljs-addition>+disabled-javascript page. If I press back, I&#x27;m on the page before the one I&#x27;m</span>
+<span class=hljs-addition>+looking for - I have to grab the link again.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I wonder who came up with the idea to do it this way. With component frameworks</span>
+<span class=hljs-addition>+nowadays, shouldn&#x27;t it be simple to embed the disabled javascript content into</span>
+<span class=hljs-addition>+each page itself? There&#x27;s not much, though I guess it&#x27;s not important because</span>
+<span class=hljs-addition>+not many people disable javascript and sending something unnecessary 99% of the</span>
+<span class=hljs-addition>+time with all requests is a waste of bandwidth.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;!DOCTYPE html&gt;</span>
+<span class=hljs-addition>+&lt;html&gt;</span>
+<span class=hljs-addition>+    &lt;head&gt;</span>
+<span class=hljs-addition>+        &lt;meta charset=&quot;utf-8&quot; /&gt;</span>
+<span class=hljs-addition>+        &lt;title&gt;Notion&lt;/title&gt;</span>
+<span class=hljs-addition>+        &lt;style type=&quot;text/css&quot;&gt;</span>
+<span class=hljs-addition>+            /* ... */</span>
+<span class=hljs-addition>+        &lt;/style&gt;</span>
+<span class=hljs-addition>+    &lt;/head&gt;</span>
+<span class=hljs-addition>+    &lt;body&gt;</span>
+<span class=hljs-addition>+        &lt;div class=&quot;main&quot;&gt;</span>
+<span class=hljs-addition>+            &lt;img</span>
+<span class=hljs-addition>+                alt=&quot;Notion&quot;</span>
+<span class=hljs-addition>+                style=&quot;width: 40px; margin: 0 auto; display: block&quot;</span>
+<span class=hljs-addition>+                src=&quot;data:image/png;base64...&quot;</span>
+<span class=hljs-addition>+            /&gt;</span>
+<span class=hljs-addition>+            &lt;p&gt;</span>
+<span class=hljs-addition>+                JavaScript must be enabled in order to use Notion.&lt;br /&gt;</span>
+<span class=hljs-addition>+                Please enable JavaScript to continue.</span>
+<span class=hljs-addition>+            &lt;/p&gt;</span>
+<span class=hljs-addition>+        &lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;/body&gt;</span>
+<span class=hljs-addition>+&lt;/html&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There&#x27;s also the other question of why javascript is necessary to display what</span>
+<span class=hljs-addition>+is usually mostly text data. Yes, there are specific interactive parts of the</span>
+<span class=hljs-addition>+page that would require javascript but you could use similar `noscript` tags to</span>
+<span class=hljs-addition>+tell users to enable it, but that runs into the efficiency issue again.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
