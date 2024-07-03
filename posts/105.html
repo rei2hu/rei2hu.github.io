@@ -34,10 +34,11 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 <div style="flex:0 0 50%"><a href=/./posts/104>&lt; thoughts on space related data structures</a></div>
 </nav>
 <h1 id=how-not-to-handle-no-javascript-environments>how NOT to handle no-javascript environments</h1>
-<p>I run <a href=https://noscript.net/ >noscript</a>, which blocks javascript from running on websites and I enable scripts only if a site is interesting/useful enough to warrant enabling it; I do set a pretty low bar so it's kind of whatever.</p>
+<p>I run <a href=https://noscript.net/ >noscript</a>, which blocks javascript from running on websites and I enable scripts only if a site is interesting/useful enough to warrant enabling it. One benefit of this is that I can selectively choose what scripts to enable, and can avoid loading external ones, avoiding issues like
+<a href=https://sansec.io/research/polyfill-supply-chain-attack>this</a> (though that one technically only targeted mobile devices and it's possible a site wouldn't normally work without polyfill support…) I do set a pretty low bar when deciding when to start enabling scripts, so it's kind of whatever.</p>
 <p>On a side note it's kind of sad how many blank pages I get nowadays.</p>
-<p>Recently, I opened a <a href=https://www.notion.so/ >Notion</a> link, and it took me straight to
-<a href=https://www.notion.so/disabled-javascript.html>https://www.notion.so/disabled-javascript.html</a>.</p>
+<p>Recently, I opened a <a href=https://www.notion.so/ >Notion</a> link, and it took me to
+<a href=https://www.notion.so/disabled-javascript.html>https://www.notion.so/disabled-javascript.html</a>. I don't use Notion for my personal stuff, so I had not encountered outside of work environments where I do not have noscript.</p>
 <p>How did it do that? Well, if you look at the source you'll find</p>
 <pre class=code-block><input id=code-block-105-1 type=checkbox><label for=code-block-105-1></label><code><span class=hljs-tag>&lt;<span class=hljs-name>noscript</span>&gt;</span>
     <span class=hljs-tag>&lt;<span class=hljs-name>meta</span>
@@ -48,11 +49,11 @@ Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used
 </code></pre>
 <p>Pretty cool, right? Well there's an annoying issue with that. Take a look at the
 <a href=https://html.spec.whatwg.org/multipage/semantics.html#shared-declarative-refresh-steps>standard</a>
-specifically the part that says</p>
+around <code>http-equiv="refresh"</code>, specifically the part that says</p>
 <blockquote>
 <p>then navigate document's node navigable to urlRecord using document, with historyHandling set to "replace".</p>
 </blockquote>
-<p>It replaces last entry on the history stack instead of pushing a new one on, which means the original page is gone. If I enable scripts then I'm left on the disabled-javascript page. If I press back, I'm on the page before the one I'm looking for - I have to grab the link again.</p>
+<p>It replaces last entry on the history stack instead of pushing a new one on, which means the original page is gone. If I enable scripts, then I'm left on the disabled-javascript page. If I press back, I'm on the page before the one I'm looking for - I have to grab the link again.</p>
 <p>I wonder who came up with the idea to do it this way. With component frameworks nowadays, shouldn't it be simple to embed the disabled javascript content into each page itself? There's not much, though I guess it's not important because not many people disable javascript and sending something unnecessary 99% of the time with all requests is a waste of bandwidth.</p>
 <pre class=code-block><input id=code-block-105-2 type=checkbox><label for=code-block-105-2></label><code><span class=hljs-meta>&lt;!DOCTYPE <span class=hljs-keyword>html</span>&gt;</span>
 <span class=hljs-tag>&lt;<span class=hljs-name>html</span>&gt;</span>
@@ -85,6 +86,39 @@ specifically the part that says</p>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-07-03 - update post 105: change wording and add details</summary>
+<pre class=code-block><input id=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-1 type=checkbox><label for=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-1></label><code><span class=hljs-meta>@@ -4,3 +4,8 @@</span> I run [noscript](https://noscript.net/), which blocks javascript from running on
+ websites and I enable scripts only if a site is interesting/useful enough to
+<span class=hljs-deletion>-warrant enabling it; I do set a pretty low bar so it&#x27;s kind of whatever.</span>
+<span class=hljs-addition>+warrant enabling it. One benefit of this is that I can selectively choose what</span>
+<span class=hljs-addition>+scripts to enable, and can avoid loading external ones, avoiding issues like</span>
+<span class=hljs-addition>+[this](https://sansec.io/research/polyfill-supply-chain-attack) (though that one</span>
+<span class=hljs-addition>+technically only targeted mobile devices and it&#x27;s possible a site wouldn&#x27;t</span>
+<span class=hljs-addition>+normally work without polyfill support...) I do set a pretty low bar when</span>
+<span class=hljs-addition>+deciding when to start enabling scripts, so it&#x27;s kind of whatever.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-2 type=checkbox><label for=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-2></label><code><span class=hljs-meta>@@ -8,5 +13,6 @@</span> On a side note it&#x27;s kind of sad how many blank pages I get nowadays.
+
+<span class=hljs-deletion>-Recently, I opened a [Notion](https://www.notion.so/) link, and it took me</span>
+<span class=hljs-deletion>-straight to</span>
+<span class=hljs-addition>+Recently, I opened a [Notion](https://www.notion.so/) link, and it took me to</span>
+ [https://www.notion.so/disabled-javascript.html](https://www.notion.so/disabled-javascript.html).
+<span class=hljs-addition>+I don&#x27;t use Notion for my personal stuff, so I had not encountered outside of</span>
+<span class=hljs-addition>+work environments where I do not have noscript.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-3 type=checkbox><label for=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-3></label><code><span class=hljs-meta>@@ -25,3 +31,3 @@</span> Pretty cool, right? Well there&#x27;s an annoying issue with that. Take a look at the
+ [standard](https://html.spec.whatwg.org/multipage/semantics.html#shared-declarative-refresh-steps)
+<span class=hljs-deletion>-specifically the part that says</span>
+<span class=hljs-addition>+around `http-equiv=&quot;refresh&quot;`, specifically the part that says</span>
+</code></pre>
+<pre class=code-block><input id=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-4 type=checkbox><label for=code-block-814069cc7c97bcde75ff15b0e622b8bbfec49304-4></label><code><span class=hljs-meta>@@ -31,3 +37,3 @@</span> specifically the part that says
+ It replaces last entry on the history stack instead of pushing a new one on,
+<span class=hljs-deletion>-which means the original page is gone. If I enable scripts then I&#x27;m left on the</span>
+<span class=hljs-addition>+which means the original page is gone. If I enable scripts, then I&#x27;m left on the</span>
+ disabled-javascript page. If I press back, I&#x27;m on the page before the one I&#x27;m
+</code></pre>
+</details>
 <details>
 <summary>2024-07-01 - add post 105</summary>
 <pre class=code-block><input id=code-block-5221c01e673afbd969d8c44c38b477772b3f6390-1 type=checkbox><label for=code-block-5221c01e673afbd969d8c44c38b477772b3f6390-1></label><code><span class=hljs-meta>@@ -0,0 +1,71 @@</span>
