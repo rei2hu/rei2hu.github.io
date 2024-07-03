@@ -1,1 +1,1 @@
-((()=>{const a='LIGHTS_KEY',b=localStorage['getItem'](a),c=document['getElementById']('lights');c['checked']=b==='true',c['addEventListener']('change',()=>{localStorage['setItem'](a,c['checked']);});})());
+((()=>{const a='LIGHTS_KEY',b=document['getElementById']('lights'),c=window['matchMedia']('(prefers-color-scheme:\x20light)'),d=e=>{localStorage['getItem'](a)===null?b['checked']=e['matches']:b['checked']=localStorage['getItem'](a)==='true';};d(c),c['addEventListener']('change',d),b['addEventListener']('change',()=>{localStorage['setItem'](a,b['checked']);});})());
