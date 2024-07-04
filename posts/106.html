@@ -1,0 +1,432 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz-loader.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>a performance investigation of this site</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/105>&lt; how NOT to handle no-javascript environments</a></div>
+</nav>
+<h1 id=a-performance-investigation-of-this-site>a performance investigation of this site</h1>
+<p>I recently added a very simple bit of css to avoid blasting people's eyes when they toggle light mode on:</p>
+<pre class=code-block><input id=code-block-106-1 type=checkbox><label for=code-block-106-1></label><code><span class=hljs-attribute>transition</span>: background-color <span class=hljs-number>1s</span> ease-out;
+</code></pre>
+<p>It works quite well for my setup, but there is one small flaw which is that it also applies when users initially load the page, so the background color transitions from full-white to almost-white (the white I use for light mode).</p>
+<p>This transition, while slight, made me realize there was some unreasonable lag on loading the page and I opted to look into it. It must be that the new transition is somehow extremely heavy right? I do have a lot of non-basic css selectors so a repaint could be ruining things.</p>
+<p>I'll skip ahead a bit and say that the lag is worst on a page like
+<a href=/posts/14>this one</a>, and it wasn't css, it was existing javascript - I only hadn't noticed it before because… I guess it wasn't too big of a deal. Or was it? Let's look at what the profiler says</p>
+<p><img alt="profile of page load" src=/blobs/106/without-worker.png></p>
+<p>You can see the red bar showing parts where the UI is struggling to render frames and there are almost 3 seconds of horrible lag caused by
+<a href=https://tikzjax.com/ >TikZJax</a>. Unfortunately I like the functionality and don't really think there is a replacement for it. The closest thing would be
+<a href=https://holatex.app>HoLaTeX</a> but that actually uses a modified version of TikZJax in the background based on some quick investigation and reverse engineering.</p>
+<p>Because there was no alternative, I opted to try modifying the package itself. How would we make this more performant? By moving most of the work to a worker.</p>
+<p>The source of TikZJax is not the cleanest, and it took me several hours to get a proper build going, though that could also be related to the fact that I added the built library 4 or 5 years ago and never updated it. The logic is comprised of two main parts:</p>
+<ol>
+<li>… Pick parts of the dom to transform</li>
+<li>Load tex and output dvi data for everything being transformed</li>
+<li>Convert the output to svg using <code>dvi2html</code></li>
+<li>… Replace the original dom bits</li>
+</ol>
+<p>1, 2, and 4 can be easily seen and modified in the
+<a href=https://github.com/kisonecat/tikzjax>source</a> itself, but this single line involving <code>dvi2html</code> contains most of the complexity (outside of the wasm logic) and issues.</p>
+<pre class=code-block><input id=code-block-106-2 type=checkbox><label for=code-block-106-2></label><code><span class=hljs-keyword>let</span> machine = <span class=hljs-keyword>await</span> <span class="hljs-title function_">dvi2html</span>(<span class="hljs-title function_">streamBuffer</span>(), page);
+</code></pre>
+<p><a href=https://github.com/kisonecat/dvi2html>dvi2html</a> is a project by the same author and is is basically a parser that does what it says it does. As a foreword, I'll say that I'm not sure if these changes are correct or if I just had trouble figuring out the dependencies and building the projects so I made code changes instead. But I can say that the result works for me.</p>
+<p>The first issue I came across was that there was no output. If you look a little above, <code>streamBuffer()</code> is a generator, and deep down in the code there is a line that checks its <code>length</code> which was undefined.</p>
+<pre class=code-block><input id=code-block-106-3 type=checkbox><label for=code-block-106-3></label><code><span class=hljs-keyword>async</span> <span class=hljs-keyword>function</span>* <span class="hljs-title function_">streamBuffer</span>(<span class=hljs-params></span>) {
+    <span class=hljs-keyword>yield</span> <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(dvi);
+    <span class=hljs-keyword>return</span>;
+}
+
+<span class=hljs-keyword>while</span>(offset &lt; buffer.<span class=hljs-property>length</span>)
+</code></pre>
+<p>So the first change was to just put the buffer in place of the generator.</p>
+<p>The second change I made was related to the text output, as I noticed none of my diagrams had text on them. A comparison between the new and current outputs showed that the new version was outputting <code>span</code> tags while the old one output
+<code>text</code> tags.</p>
+<pre class=code-block><input id=code-block-106-4 type=checkbox><label for=code-block-106-4></label><code><span class=hljs-comment>&lt;!-- new --&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>g</span>
+    <span class=hljs-attr>stroke</span>=<span class=hljs-string>&quot;none&quot;</span>
+    <span class=hljs-attr>transform</span>=<span class=hljs-string>&quot;scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)&quot;</span>
+&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>span</span>
+        <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;line-height: 0; color: black; font-family: cmmi10; font-size: 10pt; position: absolute; top: -29.179225921630852pt; left: 83.13975524902342pt; overflow: visible;&quot;</span>
+    &gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>span</span>
+            <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;margin-top: -10pt; line-height: 0pt; height: 10pt; display: inline-block; vertical-align: baseline; &quot;</span>
+            &gt;</span>c&lt;/span
+        &gt;
+        <span class=hljs-tag>&lt;<span class=hljs-name>span</span>
+            <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;display: inline-block; vertical-align: 4.305553436279296pt; height: 0pt; line-height: 0;&quot;</span>
+        &gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>span</span>&gt;</span>
+    <span class=hljs-tag>&lt;/<span class=hljs-name>span</span>&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>span</span>
+        <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;line-height: 0; color: black; font-family: cmr7; font-size: 7pt; position: absolute; top: -27.88479900360107pt; left: 87.46731948852538pt; overflow: visible;&quot;</span>
+    &gt;</span>
+        <span class=hljs-tag>&lt;<span class=hljs-name>span</span>
+            <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;margin-top: -7pt; line-height: 0pt; height: 7pt; display: inline-block; vertical-align: baseline; &quot;</span>
+            &gt;</span>2&lt;/span
+        &gt;
+        <span class=hljs-tag>&lt;<span class=hljs-name>span</span>
+            <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;display: inline-block; vertical-align: 4.511111259460448pt; height: 0pt; line-height: 0;&quot;</span>
+        &gt;</span><span class=hljs-tag>&lt;/<span class=hljs-name>span</span>&gt;</span>
+    <span class=hljs-tag>&lt;/<span class=hljs-name>span</span>&gt;</span>
+<span class=hljs-tag>&lt;/<span class=hljs-name>g</span>&gt;</span>
+
+<span class=hljs-comment>&lt;!-- old --&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>g</span>
+    <span class=hljs-attr>stroke</span>=<span class=hljs-string>&quot;none&quot;</span>
+    <span class=hljs-attr>transform</span>=<span class=hljs-string>&quot;scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)&quot;</span>
+&gt;</span>
+    <span class=hljs-tag>&lt;<span class=hljs-name>text</span>
+        <span class=hljs-attr>alignment-baseline</span>=<span class=hljs-string>&quot;baseline&quot;</span>
+        <span class=hljs-attr>y</span>=<span class=hljs-string>&quot;-24.873672485351555&quot;</span>
+        <span class=hljs-attr>x</span>=<span class=hljs-string>&quot;83.13975524902342&quot;</span>
+        <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;font-family: cmmi10; font-size: 10px;&quot;</span>
+        &gt;</span>c&lt;/text
+    &gt;
+    <span class=hljs-tag>&lt;<span class=hljs-name>text</span>
+        <span class=hljs-attr>alignment-baseline</span>=<span class=hljs-string>&quot;baseline&quot;</span>
+        <span class=hljs-attr>y</span>=<span class=hljs-string>&quot;-23.37368774414062&quot;</span>
+        <span class=hljs-attr>x</span>=<span class=hljs-string>&quot;87.46731948852538&quot;</span>
+        <span class=hljs-attr>style</span>=<span class=hljs-string>&quot;font-family: cmr7; font-size: 7px;&quot;</span>
+        &gt;</span>2&lt;/text
+    &gt;
+<span class=hljs-tag>&lt;/<span class=hljs-name>g</span>&gt;</span>
+</code></pre>
+<p>Digging into the source yielded these lines:</p>
+<pre class=code-block><input id=code-block-106-5 type=checkbox><label for=code-block-106-5></label><code><span class=hljs-keyword>if</span> (<span class="hljs-variable language_">this</span>.<span class=hljs-property>svgDepth</span> == <span class=hljs-number>0</span>) {
+    <span class=hljs-keyword>let</span> space = <span class=hljs-string>&quot;&quot;</span>;
+    <span class=hljs-keyword>if</span> (<span class="hljs-variable language_">this</span>.<span class=hljs-property>lastTextV</span> == <span class="hljs-variable language_">this</span>.<span class=hljs-property>position</span>.<span class=hljs-property>v</span> &amp;&amp; left &gt; <span class="hljs-variable language_">this</span>.<span class=hljs-property>lastTextRight</span> + <span class=hljs-number>2</span>) {
+        space =
+            <span class=hljs-string>&#x27;&lt;span style=&quot;display: inline-block; width: 0pt;&quot;&gt;&amp;nbsp;&lt;/span&gt;&#x27;</span>;
+    }
+
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">writeToPage</span>(
+        <span class=hljs-string>`&lt;span style=&quot;line-height: 0; color: <span class=hljs-subst>${<span class="hljs-variable language_">this</span>.color}</span>; font-family: <span class=hljs-subst>${
+            <span class="hljs-variable language_">this</span>.font.name
+        }</span>; font-size: <span class=hljs-subst>${fontsize}</span>pt; position: absolute; top: <span class=hljs-subst>${
+            top - height
+        }</span>pt; left: <span class=hljs-subst>${left}</span>pt; overflow: visible;&quot;&gt;&lt;span style=&quot;margin-top: -<span class=hljs-subst>${fontsize}</span>pt; line-height: <span class=hljs-subst>${<span class=hljs-number>0</span>}</span>pt; height: <span class=hljs-subst>${fontsize}</span>pt; display: inline-block; vertical-align: baseline; &quot;&gt;<span class=hljs-subst>${space}</span><span class=hljs-subst>${htmlText}</span>&lt;/span&gt;&lt;span style=&quot;display: inline-block; vertical-align: <span class=hljs-subst>${height}</span>pt; height: <span class=hljs-subst>${<span class=hljs-number>0</span>}</span>pt; line-height: 0;&quot;&gt;&lt;/span&gt;&lt;/span&gt;\n`</span>
+    );
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>lastTextV</span> = <span class="hljs-variable language_">this</span>.<span class=hljs-property>position</span>.<span class=hljs-property>v</span>;
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>lastTextRight</span> = left + width;
+} <span class=hljs-keyword>else</span> {
+    <span class=hljs-keyword>let</span> bottom = <span class="hljs-variable language_">this</span>.<span class=hljs-property>position</span>.<span class=hljs-property>v</span> * <span class="hljs-variable language_">this</span>.<span class=hljs-property>pointsPerDviUnit</span>;
+    <span class=hljs-comment>// No &#x27;pt&#x27; on fontsize since those units are potentially scaled</span>
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">writeToPage</span>(
+        <span class=hljs-string>`&lt;text alignment-baseline=&quot;baseline&quot; y=&quot;<span class=hljs-subst>${bottom}</span>&quot; x=&quot;<span class=hljs-subst>${left}</span>&quot; style=&quot;font-family: <span class=hljs-subst>${<span class="hljs-variable language_">this</span>.font.name}</span>;&quot; font-size=&quot;<span class=hljs-subst>${fontsize}</span>&quot;&gt;<span class=hljs-subst>${htmlText}</span>&lt;/text&gt;\n`</span>
+    );
+}
+</code></pre>
+<p>For some reason, <code>this.svgDepth = 0</code> and the <code>span</code>s were being output. This variable was only controlled by the methods <code>beginSVG()</code> and <code>endSVG()</code></p>
+<pre class=code-block><input id=code-block-106-6 type=checkbox><label for=code-block-106-6></label><code>  <span class="hljs-title function_">beginSVG</span>(<span class=hljs-params> </span>) {
+    <span class=hljs-keyword>let</span> left = <span class="hljs-variable language_">this</span>.<span class=hljs-property>position</span>.<span class=hljs-property>h</span> * <span class="hljs-variable language_">this</span>.<span class=hljs-property>pointsPerDviUnit</span>;
+    <span class=hljs-keyword>let</span> top = <span class="hljs-variable language_">this</span>.<span class=hljs-property>position</span>.<span class=hljs-property>v</span> * <span class="hljs-variable language_">this</span>.<span class=hljs-property>pointsPerDviUnit</span>;
+
+    <span class=hljs-keyword>if</span> (<span class="hljs-variable language_">this</span>.<span class=hljs-property>svgDepth</span> == <span class=hljs-number>0</span>) {
+      <span class=hljs-comment>// <span class=hljs-doctag>FIXME:</span> Should I have 0.99624in instead of 1in ?</span>
+      <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">writeToPage</span>( <span class=hljs-string>`&lt;svg width=&quot;1in&quot; height=&quot;1in&quot; viewBox=&quot;0 0 72 72&quot; style=&quot;position: absolute; top: 0pt; left: 0pt; overflow: visible;&quot;&gt;\n`</span> );
+    }
+
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">writeToPage</span>( <span class=hljs-string>`&lt;g transform=&quot;translate(<span class=hljs-subst>${left}</span>,<span class=hljs-subst>${top}</span>)&quot;&gt;\n`</span> );
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>svgDepth</span> += <span class=hljs-number>1</span>;
+  }
+
+  <span class="hljs-title function_">endSVG</span>(<span class=hljs-params> </span>) {
+    <span class="hljs-variable language_">this</span>.<span class=hljs-property>svgDepth</span> -= <span class=hljs-number>1</span>;
+
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">writeToPage</span>( <span class=hljs-string>&#x27;&lt;/g&gt;&#x27;</span> );
+
+    <span class=hljs-keyword>if</span> (<span class="hljs-variable language_">this</span>.<span class=hljs-property>svgDepth</span> == <span class=hljs-number>0</span>) {
+      <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">writeToPage</span>( <span class=hljs-string>&#x27;&lt;/svg&gt;&#x27;</span> );
+    }
+  }
+</code></pre>
+<p>Which after some more investigation, were never being called. I ended up erasing the <code>this.svgDepth === 0</code> case from the logic, which seems like a bad choice, but made the text appear again.</p>
+<p>The (I think) last update I made was to remove this new div that started appearing because it made everything weirdly positioned.</p>
+<pre class=code-block><input id=code-block-106-7 type=checkbox><label for=code-block-106-7></label><code><span class="hljs-variable language_">this</span>.<span class=hljs-property>output</span>.<span class="hljs-title function_">write</span>(
+    <span class=hljs-string>`&lt;div style=&quot;position: relative; width: 100%; height: <span class=hljs-subst>${height}</span>pt;&quot; class=&quot;page&quot;&gt;`</span>
+);
+</code></pre>
+<p>Finally, <code>dvi2html</code> works… Actually, I couldn't build it from source and ended up modifying the built version in the <code>node_modules</code> folder of the <code>TikZJax</code>
+project…</p>
+<p>As for getting the worker in, I'm not going to bother with the details. It just requires a refactoring to remove 1 and 4 which interact with the dom, then setting up some worker/window thread logic.</p>
+<p>And the result?</p>
+<p><img alt="profile of page load with worker" src=/blobs/106/with-worker.png></p>
+<p>It stops blocking the thread but now takes 3x longer. It could be related to a lot of things like updating <code>dvi2html</code>, or the general refactor, or other things. A good chunk is actually related to the initial load. Either way, I'm ok with it though - I can just slap a simple css loading animation on them.</p>
+<p>You may also wonder what the first chunk of javascript is; that's MathJax. I don't think it's too big of an issue.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/105>&lt; how NOT to handle no-javascript environments</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-07-04 - add post 106</summary>
+<pre class=code-block><input id=code-block-0278114d47f166f6b8ba3c8341c5593dc2f7f278-1 type=checkbox><label for=code-block-0278114d47f166f6b8ba3c8341c5593dc2f7f278-1></label><code><span class=hljs-meta>@@ -0,0 +1,231 @@</span>
+<span class=hljs-addition>+# a performance investigation of this site</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I recently added a very simple bit of css to avoid blasting people&#x27;s eyes when</span>
+<span class=hljs-addition>+they toggle light mode on:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```css</span>
+<span class=hljs-addition>+transition: background-color 1s ease-out;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It works quite well for my setup, but there is one small flaw which is that it</span>
+<span class=hljs-addition>+also applies when users initially load the page, so the background color</span>
+<span class=hljs-addition>+transitions from full-white to almost-white (the white I use for light mode).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This transition, while slight, made me realize there was some unreasonable lag</span>
+<span class=hljs-addition>+on loading the page and I opted to look into it. It must be that the new</span>
+<span class=hljs-addition>+transition is somehow extremely heavy right? I do have a lot of non-basic css</span>
+<span class=hljs-addition>+selectors so a repaint could be ruining things.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll skip ahead a bit and say that the lag is worst on a page like</span>
+<span class=hljs-addition>+[this one](/posts/14), and it wasn&#x27;t css, it was existing javascript - I only</span>
+<span class=hljs-addition>+hadn&#x27;t noticed it before because... I guess it wasn&#x27;t too big of a deal. Or was</span>
+<span class=hljs-addition>+it? Let&#x27;s look at what the profiler says</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![profile of page load](/blobs/106/without-worker.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You can see the red bar showing parts where the UI is struggling to render</span>
+<span class=hljs-addition>+frames and there are almost 3 seconds of horrible lag caused by</span>
+<span class=hljs-addition>+[TikZJax](https://tikzjax.com/). Unfortunately I like the functionality and</span>
+<span class=hljs-addition>+don&#x27;t really think there is a replacement for it. The closest thing would be</span>
+<span class=hljs-addition>+[HoLaTeX](https://holatex.app) but that actually uses a modified version of</span>
+<span class=hljs-addition>+TikZJax in the background based on some quick investigation and reverse</span>
+<span class=hljs-addition>+engineering.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Because there was no alternative, I opted to try modifying the package itself.</span>
+<span class=hljs-addition>+How would we make this more performant? By moving most of the work to a worker.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The source of TikZJax is not the cleanest, and it took me several hours to get a</span>
+<span class=hljs-addition>+proper build going, though that could also be related to the fact that I added</span>
+<span class=hljs-addition>+the built library 4 or 5 years ago and never updated it. The logic is comprised</span>
+<span class=hljs-addition>+of two main parts:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. ... Pick parts of the dom to transform</span>
+<span class=hljs-addition>+2. Load tex and output dvi data for everything being transformed</span>
+<span class=hljs-addition>+3. Convert the output to svg using `dvi2html`</span>
+<span class=hljs-addition>+4. ... Replace the original dom bits</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1, 2, and 4 can be easily seen and modified in the</span>
+<span class=hljs-addition>+[source](https://github.com/kisonecat/tikzjax) itself, but this single line</span>
+<span class=hljs-addition>+involving `dvi2html` contains most of the complexity (outside of the wasm logic)</span>
+<span class=hljs-addition>+and issues.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+let machine = await dvi2html(streamBuffer(), page);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[dvi2html](https://github.com/kisonecat/dvi2html) is a project by the same</span>
+<span class=hljs-addition>+author and is is basically a parser that does what it says it does. As a</span>
+<span class=hljs-addition>+foreword, I&#x27;ll say that I&#x27;m not sure if these changes are correct or if I just</span>
+<span class=hljs-addition>+had trouble figuring out the dependencies and building the projects so I made</span>
+<span class=hljs-addition>+code changes instead. But I can say that the result works for me.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first issue I came across was that there was no output. If you look a little</span>
+<span class=hljs-addition>+above, `streamBuffer()` is a generator, and deep down in the code there is a</span>
+<span class=hljs-addition>+line that checks its `length` which was undefined.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+async function* streamBuffer() {</span>
+<span class=hljs-addition>+    yield Buffer.from(dvi);</span>
+<span class=hljs-addition>+    return;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+while(offset &lt; buffer.length)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So the first change was to just put the buffer in place of the generator.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The second change I made was related to the text output, as I noticed none of my</span>
+<span class=hljs-addition>+diagrams had text on them. A comparison between the new and current outputs</span>
+<span class=hljs-addition>+showed that the new version was outputting `span` tags while the old one output</span>
+<span class=hljs-addition>+`text` tags.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;!-- new --&gt;</span>
+<span class=hljs-addition>+&lt;g</span>
+<span class=hljs-addition>+    stroke=&quot;none&quot;</span>
+<span class=hljs-addition>+    transform=&quot;scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)&quot;</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+    &lt;span</span>
+<span class=hljs-addition>+        style=&quot;line-height: 0; color: black; font-family: cmmi10; font-size: 10pt; position: absolute; top: -29.179225921630852pt; left: 83.13975524902342pt; overflow: visible;&quot;</span>
+<span class=hljs-addition>+    &gt;</span>
+<span class=hljs-addition>+        &lt;span</span>
+<span class=hljs-addition>+            style=&quot;margin-top: -10pt; line-height: 0pt; height: 10pt; display: inline-block; vertical-align: baseline; &quot;</span>
+<span class=hljs-addition>+            &gt;c&lt;/span</span>
+<span class=hljs-addition>+        &gt;</span>
+<span class=hljs-addition>+        &lt;span</span>
+<span class=hljs-addition>+            style=&quot;display: inline-block; vertical-align: 4.305553436279296pt; height: 0pt; line-height: 0;&quot;</span>
+<span class=hljs-addition>+        &gt;&lt;/span&gt;</span>
+<span class=hljs-addition>+    &lt;/span&gt;</span>
+<span class=hljs-addition>+    &lt;span</span>
+<span class=hljs-addition>+        style=&quot;line-height: 0; color: black; font-family: cmr7; font-size: 7pt; position: absolute; top: -27.88479900360107pt; left: 87.46731948852538pt; overflow: visible;&quot;</span>
+<span class=hljs-addition>+    &gt;</span>
+<span class=hljs-addition>+        &lt;span</span>
+<span class=hljs-addition>+            style=&quot;margin-top: -7pt; line-height: 0pt; height: 7pt; display: inline-block; vertical-align: baseline; &quot;</span>
+<span class=hljs-addition>+            &gt;2&lt;/span</span>
+<span class=hljs-addition>+        &gt;</span>
+<span class=hljs-addition>+        &lt;span</span>
+<span class=hljs-addition>+            style=&quot;display: inline-block; vertical-align: 4.511111259460448pt; height: 0pt; line-height: 0;&quot;</span>
+<span class=hljs-addition>+        &gt;&lt;/span&gt;</span>
+<span class=hljs-addition>+    &lt;/span&gt;</span>
+<span class=hljs-addition>+&lt;/g&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- old --&gt;</span>
+<span class=hljs-addition>+&lt;g</span>
+<span class=hljs-addition>+    stroke=&quot;none&quot;</span>
+<span class=hljs-addition>+    transform=&quot;scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)&quot;</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+    &lt;text</span>
+<span class=hljs-addition>+        alignment-baseline=&quot;baseline&quot;</span>
+<span class=hljs-addition>+        y=&quot;-24.873672485351555&quot;</span>
+<span class=hljs-addition>+        x=&quot;83.13975524902342&quot;</span>
+<span class=hljs-addition>+        style=&quot;font-family: cmmi10; font-size: 10px;&quot;</span>
+<span class=hljs-addition>+        &gt;c&lt;/text</span>
+<span class=hljs-addition>+    &gt;</span>
+<span class=hljs-addition>+    &lt;text</span>
+<span class=hljs-addition>+        alignment-baseline=&quot;baseline&quot;</span>
+<span class=hljs-addition>+        y=&quot;-23.37368774414062&quot;</span>
+<span class=hljs-addition>+        x=&quot;87.46731948852538&quot;</span>
+<span class=hljs-addition>+        style=&quot;font-family: cmr7; font-size: 7px;&quot;</span>
+<span class=hljs-addition>+        &gt;2&lt;/text</span>
+<span class=hljs-addition>+    &gt;</span>
+<span class=hljs-addition>+&lt;/g&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Digging into the source yielded these lines:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+if (this.svgDepth == 0) {</span>
+<span class=hljs-addition>+    let space = &quot;&quot;;</span>
+<span class=hljs-addition>+    if (this.lastTextV == this.position.v &amp;&amp; left &gt; this.lastTextRight + 2) {</span>
+<span class=hljs-addition>+        space =</span>
+<span class=hljs-addition>+            &#x27;&lt;span style=&quot;display: inline-block; width: 0pt;&quot;&gt;&amp;nbsp;&lt;/span&gt;&#x27;;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    this.writeToPage(</span>
+<span class=hljs-addition>+        `&lt;span style=&quot;line-height: 0; color: ${this.color}; font-family: ${</span>
+<span class=hljs-addition>+            this.font.name</span>
+<span class=hljs-addition>+        }; font-size: ${fontsize}pt; position: absolute; top: ${</span>
+<span class=hljs-addition>+            top - height</span>
+<span class=hljs-addition>+        }pt; left: ${left}pt; overflow: visible;&quot;&gt;&lt;span style=&quot;margin-top: -${fontsize}pt; line-height: ${0}pt; height: ${fontsize}pt; display: inline-block; vertical-align: baseline; &quot;&gt;${space}${htmlText}&lt;/span&gt;&lt;span style=&quot;display: inline-block; vertical-align: ${height}pt; height: ${0}pt; line-height: 0;&quot;&gt;&lt;/span&gt;&lt;/span&gt;\n`</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    this.lastTextV = this.position.v;</span>
+<span class=hljs-addition>+    this.lastTextRight = left + width;</span>
+<span class=hljs-addition>+} else {</span>
+<span class=hljs-addition>+    let bottom = this.position.v * this.pointsPerDviUnit;</span>
+<span class=hljs-addition>+    // No &#x27;pt&#x27; on fontsize since those units are potentially scaled</span>
+<span class=hljs-addition>+    this.writeToPage(</span>
+<span class=hljs-addition>+        `&lt;text alignment-baseline=&quot;baseline&quot; y=&quot;${bottom}&quot; x=&quot;${left}&quot; style=&quot;font-family: ${this.font.name};&quot; font-size=&quot;${fontsize}&quot;&gt;${htmlText}&lt;/text&gt;\n`</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For some reason, `this.svgDepth = 0` and the `span`s were being output. This</span>
+<span class=hljs-addition>+variable was only controlled by the methods `beginSVG()` and `endSVG()`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+  beginSVG( ) {</span>
+<span class=hljs-addition>+    let left = this.position.h * this.pointsPerDviUnit;</span>
+<span class=hljs-addition>+    let top = this.position.v * this.pointsPerDviUnit;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    if (this.svgDepth == 0) {</span>
+<span class=hljs-addition>+      // FIXME: Should I have 0.99624in instead of 1in ?</span>
+<span class=hljs-addition>+      this.writeToPage( `&lt;svg width=&quot;1in&quot; height=&quot;1in&quot; viewBox=&quot;0 0 72 72&quot; style=&quot;position: absolute; top: 0pt; left: 0pt; overflow: visible;&quot;&gt;\n` );</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    this.writeToPage( `&lt;g transform=&quot;translate(${left},${top})&quot;&gt;\n` );</span>
+<span class=hljs-addition>+    this.svgDepth += 1;</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+  endSVG( ) {</span>
+<span class=hljs-addition>+    this.svgDepth -= 1;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    this.writeToPage( &#x27;&lt;/g&gt;&#x27; );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    if (this.svgDepth == 0) {</span>
+<span class=hljs-addition>+      this.writeToPage( &#x27;&lt;/svg&gt;&#x27; );</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+  }</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Which after some more investigation, were never being called. I ended up erasing</span>
+<span class=hljs-addition>+the `this.svgDepth === 0` case from the logic, which seems like a bad choice,</span>
+<span class=hljs-addition>+but made the text appear again.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The (I think) last update I made was to remove this new div that started</span>
+<span class=hljs-addition>+appearing because it made everything weirdly positioned.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+this.output.write(</span>
+<span class=hljs-addition>+    `&lt;div style=&quot;position: relative; width: 100%; height: ${height}pt;&quot; class=&quot;page&quot;&gt;`</span>
+<span class=hljs-addition>+);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Finally, `dvi2html` works... Actually, I couldn&#x27;t build it from source and ended</span>
+<span class=hljs-addition>+up modifying the built version in the `node_modules` folder of the `TikZJax`</span>
+<span class=hljs-addition>+project...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As for getting the worker in, I&#x27;m not going to bother with the details. It just</span>
+<span class=hljs-addition>+requires a refactoring to remove 1 and 4 which interact with the dom, then</span>
+<span class=hljs-addition>+setting up some worker/window thread logic.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And the result?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![profile of page load with worker](/blobs/106/with-worker.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It stops blocking the thread but now takes 3x longer. It could be related to a</span>
+<span class=hljs-addition>+lot of things like updating `dvi2html`, or the general refactor, or other</span>
+<span class=hljs-addition>+things. A good chunk is actually related to the initial load. Either way, I&#x27;m ok</span>
+<span class=hljs-addition>+with it though - I can just slap a simple css loading animation on them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You may also wonder what the first chunk of javascript is; that&#x27;s MathJax. I</span>
+<span class=hljs-addition>+don&#x27;t think it&#x27;s too big of an issue.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

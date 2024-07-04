@@ -8,7 +8,7 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz.js defer></script>
+<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>how NOT to handle no-javascript environments</title>
@@ -31,7 +31,7 @@ lights
 Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/104>&lt; thoughts on space related data structures</a></div>
+<div style="flex:0 0 50%"><a href=/./posts/104>&lt; thoughts on space related data structures</a></div> <div style=text-align:end><a href=/./posts/106>a performance investigation of this site &gt;</a></div>
 </nav>
 <h1 id=how-not-to-handle-no-javascript-environments>how NOT to handle no-javascript environments</h1>
 <p>I run <a href=https://noscript.net/ >noscript</a>, which blocks javascript from running on websites and I enable scripts only if a site is interesting/useful enough to warrant enabling it. One benefit of this is that I can selectively choose what scripts to enable, and can avoid loading external ones, avoiding issues like
@@ -81,7 +81,7 @@ around <code>http-equiv="refresh"</code>, specifically the part that says</p>
 </code></pre>
 <p>There's also the other question of why javascript is necessary to display what is usually mostly text data. Yes, there are specific interactive parts of the page that would require javascript but you could use similar <code>noscript</code> tags to tell users to enable it, but that runs into the efficiency issue again.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/104>&lt; thoughts on space related data structures</a></div>
+<div style="flex:0 0 50%"><a href=/./posts/104>&lt; thoughts on space related data structures</a></div> <div style=text-align:end><a href=/./posts/106>a performance investigation of this site &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
