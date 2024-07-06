@@ -181,6 +181,8 @@ project…</p>
 <p><img alt="profile of page load with worker" src=/blobs/106/with-worker.png></p>
 <p>It stops blocking the thread but now takes 3x longer. It could be related to a lot of things like updating <code>dvi2html</code>, or the general refactor, or other things. A good chunk is actually related to the initial load. Either way, I'm ok with it though - I can just slap a simple css loading animation on them.</p>
 <p>You may also wonder what the first chunk of javascript is; that's MathJax. I don't think it's too big of an issue.</p>
+<p>Well, I found a different version of <code>dvi2html</code> which contained all the relevant fixes and other changes, rebuilt, and the performance is a lot better.</p>
+<p><img alt="final profile" src=/blobs/106/final-worker.png></p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/105>&lt; how NOT to handle no-javascript environments</a></div>
 </nav>
@@ -188,8 +190,25 @@ project…</p>
 <div class="commit-list de-emphasized">
 <span>History:</span>
 <details>
+<summary>2024-07-06 - update post 106: share details of new dvi2html build</summary>
+<pre class=code-block><input id=code-block-bbba758c6dfb41f25373b164dbcf3ba3b29c77a6-1 type=checkbox><label for=code-block-bbba758c6dfb41f25373b164dbcf3ba3b29c77a6-1></label><code><span class=hljs-meta>@@ -208,3 +208,3 @@</span> appearing because it made everything weirdly positioned.
+ this.output.write(
+<span class=hljs-deletion>-    `&lt;div style=&quot;position: relative; width: 100%; height: ${height}pt;&quot; class=&quot;page&quot;&gt;`</span>
+<span class=hljs-addition>+    `&lt;div style=&quot;position: relative; width: 100%; height: ${height}pt;&quot; class=&quot;page&quot;&gt;`</span>
+ );
+</code></pre>
+<pre class=code-block><input id=code-block-bbba758c6dfb41f25373b164dbcf3ba3b29c77a6-2 type=checkbox><label for=code-block-bbba758c6dfb41f25373b164dbcf3ba3b29c77a6-2></label><code>@@ -231 +231,6 @@ You may also wonder what the first chunk of javascript is; that&#x27;s MathJax. I
+ don&#x27;t think it&#x27;s too big of an issue.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, I found a different version of `dvi2html` which contained all the relevant</span>
+<span class=hljs-addition>+fixes and other changes, rebuilt, and the performance is a lot better.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![final profile](/blobs/106/final-worker.png)</span>
+</code></pre>
+</details>
+<details>
 <summary>2024-07-04 - add post 106</summary>
-<pre class=code-block><input id=code-block-0278114d47f166f6b8ba3c8341c5593dc2f7f278-1 type=checkbox><label for=code-block-0278114d47f166f6b8ba3c8341c5593dc2f7f278-1></label><code><span class=hljs-meta>@@ -0,0 +1,231 @@</span>
+<pre class=code-block><input id=code-block-8f53f9e230faac22d7089924878da5caae841f3f-1 type=checkbox><label for=code-block-8f53f9e230faac22d7089924878da5caae841f3f-1></label><code><span class=hljs-meta>@@ -0,0 +1,231 @@</span>
 <span class=hljs-addition>+# a performance investigation of this site</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+I recently added a very simple bit of css to avoid blasting people&#x27;s eyes when</span>
