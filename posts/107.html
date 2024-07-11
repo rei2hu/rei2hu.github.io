@@ -1,0 +1,2393 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz-loader.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>mtasa engineloadcol with raw data</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/106>&lt; a performance investigation of this site</a></div>
+</nav>
+<h1 id=mtasa-engineloadcol-with-raw-data>mtasa EngineLoadCol with raw data</h1>
+<p>Click <a href=#code>here</a> to skip the ai challenge part and look at an example.</p>
+<p>In Multi Theft Auto (MTA), there is a method called
+<a href=https://wiki.multitheftauto.com/wiki/EngineLoadCOL><code>engineLoadCol</code></a> that can be used to load collision data in scripts. It is described as something that</p>
+<blockquote>
+<p>loads a RenderWare Collision (COL 1/2/3) file into GTA.</p>
+</blockquote>
+<p>Through the pseudocode-ish signature:</p>
+<pre class=code-block><input id=code-block-107-1 type=checkbox><label for=code-block-107-1></label><code>col engineLoadCOL ( <span class=hljs-built_in>string</span> col_file / <span class=hljs-built_in>string</span> raw_data )
+</code></pre>
+<p>I saw that it should have the ability to take raw data in addition to just a collision file's name. The entry to the method and its underlying code is
+<a href=https://github.com/multitheftauto/mtasa-blue/blob/4994504970b81e8e96237a12241a8ff3ab3a4b3e/Client/mods/deathmatch/logic/luadefs/CLuaEngineDefs.cpp#L270>here</a>, and looking at it supports this theory.</p>
+<p>Now the question is how to do this, as there don't seem to be (m)any resources that walk through the entire process. I ended up spending a better part of a day figuring this out.</p>
+<p>However, though I've figured it out already by now, I decided to follow up by asking ChatGPT about this, because why not and I guess that'll be another fun test of "things that should be solvable with logic and information but probably can't be found directly in its training data".</p>
+<h2 id=ai-challenge>ai challenge</h2>
+<p>I decided to start out by asking it to generate a collision file with lua, since the end goal is to be able to run <code>engineLoadCol(data)</code>. You can take a look at the structure of the file we're trying to generate
+<a href=https://gtamods.com/wiki/Collision_File>here</a>. Let's start.</p>
+<blockquote>
+<p>Can you write some lua code to generate a MTA:SA collision file with 1 cube please?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-2 type=checkbox><label for=code-block-107-2></label><code><span class=hljs-comment>-- Define vertices of the cube</span>
+<span class=hljs-keyword>local</span> vertices = {
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 1</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 2</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 3</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 4</span>
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 5</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 6</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 7</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}   <span class=hljs-comment>-- Vertex 8</span>
+}
+
+<span class=hljs-comment>-- Define faces of the cube (each face is made up of 4 vertices)</span>
+<span class=hljs-keyword>local</span> faces = {
+    {<span class=hljs-number>0</span>, <span class=hljs-number>1</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>},  <span class=hljs-comment>-- Front face</span>
+    {<span class=hljs-number>1</span>, <span class=hljs-number>5</span>, <span class=hljs-number>6</span>, <span class=hljs-number>2</span>},  <span class=hljs-comment>-- Right face</span>
+    {<span class=hljs-number>5</span>, <span class=hljs-number>4</span>, <span class=hljs-number>7</span>, <span class=hljs-number>6</span>},  <span class=hljs-comment>-- Back face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>0</span>, <span class=hljs-number>3</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Left face</span>
+    {<span class=hljs-number>3</span>, <span class=hljs-number>2</span>, <span class=hljs-number>6</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Top face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>5</span>, <span class=hljs-number>1</span>, <span class=hljs-number>0</span>}   <span class=hljs-comment>-- Bottom face</span>
+}
+
+<span class=hljs-comment>-- Create the collision shape</span>
+<span class=hljs-keyword>local</span> collisionShape = {
+    <span class=hljs-built_in>type</span> = <span class=hljs-string>&quot;multi&quot;</span>,
+    parts = {
+        {
+            <span class=hljs-built_in>type</span> = <span class=hljs-string>&quot;poly&quot;</span>,
+            vertices = vertices,
+            faces = faces
+        }
+    }
+}
+
+<span class=hljs-comment>-- Save collision shape to a file</span>
+<span class=hljs-keyword>local</span> file = fileCreate(<span class=hljs-string>&quot;cube.col&quot;</span>)
+<span class=hljs-keyword>if</span> file <span class=hljs-keyword>then</span>
+    fileWrite(file, <span class=hljs-string>&quot;return &quot;</span> .. toJSON(collisionShape))
+    fileClose(file)
+    outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+<span class=hljs-keyword>else</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to create collision file.&quot;</span>)
+<span class=hljs-keyword>end</span>
+</code></pre>
+<p>Well, if I knew nothing about the file format, then this would look correct. Unfortunately, it's not json.</p>
+<blockquote>
+<p>the file isn't in json, it's some kind of binary format that can be found online. can you fix that?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-3 type=checkbox><label for=code-block-107-3></label><code><span class=hljs-comment>-- Define vertices of the cube</span>
+<span class=hljs-keyword>local</span> vertices = {
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 1</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 2</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 3</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 4</span>
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 5</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 6</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 7</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}   <span class=hljs-comment>-- Vertex 8</span>
+}
+
+<span class=hljs-comment>-- Define indices for the cube faces</span>
+<span class=hljs-keyword>local</span> indices = {
+    {<span class=hljs-number>0</span>, <span class=hljs-number>1</span>, <span class=hljs-number>2</span>}, {<span class=hljs-number>0</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>},  <span class=hljs-comment>-- Front face</span>
+    {<span class=hljs-number>1</span>, <span class=hljs-number>5</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>1</span>, <span class=hljs-number>6</span>, <span class=hljs-number>2</span>},  <span class=hljs-comment>-- Right face</span>
+    {<span class=hljs-number>5</span>, <span class=hljs-number>4</span>, <span class=hljs-number>7</span>}, {<span class=hljs-number>5</span>, <span class=hljs-number>7</span>, <span class=hljs-number>6</span>},  <span class=hljs-comment>-- Back face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>0</span>, <span class=hljs-number>3</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>3</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Left face</span>
+    {<span class=hljs-number>3</span>, <span class=hljs-number>2</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>3</span>, <span class=hljs-number>6</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Top face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>5</span>, <span class=hljs-number>1</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>1</span>, <span class=hljs-number>0</span>}   <span class=hljs-comment>-- Bottom face</span>
+}
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write the number of vertices</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, #vertices))
+
+<span class=hljs-comment>-- Write each vertex</span>
+<span class=hljs-keyword>for</span> _, vertex <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertex) <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write the number of faces</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, #indices))
+
+<span class=hljs-comment>-- Write each face</span>
+<span class=hljs-keyword>for</span> _, face <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(indices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, index <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(face) <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, index))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>Looks a lot better, but it's definitely missing the headers at least. There are also some considerations on what apis exist in LuaJIT (aka Lua 5.1), but I'll overlook that for now.</p>
+<blockquote>
+<p>its missing the header. can you add the header of a version 1 renderware collision file?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-4 type=checkbox><label for=code-block-107-4></label><code><span class=hljs-comment>-- Define vertices of the cube</span>
+<span class=hljs-keyword>local</span> vertices = {
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 1</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 2</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 3</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 4</span>
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 5</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 6</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 7</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}   <span class=hljs-comment>-- Vertex 8</span>
+}
+
+<span class=hljs-comment>-- Define indices for the cube faces</span>
+<span class=hljs-keyword>local</span> indices = {
+    {<span class=hljs-number>0</span>, <span class=hljs-number>1</span>, <span class=hljs-number>2</span>}, {<span class=hljs-number>0</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>},  <span class=hljs-comment>-- Front face</span>
+    {<span class=hljs-number>1</span>, <span class=hljs-number>5</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>1</span>, <span class=hljs-number>6</span>, <span class=hljs-number>2</span>},  <span class=hljs-comment>-- Right face</span>
+    {<span class=hljs-number>5</span>, <span class=hljs-number>4</span>, <span class=hljs-number>7</span>}, {<span class=hljs-number>5</span>, <span class=hljs-number>7</span>, <span class=hljs-number>6</span>},  <span class=hljs-comment>-- Back face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>0</span>, <span class=hljs-number>3</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>3</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Left face</span>
+    {<span class=hljs-number>3</span>, <span class=hljs-number>2</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>3</span>, <span class=hljs-number>6</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Top face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>5</span>, <span class=hljs-number>1</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>1</span>, <span class=hljs-number>0</span>}   <span class=hljs-comment>-- Bottom face</span>
+}
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file header (version 1)</span>
+<span class=hljs-keyword>local</span> header = {
+    version = <span class=hljs-number>0x10000</span>,     <span class=hljs-comment>-- Version 1.0</span>
+    numVertices = #vertices,
+    numIndices = #indices / <span class=hljs-number>3</span>,  <span class=hljs-comment>-- Number of triangles (since each face is a triangle)</span>
+    radius = <span class=hljs-number>1.0</span>,          <span class=hljs-comment>-- Radius (dummy value for cubes)</span>
+    <span class=hljs-built_in>min</span> = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},    <span class=hljs-comment>-- Minimum extent of the bounding box</span>
+    <span class=hljs-built_in>max</span> = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}     <span class=hljs-comment>-- Maximum extent of the bounding box</span>
+}
+
+<span class=hljs-comment>-- Write the header</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.version))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.numVertices))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.numIndices))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, header.radius))
+<span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(header.<span class=hljs-built_in>min</span>) <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+<span class=hljs-keyword>end</span>
+<span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(header.<span class=hljs-built_in>max</span>) <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write each vertex</span>
+<span class=hljs-keyword>for</span> _, vertex <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertex) <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write each index</span>
+<span class=hljs-keyword>for</span> _, face <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(indices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, index <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(face) <span class=hljs-keyword>do</span>
+        <span class=hljs-comment>-- Add 1 to each index because RenderWare uses 1-based indexing</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, index + <span class=hljs-number>1</span>))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>That's not the right header, but it does have some details kind of right, like radius, min, and max though the actual layout of data is wrong.</p>
+<blockquote>
+<p>that header still looks wrong. it should start with COL at least</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-5 type=checkbox><label for=code-block-107-5></label><code><span class=hljs-comment>-- Define vertices of the cube</span>
+<span class=hljs-keyword>local</span> vertices = {
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 1</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 2</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 3</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 4</span>
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 5</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 6</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 7</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}   <span class=hljs-comment>-- Vertex 8</span>
+}
+
+<span class=hljs-comment>-- Define indices for the cube faces</span>
+<span class=hljs-keyword>local</span> indices = {
+    {<span class=hljs-number>0</span>, <span class=hljs-number>1</span>, <span class=hljs-number>2</span>}, {<span class=hljs-number>0</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>},  <span class=hljs-comment>-- Front face</span>
+    {<span class=hljs-number>1</span>, <span class=hljs-number>5</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>1</span>, <span class=hljs-number>6</span>, <span class=hljs-number>2</span>},  <span class=hljs-comment>-- Right face</span>
+    {<span class=hljs-number>5</span>, <span class=hljs-number>4</span>, <span class=hljs-number>7</span>}, {<span class=hljs-number>5</span>, <span class=hljs-number>7</span>, <span class=hljs-number>6</span>},  <span class=hljs-comment>-- Back face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>0</span>, <span class=hljs-number>3</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>3</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Left face</span>
+    {<span class=hljs-number>3</span>, <span class=hljs-number>2</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>3</span>, <span class=hljs-number>6</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Top face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>5</span>, <span class=hljs-number>1</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>1</span>, <span class=hljs-number>0</span>}   <span class=hljs-comment>-- Bottom face</span>
+}
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file header (version 1)</span>
+<span class=hljs-keyword>local</span> header = {
+    identifier = <span class=hljs-string>&quot;COL&quot;</span>,    <span class=hljs-comment>-- Identifier</span>
+    version = <span class=hljs-number>0x10000</span>,     <span class=hljs-comment>-- Version 1.0</span>
+    numVertices = #vertices,
+    numIndices = #indices / <span class=hljs-number>3</span>,  <span class=hljs-comment>-- Number of triangles (since each face is a triangle)</span>
+    radius = <span class=hljs-number>1.0</span>,          <span class=hljs-comment>-- Radius (dummy value for cubes)</span>
+    <span class=hljs-built_in>min</span> = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},    <span class=hljs-comment>-- Minimum extent of the bounding box</span>
+    <span class=hljs-built_in>max</span> = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}     <span class=hljs-comment>-- Maximum extent of the bounding box</span>
+}
+
+<span class=hljs-comment>-- Write the header</span>
+file:<span class=hljs-built_in>write</span>(header.identifier)
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.version))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.numVertices))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.numIndices))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, header.radius))
+<span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(header.<span class=hljs-built_in>min</span>) <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+<span class=hljs-keyword>end</span>
+<span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(header.<span class=hljs-built_in>max</span>) <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write each vertex</span>
+<span class=hljs-keyword>for</span> _, vertex <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertex) <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write each index</span>
+<span class=hljs-keyword>for</span> _, face <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(indices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, index <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(face) <span class=hljs-keyword>do</span>
+        <span class=hljs-comment>-- Add 1 to each index because RenderWare uses 1-based indexing</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, index + <span class=hljs-number>1</span>))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>It added <code>COL</code> but now I noticed that it has been giving version 1 which is not correct. Version 1 files start with <code>COLL</code> while 2 and 3 start with <code>COL2</code> and
+<code>COL3</code>. A little unintuitive but that's how it is.</p>
+<blockquote>
+<p>version 1 files don't have COL1 as a header they use COLL. can you fix that?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-6 type=checkbox><label for=code-block-107-6></label><code><span class=hljs-comment>-- Define vertices of the cube</span>
+<span class=hljs-keyword>local</span> vertices = {
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 1</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 2</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 3</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>},  <span class=hljs-comment>-- Vertex 4</span>
+    {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 5</span>
+    { <span class=hljs-number>1</span>, <span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 6</span>
+    { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>},  <span class=hljs-comment>-- Vertex 7</span>
+    {<span class=hljs-number>-1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}   <span class=hljs-comment>-- Vertex 8</span>
+}
+
+<span class=hljs-comment>-- Define indices for the cube faces</span>
+<span class=hljs-keyword>local</span> indices = {
+    {<span class=hljs-number>0</span>, <span class=hljs-number>1</span>, <span class=hljs-number>2</span>}, {<span class=hljs-number>0</span>, <span class=hljs-number>2</span>, <span class=hljs-number>3</span>},  <span class=hljs-comment>-- Front face</span>
+    {<span class=hljs-number>1</span>, <span class=hljs-number>5</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>1</span>, <span class=hljs-number>6</span>, <span class=hljs-number>2</span>},  <span class=hljs-comment>-- Right face</span>
+    {<span class=hljs-number>5</span>, <span class=hljs-number>4</span>, <span class=hljs-number>7</span>}, {<span class=hljs-number>5</span>, <span class=hljs-number>7</span>, <span class=hljs-number>6</span>},  <span class=hljs-comment>-- Back face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>0</span>, <span class=hljs-number>3</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>3</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Left face</span>
+    {<span class=hljs-number>3</span>, <span class=hljs-number>2</span>, <span class=hljs-number>6</span>}, {<span class=hljs-number>3</span>, <span class=hljs-number>6</span>, <span class=hljs-number>7</span>},  <span class=hljs-comment>-- Top face</span>
+    {<span class=hljs-number>4</span>, <span class=hljs-number>5</span>, <span class=hljs-number>1</span>}, {<span class=hljs-number>4</span>, <span class=hljs-number>1</span>, <span class=hljs-number>0</span>}   <span class=hljs-comment>-- Bottom face</span>
+}
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file header (version 1)</span>
+<span class=hljs-keyword>local</span> header = {
+    identifier = <span class=hljs-string>&quot;COLL&quot;</span>,   <span class=hljs-comment>-- Identifier</span>
+    version = <span class=hljs-number>0x10000</span>,     <span class=hljs-comment>-- Version 1.0</span>
+    numVertices = #vertices,
+    numIndices = #indices / <span class=hljs-number>3</span>,  <span class=hljs-comment>-- Number of triangles (since each face is a triangle)</span>
+    radius = <span class=hljs-number>1.0</span>,          <span class=hljs-comment>-- Radius (dummy value for cubes)</span>
+    <span class=hljs-built_in>min</span> = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>},    <span class=hljs-comment>-- Minimum extent of the bounding box</span>
+    <span class=hljs-built_in>max</span> = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}     <span class=hljs-comment>-- Maximum extent of the bounding box</span>
+}
+
+<span class=hljs-comment>-- Write the header</span>
+file:<span class=hljs-built_in>write</span>(header.identifier)
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.version))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.numVertices))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.numIndices))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, header.radius))
+<span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(header.<span class=hljs-built_in>min</span>) <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+<span class=hljs-keyword>end</span>
+<span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(header.<span class=hljs-built_in>max</span>) <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write each vertex</span>
+<span class=hljs-keyword>for</span> _, vertex <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, coord <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(vertex) <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, coord))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write each index</span>
+<span class=hljs-keyword>for</span> _, face <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(indices) <span class=hljs-keyword>do</span>
+    <span class=hljs-keyword>for</span> _, index <span class=hljs-keyword>in</span> <span class=hljs-built_in>ipairs</span>(face) <span class=hljs-keyword>do</span>
+        <span class=hljs-comment>-- Add 1 to each index because RenderWare uses 1-based indexing</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, index + <span class=hljs-number>1</span>))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>It's still outputting the version. I mean technically it might pass because the next few bytes are related to the file size which doesn't seem to matter to MTA, but it's still wrong.</p>
+<p>Either way, I gave up on correcting the header and opted to move on to other things.</p>
+<blockquote>
+<p>ok forget the header. these collision files have the ability to store box collisions with 2 vectors so we don't need to hold all the faces and vertices. can you update the code to do that instead?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-7 type=checkbox><label for=code-block-107-7></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+<span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
+<span class=hljs-keyword>local</span> vector2 = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}  <span class=hljs-comment>-- Vector representing the opposite corner of the box</span>
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file header (version 1)</span>
+<span class=hljs-keyword>local</span> header = {
+    identifier = <span class=hljs-string>&quot;COLL&quot;</span>,   <span class=hljs-comment>-- Identifier</span>
+    version = <span class=hljs-number>0x10000</span>,     <span class=hljs-comment>-- Version 1.0</span>
+    numVectors = <span class=hljs-number>2</span>,        <span class=hljs-comment>-- Number of vectors (two vectors for a box)</span>
+    radius = <span class=hljs-number>1.0</span>,          <span class=hljs-comment>-- Radius (dummy value for boxes)</span>
+    <span class=hljs-built_in>min</span> = {},              <span class=hljs-comment>-- Minimum extent of the bounding box</span>
+    <span class=hljs-built_in>max</span> = {}               <span class=hljs-comment>-- Maximum extent of the bounding box</span>
+}
+
+<span class=hljs-comment>-- Determine min and max extents of the bounding box</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+    header.<span class=hljs-built_in>min</span>[i] = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>min</span>(vector1[i], vector2[i])
+    header.<span class=hljs-built_in>max</span>[i] = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>max</span>(vector1[i], vector2[i])
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write the header</span>
+file:<span class=hljs-built_in>write</span>(header.identifier)
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.version))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, header.numVectors))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, header.radius))
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, header.<span class=hljs-built_in>min</span>[i]))
+<span class=hljs-keyword>end</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, header.<span class=hljs-built_in>max</span>[i]))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write each vector</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector1[<span class=hljs-number>1</span>]))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector1[<span class=hljs-number>2</span>]))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector1[<span class=hljs-number>3</span>]))
+
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector2[<span class=hljs-number>1</span>]))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector2[<span class=hljs-number>2</span>]))
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector2[<span class=hljs-number>3</span>]))
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>Oh, the entire body is incorrect.</p>
+<blockquote>
+<p>the body is incorrect. it specifies the number of sphere collisions followed by each sphere's information, then specifies some unknown data length which should be 0, then the number of col boxes followed by each boxes information, then num vertices and vertex info, and finally num faces and face info.</p>
+<p>I only want 1 box collision though, so all the other numbers will be 0. can you fix the script?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-8 type=checkbox><label for=code-block-107-8></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+<span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
+<span class=hljs-keyword>local</span> vector2 = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}  <span class=hljs-comment>-- Vector representing the opposite corner of the box</span>
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file structure</span>
+<span class=hljs-keyword>local</span> numSphereCollisions = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numColBoxes = <span class=hljs-number>1</span>  <span class=hljs-comment>-- Only 1 box collision</span>
+<span class=hljs-keyword>local</span> numVertices = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numFaces = <span class=hljs-number>0</span>
+
+<span class=hljs-comment>-- Write number of sphere collisions (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numSphereCollisions))
+
+<span class=hljs-comment>-- Write each sphere&#x27;s information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write unknown data length (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, <span class=hljs-number>0</span>))
+
+<span class=hljs-comment>-- Write number of box collisions</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numColBoxes))
+
+<span class=hljs-comment>-- Write each box collision&#x27;s information</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, numColBoxes <span class=hljs-keyword>do</span>
+    <span class=hljs-comment>-- Write vector 1 and vector 2 for the box collision</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector1[j]))
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector2[j]))
+    <span class=hljs-keyword>end</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write number of vertices (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numVertices))
+
+<span class=hljs-comment>-- Write vertex information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write number of faces (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numFaces))
+
+<span class=hljs-comment>-- Write face information (none, so skip)</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<blockquote>
+<p>that looks a lot better but box collisions also come with surface information. can you add that?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-9 type=checkbox><label for=code-block-107-9></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+<span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
+<span class=hljs-keyword>local</span> vector2 = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}  <span class=hljs-comment>-- Vector representing the opposite corner of the box</span>
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file structure</span>
+<span class=hljs-keyword>local</span> numSphereCollisions = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numColBoxes = <span class=hljs-number>1</span>  <span class=hljs-comment>-- Only 1 box collision</span>
+<span class=hljs-keyword>local</span> numVertices = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numFaces = <span class=hljs-number>0</span>
+
+<span class=hljs-comment>-- Write number of sphere collisions (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numSphereCollisions))
+
+<span class=hljs-comment>-- Write each sphere&#x27;s information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write unknown data length (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, <span class=hljs-number>0</span>))
+
+<span class=hljs-comment>-- Write number of box collisions</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numColBoxes))
+
+<span class=hljs-comment>-- Write each box collision&#x27;s information</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, numColBoxes <span class=hljs-keyword>do</span>
+    <span class=hljs-comment>-- Write vector 1 and vector 2 for the box collision</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector1[j]))
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector2[j]))
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-comment>-- Write surface information for the box collision (dummy values for demonstration)</span>
+    <span class=hljs-keyword>local</span> surfaceFlags = <span class=hljs-number>0x00000001</span>  <span class=hljs-comment>-- Example: Solid surface</span>
+    <span class=hljs-keyword>local</span> surfaceID = <span class=hljs-number>0</span>              <span class=hljs-comment>-- Example: Surface ID</span>
+
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, surfaceFlags))
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, surfaceID))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write number of vertices (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numVertices))
+
+<span class=hljs-comment>-- Write vertex information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write number of faces (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numFaces))
+
+<span class=hljs-comment>-- Write face information (none, so skip)</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<blockquote>
+<p>the surface info should be 4 uint8s for material, flag, unknown, and light. can you fix the script to add these? the actual values are unimportant</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-10 type=checkbox><label for=code-block-107-10></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+<span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
+<span class=hljs-keyword>local</span> vector2 = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}  <span class=hljs-comment>-- Vector representing the opposite corner of the box</span>
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file structure</span>
+<span class=hljs-keyword>local</span> numSphereCollisions = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numColBoxes = <span class=hljs-number>1</span>  <span class=hljs-comment>-- Only 1 box collision</span>
+<span class=hljs-keyword>local</span> numVertices = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numFaces = <span class=hljs-number>0</span>
+
+<span class=hljs-comment>-- Write number of sphere collisions (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numSphereCollisions))
+
+<span class=hljs-comment>-- Write each sphere&#x27;s information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write unknown data length (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, <span class=hljs-number>0</span>))
+
+<span class=hljs-comment>-- Write number of box collisions</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numColBoxes))
+
+<span class=hljs-comment>-- Write each box collision&#x27;s information</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, numColBoxes <span class=hljs-keyword>do</span>
+    <span class=hljs-comment>-- Write vector 1 and vector 2 for the box collision</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector1[j]))
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, vector2[j]))
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-comment>-- Write surface information for the box collision (dummy values for demonstration)</span>
+    <span class=hljs-keyword>local</span> materialID = <span class=hljs-number>1</span>      <span class=hljs-comment>-- Example: Material ID</span>
+    <span class=hljs-keyword>local</span> surfaceFlags = <span class=hljs-number>2</span>    <span class=hljs-comment>-- Example: Surface flags</span>
+    <span class=hljs-keyword>local</span> unknownField = <span class=hljs-number>3</span>    <span class=hljs-comment>-- Example: Unknown field</span>
+    <span class=hljs-keyword>local</span> lightValue = <span class=hljs-number>4</span>      <span class=hljs-comment>-- Example: Light value</span>
+
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, materialID))
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, surfaceFlags))
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, unknownField))
+    file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, lightValue))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write number of vertices (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numVertices))
+
+<span class=hljs-comment>-- Write vertex information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write number of faces (always 0)</span>
+file:<span class=hljs-built_in>write</span>(<span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;I4&quot;</span>, numFaces))
+
+<span class=hljs-comment>-- Write face information (none, so skip)</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>Finally, the body looks valid… though I'm not going to bother testing it. Let's now tackle the issue of the environment being Lua 5.1 by telling it an error message that would occurr when running it.</p>
+<blockquote>
+<p>im getting the error attempt to call field pack a nil value</p>
+<p>why is this?</p>
+</blockquote>
+<p>And the response</p>
+<blockquote>
+<p>Update Lua: If possible, update your Lua environment to a version that includes string.pack (Lua 5.3 or later). Alternative Packing Methods: Implement a custom packing function or use a library that provides similar functionality. Here's a basic example of how you might implement a simple packing function for unsigned integers (uint):</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-11 type=checkbox><label for=code-block-107-11></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+<span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
+<span class=hljs-keyword>local</span> vector2 = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}  <span class=hljs-comment>-- Vector representing the opposite corner of the box</span>
+
+<span class=hljs-comment>-- Custom packing function for uint (32-bit unsigned integer)</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>pack_uint</span><span class=hljs-params>(value)</span></span>
+    <span class=hljs-keyword>return</span> <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>24</span>) % <span class=hljs-number>256</span>,
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>16</span>) % <span class=hljs-number>256</span>,
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>8</span>) % <span class=hljs-number>256</span>,
+        value % <span class=hljs-number>256</span>
+    )
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file structure</span>
+<span class=hljs-keyword>local</span> numSphereCollisions = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numColBoxes = <span class=hljs-number>1</span>  <span class=hljs-comment>-- Only 1 box collision</span>
+<span class=hljs-keyword>local</span> numVertices = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numFaces = <span class=hljs-number>0</span>
+
+<span class=hljs-comment>-- Write number of sphere collisions (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numSphereCollisions))
+
+<span class=hljs-comment>-- Write each sphere&#x27;s information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write unknown data length (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(<span class=hljs-number>0</span>))
+
+<span class=hljs-comment>-- Write number of box collisions</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numColBoxes))
+
+<span class=hljs-comment>-- Write each box collision&#x27;s information</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, numColBoxes <span class=hljs-keyword>do</span>
+    <span class=hljs-comment>-- Write vector 1 and vector 2 for the box collision</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(pack_uint(vector1[j]))
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(pack_uint(vector2[j]))
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-comment>-- Write surface information for the box collision (dummy values for demonstration)</span>
+    <span class=hljs-keyword>local</span> materialID = <span class=hljs-number>1</span>      <span class=hljs-comment>-- Example: Material ID</span>
+    <span class=hljs-keyword>local</span> surfaceFlags = <span class=hljs-number>2</span>    <span class=hljs-comment>-- Example: Surface flags</span>
+    <span class=hljs-keyword>local</span> unknownField = <span class=hljs-number>3</span>    <span class=hljs-comment>-- Example: Unknown field</span>
+    <span class=hljs-keyword>local</span> lightValue = <span class=hljs-number>4</span>      <span class=hljs-comment>-- Example: Light value</span>
+
+    file:<span class=hljs-built_in>write</span>(pack_uint(materialID))
+    file:<span class=hljs-built_in>write</span>(pack_uint(surfaceFlags))
+    file:<span class=hljs-built_in>write</span>(pack_uint(unknownField))
+    file:<span class=hljs-built_in>write</span>(pack_uint(lightValue))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write number of vertices (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numVertices))
+
+<span class=hljs-comment>-- Write vertex information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write number of faces (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numFaces))
+
+<span class=hljs-comment>-- Write face information (none, so skip)</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>Very good. Except it replaced the <code>string.pack</code> float usage with unsigned ints.</p>
+<blockquote>
+<p>should the string.pack("&lt;f") also be replaced with pack_uint or something else?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-12 type=checkbox><label for=code-block-107-12></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+<span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
+<span class=hljs-keyword>local</span> vector2 = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}  <span class=hljs-comment>-- Vector representing the opposite corner of the box</span>
+
+<span class=hljs-comment>-- Custom packing function for floats</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>pack_float</span><span class=hljs-params>(value)</span></span>
+    <span class=hljs-keyword>return</span> <span class=hljs-built_in>string</span>.pack(<span class=hljs-string>&quot;&lt;f&quot;</span>, value)
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Custom packing function for uint (32-bit unsigned integer)</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>pack_uint</span><span class=hljs-params>(value)</span></span>
+    <span class=hljs-keyword>return</span> <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>24</span>) % <span class=hljs-number>256</span>,
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>16</span>) % <span class=hljs-number>256</span>,
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>8</span>) % <span class=hljs-number>256</span>,
+        value % <span class=hljs-number>256</span>
+    )
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file structure</span>
+<span class=hljs-keyword>local</span> numSphereCollisions = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numColBoxes = <span class=hljs-number>1</span>  <span class=hljs-comment>-- Only 1 box collision</span>
+<span class=hljs-keyword>local</span> numVertices = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numFaces = <span class=hljs-number>0</span>
+
+<span class=hljs-comment>-- Write number of sphere collisions (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numSphereCollisions))
+
+<span class=hljs-comment>-- Write each sphere&#x27;s information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write unknown data length (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(<span class=hljs-number>0</span>))
+
+<span class=hljs-comment>-- Write number of box collisions</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numColBoxes))
+
+<span class=hljs-comment>-- Write each box collision&#x27;s information</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, numColBoxes <span class=hljs-keyword>do</span>
+    <span class=hljs-comment>-- Write vector 1 and vector 2 for the box collision</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(pack_float(vector1[j]))
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(pack_float(vector2[j]))
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-comment>-- Write surface information for the box collision (dummy values for demonstration)</span>
+    <span class=hljs-keyword>local</span> materialID = <span class=hljs-number>1</span>      <span class=hljs-comment>-- Example: Material ID</span>
+    <span class=hljs-keyword>local</span> surfaceFlags = <span class=hljs-number>2</span>    <span class=hljs-comment>-- Example: Surface flags</span>
+    <span class=hljs-keyword>local</span> unknownField = <span class=hljs-number>3</span>    <span class=hljs-comment>-- Example: Unknown field</span>
+    <span class=hljs-keyword>local</span> lightValue = <span class=hljs-number>4</span>      <span class=hljs-comment>-- Example: Light value</span>
+
+    file:<span class=hljs-built_in>write</span>(pack_uint(materialID))
+    file:<span class=hljs-built_in>write</span>(pack_uint(surfaceFlags))
+    file:<span class=hljs-built_in>write</span>(pack_uint(unknownField))
+    file:<span class=hljs-built_in>write</span>(pack_uint(lightValue))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write number of vertices (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numVertices))
+
+<span class=hljs-comment>-- Write vertex information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write number of faces (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numFaces))
+
+<span class=hljs-comment>-- Write face information (none, so skip)</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>Huh… it just wrapped <code>string.pack</code> in another function. That's now what I'm looking for.</p>
+<blockquote>
+<p>so what would an implementation of pack<em>float that doesn't rely on string</em>pack?</p>
+</blockquote>
+<pre class=code-block><input id=code-block-107-13 type=checkbox><label for=code-block-107-13></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+<span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
+<span class=hljs-keyword>local</span> vector2 = { <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>,  <span class=hljs-number>1</span>}  <span class=hljs-comment>-- Vector representing the opposite corner of the box</span>
+
+<span class=hljs-comment>-- Custom function to pack a float into binary format</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>pack_float</span><span class=hljs-params>(value)</span></span>
+    <span class=hljs-comment>-- Convert float to IEEE 754 single-precision binary format (32-bit)</span>
+    <span class=hljs-keyword>local</span> sign = value &lt; <span class=hljs-number>0</span> <span class=hljs-keyword>and</span> <span class=hljs-number>1</span> <span class=hljs-keyword>or</span> <span class=hljs-number>0</span>
+    value = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(value)
+    <span class=hljs-keyword>local</span> exponent = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(<span class=hljs-built_in>math</span>.<span class=hljs-built_in>log</span>(value) / <span class=hljs-built_in>math</span>.<span class=hljs-built_in>log</span>(<span class=hljs-number>2</span>))
+    <span class=hljs-keyword>local</span> mantissa = value / (<span class=hljs-number>2</span> ^ exponent)
+
+    <span class=hljs-comment>-- Adjust exponent and mantissa to fit into 8 bytes</span>
+    exponent = exponent + <span class=hljs-number>127</span>  <span class=hljs-comment>-- Bias for single-precision float</span>
+    mantissa = mantissa * (<span class=hljs-number>2</span> ^ <span class=hljs-number>23</span>)
+
+    <span class=hljs-comment>-- Pack into bytes</span>
+    <span class=hljs-keyword>local</span> byte1 = sign * <span class=hljs-number>128</span> + <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(exponent / <span class=hljs-number>2</span>)
+    <span class=hljs-keyword>local</span> byte2 = (exponent % <span class=hljs-number>2</span>) * <span class=hljs-number>128</span> + <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(mantissa / (<span class=hljs-number>2</span> ^ <span class=hljs-number>16</span>))
+    <span class=hljs-keyword>local</span> byte3 = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(mantissa / <span class=hljs-number>256</span>) % <span class=hljs-number>256</span>
+    <span class=hljs-keyword>local</span> byte4 = mantissa % <span class=hljs-number>256</span>
+
+    <span class=hljs-comment>-- Return packed bytes as a string</span>
+    <span class=hljs-keyword>return</span> <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(byte1, byte2, byte3, byte4)
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Custom packing function for uint (32-bit unsigned integer)</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>pack_uint</span><span class=hljs-params>(value)</span></span>
+    <span class=hljs-keyword>return</span> <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>24</span>) % <span class=hljs-number>256</span>,
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>16</span>) % <span class=hljs-number>256</span>,
+        <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>8</span>) % <span class=hljs-number>256</span>,
+        value % <span class=hljs-number>256</span>
+    )
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Open the .col file for writing</span>
+<span class=hljs-keyword>local</span> file = <span class=hljs-built_in>io</span>.<span class=hljs-built_in>open</span>(<span class=hljs-string>&quot;cube.col&quot;</span>, <span class=hljs-string>&quot;wb&quot;</span>)
+<span class=hljs-keyword>if</span> <span class=hljs-keyword>not</span> file <span class=hljs-keyword>then</span>
+    outputConsole(<span class=hljs-string>&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;</span>)
+    <span class=hljs-keyword>return</span>
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- RenderWare collision file structure</span>
+<span class=hljs-keyword>local</span> numSphereCollisions = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numColBoxes = <span class=hljs-number>1</span>  <span class=hljs-comment>-- Only 1 box collision</span>
+<span class=hljs-keyword>local</span> numVertices = <span class=hljs-number>0</span>
+<span class=hljs-keyword>local</span> numFaces = <span class=hljs-number>0</span>
+
+<span class=hljs-comment>-- Write number of sphere collisions (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numSphereCollisions))
+
+<span class=hljs-comment>-- Write each sphere&#x27;s information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write unknown data length (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(<span class=hljs-number>0</span>))
+
+<span class=hljs-comment>-- Write number of box collisions</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numColBoxes))
+
+<span class=hljs-comment>-- Write each box collision&#x27;s information</span>
+<span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, numColBoxes <span class=hljs-keyword>do</span>
+    <span class=hljs-comment>-- Write vector 1 and vector 2 for the box collision</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(pack_float(vector1[j]))
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+        file:<span class=hljs-built_in>write</span>(pack_float(vector2[j]))
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-comment>-- Write surface information for the box collision (dummy values for demonstration)</span>
+    <span class=hljs-keyword>local</span> materialID = <span class=hljs-number>1</span>      <span class=hljs-comment>-- Example: Material ID</span>
+    <span class=hljs-keyword>local</span> surfaceFlags = <span class=hljs-number>2</span>    <span class=hljs-comment>-- Example: Surface flags</span>
+    <span class=hljs-keyword>local</span> unknownField = <span class=hljs-number>3</span>    <span class=hljs-comment>-- Example: Unknown field</span>
+    <span class=hljs-keyword>local</span> lightValue = <span class=hljs-number>4</span>      <span class=hljs-comment>-- Example: Light value</span>
+
+    file:<span class=hljs-built_in>write</span>(pack_uint(materialID))
+    file:<span class=hljs-built_in>write</span>(pack_uint(surfaceFlags))
+    file:<span class=hljs-built_in>write</span>(pack_uint(unknownField))
+    file:<span class=hljs-built_in>write</span>(pack_uint(lightValue))
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-comment>-- Write number of vertices (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numVertices))
+
+<span class=hljs-comment>-- Write vertex information (none, so skip)</span>
+
+<span class=hljs-comment>-- Write number of faces (always 0)</span>
+file:<span class=hljs-built_in>write</span>(pack_uint(numFaces))
+
+<span class=hljs-comment>-- Write face information (none, so skip)</span>
+
+<span class=hljs-comment>-- Close the file</span>
+file:<span class=hljs-built_in>close</span>()
+
+outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+</code></pre>
+<p>Finally! This looks good for the body at a high level, but let's be honest, I needed a lot of information ahead of time and had to correct small but important issues numerous times. It also still never got the header.</p>
+<p>Well, let's trust this code and slot it into the existing implementation.</p>
+<h2 id=code>code</h2>
+<p>Here is some actual working code</p>
+<pre class=code-block><input id=code-block-107-14 type=checkbox><label for=code-block-107-14></label><code><span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>b_urshift</span><span class=hljs-params>(n, bs)</span></span>
+    <span class=hljs-keyword>return</span> <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(n / <span class=hljs-built_in>math</span>.<span class=hljs-built_in>pow</span>(<span class=hljs-number>2</span>, bs))
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>b_lshift</span><span class=hljs-params>(n, bs)</span></span>
+    <span class=hljs-keyword>return</span> n * <span class=hljs-built_in>math</span>.<span class=hljs-built_in>pow</span>(<span class=hljs-number>2</span>, bs)
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>fl</span><span class=hljs-params>(n)</span></span>
+    <span class=hljs-comment>-- floating point to char impl</span>
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>uint</span><span class=hljs-params>(n, sz)</span></span>
+    <span class=hljs-keyword>local</span> data = <span class=hljs-string>&quot;&quot;</span>
+    <span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, sz <span class=hljs-keyword>do</span>
+        data = data .. <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(b_urshift(n, <span class=hljs-number>8</span> * (i - <span class=hljs-number>1</span>)) % <span class=hljs-number>0x100</span>)
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>return</span> data
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>ch</span><span class=hljs-params>(c, sz)</span></span>
+    <span class=hljs-keyword>return</span> c .. <span class=hljs-built_in>string</span>.<span class=hljs-built_in>rep</span>(<span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(<span class=hljs-number>0</span>), sz - <span class=hljs-built_in>string</span>.<span class=hljs-built_in>len</span>(c))
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_vec</span><span class=hljs-params>(x, y, z)</span></span>
+    <span class=hljs-keyword>return</span> fl(x) .. fl(y) .. fl(z)
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_bounds</span><span class=hljs-params>(bl, tr, c, r)</span></span>
+    <span class=hljs-keyword>return</span> fl(r)             <span class=hljs-comment>-- radius</span>
+        .. t_vec(<span class=hljs-built_in>unpack</span>(c))  <span class=hljs-comment>-- center</span>
+        .. t_vec(<span class=hljs-built_in>unpack</span>(bl)) <span class=hljs-comment>-- min</span>
+        .. t_vec(<span class=hljs-built_in>unpack</span>(tr)) <span class=hljs-comment>-- max</span>
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_surface</span><span class=hljs-params>()</span></span>
+    <span class=hljs-keyword>return</span> uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- material</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- flag</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- brightness</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- light</span>
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_box</span><span class=hljs-params>(bl, tr)</span></span>
+    <span class=hljs-keyword>return</span> t_vec(<span class=hljs-built_in>unpack</span>(bl))
+        .. t_vec(<span class=hljs-built_in>unpack</span>(tr))
+        .. t_surface()
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>col_data</span><span class=hljs-params>(bl, tr)</span></span>
+    <span class=hljs-keyword>local</span> header = ch(<span class=hljs-string>&quot;COLL&quot;</span>, <span class=hljs-number>4</span>) <span class=hljs-comment>-- magic bytes</span>
+        .. uint(<span class=hljs-number>64</span> + <span class=hljs-number>20</span> + <span class=hljs-number>28</span>, <span class=hljs-number>4</span>) <span class=hljs-comment>-- size of rest of file, does not seem to matter??</span>
+        .. ch(<span class=hljs-string>&quot;model_name&quot;</span>, <span class=hljs-number>22</span>)  <span class=hljs-comment>-- model_name</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>2</span>)            <span class=hljs-comment>-- model id</span>
+        .. t_bounds(bl, tr, {<span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>}, <span class=hljs-built_in>math</span>.<span class=hljs-built_in>max</span>(<span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(bl[<span class=hljs-number>1</span>] - tr[<span class=hljs-number>1</span>]), <span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(bl[<span class=hljs-number>2</span>] - tr[<span class=hljs-number>2</span>]), <span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(bl[<span class=hljs-number>3</span>] - tr[<span class=hljs-number>3</span>])))
+
+    <span class=hljs-keyword>local</span> col_shapes = uint(<span class=hljs-number>0</span>, <span class=hljs-number>4</span>) <span class=hljs-comment>-- num spheres</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>4</span>)             <span class=hljs-comment>-- num unknown</span>
+        .. uint(<span class=hljs-number>1</span>, <span class=hljs-number>4</span>)             <span class=hljs-comment>-- num boxes</span>
+        .. t_box(bl, tr)          <span class=hljs-comment>-- the single col shape we&#x27;re generating</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>4</span>)             <span class=hljs-comment>-- num vertices</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>4</span>)             <span class=hljs-comment>-- num faces</span>
+
+    <span class=hljs-keyword>return</span> header .. col_shapes
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>create_col_for</span><span class=hljs-params>(e)</span></span>
+    <span class=hljs-keyword>local</span> x1, y1, z1, x2, y2, z2 = getElementBoundingBox(e)
+    <span class=hljs-keyword>local</span> xs, ys, zs = getObjectScale(e)
+    <span class=hljs-comment>-- could avoid loading the same col based on wanted sizes</span>
+
+    <span class=hljs-comment>-- because we&#x27;re creating a new model + collision for each element, the elements</span>
+    <span class=hljs-comment>-- original collision is still there, so scaling smaller than the element results in</span>
+    <span class=hljs-comment>-- the old collision still blocking things</span>
+    <span class=hljs-keyword>local</span> col = engineLoadCOL(col_data({x1 * xs, y1 * ys, z1 * zs}, {x2 * xs, y2 * ys, z2 * zs}))
+    <span class=hljs-keyword>local</span> next_model_id = engineRequestModel(<span class=hljs-string>&quot;object&quot;</span>)
+    engineReplaceCOL(col, next_model_id)
+
+    <span class=hljs-keyword>local</span> obj = createObject(next_model_id, getElementPosition(e))
+    setElementAlpha(obj, <span class=hljs-number>0</span>) <span class=hljs-comment>-- hides the new object&#x27;s model (trashcan default)</span>
+    setElementRotation(obj, getElementRotation(e))
+<span class=hljs-keyword>end</span>
+</code></pre>
+<h2 id=back-to-ai>back to ai</h2>
+<p>And here is that implementation with the body generation from ChatGPT slotted into it so it replaces the existing body generation.</p>
+<pre class=code-block><input id=code-block-107-15 type=checkbox><label for=code-block-107-15></label><code><span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>b_urshift</span><span class=hljs-params>(n, bs)</span></span>
+    <span class=hljs-keyword>return</span> <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(n / <span class=hljs-built_in>math</span>.<span class=hljs-built_in>pow</span>(<span class=hljs-number>2</span>, bs))
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>b_lshift</span><span class=hljs-params>(n, bs)</span></span>
+    <span class=hljs-keyword>return</span> n * <span class=hljs-built_in>math</span>.<span class=hljs-built_in>pow</span>(<span class=hljs-number>2</span>, bs)
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>fl</span><span class=hljs-params>(n)</span></span>
+    <span class=hljs-comment>-- floating point to char impl</span>
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>uint</span><span class=hljs-params>(n, sz)</span></span>
+    <span class=hljs-keyword>local</span> data = <span class=hljs-string>&quot;&quot;</span>
+    <span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, sz <span class=hljs-keyword>do</span>
+        data = data .. <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(b_urshift(n, <span class=hljs-number>8</span> * (i - <span class=hljs-number>1</span>)) % <span class=hljs-number>0x100</span>)
+    <span class=hljs-keyword>end</span>
+    <span class=hljs-keyword>return</span> data
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>ch</span><span class=hljs-params>(c, sz)</span></span>
+    <span class=hljs-keyword>return</span> c .. <span class=hljs-built_in>string</span>.<span class=hljs-built_in>rep</span>(<span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(<span class=hljs-number>0</span>), sz - <span class=hljs-built_in>string</span>.<span class=hljs-built_in>len</span>(c))
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_vec</span><span class=hljs-params>(x, y, z)</span></span>
+    <span class=hljs-keyword>return</span> fl(x) .. fl(y) .. fl(z)
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_bounds</span><span class=hljs-params>(bl, tr, c, r)</span></span>
+    <span class=hljs-keyword>return</span> fl(r)             <span class=hljs-comment>-- radius</span>
+        .. t_vec(<span class=hljs-built_in>unpack</span>(c))  <span class=hljs-comment>-- center</span>
+        .. t_vec(<span class=hljs-built_in>unpack</span>(bl)) <span class=hljs-comment>-- min</span>
+        .. t_vec(<span class=hljs-built_in>unpack</span>(tr)) <span class=hljs-comment>-- max</span>
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_surface</span><span class=hljs-params>()</span></span>
+    <span class=hljs-keyword>return</span> uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- material</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- flag</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- brightness</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>8</span>) <span class=hljs-comment>-- light</span>
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>t_box</span><span class=hljs-params>(bl, tr)</span></span>
+    <span class=hljs-keyword>return</span> t_vec(<span class=hljs-built_in>unpack</span>(bl))
+        .. t_vec(<span class=hljs-built_in>unpack</span>(tr))
+        .. t_surface()
+<span class=hljs-keyword>end</span>
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>col_data</span><span class=hljs-params>(bl, tr)</span></span>
+    <span class=hljs-keyword>local</span> header = ch(<span class=hljs-string>&quot;COLL&quot;</span>, <span class=hljs-number>4</span>) <span class=hljs-comment>-- magic bytes</span>
+        .. uint(<span class=hljs-number>64</span> + <span class=hljs-number>20</span> + <span class=hljs-number>28</span>, <span class=hljs-number>4</span>) <span class=hljs-comment>-- size of rest of file, does not seem to matter??</span>
+        .. ch(<span class=hljs-string>&quot;model_name&quot;</span>, <span class=hljs-number>22</span>)  <span class=hljs-comment>-- model_name</span>
+        .. uint(<span class=hljs-number>0</span>, <span class=hljs-number>2</span>)            <span class=hljs-comment>-- model id</span>
+        .. t_bounds(bl, tr, {<span class=hljs-number>0</span>, <span class=hljs-number>0</span>, <span class=hljs-number>0</span>}, <span class=hljs-built_in>math</span>.<span class=hljs-built_in>max</span>(<span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(bl[<span class=hljs-number>1</span>] - tr[<span class=hljs-number>1</span>]), <span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(bl[<span class=hljs-number>2</span>] - tr[<span class=hljs-number>2</span>]), <span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(bl[<span class=hljs-number>3</span>] - tr[<span class=hljs-number>3</span>])))
+
+    <span class=hljs-keyword>local</span> col_shapes = col_body(bl, tr)
+
+    <span class=hljs-keyword>return</span> header .. col_shapes
+<span class=hljs-keyword>end</span>
+
+<span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>col_body</span><span class=hljs-params>(bl, tr)</span></span>
+    <span class=hljs-comment>-- Define the two vectors for the bounding box</span>
+    <span class=hljs-keyword>local</span> vector1 = bl
+    <span class=hljs-keyword>local</span> vector2 = tr
+
+    <span class=hljs-comment>-- Custom function to pack a float into binary format</span>
+    <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>pack_float</span><span class=hljs-params>(value)</span></span>
+        <span class=hljs-comment>-- Convert float to IEEE 754 single-precision binary format (32-bit)</span>
+        <span class=hljs-keyword>local</span> sign = value &lt; <span class=hljs-number>0</span> <span class=hljs-keyword>and</span> <span class=hljs-number>1</span> <span class=hljs-keyword>or</span> <span class=hljs-number>0</span>
+        value = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>abs</span>(value)
+        <span class=hljs-keyword>local</span> exponent = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(<span class=hljs-built_in>math</span>.<span class=hljs-built_in>log</span>(value) / <span class=hljs-built_in>math</span>.<span class=hljs-built_in>log</span>(<span class=hljs-number>2</span>))
+        <span class=hljs-keyword>local</span> mantissa = value / (<span class=hljs-number>2</span> ^ exponent)
+
+        <span class=hljs-comment>-- Adjust exponent and mantissa to fit into 8 bytes</span>
+        exponent = exponent + <span class=hljs-number>127</span>  <span class=hljs-comment>-- Bias for single-precision float</span>
+        mantissa = mantissa * (<span class=hljs-number>2</span> ^ <span class=hljs-number>23</span>)
+
+        <span class=hljs-comment>-- Pack into bytes</span>
+        <span class=hljs-keyword>local</span> byte1 = sign * <span class=hljs-number>128</span> + <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(exponent / <span class=hljs-number>2</span>)
+        <span class=hljs-keyword>local</span> byte2 = (exponent % <span class=hljs-number>2</span>) * <span class=hljs-number>128</span> + <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(mantissa / (<span class=hljs-number>2</span> ^ <span class=hljs-number>16</span>))
+        <span class=hljs-keyword>local</span> byte3 = <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(mantissa / <span class=hljs-number>256</span>) % <span class=hljs-number>256</span>
+        <span class=hljs-keyword>local</span> byte4 = mantissa % <span class=hljs-number>256</span>
+
+        <span class=hljs-comment>-- Return packed bytes as a string</span>
+        <span class=hljs-keyword>return</span> <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(byte1, byte2, byte3, byte4)
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-comment>-- Custom packing function for uint (32-bit unsigned integer)</span>
+    <span class=hljs-function><span class=hljs-keyword>function</span> <span class=hljs-title>pack_uint</span><span class=hljs-params>(value)</span></span>
+        <span class=hljs-keyword>return</span> <span class=hljs-built_in>string</span>.<span class=hljs-built_in>char</span>(
+            <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>24</span>) % <span class=hljs-number>256</span>,
+            <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>16</span>) % <span class=hljs-number>256</span>,
+            <span class=hljs-built_in>math</span>.<span class=hljs-built_in>floor</span>(value / <span class=hljs-number>2</span>^<span class=hljs-number>8</span>) % <span class=hljs-number>256</span>,
+            value % <span class=hljs-number>256</span>
+        )
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-keyword>local</span> data = <span class=hljs-string>&quot;&quot;</span>
+
+    <span class=hljs-comment>-- RenderWare collision file structure</span>
+    <span class=hljs-keyword>local</span> numSphereCollisions = <span class=hljs-number>0</span>
+    <span class=hljs-keyword>local</span> numColBoxes = <span class=hljs-number>1</span>  <span class=hljs-comment>-- Only 1 box collision</span>
+    <span class=hljs-keyword>local</span> numVertices = <span class=hljs-number>0</span>
+    <span class=hljs-keyword>local</span> numFaces = <span class=hljs-number>0</span>
+
+    <span class=hljs-comment>-- Write number of sphere collisions (always 0)</span>
+    data = data .. pack_uint(numSphereCollisions)
+
+    <span class=hljs-comment>-- Write each sphere&#x27;s information (none, so skip)</span>
+
+    <span class=hljs-comment>-- Write unknown data length (always 0)</span>
+    data = data .. pack_uint(<span class=hljs-number>0</span>)
+
+    <span class=hljs-comment>-- Write number of box collisions</span>
+    data = data .. pack_uint(numColBoxes)
+
+    <span class=hljs-comment>-- Write each box collision&#x27;s information</span>
+    <span class=hljs-keyword>for</span> i = <span class=hljs-number>1</span>, numColBoxes <span class=hljs-keyword>do</span>
+        <span class=hljs-comment>-- Write vector 1 and vector 2 for the box collision</span>
+        <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+            data = data .. pack_float(vector1[j])
+        <span class=hljs-keyword>end</span>
+        <span class=hljs-keyword>for</span> j = <span class=hljs-number>1</span>, <span class=hljs-number>3</span> <span class=hljs-keyword>do</span>
+            data = data .. pack_float(vector2[j])
+        <span class=hljs-keyword>end</span>
+
+        <span class=hljs-comment>-- Write surface information for the box collision (dummy values for demonstration)</span>
+        <span class=hljs-keyword>local</span> materialID = <span class=hljs-number>1</span>      <span class=hljs-comment>-- Example: Material ID</span>
+        <span class=hljs-keyword>local</span> surfaceFlags = <span class=hljs-number>2</span>    <span class=hljs-comment>-- Example: Surface flags</span>
+        <span class=hljs-keyword>local</span> unknownField = <span class=hljs-number>3</span>    <span class=hljs-comment>-- Example: Unknown field</span>
+        <span class=hljs-keyword>local</span> lightValue = <span class=hljs-number>4</span>      <span class=hljs-comment>-- Example: Light value</span>
+
+        data = data .. pack_uint(materialID)
+        data = data .. pack_uint(surfaceFlags)
+        data = data .. pack_uint(unknownField)
+        data = data .. pack_uint(lightValue)
+    <span class=hljs-keyword>end</span>
+
+    <span class=hljs-comment>-- Write number of vertices (always 0)</span>
+    data = data .. pack_uint(numVertices)
+
+    <span class=hljs-comment>-- Write vertex information (none, so skip)</span>
+
+    <span class=hljs-comment>-- Write number of faces (always 0)</span>
+    data = data .. pack_uint(numFaces)
+
+    <span class=hljs-comment>-- Write face information (none, so skip)</span>
+
+    <span class=hljs-comment>-- Close the file</span>
+
+    outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;</span>)
+
+    <span class=hljs-keyword>return</span> data
+<span class=hljs-keyword>end</span>
+</code></pre>
+<p>What happened when I used it? It crashed the game, which means there's an issue with it somewhere.</p>
+<p>We can compare the binary of the 2 bodies good/bad to help diagnose where it went wrong:</p>
+<pre class=code-block><input id=code-block-107-16 type=checkbox><label for=code-block-107-16></label><code>-- bad
+00000000: 0000 0000 0000 0000 0000 0001 c18b d43c  ...............&lt;
+00000010: bf80 6d15 c0db 452e 418c a36c 3f92 0215  ..m...E.A..l?...
+00000020: 40dc 958e 0000 0001 0000 0002 0000 0003  @...............
+00000030: 0000 0004 0000 0000 0000 0000            ............
+-- good
+00000000: 0000 0000 0000 0000 0100 0000 3cd4 0bc1  ............&lt;...
+00000010: 156d 00bf 2e45 5bc0 6ca3 0c41 1502 123f  .m...E[.l..A...?
+00000020: 8e95 5c40 0000 0000 0000 0000 0000 0000  ..\@............
+00000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000040: 0000 0000 0000 0000 0000 0000            ............
+</code></pre>
+<p>The first thing I can see is that the endianness is backwards, but I won't fault it for that and it's a quick fix.</p>
+<p>I can also see that the floating point numbers are slightly different, but that could just be a difference in implementation - I just threw something together quickly so I'm not sure if my own is correct, but they are close enough. I guess I'll comment my implementation out.</p>
+<p>Surface flags? Looks correct. The real issue is the missing bytes. Oh right, the surface flags use 8 bytes instead of 4, so they are wrong.</p>
+<p>Well, at the end of the day it never really got there despite many hints, though I think with enough prompting or better prompting, like giving it the entire format ahead of time, it could've made it. And that's the thing - could I have been able to prompt it correctly or efficiently without intimate knowledge of the result beforehand? All in all, I think it would not be worth it.</p>
+<p>This was a conversation with ChatGPT 3.5 on July 11, 2024.</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/106>&lt; a performance investigation of this site</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-07-11 - add post 107</summary>
+<pre class=code-block><input id=code-block-d9cc8574f8db2615d15cb6b230e4f028b52568a3-1 type=checkbox><label for=code-block-d9cc8574f8db2615d15cb6b230e4f028b52568a3-1></label><code><span class=hljs-meta>@@ -0,0 +1,1226 @@</span>
+<span class=hljs-addition>+# mtasa EngineLoadCol with raw data</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Click [here](#code) to skip the ai challenge part and look at an example.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In Multi Theft Auto (MTA), there is a method called</span>
+<span class=hljs-addition>+[`engineLoadCol`](https://wiki.multitheftauto.com/wiki/EngineLoadCOL) that can</span>
+<span class=hljs-addition>+be used to load collision data in scripts. It is described as something that</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; loads a RenderWare Collision (COL 1/2/3) file into GTA.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Through the pseudocode-ish signature:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+col engineLoadCOL ( string col_file / string raw_data )</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I saw that it should have the ability to take raw data in addition to just a</span>
+<span class=hljs-addition>+collision file&#x27;s name. The entry to the method and its underlying code is</span>
+<span class=hljs-addition>+[here](https://github.com/multitheftauto/mtasa-blue/blob/4994504970b81e8e96237a12241a8ff3ab3a4b3e/Client/mods/deathmatch/logic/luadefs/CLuaEngineDefs.cpp#L270),</span>
+<span class=hljs-addition>+and looking at it supports this theory.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now the question is how to do this, as there don&#x27;t seem to be (m)any resources</span>
+<span class=hljs-addition>+that walk through the entire process. I ended up spending a better part of a day</span>
+<span class=hljs-addition>+figuring this out.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, though I&#x27;ve figured it out already by now, I decided to follow up by</span>
+<span class=hljs-addition>+asking ChatGPT about this, because why not and I guess that&#x27;ll be another fun</span>
+<span class=hljs-addition>+test of &quot;things that should be solvable with logic and information but probably</span>
+<span class=hljs-addition>+can&#x27;t be found directly in its training data&quot;.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## ai challenge</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I decided to start out by asking it to generate a collision file with lua, since</span>
+<span class=hljs-addition>+the end goal is to be able to run `engineLoadCol(data)`. You can take a look at</span>
+<span class=hljs-addition>+the structure of the file we&#x27;re trying to generate</span>
+<span class=hljs-addition>+[here](https://gtamods.com/wiki/Collision_File). Let&#x27;s start.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Can you write some lua code to generate a MTA:SA collision file with 1 cube</span>
+<span class=hljs-addition>+&gt; please?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define vertices of the cube</span>
+<span class=hljs-addition>+local vertices = {</span>
+<span class=hljs-addition>+    {-1, -1, -1},  -- Vertex 1</span>
+<span class=hljs-addition>+    { 1, -1, -1},  -- Vertex 2</span>
+<span class=hljs-addition>+    { 1,  1, -1},  -- Vertex 3</span>
+<span class=hljs-addition>+    {-1,  1, -1},  -- Vertex 4</span>
+<span class=hljs-addition>+    {-1, -1,  1},  -- Vertex 5</span>
+<span class=hljs-addition>+    { 1, -1,  1},  -- Vertex 6</span>
+<span class=hljs-addition>+    { 1,  1,  1},  -- Vertex 7</span>
+<span class=hljs-addition>+    {-1,  1,  1}   -- Vertex 8</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Define faces of the cube (each face is made up of 4 vertices)</span>
+<span class=hljs-addition>+local faces = {</span>
+<span class=hljs-addition>+    {0, 1, 2, 3},  -- Front face</span>
+<span class=hljs-addition>+    {1, 5, 6, 2},  -- Right face</span>
+<span class=hljs-addition>+    {5, 4, 7, 6},  -- Back face</span>
+<span class=hljs-addition>+    {4, 0, 3, 7},  -- Left face</span>
+<span class=hljs-addition>+    {3, 2, 6, 7},  -- Top face</span>
+<span class=hljs-addition>+    {4, 5, 1, 0}   -- Bottom face</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Create the collision shape</span>
+<span class=hljs-addition>+local collisionShape = {</span>
+<span class=hljs-addition>+    type = &quot;multi&quot;,</span>
+<span class=hljs-addition>+    parts = {</span>
+<span class=hljs-addition>+        {</span>
+<span class=hljs-addition>+            type = &quot;poly&quot;,</span>
+<span class=hljs-addition>+            vertices = vertices,</span>
+<span class=hljs-addition>+            faces = faces</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Save collision shape to a file</span>
+<span class=hljs-addition>+local file = fileCreate(&quot;cube.col&quot;)</span>
+<span class=hljs-addition>+if file then</span>
+<span class=hljs-addition>+    fileWrite(file, &quot;return &quot; .. toJSON(collisionShape))</span>
+<span class=hljs-addition>+    fileClose(file)</span>
+<span class=hljs-addition>+    outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+else</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to create collision file.&quot;)</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, if I knew nothing about the file format, then this would look correct.</span>
+<span class=hljs-addition>+Unfortunately, it&#x27;s not json.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; the file isn&#x27;t in json, it&#x27;s some kind of binary format that can be found</span>
+<span class=hljs-addition>+&gt; online. can you fix that?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define vertices of the cube</span>
+<span class=hljs-addition>+local vertices = {</span>
+<span class=hljs-addition>+    {-1, -1, -1},  -- Vertex 1</span>
+<span class=hljs-addition>+    { 1, -1, -1},  -- Vertex 2</span>
+<span class=hljs-addition>+    { 1,  1, -1},  -- Vertex 3</span>
+<span class=hljs-addition>+    {-1,  1, -1},  -- Vertex 4</span>
+<span class=hljs-addition>+    {-1, -1,  1},  -- Vertex 5</span>
+<span class=hljs-addition>+    { 1, -1,  1},  -- Vertex 6</span>
+<span class=hljs-addition>+    { 1,  1,  1},  -- Vertex 7</span>
+<span class=hljs-addition>+    {-1,  1,  1}   -- Vertex 8</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Define indices for the cube faces</span>
+<span class=hljs-addition>+local indices = {</span>
+<span class=hljs-addition>+    {0, 1, 2}, {0, 2, 3},  -- Front face</span>
+<span class=hljs-addition>+    {1, 5, 6}, {1, 6, 2},  -- Right face</span>
+<span class=hljs-addition>+    {5, 4, 7}, {5, 7, 6},  -- Back face</span>
+<span class=hljs-addition>+    {4, 0, 3}, {4, 3, 7},  -- Left face</span>
+<span class=hljs-addition>+    {3, 2, 6}, {3, 6, 7},  -- Top face</span>
+<span class=hljs-addition>+    {4, 5, 1}, {4, 1, 0}   -- Bottom face</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write the number of vertices</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, #vertices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each vertex</span>
+<span class=hljs-addition>+for _, vertex in ipairs(vertices) do</span>
+<span class=hljs-addition>+    for _, coord in ipairs(vertex) do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write the number of faces</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, #indices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each face</span>
+<span class=hljs-addition>+for _, face in ipairs(indices) do</span>
+<span class=hljs-addition>+    for _, index in ipairs(face) do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;I4&quot;, index))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Looks a lot better, but it&#x27;s definitely missing the headers at least. There are</span>
+<span class=hljs-addition>+also some considerations on what apis exist in LuaJIT (aka Lua 5.1), but I&#x27;ll</span>
+<span class=hljs-addition>+overlook that for now.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; its missing the header. can you add the header of a version 1 renderware</span>
+<span class=hljs-addition>+&gt; collision file?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define vertices of the cube</span>
+<span class=hljs-addition>+local vertices = {</span>
+<span class=hljs-addition>+    {-1, -1, -1},  -- Vertex 1</span>
+<span class=hljs-addition>+    { 1, -1, -1},  -- Vertex 2</span>
+<span class=hljs-addition>+    { 1,  1, -1},  -- Vertex 3</span>
+<span class=hljs-addition>+    {-1,  1, -1},  -- Vertex 4</span>
+<span class=hljs-addition>+    {-1, -1,  1},  -- Vertex 5</span>
+<span class=hljs-addition>+    { 1, -1,  1},  -- Vertex 6</span>
+<span class=hljs-addition>+    { 1,  1,  1},  -- Vertex 7</span>
+<span class=hljs-addition>+    {-1,  1,  1}   -- Vertex 8</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Define indices for the cube faces</span>
+<span class=hljs-addition>+local indices = {</span>
+<span class=hljs-addition>+    {0, 1, 2}, {0, 2, 3},  -- Front face</span>
+<span class=hljs-addition>+    {1, 5, 6}, {1, 6, 2},  -- Right face</span>
+<span class=hljs-addition>+    {5, 4, 7}, {5, 7, 6},  -- Back face</span>
+<span class=hljs-addition>+    {4, 0, 3}, {4, 3, 7},  -- Left face</span>
+<span class=hljs-addition>+    {3, 2, 6}, {3, 6, 7},  -- Top face</span>
+<span class=hljs-addition>+    {4, 5, 1}, {4, 1, 0}   -- Bottom face</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file header (version 1)</span>
+<span class=hljs-addition>+local header = {</span>
+<span class=hljs-addition>+    version = 0x10000,     -- Version 1.0</span>
+<span class=hljs-addition>+    numVertices = #vertices,</span>
+<span class=hljs-addition>+    numIndices = #indices / 3,  -- Number of triangles (since each face is a triangle)</span>
+<span class=hljs-addition>+    radius = 1.0,          -- Radius (dummy value for cubes)</span>
+<span class=hljs-addition>+    min = {-1, -1, -1},    -- Minimum extent of the bounding box</span>
+<span class=hljs-addition>+    max = { 1,  1,  1}     -- Maximum extent of the bounding box</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write the header</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.version))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.numVertices))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.numIndices))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, header.radius))</span>
+<span class=hljs-addition>+for _, coord in ipairs(header.min) do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+for _, coord in ipairs(header.max) do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each vertex</span>
+<span class=hljs-addition>+for _, vertex in ipairs(vertices) do</span>
+<span class=hljs-addition>+    for _, coord in ipairs(vertex) do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each index</span>
+<span class=hljs-addition>+for _, face in ipairs(indices) do</span>
+<span class=hljs-addition>+    for _, index in ipairs(face) do</span>
+<span class=hljs-addition>+        -- Add 1 to each index because RenderWare uses 1-based indexing</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;I4&quot;, index + 1))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+That&#x27;s not the right header, but it does have some details kind of right, like</span>
+<span class=hljs-addition>+radius, min, and max though the actual layout of data is wrong.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; that header still looks wrong. it should start with COL at least</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define vertices of the cube</span>
+<span class=hljs-addition>+local vertices = {</span>
+<span class=hljs-addition>+    {-1, -1, -1},  -- Vertex 1</span>
+<span class=hljs-addition>+    { 1, -1, -1},  -- Vertex 2</span>
+<span class=hljs-addition>+    { 1,  1, -1},  -- Vertex 3</span>
+<span class=hljs-addition>+    {-1,  1, -1},  -- Vertex 4</span>
+<span class=hljs-addition>+    {-1, -1,  1},  -- Vertex 5</span>
+<span class=hljs-addition>+    { 1, -1,  1},  -- Vertex 6</span>
+<span class=hljs-addition>+    { 1,  1,  1},  -- Vertex 7</span>
+<span class=hljs-addition>+    {-1,  1,  1}   -- Vertex 8</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Define indices for the cube faces</span>
+<span class=hljs-addition>+local indices = {</span>
+<span class=hljs-addition>+    {0, 1, 2}, {0, 2, 3},  -- Front face</span>
+<span class=hljs-addition>+    {1, 5, 6}, {1, 6, 2},  -- Right face</span>
+<span class=hljs-addition>+    {5, 4, 7}, {5, 7, 6},  -- Back face</span>
+<span class=hljs-addition>+    {4, 0, 3}, {4, 3, 7},  -- Left face</span>
+<span class=hljs-addition>+    {3, 2, 6}, {3, 6, 7},  -- Top face</span>
+<span class=hljs-addition>+    {4, 5, 1}, {4, 1, 0}   -- Bottom face</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file header (version 1)</span>
+<span class=hljs-addition>+local header = {</span>
+<span class=hljs-addition>+    identifier = &quot;COL&quot;,    -- Identifier</span>
+<span class=hljs-addition>+    version = 0x10000,     -- Version 1.0</span>
+<span class=hljs-addition>+    numVertices = #vertices,</span>
+<span class=hljs-addition>+    numIndices = #indices / 3,  -- Number of triangles (since each face is a triangle)</span>
+<span class=hljs-addition>+    radius = 1.0,          -- Radius (dummy value for cubes)</span>
+<span class=hljs-addition>+    min = {-1, -1, -1},    -- Minimum extent of the bounding box</span>
+<span class=hljs-addition>+    max = { 1,  1,  1}     -- Maximum extent of the bounding box</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write the header</span>
+<span class=hljs-addition>+file:write(header.identifier)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.version))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.numVertices))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.numIndices))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, header.radius))</span>
+<span class=hljs-addition>+for _, coord in ipairs(header.min) do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+for _, coord in ipairs(header.max) do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each vertex</span>
+<span class=hljs-addition>+for _, vertex in ipairs(vertices) do</span>
+<span class=hljs-addition>+    for _, coord in ipairs(vertex) do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each index</span>
+<span class=hljs-addition>+for _, face in ipairs(indices) do</span>
+<span class=hljs-addition>+    for _, index in ipairs(face) do</span>
+<span class=hljs-addition>+        -- Add 1 to each index because RenderWare uses 1-based indexing</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;I4&quot;, index + 1))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It added `COL` but now I noticed that it has been giving version 1 which is not</span>
+<span class=hljs-addition>+correct. Version 1 files start with `COLL` while 2 and 3 start with `COL2` and</span>
+<span class=hljs-addition>+`COL3`. A little unintuitive but that&#x27;s how it is.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; version 1 files don&#x27;t have COL1 as a header they use COLL. can you fix that?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define vertices of the cube</span>
+<span class=hljs-addition>+local vertices = {</span>
+<span class=hljs-addition>+    {-1, -1, -1},  -- Vertex 1</span>
+<span class=hljs-addition>+    { 1, -1, -1},  -- Vertex 2</span>
+<span class=hljs-addition>+    { 1,  1, -1},  -- Vertex 3</span>
+<span class=hljs-addition>+    {-1,  1, -1},  -- Vertex 4</span>
+<span class=hljs-addition>+    {-1, -1,  1},  -- Vertex 5</span>
+<span class=hljs-addition>+    { 1, -1,  1},  -- Vertex 6</span>
+<span class=hljs-addition>+    { 1,  1,  1},  -- Vertex 7</span>
+<span class=hljs-addition>+    {-1,  1,  1}   -- Vertex 8</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Define indices for the cube faces</span>
+<span class=hljs-addition>+local indices = {</span>
+<span class=hljs-addition>+    {0, 1, 2}, {0, 2, 3},  -- Front face</span>
+<span class=hljs-addition>+    {1, 5, 6}, {1, 6, 2},  -- Right face</span>
+<span class=hljs-addition>+    {5, 4, 7}, {5, 7, 6},  -- Back face</span>
+<span class=hljs-addition>+    {4, 0, 3}, {4, 3, 7},  -- Left face</span>
+<span class=hljs-addition>+    {3, 2, 6}, {3, 6, 7},  -- Top face</span>
+<span class=hljs-addition>+    {4, 5, 1}, {4, 1, 0}   -- Bottom face</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file header (version 1)</span>
+<span class=hljs-addition>+local header = {</span>
+<span class=hljs-addition>+    identifier = &quot;COLL&quot;,   -- Identifier</span>
+<span class=hljs-addition>+    version = 0x10000,     -- Version 1.0</span>
+<span class=hljs-addition>+    numVertices = #vertices,</span>
+<span class=hljs-addition>+    numIndices = #indices / 3,  -- Number of triangles (since each face is a triangle)</span>
+<span class=hljs-addition>+    radius = 1.0,          -- Radius (dummy value for cubes)</span>
+<span class=hljs-addition>+    min = {-1, -1, -1},    -- Minimum extent of the bounding box</span>
+<span class=hljs-addition>+    max = { 1,  1,  1}     -- Maximum extent of the bounding box</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write the header</span>
+<span class=hljs-addition>+file:write(header.identifier)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.version))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.numVertices))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.numIndices))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, header.radius))</span>
+<span class=hljs-addition>+for _, coord in ipairs(header.min) do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+for _, coord in ipairs(header.max) do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each vertex</span>
+<span class=hljs-addition>+for _, vertex in ipairs(vertices) do</span>
+<span class=hljs-addition>+    for _, coord in ipairs(vertex) do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, coord))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each index</span>
+<span class=hljs-addition>+for _, face in ipairs(indices) do</span>
+<span class=hljs-addition>+    for _, index in ipairs(face) do</span>
+<span class=hljs-addition>+        -- Add 1 to each index because RenderWare uses 1-based indexing</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;I4&quot;, index + 1))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s still outputting the version. I mean technically it might pass because the</span>
+<span class=hljs-addition>+next few bytes are related to the file size which doesn&#x27;t seem to matter to MTA,</span>
+<span class=hljs-addition>+but it&#x27;s still wrong.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Either way, I gave up on correcting the header and opted to move on to other</span>
+<span class=hljs-addition>+things.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; ok forget the header. these collision files have the ability to store box</span>
+<span class=hljs-addition>+&gt; collisions with 2 vectors so we don&#x27;t need to hold all the faces and vertices.</span>
+<span class=hljs-addition>+&gt; can you update the code to do that instead?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+local vector1 = {-1, -1, -1}  -- Vector representing one corner of the box</span>
+<span class=hljs-addition>+local vector2 = { 1,  1,  1}  -- Vector representing the opposite corner of the box</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file header (version 1)</span>
+<span class=hljs-addition>+local header = {</span>
+<span class=hljs-addition>+    identifier = &quot;COLL&quot;,   -- Identifier</span>
+<span class=hljs-addition>+    version = 0x10000,     -- Version 1.0</span>
+<span class=hljs-addition>+    numVectors = 2,        -- Number of vectors (two vectors for a box)</span>
+<span class=hljs-addition>+    radius = 1.0,          -- Radius (dummy value for boxes)</span>
+<span class=hljs-addition>+    min = {},              -- Minimum extent of the bounding box</span>
+<span class=hljs-addition>+    max = {}               -- Maximum extent of the bounding box</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Determine min and max extents of the bounding box</span>
+<span class=hljs-addition>+for i = 1, 3 do</span>
+<span class=hljs-addition>+    header.min[i] = math.min(vector1[i], vector2[i])</span>
+<span class=hljs-addition>+    header.max[i] = math.max(vector1[i], vector2[i])</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write the header</span>
+<span class=hljs-addition>+file:write(header.identifier)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.version))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, header.numVectors))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, header.radius))</span>
+<span class=hljs-addition>+for i = 1, 3 do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, header.min[i]))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+for i = 1, 3 do</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;f&quot;, header.max[i]))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each vector</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, vector1[1]))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, vector1[2]))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, vector1[3]))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, vector2[1]))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, vector2[2]))</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;f&quot;, vector2[3]))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Oh, the entire body is incorrect.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; the body is incorrect. it specifies the number of sphere collisions followed</span>
+<span class=hljs-addition>+&gt; by each sphere&#x27;s information, then specifies some unknown data length which</span>
+<span class=hljs-addition>+&gt; should be 0, then the number of col boxes followed by each boxes information,</span>
+<span class=hljs-addition>+&gt; then num vertices and vertex info, and finally num faces and face info.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; I only want 1 box collision though, so all the other numbers will be 0. can</span>
+<span class=hljs-addition>+&gt; you fix the script?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+local vector1 = {-1, -1, -1}  -- Vector representing one corner of the box</span>
+<span class=hljs-addition>+local vector2 = { 1,  1,  1}  -- Vector representing the opposite corner of the box</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file structure</span>
+<span class=hljs-addition>+local numSphereCollisions = 0</span>
+<span class=hljs-addition>+local numColBoxes = 1  -- Only 1 box collision</span>
+<span class=hljs-addition>+local numVertices = 0</span>
+<span class=hljs-addition>+local numFaces = 0</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of sphere collisions (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numSphereCollisions))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each sphere&#x27;s information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write unknown data length (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, 0))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of box collisions</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numColBoxes))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each box collision&#x27;s information</span>
+<span class=hljs-addition>+for i = 1, numColBoxes do</span>
+<span class=hljs-addition>+    -- Write vector 1 and vector 2 for the box collision</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, vector1[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, vector2[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of vertices (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numVertices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write vertex information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of faces (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numFaces))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write face information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; that looks a lot better but box collisions also come with surface information.</span>
+<span class=hljs-addition>+&gt; can you add that?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+local vector1 = {-1, -1, -1}  -- Vector representing one corner of the box</span>
+<span class=hljs-addition>+local vector2 = { 1,  1,  1}  -- Vector representing the opposite corner of the box</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file structure</span>
+<span class=hljs-addition>+local numSphereCollisions = 0</span>
+<span class=hljs-addition>+local numColBoxes = 1  -- Only 1 box collision</span>
+<span class=hljs-addition>+local numVertices = 0</span>
+<span class=hljs-addition>+local numFaces = 0</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of sphere collisions (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numSphereCollisions))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each sphere&#x27;s information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write unknown data length (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, 0))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of box collisions</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numColBoxes))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each box collision&#x27;s information</span>
+<span class=hljs-addition>+for i = 1, numColBoxes do</span>
+<span class=hljs-addition>+    -- Write vector 1 and vector 2 for the box collision</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, vector1[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, vector2[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write surface information for the box collision (dummy values for demonstration)</span>
+<span class=hljs-addition>+    local surfaceFlags = 0x00000001  -- Example: Solid surface</span>
+<span class=hljs-addition>+    local surfaceID = 0              -- Example: Surface ID</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;I4&quot;, surfaceFlags))</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;I4&quot;, surfaceID))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of vertices (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numVertices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write vertex information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of faces (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numFaces))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write face information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; the surface info should be 4 uint8s for material, flag, unknown, and light.</span>
+<span class=hljs-addition>+&gt; can you fix the script to add these? the actual values are unimportant</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+local vector1 = {-1, -1, -1}  -- Vector representing one corner of the box</span>
+<span class=hljs-addition>+local vector2 = { 1,  1,  1}  -- Vector representing the opposite corner of the box</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file structure</span>
+<span class=hljs-addition>+local numSphereCollisions = 0</span>
+<span class=hljs-addition>+local numColBoxes = 1  -- Only 1 box collision</span>
+<span class=hljs-addition>+local numVertices = 0</span>
+<span class=hljs-addition>+local numFaces = 0</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of sphere collisions (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numSphereCollisions))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each sphere&#x27;s information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write unknown data length (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, 0))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of box collisions</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numColBoxes))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each box collision&#x27;s information</span>
+<span class=hljs-addition>+for i = 1, numColBoxes do</span>
+<span class=hljs-addition>+    -- Write vector 1 and vector 2 for the box collision</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, vector1[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(string.pack(&quot;&lt;f&quot;, vector2[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write surface information for the box collision (dummy values for demonstration)</span>
+<span class=hljs-addition>+    local materialID = 1      -- Example: Material ID</span>
+<span class=hljs-addition>+    local surfaceFlags = 2    -- Example: Surface flags</span>
+<span class=hljs-addition>+    local unknownField = 3    -- Example: Unknown field</span>
+<span class=hljs-addition>+    local lightValue = 4      -- Example: Light value</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;I4&quot;, materialID))</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;I4&quot;, surfaceFlags))</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;I4&quot;, unknownField))</span>
+<span class=hljs-addition>+    file:write(string.pack(&quot;&lt;I4&quot;, lightValue))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of vertices (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numVertices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write vertex information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of faces (always 0)</span>
+<span class=hljs-addition>+file:write(string.pack(&quot;&lt;I4&quot;, numFaces))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write face information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Finally, the body looks valid... though I&#x27;m not going to bother testing it.</span>
+<span class=hljs-addition>+Let&#x27;s now tackle the issue of the environment being Lua 5.1 by telling it an</span>
+<span class=hljs-addition>+error message that would occurr when running it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; im getting the error attempt to call field pack a nil value</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; why is this?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And the response</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Update Lua: If possible, update your Lua environment to a version that</span>
+<span class=hljs-addition>+&gt; includes string.pack (Lua 5.3 or later). Alternative Packing Methods:</span>
+<span class=hljs-addition>+&gt; Implement a custom packing function or use a library that provides similar</span>
+<span class=hljs-addition>+&gt; functionality. Here&#x27;s a basic example of how you might implement a simple</span>
+<span class=hljs-addition>+&gt; packing function for unsigned integers (uint):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+local vector1 = {-1, -1, -1}  -- Vector representing one corner of the box</span>
+<span class=hljs-addition>+local vector2 = { 1,  1,  1}  -- Vector representing the opposite corner of the box</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Custom packing function for uint (32-bit unsigned integer)</span>
+<span class=hljs-addition>+function pack_uint(value)</span>
+<span class=hljs-addition>+    return string.char(</span>
+<span class=hljs-addition>+        math.floor(value / 2^24) % 256,</span>
+<span class=hljs-addition>+        math.floor(value / 2^16) % 256,</span>
+<span class=hljs-addition>+        math.floor(value / 2^8) % 256,</span>
+<span class=hljs-addition>+        value % 256</span>
+<span class=hljs-addition>+    )</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file structure</span>
+<span class=hljs-addition>+local numSphereCollisions = 0</span>
+<span class=hljs-addition>+local numColBoxes = 1  -- Only 1 box collision</span>
+<span class=hljs-addition>+local numVertices = 0</span>
+<span class=hljs-addition>+local numFaces = 0</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of sphere collisions (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numSphereCollisions))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each sphere&#x27;s information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write unknown data length (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(0))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of box collisions</span>
+<span class=hljs-addition>+file:write(pack_uint(numColBoxes))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each box collision&#x27;s information</span>
+<span class=hljs-addition>+for i = 1, numColBoxes do</span>
+<span class=hljs-addition>+    -- Write vector 1 and vector 2 for the box collision</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(pack_uint(vector1[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(pack_uint(vector2[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write surface information for the box collision (dummy values for demonstration)</span>
+<span class=hljs-addition>+    local materialID = 1      -- Example: Material ID</span>
+<span class=hljs-addition>+    local surfaceFlags = 2    -- Example: Surface flags</span>
+<span class=hljs-addition>+    local unknownField = 3    -- Example: Unknown field</span>
+<span class=hljs-addition>+    local lightValue = 4      -- Example: Light value</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    file:write(pack_uint(materialID))</span>
+<span class=hljs-addition>+    file:write(pack_uint(surfaceFlags))</span>
+<span class=hljs-addition>+    file:write(pack_uint(unknownField))</span>
+<span class=hljs-addition>+    file:write(pack_uint(lightValue))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of vertices (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numVertices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write vertex information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of faces (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numFaces))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write face information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Very good. Except it replaced the `string.pack` float usage with unsigned ints.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; should the string.pack(&quot;&lt;f&quot;) also be replaced with pack_uint or something</span>
+<span class=hljs-addition>+&gt; else?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+local vector1 = {-1, -1, -1}  -- Vector representing one corner of the box</span>
+<span class=hljs-addition>+local vector2 = { 1,  1,  1}  -- Vector representing the opposite corner of the box</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Custom packing function for floats</span>
+<span class=hljs-addition>+function pack_float(value)</span>
+<span class=hljs-addition>+    return string.pack(&quot;&lt;f&quot;, value)</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Custom packing function for uint (32-bit unsigned integer)</span>
+<span class=hljs-addition>+function pack_uint(value)</span>
+<span class=hljs-addition>+    return string.char(</span>
+<span class=hljs-addition>+        math.floor(value / 2^24) % 256,</span>
+<span class=hljs-addition>+        math.floor(value / 2^16) % 256,</span>
+<span class=hljs-addition>+        math.floor(value / 2^8) % 256,</span>
+<span class=hljs-addition>+        value % 256</span>
+<span class=hljs-addition>+    )</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file structure</span>
+<span class=hljs-addition>+local numSphereCollisions = 0</span>
+<span class=hljs-addition>+local numColBoxes = 1  -- Only 1 box collision</span>
+<span class=hljs-addition>+local numVertices = 0</span>
+<span class=hljs-addition>+local numFaces = 0</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of sphere collisions (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numSphereCollisions))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each sphere&#x27;s information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write unknown data length (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(0))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of box collisions</span>
+<span class=hljs-addition>+file:write(pack_uint(numColBoxes))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each box collision&#x27;s information</span>
+<span class=hljs-addition>+for i = 1, numColBoxes do</span>
+<span class=hljs-addition>+    -- Write vector 1 and vector 2 for the box collision</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(pack_float(vector1[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(pack_float(vector2[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write surface information for the box collision (dummy values for demonstration)</span>
+<span class=hljs-addition>+    local materialID = 1      -- Example: Material ID</span>
+<span class=hljs-addition>+    local surfaceFlags = 2    -- Example: Surface flags</span>
+<span class=hljs-addition>+    local unknownField = 3    -- Example: Unknown field</span>
+<span class=hljs-addition>+    local lightValue = 4      -- Example: Light value</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    file:write(pack_uint(materialID))</span>
+<span class=hljs-addition>+    file:write(pack_uint(surfaceFlags))</span>
+<span class=hljs-addition>+    file:write(pack_uint(unknownField))</span>
+<span class=hljs-addition>+    file:write(pack_uint(lightValue))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of vertices (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numVertices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write vertex information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of faces (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numFaces))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write face information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Huh... it just wrapped `string.pack` in another function. That&#x27;s now what I&#x27;m</span>
+<span class=hljs-addition>+looking for.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; so what would an implementation of pack_float that doesn&#x27;t rely on</span>
+<span class=hljs-addition>+&gt; string_pack?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+-- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+local vector1 = {-1, -1, -1}  -- Vector representing one corner of the box</span>
+<span class=hljs-addition>+local vector2 = { 1,  1,  1}  -- Vector representing the opposite corner of the box</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Custom function to pack a float into binary format</span>
+<span class=hljs-addition>+function pack_float(value)</span>
+<span class=hljs-addition>+    -- Convert float to IEEE 754 single-precision binary format (32-bit)</span>
+<span class=hljs-addition>+    local sign = value &lt; 0 and 1 or 0</span>
+<span class=hljs-addition>+    value = math.abs(value)</span>
+<span class=hljs-addition>+    local exponent = math.floor(math.log(value) / math.log(2))</span>
+<span class=hljs-addition>+    local mantissa = value / (2 ^ exponent)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Adjust exponent and mantissa to fit into 8 bytes</span>
+<span class=hljs-addition>+    exponent = exponent + 127  -- Bias for single-precision float</span>
+<span class=hljs-addition>+    mantissa = mantissa * (2 ^ 23)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Pack into bytes</span>
+<span class=hljs-addition>+    local byte1 = sign * 128 + math.floor(exponent / 2)</span>
+<span class=hljs-addition>+    local byte2 = (exponent % 2) * 128 + math.floor(mantissa / (2 ^ 16))</span>
+<span class=hljs-addition>+    local byte3 = math.floor(mantissa / 256) % 256</span>
+<span class=hljs-addition>+    local byte4 = mantissa % 256</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Return packed bytes as a string</span>
+<span class=hljs-addition>+    return string.char(byte1, byte2, byte3, byte4)</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Custom packing function for uint (32-bit unsigned integer)</span>
+<span class=hljs-addition>+function pack_uint(value)</span>
+<span class=hljs-addition>+    return string.char(</span>
+<span class=hljs-addition>+        math.floor(value / 2^24) % 256,</span>
+<span class=hljs-addition>+        math.floor(value / 2^16) % 256,</span>
+<span class=hljs-addition>+        math.floor(value / 2^8) % 256,</span>
+<span class=hljs-addition>+        value % 256</span>
+<span class=hljs-addition>+    )</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Open the .col file for writing</span>
+<span class=hljs-addition>+local file = io.open(&quot;cube.col&quot;, &quot;wb&quot;)</span>
+<span class=hljs-addition>+if not file then</span>
+<span class=hljs-addition>+    outputConsole(&quot;Failed to open file &#x27;cube.col&#x27; for writing.&quot;)</span>
+<span class=hljs-addition>+    return</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- RenderWare collision file structure</span>
+<span class=hljs-addition>+local numSphereCollisions = 0</span>
+<span class=hljs-addition>+local numColBoxes = 1  -- Only 1 box collision</span>
+<span class=hljs-addition>+local numVertices = 0</span>
+<span class=hljs-addition>+local numFaces = 0</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of sphere collisions (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numSphereCollisions))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each sphere&#x27;s information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write unknown data length (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(0))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of box collisions</span>
+<span class=hljs-addition>+file:write(pack_uint(numColBoxes))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write each box collision&#x27;s information</span>
+<span class=hljs-addition>+for i = 1, numColBoxes do</span>
+<span class=hljs-addition>+    -- Write vector 1 and vector 2 for the box collision</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(pack_float(vector1[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    for j = 1, 3 do</span>
+<span class=hljs-addition>+        file:write(pack_float(vector2[j]))</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write surface information for the box collision (dummy values for demonstration)</span>
+<span class=hljs-addition>+    local materialID = 1      -- Example: Material ID</span>
+<span class=hljs-addition>+    local surfaceFlags = 2    -- Example: Surface flags</span>
+<span class=hljs-addition>+    local unknownField = 3    -- Example: Unknown field</span>
+<span class=hljs-addition>+    local lightValue = 4      -- Example: Light value</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    file:write(pack_uint(materialID))</span>
+<span class=hljs-addition>+    file:write(pack_uint(surfaceFlags))</span>
+<span class=hljs-addition>+    file:write(pack_uint(unknownField))</span>
+<span class=hljs-addition>+    file:write(pack_uint(lightValue))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of vertices (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numVertices))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write vertex information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write number of faces (always 0)</span>
+<span class=hljs-addition>+file:write(pack_uint(numFaces))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Write face information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-- Close the file</span>
+<span class=hljs-addition>+file:close()</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Finally! This looks good for the body at a high level, but let&#x27;s be honest, I</span>
+<span class=hljs-addition>+needed a lot of information ahead of time and had to correct small but important</span>
+<span class=hljs-addition>+issues numerous times. It also still never got the header.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, let&#x27;s trust this code and slot it into the existing implementation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## code</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here is some actual working code</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+function b_urshift(n, bs)</span>
+<span class=hljs-addition>+    return math.floor(n / math.pow(2, bs))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function b_lshift(n, bs)</span>
+<span class=hljs-addition>+    return n * math.pow(2, bs)</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function fl(n)</span>
+<span class=hljs-addition>+    -- floating point to char impl</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function uint(n, sz)</span>
+<span class=hljs-addition>+    local data = &quot;&quot;</span>
+<span class=hljs-addition>+    for i = 1, sz do</span>
+<span class=hljs-addition>+        data = data .. string.char(b_urshift(n, 8 * (i - 1)) % 0x100)</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    return data</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function ch(c, sz)</span>
+<span class=hljs-addition>+    return c .. string.rep(string.char(0), sz - string.len(c))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_vec(x, y, z)</span>
+<span class=hljs-addition>+    return fl(x) .. fl(y) .. fl(z)</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_bounds(bl, tr, c, r)</span>
+<span class=hljs-addition>+    return fl(r)             -- radius</span>
+<span class=hljs-addition>+        .. t_vec(unpack(c))  -- center</span>
+<span class=hljs-addition>+        .. t_vec(unpack(bl)) -- min</span>
+<span class=hljs-addition>+        .. t_vec(unpack(tr)) -- max</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_surface()</span>
+<span class=hljs-addition>+    return uint(0, 8) -- material</span>
+<span class=hljs-addition>+        .. uint(0, 8) -- flag</span>
+<span class=hljs-addition>+        .. uint(0, 8) -- brightness</span>
+<span class=hljs-addition>+        .. uint(0, 8) -- light</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_box(bl, tr)</span>
+<span class=hljs-addition>+    return t_vec(unpack(bl))</span>
+<span class=hljs-addition>+        .. t_vec(unpack(tr))</span>
+<span class=hljs-addition>+        .. t_surface()</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function col_data(bl, tr)</span>
+<span class=hljs-addition>+    local header = ch(&quot;COLL&quot;, 4) -- magic bytes</span>
+<span class=hljs-addition>+        .. uint(64 + 20 + 28, 4) -- size of rest of file, does not seem to matter??</span>
+<span class=hljs-addition>+        .. ch(&quot;model_name&quot;, 22)  -- model_name</span>
+<span class=hljs-addition>+        .. uint(0, 2)            -- model id</span>
+<span class=hljs-addition>+        .. t_bounds(bl, tr, {0, 0, 0}, math.max(math.abs(bl[1] - tr[1]), math.abs(bl[2] - tr[2]), math.abs(bl[3] - tr[3])))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    local col_shapes = uint(0, 4) -- num spheres</span>
+<span class=hljs-addition>+        .. uint(0, 4)             -- num unknown</span>
+<span class=hljs-addition>+        .. uint(1, 4)             -- num boxes</span>
+<span class=hljs-addition>+        .. t_box(bl, tr)          -- the single col shape we&#x27;re generating</span>
+<span class=hljs-addition>+        .. uint(0, 4)             -- num vertices</span>
+<span class=hljs-addition>+        .. uint(0, 4)             -- num faces</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    return header .. col_shapes</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+function create_col_for(e)</span>
+<span class=hljs-addition>+    local x1, y1, z1, x2, y2, z2 = getElementBoundingBox(e)</span>
+<span class=hljs-addition>+    local xs, ys, zs = getObjectScale(e)</span>
+<span class=hljs-addition>+    -- could avoid loading the same col based on wanted sizes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- because we&#x27;re creating a new model + collision for each element, the elements</span>
+<span class=hljs-addition>+    -- original collision is still there, so scaling smaller than the element results in</span>
+<span class=hljs-addition>+    -- the old collision still blocking things</span>
+<span class=hljs-addition>+    local col = engineLoadCOL(col_data({x1 * xs, y1 * ys, z1 * zs}, {x2 * xs, y2 * ys, z2 * zs}))</span>
+<span class=hljs-addition>+    local next_model_id = engineRequestModel(&quot;object&quot;)</span>
+<span class=hljs-addition>+    engineReplaceCOL(col, next_model_id)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    local obj = createObject(next_model_id, getElementPosition(e))</span>
+<span class=hljs-addition>+    setElementAlpha(obj, 0) -- hides the new object&#x27;s model (trashcan default)</span>
+<span class=hljs-addition>+    setElementRotation(obj, getElementRotation(e))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## back to ai</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And here is that implementation with the body generation from ChatGPT slotted</span>
+<span class=hljs-addition>+into it so it replaces the existing body generation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```lua</span>
+<span class=hljs-addition>+function b_urshift(n, bs)</span>
+<span class=hljs-addition>+    return math.floor(n / math.pow(2, bs))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function b_lshift(n, bs)</span>
+<span class=hljs-addition>+    return n * math.pow(2, bs)</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function fl(n)</span>
+<span class=hljs-addition>+    -- floating point to char impl</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function uint(n, sz)</span>
+<span class=hljs-addition>+    local data = &quot;&quot;</span>
+<span class=hljs-addition>+    for i = 1, sz do</span>
+<span class=hljs-addition>+        data = data .. string.char(b_urshift(n, 8 * (i - 1)) % 0x100)</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+    return data</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function ch(c, sz)</span>
+<span class=hljs-addition>+    return c .. string.rep(string.char(0), sz - string.len(c))</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_vec(x, y, z)</span>
+<span class=hljs-addition>+    return fl(x) .. fl(y) .. fl(z)</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_bounds(bl, tr, c, r)</span>
+<span class=hljs-addition>+    return fl(r)             -- radius</span>
+<span class=hljs-addition>+        .. t_vec(unpack(c))  -- center</span>
+<span class=hljs-addition>+        .. t_vec(unpack(bl)) -- min</span>
+<span class=hljs-addition>+        .. t_vec(unpack(tr)) -- max</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_surface()</span>
+<span class=hljs-addition>+    return uint(0, 8) -- material</span>
+<span class=hljs-addition>+        .. uint(0, 8) -- flag</span>
+<span class=hljs-addition>+        .. uint(0, 8) -- brightness</span>
+<span class=hljs-addition>+        .. uint(0, 8) -- light</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function t_box(bl, tr)</span>
+<span class=hljs-addition>+    return t_vec(unpack(bl))</span>
+<span class=hljs-addition>+        .. t_vec(unpack(tr))</span>
+<span class=hljs-addition>+        .. t_surface()</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+function col_data(bl, tr)</span>
+<span class=hljs-addition>+    local header = ch(&quot;COLL&quot;, 4) -- magic bytes</span>
+<span class=hljs-addition>+        .. uint(64 + 20 + 28, 4) -- size of rest of file, does not seem to matter??</span>
+<span class=hljs-addition>+        .. ch(&quot;model_name&quot;, 22)  -- model_name</span>
+<span class=hljs-addition>+        .. uint(0, 2)            -- model id</span>
+<span class=hljs-addition>+        .. t_bounds(bl, tr, {0, 0, 0}, math.max(math.abs(bl[1] - tr[1]), math.abs(bl[2] - tr[2]), math.abs(bl[3] - tr[3])))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    local col_shapes = col_body(bl, tr)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    return header .. col_shapes</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+function col_body(bl, tr)</span>
+<span class=hljs-addition>+    -- Define the two vectors for the bounding box</span>
+<span class=hljs-addition>+    local vector1 = bl</span>
+<span class=hljs-addition>+    local vector2 = tr</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Custom function to pack a float into binary format</span>
+<span class=hljs-addition>+    function pack_float(value)</span>
+<span class=hljs-addition>+        -- Convert float to IEEE 754 single-precision binary format (32-bit)</span>
+<span class=hljs-addition>+        local sign = value &lt; 0 and 1 or 0</span>
+<span class=hljs-addition>+        value = math.abs(value)</span>
+<span class=hljs-addition>+        local exponent = math.floor(math.log(value) / math.log(2))</span>
+<span class=hljs-addition>+        local mantissa = value / (2 ^ exponent)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        -- Adjust exponent and mantissa to fit into 8 bytes</span>
+<span class=hljs-addition>+        exponent = exponent + 127  -- Bias for single-precision float</span>
+<span class=hljs-addition>+        mantissa = mantissa * (2 ^ 23)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        -- Pack into bytes</span>
+<span class=hljs-addition>+        local byte1 = sign * 128 + math.floor(exponent / 2)</span>
+<span class=hljs-addition>+        local byte2 = (exponent % 2) * 128 + math.floor(mantissa / (2 ^ 16))</span>
+<span class=hljs-addition>+        local byte3 = math.floor(mantissa / 256) % 256</span>
+<span class=hljs-addition>+        local byte4 = mantissa % 256</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        -- Return packed bytes as a string</span>
+<span class=hljs-addition>+        return string.char(byte1, byte2, byte3, byte4)</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Custom packing function for uint (32-bit unsigned integer)</span>
+<span class=hljs-addition>+    function pack_uint(value)</span>
+<span class=hljs-addition>+        return string.char(</span>
+<span class=hljs-addition>+            math.floor(value / 2^24) % 256,</span>
+<span class=hljs-addition>+            math.floor(value / 2^16) % 256,</span>
+<span class=hljs-addition>+            math.floor(value / 2^8) % 256,</span>
+<span class=hljs-addition>+            value % 256</span>
+<span class=hljs-addition>+        )</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    local data = &quot;&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- RenderWare collision file structure</span>
+<span class=hljs-addition>+    local numSphereCollisions = 0</span>
+<span class=hljs-addition>+    local numColBoxes = 1  -- Only 1 box collision</span>
+<span class=hljs-addition>+    local numVertices = 0</span>
+<span class=hljs-addition>+    local numFaces = 0</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write number of sphere collisions (always 0)</span>
+<span class=hljs-addition>+    data = data .. pack_uint(numSphereCollisions)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write each sphere&#x27;s information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write unknown data length (always 0)</span>
+<span class=hljs-addition>+    data = data .. pack_uint(0)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write number of box collisions</span>
+<span class=hljs-addition>+    data = data .. pack_uint(numColBoxes)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write each box collision&#x27;s information</span>
+<span class=hljs-addition>+    for i = 1, numColBoxes do</span>
+<span class=hljs-addition>+        -- Write vector 1 and vector 2 for the box collision</span>
+<span class=hljs-addition>+        for j = 1, 3 do</span>
+<span class=hljs-addition>+            data = data .. pack_float(vector1[j])</span>
+<span class=hljs-addition>+        end</span>
+<span class=hljs-addition>+        for j = 1, 3 do</span>
+<span class=hljs-addition>+            data = data .. pack_float(vector2[j])</span>
+<span class=hljs-addition>+        end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        -- Write surface information for the box collision (dummy values for demonstration)</span>
+<span class=hljs-addition>+        local materialID = 1      -- Example: Material ID</span>
+<span class=hljs-addition>+        local surfaceFlags = 2    -- Example: Surface flags</span>
+<span class=hljs-addition>+        local unknownField = 3    -- Example: Unknown field</span>
+<span class=hljs-addition>+        local lightValue = 4      -- Example: Light value</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        data = data .. pack_uint(materialID)</span>
+<span class=hljs-addition>+        data = data .. pack_uint(surfaceFlags)</span>
+<span class=hljs-addition>+        data = data .. pack_uint(unknownField)</span>
+<span class=hljs-addition>+        data = data .. pack_uint(lightValue)</span>
+<span class=hljs-addition>+    end</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write number of vertices (always 0)</span>
+<span class=hljs-addition>+    data = data .. pack_uint(numVertices)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write vertex information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write number of faces (always 0)</span>
+<span class=hljs-addition>+    data = data .. pack_uint(numFaces)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Write face information (none, so skip)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    -- Close the file</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    outputConsole(&quot;Collision file &#x27;cube.col&#x27; has been created successfully.&quot;)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    return data</span>
+<span class=hljs-addition>+end</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What happened when I used it? It crashed the game, which means there&#x27;s an issue</span>
+<span class=hljs-addition>+with it somewhere.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can compare the binary of the 2 bodies good/bad to help diagnose where it</span>
+<span class=hljs-addition>+went wrong:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+-- bad</span>
+<span class=hljs-addition>+00000000: 0000 0000 0000 0000 0000 0001 c18b d43c  ...............&lt;</span>
+<span class=hljs-addition>+00000010: bf80 6d15 c0db 452e 418c a36c 3f92 0215  ..m...E.A..l?...</span>
+<span class=hljs-addition>+00000020: 40dc 958e 0000 0001 0000 0002 0000 0003  @...............</span>
+<span class=hljs-addition>+00000030: 0000 0004 0000 0000 0000 0000            ............</span>
+<span class=hljs-addition>+-- good</span>
+<span class=hljs-addition>+00000000: 0000 0000 0000 0000 0100 0000 3cd4 0bc1  ............&lt;...</span>
+<span class=hljs-addition>+00000010: 156d 00bf 2e45 5bc0 6ca3 0c41 1502 123f  .m...E[.l..A...?</span>
+<span class=hljs-addition>+00000020: 8e95 5c40 0000 0000 0000 0000 0000 0000  ..\@............</span>
+<span class=hljs-addition>+00000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................</span>
+<span class=hljs-addition>+00000040: 0000 0000 0000 0000 0000 0000            ............</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first thing I can see is that the endianness is backwards, but I won&#x27;t fault</span>
+<span class=hljs-addition>+it for that and it&#x27;s a quick fix.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I can also see that the floating point numbers are slightly different, but that</span>
+<span class=hljs-addition>+could just be a difference in implementation - I just threw something together</span>
+<span class=hljs-addition>+quickly so I&#x27;m not sure if my own is correct, but they are close enough. I guess</span>
+<span class=hljs-addition>+I&#x27;ll comment my implementation out.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Surface flags? Looks correct. The real issue is the missing bytes. Oh right, the</span>
+<span class=hljs-addition>+surface flags use 8 bytes instead of 4, so they are wrong.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Well, at the end of the day it never really got there despite many hints, though</span>
+<span class=hljs-addition>+I think with enough prompting or better prompting, like giving it the entire</span>
+<span class=hljs-addition>+format ahead of time, it could&#x27;ve made it. And that&#x27;s the thing - could I have</span>
+<span class=hljs-addition>+been able to prompt it correctly or efficiently without intimate knowledge of</span>
+<span class=hljs-addition>+the result beforehand? All in all, I think it would not be worth it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This was a conversation with ChatGPT 3.5 on July 11, 2024.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
