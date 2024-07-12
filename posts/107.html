@@ -804,7 +804,7 @@ outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; 
 </code></pre>
 <p>Huh… it just wrapped <code>string.pack</code> in another function. That's now what I'm looking for.</p>
 <blockquote>
-<p>so what would an implementation of pack<em>float that doesn't rely on string</em>pack?</p>
+<p>so what would an implementation of pack_float that doesn't rely on string_pack look like?</p>
 </blockquote>
 <pre class=code-block><input id=code-block-107-13 type=checkbox><label for=code-block-107-13></label><code><span class=hljs-comment>-- Define the two vectors for the bounding box</span>
 <span class=hljs-keyword>local</span> vector1 = {<span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>, <span class=hljs-number>-1</span>}  <span class=hljs-comment>-- Vector representing one corner of the box</span>
@@ -1144,7 +1144,7 @@ outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; 
 </code></pre>
 <p>The first thing I can see is that the endianness is backwards, but I won't fault it for that and it's a quick fix.</p>
 <p>I can also see that the floating point numbers are slightly different, but that could just be a difference in implementation - I just threw something together quickly so I'm not sure if my own is correct, but they are close enough. I guess I'll comment my implementation out.</p>
-<p>Surface flags? Looks correct. The real issue is the missing bytes. Oh right, the surface flags use 8 bytes instead of 4, so they are wrong.</p>
+<p>Surface flags? Looks correct. The real issue is the missing bytes. Oh right, the surface flags use 8 bytes instead of 4, so they are wrong. I did specify uint8 in the prompt, but realize now that that would be interpreted as 8 bits rather than 8 bytes. Either way, it's not 4 bytes.</p>
 <p>Well, at the end of the day it never really got there despite many hints, though I think with enough prompting or better prompting, like giving it the entire format ahead of time, it could've made it. And that's the thing - could I have been able to prompt it correctly or efficiently without intimate knowledge of the result beforehand? All in all, I think it would not be worth it.</p>
 <p>This was a conversation with ChatGPT 3.5 on July 11, 2024.</p>
 <nav class=posts-nav_bottom>
@@ -1153,6 +1153,23 @@ outputConsole(<span class=hljs-string>&quot;Collision file &#x27;cube.col&#x27; 
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-07-12 - update post 107: fix formatting and add to reflection</summary>
+<pre class=code-block><input id=code-block-7104c72f117b772f3ed25d39cf7a801d74307072-1 type=checkbox><label for=code-block-7104c72f117b772f3ed25d39cf7a801d74307072-1></label><code><span class=hljs-meta>@@ -840,4 +840,4 @@</span> looking for.
+
+<span class=hljs-deletion>-&gt; so what would an implementation of pack_float that doesn&#x27;t rely on</span>
+<span class=hljs-deletion>-&gt; string_pack?</span>
+<span class=hljs-addition>+&gt; so what would an implementation of pack\_float that doesn&#x27;t rely on</span>
+<span class=hljs-addition>+&gt; string\_pack look like?</span>
+</code></pre>
+<pre class=code-block><input id=code-block-7104c72f117b772f3ed25d39cf7a801d74307072-2 type=checkbox><label for=code-block-7104c72f117b772f3ed25d39cf7a801d74307072-2></label><code><span class=hljs-meta>@@ -1217,3 +1217,5 @@</span> I&#x27;ll comment my implementation out.
+ Surface flags? Looks correct. The real issue is the missing bytes. Oh right, the
+<span class=hljs-deletion>-surface flags use 8 bytes instead of 4, so they are wrong.</span>
+<span class=hljs-addition>+surface flags use 8 bytes instead of 4, so they are wrong. I did specify uint8</span>
+<span class=hljs-addition>+in the prompt, but realize now that that would be interpreted as 8 bits rather</span>
+<span class=hljs-addition>+than 8 bytes. Either way, it&#x27;s not 4 bytes.</span>
+</code></pre>
+</details>
 <details>
 <summary>2024-07-11 - add post 107</summary>
 <pre class=code-block><input id=code-block-d9cc8574f8db2615d15cb6b230e4f028b52568a3-1 type=checkbox><label for=code-block-d9cc8574f8db2615d15cb6b230e4f028b52568a3-1></label><code><span class=hljs-meta>@@ -0,0 +1,1226 @@</span>
