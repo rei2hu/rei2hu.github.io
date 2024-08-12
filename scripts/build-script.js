@@ -12,11 +12,11 @@ const opts = process.argv
 	.map((arg) => [arg.slice(2), true]);
 const entries = Object.fromEntries(opts);
 const all = opts.length === 0 ? true : entries.all;
-const { blobs, assets, css, md, js } = entries;
+const { blobs, assets, css, md, js, fmd } = entries;
 
 // disable for now because bugged due to generating backwards/forwards links
 // needing previous and after mds; also generating the list pages need them too.
-const fmd = false;
+// const fmd = false;
 
 // blobs
 if (all || blobs) {
@@ -156,12 +156,16 @@ if (all || md || fmd) {
 	}
 
 	const diffCommand = "git diff --name-only HEAD";
-	const changedFiles = fmd
+	const changedFiles = (fmd
 		? execSync(diffCommand)
 				.toString()
 				.split("\n")
 				.filter((filePath) => filePath.length > 0)
-		: [];
+		: []
+	)
+		// technically not correct because files from other dirs could share
+		// names but it's not game breaking
+		.map((pa) => path.basename(pa));
 
 	processThenCopyMd("./md/posts", "./posts", {
 		desc:

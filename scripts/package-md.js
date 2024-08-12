@@ -160,6 +160,8 @@ function fillTemplate({
 
 module.exports = {
 	processThenCopyMd(srcDir, targetDir, { desc = "", filter = [] } = {}) {
+		const usingFilters = filter.length > 0;
+
 		fs.promises
 			.mkdir(path.resolve("built", targetDir), { recursive: true })
 			.then(async () => {
@@ -315,7 +317,9 @@ module.exports = {
 								},
 								// position of element is id - 1
 								before: () =>
-									id > 1
+									usingFilters
+										? "FMD"
+										: id > 1
 										? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
 												id - 1
 										  }">&lt; ${
@@ -323,7 +327,9 @@ module.exports = {
 										  }</a></div>`
 										: `<div style="flex:0 0 50%"></div>`,
 								after: () =>
-									id < fileObjs.length
+									usingFilters
+										? "FMD"
+										: id < fileObjs.length
 										? `<div style="text-align:end"><a href="/${targetDir}/${
 												id + 1
 										  }">${
@@ -340,6 +346,11 @@ module.exports = {
 							);
 						})
 				);
+
+				if (usingFilters) {
+					await writeFilesPromise;
+					return;
+				}
 
 				// create main page
 				const html = fillTemplate({
