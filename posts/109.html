@@ -1,0 +1,1215 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tikz-loader.js defer></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>contouring with marching squares</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript necessary for displaying LaTeX and TikZ diagrams, and it is also used for other small cosmetic features.
+</noscript>
+<nav class=posts-nav_top>
+<div style="flex:0 0 50%"><a href=/./posts/108>&lt; grad school semester 2 end</a></div>
+</nav>
+<h1 id=contouring-with-marching-squares>contouring with marching squares</h1>
+<style>.template-body>canvas{width:60%;aspect-ratio:1/1;transform:translateX(30%)}</style>
+<p>Marching squares is a pretty straightforward algorithm to create contours for a 2d surface.</p>
+<p>Take a look at the following bit of code:</p>
+<pre class=code-block><input id=code-block-109-1 type=checkbox><label for=code-block-109-1></label><code><span class=hljs-comment>// assume x and y are bounded [0, 1]</span>
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">hill</span>(<span class=hljs-params>x, y</span>) {
+    <span class=hljs-keyword>const</span> xx = x * <span class="hljs-title class_">Math</span>.<span class=hljs-property>PI</span> * <span class=hljs-number>2</span>;
+    <span class=hljs-keyword>const</span> yy = y * <span class="hljs-title class_">Math</span>.<span class=hljs-property>PI</span> * <span class=hljs-number>2</span>;
+
+    <span class=hljs-keyword>return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sin</span>(xx) + <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sin</span>(yy);
+}
+</code></pre>
+<script>
+function hill(x, y) {
+        const xx = x * Math.PI * 2;
+        const yy = y * Math.PI * 2;
+
+        return Math.sin(xx) + Math.sin(yy);
+    }
+</script>
+<script>
+function clearCanvas(id) {
+        const canvas = document.getElementById(id);
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = ctx.strokeStyle = "#000000";
+
+        return canvas;
+    }
+    function linear_interpolation(x1, x2, f1, f2, t) {
+        const width = x2 - x1;
+        const domain = f2 - f1;
+        return (t - f1) / domain * width + x1;
+    }
+
+    function contourCase(threshold, f, tl, tr, bl, br) {
+        let num = f(bl) > threshold & 1;
+        num <<= 1;
+        num |= f(tl) > threshold & 1;
+        num <<= 1;
+        num |= f(tr) > threshold & 1;
+        num <<= 1;
+        num |= f(br) > threshold & 1;
+
+        return num;
+    }
+
+    // top left, top right, bottom left, bottom right
+    function segments(threshold, f, tl, tr, bl, br) {
+        const num = contourCase(threshold, f, tl, tr, bl, br);
+        let p1, p2, p3, p4
+
+        switch (num) {
+            case 1:
+            case 14:
+                p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
+                p2 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);
+                return [[[tr[0], p1], [p2, bl[1]]]];
+            case 2:
+            case 13:
+                p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
+                p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
+                return [[[tr[0], p1], [p2, tl[1]]]];
+            case 3:
+            case 12:
+                p1 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);
+                p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
+                return [[[p1, bl[1]], [p2, tl[1]]]];
+            case 4:
+            case 11:
+                p1 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
+                p2 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
+                return [[[p1, tl[1]], [tl[0], p2]]];
+            case 5:
+            case 10:
+                // ignore
+                return [];
+            case 6:
+            case 9:
+                p1 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
+                p2 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
+                return [[[tl[0], p1], [tr[0], p2]]];
+            case 7:
+            case 8:
+                p1 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
+                p2 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);
+                return [[[tl[0], p1], [p2, bl[1]]]];
+        }
+
+        // 0 and 15
+        return [];
+    }
+</script>
+<p>This is a basic function that should have a peak at 0.25, 0.25 and a dip at 0.75, 0.75. Calculating the values for distinct points on a canvas results in values at these points (roughly):</p>
+<canvas height=1000 id=measurements width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("measurements");
+    const ctx = canvas.getContext("2d");
+
+    for (let i = 0; i <= 1; i += 0.1) {
+        for (let j = 0; j <= 1; j += 0.1) {
+            const val = hill(i, j).toFixed(2);
+            ctx.font = `${canvas.width / 50}px monospace`;
+            ctx.textAlign = i === 0
+                ? "left"
+                : i > 0.9
+                ? "right"
+                : "center";
+            ctx.textBaseline = j === 0
+                ? "top"
+                : j > 0.9
+                ? "bottom"
+                : "middle";
+            ctx.fillText(val, i * canvas.width, j * canvas.height);
+        }
+    }
+</script>
+<p>You can see the 1.90 in the top left and the -1.90 in the bottom right. What we want to do is draw lines on this graph to visualize which areas are peaks and nadirs.</p>
+<p>The first thing to do is to break the area up into a grid like so. For the first demo, I'll go with every value other we've calculated:</p>
+<canvas height=1000 id=gridded width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("gridded");
+    const ctx = canvas.getContext("2d");
+
+    for (let i = 0; i <= 1; i += 0.2) {
+        const w = Math.max(0, i * canvas.width - 1);
+        ctx.fillRect(w, 0, 1, canvas.height);
+    }
+    for (let j = 0; j <= 1; j += 0.2) {
+        const h = Math.max(0, j * canvas.height - 1);
+        ctx.fillRect(0, h, canvas.width, 1);
+    }
+</script>
+<p>The first thing we want to do is pick an isovalue, which will be the threshold. We know a good value to pick will be between -1.9 and 1.9 because that's the range of our data, so let's just pick 1. Why not 0? Because 1 is better for the demo… also we can also create multiple contours with multiple thresholds.</p>
+<p>Now we look at each individual square in our grid. Let's look at the top left one and the values at its corners.</p>
+<canvas height=1000 id=top-left-square width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("top-left-square");
+    const ctx = canvas.getContext("2d");
+    ctx.font = `${canvas.width / 35}px monospace`;
+    ctx.textAlign = "center";
+    ctx.fillText(
+        `hill(0, 0)=${hill(0, 0).toFixed(2)}`,
+        canvas.width * 0.3,
+        canvas.height * 0.3 - 5,
+    );
+    ctx.fillText(
+        `hill(0.2, 0)=${hill(0.2, 0).toFixed(2)}`,
+        canvas.width * 0.7,
+        canvas.height * 0.3 - 5,
+    );
+    ctx.textBaseline = "top";
+    ctx.fillText(
+        `hill(0, 0.2)=${hill(0, 0.2).toFixed(2)}`,
+        canvas.width * 0.3,
+        canvas.height * 0.7 + 5,
+    );
+    ctx.fillText(
+        `hill(0.2, 0.2)=${hill(0.2, 0.2).toFixed(2)}`,
+        canvas.width * 0.7,
+        canvas.height * 0.7 + 5,
+    );
+
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.3,
+        canvas.width * 0.4,
+        1,
+    );
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.3,
+        1,
+        canvas.height * 0.4,
+    );
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.7,
+        canvas.width * 0.4,
+        1,
+    );
+    ctx.fillRect(
+        canvas.width * 0.7,
+        canvas.height * 0.3,
+        1,
+        canvas.height * 0.4,
+    );
+</script>
+<p>With an isovalue of 1, we know that the contour line should be go somewhere between the right and bottom walls, because we want to separate the points above the threshold and the ones below it.</p>
+<p>This is kind of the main ideas behind the algorithm - for each square, draw contour lines that separate the corners above the threshold from the ones below. There are multiple ways to determine where the line ends and starts within a square, but the simplest way is through linear interpolation.</p>
+<canvas height=1000 id=top-left-square-2 width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("top-left-square-2");
+    const ctx = canvas.getContext("2d");
+    ctx.font = `${canvas.width / 35}px monospace`;
+    ctx.textAlign = "center";
+    ctx.fillText(
+        hill(0, 0).toFixed(2),
+        canvas.width * 0.3,
+        canvas.height * 0.3 - 5,
+    );
+    ctx.textBaseline = "top";
+    ctx.fillText(
+        hill(0, 0.2).toFixed(2),
+        canvas.width * 0.3,
+        canvas.height * 0.7 + 5,
+    );
+
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.3,
+        canvas.width * 0.4,
+        1,
+    );
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.3,
+        1,
+        canvas.height * 0.4,
+    );
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.7,
+        canvas.width * 0.4,
+        1,
+    );
+    ctx.fillRect(
+        canvas.width * 0.7,
+        canvas.height * 0.3,
+        1,
+        canvas.height * 0.4,
+    );
+
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    for (let i = 0; i <= 1; i += 0.1) {
+        ctx.fillText(
+            (0.95 + 0.95 * i).toFixed(2),
+            canvas.width * 0.7 + 25,
+            canvas.height * 0.3 + canvas.height * 0.4 * i,
+        );
+        ctx.fillRect(
+            canvas.width * 0.7,
+            canvas.height * 0.3 + canvas.height * 0.4 * i,
+            20,
+            1
+        );
+
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(
+        canvas.width * 0.7,
+        canvas.height * 0.3 + canvas.height * 0.4 * (0.05 / 0.95)
+    );
+    ctx.lineTo(
+        canvas.width * 0.3 + canvas.width * 0.4 * (0.05 / 0.95),
+        canvas.height * 0.7,
+    );
+    ctx.stroke();
+</script>
+<p>With 4 points to each square (duh), there are a total of 16 possible configurations. Depending on the configuration, we apply a linear interpolation among specific points to draw lines. What does the code look like? Kind of like this</p>
+<pre class=code-block><input id=code-block-109-2 type=checkbox><label for=code-block-109-2></label><code><span class=hljs-keyword>function</span> <span class="hljs-title function_">linear_interpolation</span>(<span class=hljs-params>x1, x2, f1, f2, t</span>) {
+    <span class=hljs-keyword>const</span> width = x2 - x1;
+    <span class=hljs-keyword>const</span> domain = f2 - f1;
+    <span class=hljs-keyword>return</span> t - (f1 / domain) * width;
+}
+
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">contourCase</span>(<span class=hljs-params>threshold, tl, tr, bl, tr</span>) {
+    <span class=hljs-comment>// convert the corners into a number between 0 and 15 for ease</span>
+    <span class=hljs-comment>// (and its a common practice, but this might not line up exactly)</span>
+    <span class=hljs-keyword>let</span> num = (bl &gt; threshold) &amp; <span class=hljs-number>1</span>;
+    num &lt;&lt;= <span class=hljs-number>1</span>;
+    num |= (tl &gt; threshold) &amp; <span class=hljs-number>1</span>;
+    num &lt;&lt;= <span class=hljs-number>1</span>;
+    num |= (tr &gt; threshold) &amp; <span class=hljs-number>1</span>;
+    num &lt;&lt;= <span class=hljs-number>1</span>;
+    num |= (br &gt; threshold) &amp; <span class=hljs-number>1</span>;
+
+    <span class=hljs-keyword>return</span> num;
+}
+
+<span class=hljs-comment>// top left, top right, bottom left, bottom right</span>
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">segments</span>(<span class=hljs-params>threshold, f, tl, tr, bl, br</span>) {
+    <span class=hljs-keyword>const</span> num = <span class="hljs-title function_">contourCase</span>(threshold, tl, tr, bl, br);
+
+    <span class=hljs-keyword>switch</span> (num) {
+        <span class=hljs-keyword>case</span> <span class=hljs-number>0</span>:
+        <span class=hljs-keyword>case</span> <span class=hljs-number>15</span>:
+            <span class=hljs-comment>// all above or below threshold, no lines</span>
+            <span class=hljs-keyword>return</span> [];
+        <span class=hljs-keyword>case</span> <span class=hljs-number>1</span>:
+            <span class=hljs-comment>// bottom right is above the threshold so we want a line from the</span>
+            <span class=hljs-comment>// right to bottom side</span>
+            p1 = <span class="hljs-title function_">linear_interpolation</span>(tr[<span class=hljs-number>1</span>], br[<span class=hljs-number>1</span>], <span class="hljs-title function_">f</span>(tr), <span class="hljs-title function_">f</span>(br), threshold);
+            p2 = <span class="hljs-title function_">linear_interpolation</span>(bl[<span class=hljs-number>0</span>], br[<span class=hljs-number>0</span>], <span class="hljs-title function_">f</span>(bl), <span class="hljs-title function_">f</span>(br), threshold);
+            <span class=hljs-keyword>return</span> [
+                [
+                    [tr[<span class=hljs-number>0</span>], p1],
+                    [p2, bl[<span class=hljs-number>1</span>]],
+                ],
+            ];
+        <span class=hljs-keyword>case</span> <span class=hljs-number>2</span>:
+            <span class=hljs-comment>// top right is above the threshold so we want a line from the top</span>
+            <span class=hljs-comment>// to right side</span>
+            p1 = <span class="hljs-title function_">linear_interpolation</span>(tr[<span class=hljs-number>1</span>], br[<span class=hljs-number>1</span>], <span class="hljs-title function_">f</span>(tr), <span class="hljs-title function_">f</span>(br), threshold);
+            p2 = <span class="hljs-title function_">linear_interpolation</span>(tl[<span class=hljs-number>0</span>], tr[<span class=hljs-number>0</span>], <span class="hljs-title function_">f</span>(tl), <span class="hljs-title function_">f</span>(tr), threshold);
+            <span class=hljs-keyword>return</span> [
+                [
+                    [tr[<span class=hljs-number>0</span>], p1],
+                    [p2, tl[<span class=hljs-number>1</span>]],
+                ],
+            ];
+        <span class=hljs-keyword>case</span> <span class=hljs-number>3</span>:
+            <span class=hljs-comment>// bottom right and top right are above the threshold, so we want a</span>
+            <span class=hljs-comment>// line going down the middle</span>
+            p1 = <span class="hljs-title function_">linear_interpolation</span>(bl[<span class=hljs-number>0</span>], br[<span class=hljs-number>0</span>], <span class="hljs-title function_">f</span>(bl), <span class="hljs-title function_">f</span>(br), threshold);
+            p2 = <span class="hljs-title function_">linear_interpolation</span>(tl[<span class=hljs-number>0</span>], tr[<span class=hljs-number>0</span>], <span class="hljs-title function_">f</span>(tl), <span class="hljs-title function_">f</span>(tr), threshold);
+            <span class=hljs-keyword>return</span> [
+                [
+                    [p1, bl[<span class=hljs-number>1</span>]],
+                    [p2, tl[<span class=hljs-number>1</span>]],
+                ],
+            ];
+        <span class=hljs-comment>// ...</span>
+    }
+}
+</code></pre>
+<canvas height=1000 id=contoured-1 width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("contoured-1");
+    const ctx = canvas.getContext("2d");
+
+    for (let i = 0; i <= 1; i += 0.2) {
+        const w = Math.max(0, i * canvas.width - 1);
+        ctx.fillRect(w, 0, 1, canvas.height);
+    }
+
+    for (let j = 0; j <= 1; j += 0.2) {
+        const h = Math.max(0, j * canvas.height - 1);
+        ctx.fillRect(0, h, canvas.width, 1);
+    }
+
+    for (let i = 0; i < 1; i += 0.2) {
+        for (let j = 0; j < 1; j += 0.2) {
+            const lines = segments(
+                1,
+                p => hill(p[0], p[1]),
+                [i, j],
+                [i + 0.2, j],
+                [i, j + 0.2],
+                [i + 0.2, j + 0.2],
+            );
+            for (const [start, end] of lines) {
+                ctx.beginPath();
+                ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);
+                ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);
+                ctx.stroke();
+            }
+        }
+    }
+</script>
+<p>Great, now lets run this for thresholds between -1.9 and 1.9 and do some basic color scaling on the contour lines so we can deduce the height.</p>
+<canvas height=1000 id=contoured-2 width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("contoured-2");
+    const ctx = canvas.getContext("2d");
+    const step = 0.2;
+
+    for (let i = 0; i <= 1; i += step) {
+        const w = Math.max(0, i * canvas.width - 1);
+        ctx.fillRect(w, 0, 1, canvas.height);
+    }
+
+    for (let j = 0; j <= 1; j += step) {
+        const h = Math.max(0, j * canvas.height - 1);
+        ctx.fillRect(0, h, canvas.width, 1);
+    }
+
+    for (let t = 0; t <= 1; t += 0.05) {
+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);
+        ctx.strokeStyle = `#${val}${val}${val}`;
+        const threshold = (t - 0.5) * 3.8;
+        for (let i = 0; i < 1; i += step) {
+            for (let j = 0; j < 1; j += step) {
+                const lines = segments(
+                    threshold,
+                    p => hill(p[0], p[1]),
+                    [i, j],
+                    [i + step, j],
+                    [i, j + step],
+                    [i + step, j + step],
+                );
+                for (const [start, end] of lines) {
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);
+                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+</script>
+<p>Pretty good but kind of chunky, what if we shrink the grid (and remove the grid lines because there isn't a real need for them):</p>
+<canvas height=1000 id=contoured-3 width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("contoured-3");
+    const ctx = canvas.getContext("2d");
+    const step = 0.01;
+
+    for (let t = 0; t <= 1; t += 0.05) {
+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);
+        ctx.strokeStyle = `#${val}${val}${val}`;
+        const threshold = (t - 0.5) * 3.8;
+        for (let i = 0; i < 1; i += step) {
+            for (let j = 0; j < 1; j += step) {
+                const lines = segments(
+                    threshold,
+                    p => hill(p[0], p[1]),
+                    [i, j],
+                    [i + step, j],
+                    [i, j + step],
+                    [i + step, j + step],
+                );
+                for (const [start, end] of lines) {
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);
+                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+</script>
+<p>Great! We can easily see that there is a dip in the bottom right and a peak at the top left, which is what we originally knew. Of course, the function and data were obvious there so we didn't really need to do this to figure it out but when the measurements are less consistent then this is a lot more convenient.</p>
+<p>There is one last part I forgot to mention, which is that there are actually 18 cases while there are 16 configurations. This is because there are two specific configurations that are ambiguous - when the opposing corners are above or below the threshold while their neighbors aren't. For example with a threshold of 1 here, lines could be drawn in multiple ways:</p>
+<canvas height=1000 id=saddle width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("saddle");
+    const ctx = canvas.getContext("2d");
+    ctx.font = `${canvas.width / 35}px monospace`;
+    ctx.textAlign = "center";
+    ctx.fillText(
+        "0",
+        canvas.width * 0.3,
+        canvas.height * 0.3 - 5,
+    );
+    ctx.fillText(
+        "2",
+        canvas.width * 0.7,
+        canvas.height * 0.3 - 5,
+    );
+    ctx.textBaseline = "top";
+    ctx.fillText(
+        "2",
+        canvas.width * 0.3,
+        canvas.height * 0.7 + 5,
+    );
+    ctx.fillText(
+        "0",
+        canvas.width * 0.7,
+        canvas.height * 0.7 + 5,
+    );
+
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.3,
+        canvas.width * 0.4,
+        1,
+    );
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.3,
+        1,
+        canvas.height * 0.4,
+    );
+    ctx.fillRect(
+        canvas.width * 0.3,
+        canvas.height * 0.7,
+        canvas.width * 0.4,
+        1,
+    );
+    ctx.fillRect(
+        canvas.width * 0.7,
+        canvas.height * 0.3,
+        1,
+        canvas.height * 0.4,
+    );
+
+    ctx.strokeStyle = "red";
+    ctx.beginPath();
+    ctx.moveTo(
+        canvas.width * 0.7,
+        canvas.height * 0.5,
+    );
+    ctx.lineTo(
+        canvas.width * 0.5,
+        canvas.height * 0.7,
+    );
+    ctx.moveTo(
+        canvas.width * 0.3,
+        canvas.height * 0.5,
+    );
+    ctx.lineTo(
+        canvas.width * 0.5,
+        canvas.height * 0.3,
+    );
+    ctx.stroke();
+
+    ctx.strokeStyle = "blue";
+    ctx.beginPath();
+    ctx.moveTo(
+        canvas.width * 0.7,
+        canvas.height * 0.5,
+    );
+    ctx.lineTo(
+        canvas.width * 0.5,
+        canvas.height * 0.3,
+    );
+    ctx.moveTo(
+        canvas.width * 0.5,
+        canvas.height * 0.7,
+    );
+    ctx.lineTo(
+        canvas.width * 0.3,
+        canvas.height * 0.5,
+    );
+    ctx.stroke();
+</script>
+<p>Depending on which way you draw the lines, the center point will either be above or below the threshold. One way to resolve this ambiguity is to take another measurement at the spot. Another is to use bilinear interpolation, which is just linear interpolation twice.</p>
+<p>If anything is unclear, you can always look at the source of the page because the code to generate the diagrams is there. Except the saddlepoint stuff.</p>
+<p>Also, what's marching cubes? The same thing but in 3d!</p>
+<nav class=posts-nav_bottom>
+<div style="flex:0 0 50%"><a href=/./posts/108>&lt; grad school semester 2 end</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-08-12 - add post 109</summary>
+<pre class=code-block><input id=code-block-ee3e50c3a52bc645710140f1f0232ba2ec734a43-1 type=checkbox><label for=code-block-ee3e50c3a52bc645710140f1f0232ba2ec734a43-1></label><code><span class=hljs-meta>@@ -0,0 +1,621 @@</span>
+<span class=hljs-addition>+# contouring with marching squares</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable no-inline-html no-space-in-emphasis code-block-style --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;style&gt;</span>
+<span class=hljs-addition>+    .template-body &gt; canvas {</span>
+<span class=hljs-addition>+        width: 60%;</span>
+<span class=hljs-addition>+        aspect-ratio: 1/1;</span>
+<span class=hljs-addition>+        transform: translateX(30%);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/style&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Marching squares is a pretty straightforward algorithm to create contours for a</span>
+<span class=hljs-addition>+2d surface.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Take a look at the following bit of code:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+// assume x and y are bounded [0, 1]</span>
+<span class=hljs-addition>+function hill(x, y) {</span>
+<span class=hljs-addition>+    const xx = x * Math.PI * 2;</span>
+<span class=hljs-addition>+    const yy = y * Math.PI * 2;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    return Math.sin(xx) + Math.sin(yy);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script&gt;</span>
+<span class=hljs-addition>+    function hill(x, y) {</span>
+<span class=hljs-addition>+        const xx = x * Math.PI * 2;</span>
+<span class=hljs-addition>+        const yy = y * Math.PI * 2;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        return Math.sin(xx) + Math.sin(yy);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;script&gt;</span>
+<span class=hljs-addition>+    function clearCanvas(id) {</span>
+<span class=hljs-addition>+        const canvas = document.getElementById(id);</span>
+<span class=hljs-addition>+        const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+        ctx.fillStyle = &quot;#ffffff&quot;;</span>
+<span class=hljs-addition>+        ctx.fillRect(0, 0, canvas.width, canvas.height);</span>
+<span class=hljs-addition>+        ctx.fillStyle = ctx.strokeStyle = &quot;#000000&quot;;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        return canvas;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    function linear_interpolation(x1, x2, f1, f2, t) {</span>
+<span class=hljs-addition>+        const width = x2 - x1;</span>
+<span class=hljs-addition>+        const domain = f2 - f1;</span>
+<span class=hljs-addition>+        return (t - f1) / domain * width + x1;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    function contourCase(threshold, f, tl, tr, bl, br) {</span>
+<span class=hljs-addition>+        let num = f(bl) &gt; threshold &amp; 1;</span>
+<span class=hljs-addition>+        num &lt;&lt;= 1;</span>
+<span class=hljs-addition>+        num |= f(tl) &gt; threshold &amp; 1;</span>
+<span class=hljs-addition>+        num &lt;&lt;= 1;</span>
+<span class=hljs-addition>+        num |= f(tr) &gt; threshold &amp; 1;</span>
+<span class=hljs-addition>+        num &lt;&lt;= 1;</span>
+<span class=hljs-addition>+        num |= f(br) &gt; threshold &amp; 1;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        return num;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    // top left, top right, bottom left, bottom right</span>
+<span class=hljs-addition>+    function segments(threshold, f, tl, tr, bl, br) {</span>
+<span class=hljs-addition>+        const num = contourCase(threshold, f, tl, tr, bl, br);</span>
+<span class=hljs-addition>+        let p1, p2, p3, p4</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        switch (num) {</span>
+<span class=hljs-addition>+            case 1:</span>
+<span class=hljs-addition>+            case 14:</span>
+<span class=hljs-addition>+                p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);</span>
+<span class=hljs-addition>+                p2 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);</span>
+<span class=hljs-addition>+                return [[[tr[0], p1], [p2, bl[1]]]];</span>
+<span class=hljs-addition>+            case 2:</span>
+<span class=hljs-addition>+            case 13:</span>
+<span class=hljs-addition>+                p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);</span>
+<span class=hljs-addition>+                p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);</span>
+<span class=hljs-addition>+                return [[[tr[0], p1], [p2, tl[1]]]];</span>
+<span class=hljs-addition>+            case 3:</span>
+<span class=hljs-addition>+            case 12:</span>
+<span class=hljs-addition>+                p1 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);</span>
+<span class=hljs-addition>+                p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);</span>
+<span class=hljs-addition>+                return [[[p1, bl[1]], [p2, tl[1]]]];</span>
+<span class=hljs-addition>+            case 4:</span>
+<span class=hljs-addition>+            case 11:</span>
+<span class=hljs-addition>+                p1 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);</span>
+<span class=hljs-addition>+                p2 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);</span>
+<span class=hljs-addition>+                return [[[p1, tl[1]], [tl[0], p2]]];</span>
+<span class=hljs-addition>+            case 5:</span>
+<span class=hljs-addition>+            case 10:</span>
+<span class=hljs-addition>+                // ignore</span>
+<span class=hljs-addition>+                return [];</span>
+<span class=hljs-addition>+            case 6:</span>
+<span class=hljs-addition>+            case 9:</span>
+<span class=hljs-addition>+                p1 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);</span>
+<span class=hljs-addition>+                p2 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);</span>
+<span class=hljs-addition>+                return [[[tl[0], p1], [tr[0], p2]]];</span>
+<span class=hljs-addition>+            case 7:</span>
+<span class=hljs-addition>+            case 8:</span>
+<span class=hljs-addition>+                p1 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);</span>
+<span class=hljs-addition>+                p2 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);</span>
+<span class=hljs-addition>+                return [[[tl[0], p1], [p2, bl[1]]]];</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        // 0 and 15</span>
+<span class=hljs-addition>+        return [];</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is a basic function that should have a peak at 0.25, 0.25 and a dip at</span>
+<span class=hljs-addition>+0.75, 0.75. Calculating the values for distinct points on a canvas results in</span>
+<span class=hljs-addition>+values at these points (roughly):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;measurements&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;measurements&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let i = 0; i &lt;= 1; i += 0.1) {</span>
+<span class=hljs-addition>+        for (let j = 0; j &lt;= 1; j += 0.1) {</span>
+<span class=hljs-addition>+            const val = hill(i, j).toFixed(2);</span>
+<span class=hljs-addition>+            ctx.font = `${canvas.width / 50}px monospace`;</span>
+<span class=hljs-addition>+            ctx.textAlign = i === 0</span>
+<span class=hljs-addition>+                ? &quot;left&quot;</span>
+<span class=hljs-addition>+                : i &gt; 0.9</span>
+<span class=hljs-addition>+                ? &quot;right&quot;</span>
+<span class=hljs-addition>+                : &quot;center&quot;;</span>
+<span class=hljs-addition>+            ctx.textBaseline = j === 0</span>
+<span class=hljs-addition>+                ? &quot;top&quot;</span>
+<span class=hljs-addition>+                : j &gt; 0.9</span>
+<span class=hljs-addition>+                ? &quot;bottom&quot;</span>
+<span class=hljs-addition>+                : &quot;middle&quot;;</span>
+<span class=hljs-addition>+            ctx.fillText(val, i * canvas.width, j * canvas.height);</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You can see the 1.90 in the top left and the -1.90 in the bottom right. What we</span>
+<span class=hljs-addition>+want to do is draw lines on this graph to visualize which areas are peaks and</span>
+<span class=hljs-addition>+nadirs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first thing to do is to break the area up into a grid like so. For the first</span>
+<span class=hljs-addition>+demo, I&#x27;ll go with every value other we&#x27;ve calculated:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;gridded&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;gridded&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let i = 0; i &lt;= 1; i += 0.2) {</span>
+<span class=hljs-addition>+        const w = Math.max(0, i * canvas.width - 1);</span>
+<span class=hljs-addition>+        ctx.fillRect(w, 0, 1, canvas.height);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    for (let j = 0; j &lt;= 1; j += 0.2) {</span>
+<span class=hljs-addition>+        const h = Math.max(0, j * canvas.height - 1);</span>
+<span class=hljs-addition>+        ctx.fillRect(0, h, canvas.width, 1);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first thing we want to do is pick an isovalue, which will be the threshold.</span>
+<span class=hljs-addition>+We know a good value to pick will be between -1.9 and 1.9 because that&#x27;s the</span>
+<span class=hljs-addition>+range of our data, so let&#x27;s just pick 1. Why not 0? Because 1 is better for the</span>
+<span class=hljs-addition>+demo... also we can also create multiple contours with multiple thresholds.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now we look at each individual square in our grid. Let&#x27;s look at the top left</span>
+<span class=hljs-addition>+one and the values at its corners.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;top-left-square&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;top-left-square&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    ctx.font = `${canvas.width / 35}px monospace`;</span>
+<span class=hljs-addition>+    ctx.textAlign = &quot;center&quot;;</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        `hill(0, 0)=${hill(0, 0).toFixed(2)}`,</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3 - 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        `hill(0.2, 0)=${hill(0.2, 0).toFixed(2)}`,</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.3 - 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.textBaseline = &quot;top&quot;;</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        `hill(0, 0.2)=${hill(0, 0.2).toFixed(2)}`,</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7 + 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        `hill(0.2, 0.2)=${hill(0.2, 0.2).toFixed(2)}`,</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.7 + 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        canvas.width * 0.4,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+        canvas.height * 0.4,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+        canvas.width * 0.4,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+        canvas.height * 0.4,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+With an isovalue of 1, we know that the contour line should be go somewhere</span>
+<span class=hljs-addition>+between the right and bottom walls, because we want to separate the points above</span>
+<span class=hljs-addition>+the threshold and the ones below it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is kind of the main ideas behind the algorithm - for each square, draw</span>
+<span class=hljs-addition>+contour lines that separate the corners above the threshold from the ones below.</span>
+<span class=hljs-addition>+There are multiple ways to determine where the line ends and starts within a</span>
+<span class=hljs-addition>+square, but the simplest way is through linear interpolation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;top-left-square-2&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;top-left-square-2&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    ctx.font = `${canvas.width / 35}px monospace`;</span>
+<span class=hljs-addition>+    ctx.textAlign = &quot;center&quot;;</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        hill(0, 0).toFixed(2),</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3 - 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.textBaseline = &quot;top&quot;;</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        hill(0, 0.2).toFixed(2),</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7 + 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        canvas.width * 0.4,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+        canvas.height * 0.4,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+        canvas.width * 0.4,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+        canvas.height * 0.4,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ctx.textAlign = &quot;left&quot;;</span>
+<span class=hljs-addition>+    ctx.textBaseline = &quot;middle&quot;;</span>
+<span class=hljs-addition>+    for (let i = 0; i &lt;= 1; i += 0.1) {</span>
+<span class=hljs-addition>+        ctx.fillText(</span>
+<span class=hljs-addition>+            (0.95 + 0.95 * i).toFixed(2),</span>
+<span class=hljs-addition>+            canvas.width * 0.7 + 25,</span>
+<span class=hljs-addition>+            canvas.height * 0.3 + canvas.height * 0.4 * i,</span>
+<span class=hljs-addition>+        );</span>
+<span class=hljs-addition>+        ctx.fillRect(</span>
+<span class=hljs-addition>+            canvas.width * 0.7,</span>
+<span class=hljs-addition>+            canvas.height * 0.3 + canvas.height * 0.4 * i,</span>
+<span class=hljs-addition>+            20,</span>
+<span class=hljs-addition>+            1</span>
+<span class=hljs-addition>+        );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ctx.beginPath();</span>
+<span class=hljs-addition>+    ctx.moveTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.3 + canvas.height * 0.4 * (0.05 / 0.95)</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.lineTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.3 + canvas.width * 0.4 * (0.05 / 0.95),</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.stroke();</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+With 4 points to each square (duh), there are a total of 16 possible</span>
+<span class=hljs-addition>+configurations. Depending on the configuration, we apply a linear interpolation</span>
+<span class=hljs-addition>+among specific points to draw lines. What does the code look like? Kind of like</span>
+<span class=hljs-addition>+this</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+function linear_interpolation(x1, x2, f1, f2, t) {</span>
+<span class=hljs-addition>+    const width = x2 - x1;</span>
+<span class=hljs-addition>+    const domain = f2 - f1;</span>
+<span class=hljs-addition>+    return t - (f1 / domain) * width;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+function contourCase(threshold, tl, tr, bl, tr) {</span>
+<span class=hljs-addition>+    // convert the corners into a number between 0 and 15 for ease</span>
+<span class=hljs-addition>+    // (and its a common practice, but this might not line up exactly)</span>
+<span class=hljs-addition>+    let num = (bl &gt; threshold) &amp; 1;</span>
+<span class=hljs-addition>+    num &lt;&lt;= 1;</span>
+<span class=hljs-addition>+    num |= (tl &gt; threshold) &amp; 1;</span>
+<span class=hljs-addition>+    num &lt;&lt;= 1;</span>
+<span class=hljs-addition>+    num |= (tr &gt; threshold) &amp; 1;</span>
+<span class=hljs-addition>+    num &lt;&lt;= 1;</span>
+<span class=hljs-addition>+    num |= (br &gt; threshold) &amp; 1;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    return num;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+// top left, top right, bottom left, bottom right</span>
+<span class=hljs-addition>+function segments(threshold, f, tl, tr, bl, br) {</span>
+<span class=hljs-addition>+    const num = contourCase(threshold, tl, tr, bl, br);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    switch (num) {</span>
+<span class=hljs-addition>+        case 0:</span>
+<span class=hljs-addition>+        case 15:</span>
+<span class=hljs-addition>+            // all above or below threshold, no lines</span>
+<span class=hljs-addition>+            return [];</span>
+<span class=hljs-addition>+        case 1:</span>
+<span class=hljs-addition>+            // bottom right is above the threshold so we want a line from the</span>
+<span class=hljs-addition>+            // right to bottom side</span>
+<span class=hljs-addition>+            p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);</span>
+<span class=hljs-addition>+            p2 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);</span>
+<span class=hljs-addition>+            return [</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    [tr[0], p1],</span>
+<span class=hljs-addition>+                    [p2, bl[1]],</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+            ];</span>
+<span class=hljs-addition>+        case 2:</span>
+<span class=hljs-addition>+            // top right is above the threshold so we want a line from the top</span>
+<span class=hljs-addition>+            // to right side</span>
+<span class=hljs-addition>+            p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);</span>
+<span class=hljs-addition>+            p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);</span>
+<span class=hljs-addition>+            return [</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    [tr[0], p1],</span>
+<span class=hljs-addition>+                    [p2, tl[1]],</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+            ];</span>
+<span class=hljs-addition>+        case 3:</span>
+<span class=hljs-addition>+            // bottom right and top right are above the threshold, so we want a</span>
+<span class=hljs-addition>+            // line going down the middle</span>
+<span class=hljs-addition>+            p1 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);</span>
+<span class=hljs-addition>+            p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);</span>
+<span class=hljs-addition>+            return [</span>
+<span class=hljs-addition>+                [</span>
+<span class=hljs-addition>+                    [p1, bl[1]],</span>
+<span class=hljs-addition>+                    [p2, tl[1]],</span>
+<span class=hljs-addition>+                ],</span>
+<span class=hljs-addition>+            ];</span>
+<span class=hljs-addition>+        // ...</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;contoured-1&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;contoured-1&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let i = 0; i &lt;= 1; i += 0.2) {</span>
+<span class=hljs-addition>+        const w = Math.max(0, i * canvas.width - 1);</span>
+<span class=hljs-addition>+        ctx.fillRect(w, 0, 1, canvas.height);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let j = 0; j &lt;= 1; j += 0.2) {</span>
+<span class=hljs-addition>+        const h = Math.max(0, j * canvas.height - 1);</span>
+<span class=hljs-addition>+        ctx.fillRect(0, h, canvas.width, 1);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let i = 0; i &lt; 1; i += 0.2) {</span>
+<span class=hljs-addition>+        for (let j = 0; j &lt; 1; j += 0.2) {</span>
+<span class=hljs-addition>+            const lines = segments(</span>
+<span class=hljs-addition>+                1,</span>
+<span class=hljs-addition>+                p =&gt; hill(p[0], p[1]),</span>
+<span class=hljs-addition>+                [i, j],</span>
+<span class=hljs-addition>+                [i + 0.2, j],</span>
+<span class=hljs-addition>+                [i, j + 0.2],</span>
+<span class=hljs-addition>+                [i + 0.2, j + 0.2],</span>
+<span class=hljs-addition>+            );</span>
+<span class=hljs-addition>+            for (const [start, end] of lines) {</span>
+<span class=hljs-addition>+                ctx.beginPath();</span>
+<span class=hljs-addition>+                ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);</span>
+<span class=hljs-addition>+                ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);</span>
+<span class=hljs-addition>+                ctx.stroke();</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Great, now lets run this for thresholds between -1.9 and 1.9 and do some basic</span>
+<span class=hljs-addition>+color scaling on the contour lines so we can deduce the height.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;contoured-2&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;contoured-2&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    const step = 0.2;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let i = 0; i &lt;= 1; i += step) {</span>
+<span class=hljs-addition>+        const w = Math.max(0, i * canvas.width - 1);</span>
+<span class=hljs-addition>+        ctx.fillRect(w, 0, 1, canvas.height);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let j = 0; j &lt;= 1; j += step) {</span>
+<span class=hljs-addition>+        const h = Math.max(0, j * canvas.height - 1);</span>
+<span class=hljs-addition>+        ctx.fillRect(0, h, canvas.width, 1);</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let t = 0; t &lt;= 1; t += 0.05) {</span>
+<span class=hljs-addition>+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);</span>
+<span class=hljs-addition>+        ctx.strokeStyle = `#${val}${val}${val}`;</span>
+<span class=hljs-addition>+        const threshold = (t - 0.5) * 3.8;</span>
+<span class=hljs-addition>+        for (let i = 0; i &lt; 1; i += step) {</span>
+<span class=hljs-addition>+            for (let j = 0; j &lt; 1; j += step) {</span>
+<span class=hljs-addition>+                const lines = segments(</span>
+<span class=hljs-addition>+                    threshold,</span>
+<span class=hljs-addition>+                    p =&gt; hill(p[0], p[1]),</span>
+<span class=hljs-addition>+                    [i, j],</span>
+<span class=hljs-addition>+                    [i + step, j],</span>
+<span class=hljs-addition>+                    [i, j + step],</span>
+<span class=hljs-addition>+                    [i + step, j + step],</span>
+<span class=hljs-addition>+                );</span>
+<span class=hljs-addition>+                for (const [start, end] of lines) {</span>
+<span class=hljs-addition>+                    ctx.beginPath();</span>
+<span class=hljs-addition>+                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);</span>
+<span class=hljs-addition>+                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);</span>
+<span class=hljs-addition>+                    ctx.stroke();</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Pretty good but kind of chunky, what if we shrink the grid (and remove the grid</span>
+<span class=hljs-addition>+lines because there isn&#x27;t a real need for them):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;contoured-3&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;contoured-3&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    const step = 0.01;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let t = 0; t &lt;= 1; t += 0.05) {</span>
+<span class=hljs-addition>+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);</span>
+<span class=hljs-addition>+        ctx.strokeStyle = `#${val}${val}${val}`;</span>
+<span class=hljs-addition>+        const threshold = (t - 0.5) * 3.8;</span>
+<span class=hljs-addition>+        for (let i = 0; i &lt; 1; i += step) {</span>
+<span class=hljs-addition>+            for (let j = 0; j &lt; 1; j += step) {</span>
+<span class=hljs-addition>+                const lines = segments(</span>
+<span class=hljs-addition>+                    threshold,</span>
+<span class=hljs-addition>+                    p =&gt; hill(p[0], p[1]),</span>
+<span class=hljs-addition>+                    [i, j],</span>
+<span class=hljs-addition>+                    [i + step, j],</span>
+<span class=hljs-addition>+                    [i, j + step],</span>
+<span class=hljs-addition>+                    [i + step, j + step],</span>
+<span class=hljs-addition>+                );</span>
+<span class=hljs-addition>+                for (const [start, end] of lines) {</span>
+<span class=hljs-addition>+                    ctx.beginPath();</span>
+<span class=hljs-addition>+                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);</span>
+<span class=hljs-addition>+                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);</span>
+<span class=hljs-addition>+                    ctx.stroke();</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Great! We can easily see that there is a dip in the bottom right and a peak at</span>
+<span class=hljs-addition>+the top left, which is what we originally knew. Of course, the function and data</span>
+<span class=hljs-addition>+were obvious there so we didn&#x27;t really need to do this to figure it out but when</span>
+<span class=hljs-addition>+the measurements are less consistent then this is a lot more convenient.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There is one last part I forgot to mention, which is that there are actually 18</span>
+<span class=hljs-addition>+cases while there are 16 configurations. This is because there are two specific</span>
+<span class=hljs-addition>+configurations that are ambiguous - when the opposing corners are above or below</span>
+<span class=hljs-addition>+the threshold while their neighbors aren&#x27;t. For example with a threshold of 1</span>
+<span class=hljs-addition>+here, lines could be drawn in multiple ways:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;saddle&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;saddle&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    ctx.font = `${canvas.width / 35}px monospace`;</span>
+<span class=hljs-addition>+    ctx.textAlign = &quot;center&quot;;</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        &quot;0&quot;,</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3 - 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        &quot;2&quot;,</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.3 - 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.textBaseline = &quot;top&quot;;</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        &quot;2&quot;,</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7 + 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillText(</span>
+<span class=hljs-addition>+        &quot;0&quot;,</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.7 + 5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        canvas.width * 0.4,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+        canvas.height * 0.4,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+        canvas.width * 0.4,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.fillRect(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        1,</span>
+<span class=hljs-addition>+        canvas.height * 0.4,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ctx.strokeStyle = &quot;red&quot;;</span>
+<span class=hljs-addition>+    ctx.beginPath();</span>
+<span class=hljs-addition>+    ctx.moveTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.lineTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.5,</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.moveTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.lineTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.5,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.stroke();</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ctx.strokeStyle = &quot;blue&quot;;</span>
+<span class=hljs-addition>+    ctx.beginPath();</span>
+<span class=hljs-addition>+    ctx.moveTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.lineTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.5,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.moveTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.5,</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.lineTo(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.stroke();</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Depending on which way you draw the lines, the center point will either be above</span>
+<span class=hljs-addition>+or below the threshold. One way to resolve this ambiguity is to take another</span>
+<span class=hljs-addition>+measurement at the spot. Another is to use bilinear interpolation, which is just</span>
+<span class=hljs-addition>+linear interpolation twice.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If anything is unclear, you can always look at the source of the page because</span>
+<span class=hljs-addition>+the code to generate the diagrams is there. Except the saddlepoint stuff.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also, what&#x27;s marching cubes? The same thing but in 3d!</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
