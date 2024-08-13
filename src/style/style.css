@@ -488,7 +488,8 @@
 			filter: brightness(calc(-0.33 * var(--svg-filter-factor) + 1));
 		}
 
-		svg {
+		svg,
+		canvas:not(#gate) {
 			filter: invert(var(--svg-filter-factor));
 		}
 	}
