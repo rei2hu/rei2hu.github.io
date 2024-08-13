@@ -109,8 +109,23 @@ function clearCanvas(id) {
                 return [[[p1, tl[1]], [tl[0], p2]]];
             case 5:
             case 10:
-                // ignore
-                return [];
+                const saddle =  (f(tl) + f(tr) + f(bl) + f(br)) / 4;
+                if (saddle > threshold && f(tr) > threshold ||
+                    saddle < threshold && f(tr) < threshold) {
+                    p1 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
+                    p2 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
+                    p3 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
+                    p4 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);
+                    return [[[tr[0], p1], [p2, bl[1]]],
+                            [[p3, tl[1]], [tl[0], p4]]];
+                } else {
+                    p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
+                    p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
+                    p3 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
+                    p4 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);
+                    return [[[tr[0], p1], [p2, tl[1]]],
+                            [[tl[0], p3], [p4, bl[1]]]];
+                }
             case 6:
             case 9:
                 p1 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
@@ -572,15 +587,138 @@ const canvas = clearCanvas("saddle");
     );
     ctx.stroke();
 </script>
-<p>Depending on which way you draw the lines, the center point will either be above or below the threshold. One way to resolve this ambiguity is to take another measurement at the spot. Another is to use bilinear interpolation, which is just linear interpolation twice.</p>
-<p>If anything is unclear, you can always look at the source of the page because the code to generate the diagrams is there. Except the saddlepoint stuff.</p>
-<p>Also, what's marching cubes? The same thing but in 3d!</p>
+<p>Depending on which way you draw the lines, the center point will either be above or below the threshold. One way to resolve this ambiguity is to take another measurement at the spot. Another is to use bilinear interpolation, which is just linear interpolation twice, or to average all the corners to obtain an estimate of what the value could be.</p>
+<p>Now that everything is covered, let's look at an example with simplex noise generated terrain (this is seeded by the time it runs at).</p>
+<canvas height=1000 id=simplex width=1000>
+</canvas>
+<script type=module>
+const canvas = clearCanvas("simplex");
+    const ctx = canvas.getContext("2d");
+    const step = 0.02;
+
+    // simplex noise function from https://github.com/attilabuti/SimplexNoise
+    let b, s, c, _, d, t, r, p, v, k, i, j, g, w, z, h, u, q;
+    b=(x,y,o,a,f,e,l)=>(r=_=>o--?(v+=a*((x,y)=>(k=(x,y,i,j,t=.5-x*x-y*y)=>t>=0&&t**4*(h=p[i+p[j&c]&c]%12&15,u=h<8?x:y,v=h<4?y:0,(h&1?-u:u)+(h&2?-v:v)),70*(k(w=x-((i=~~(x+(s=(x+y)*.5*(d-1))))-(t=(i+(j=~~(y+s)))*(g=(3-d)/6))),z=y-(j-t),i&=c,j&=c)+k(w-(q=w>z)+g,z-!q+g,i+q,j+!q)+k(w-1+2*g,z-1+2*g,i+1,j+1))))(x*f,y*f),r(a*=e,f*=l)):v)(v=0);s=a=>{_=(m=>_=>((t=(t=m((t=m(t=(a=(a|0)+0x9e3779b9|0)^a>>>16,569420461))^t>>>15,0x735a2d97))^t>>>15)>>>0)/4294967296)(Math.imul,c=255);p=[...Array(c+1).keys()].map((v,i,q,h=q[r=i+~~(_(d=3**.5)*(c+1-i))])=>(q[r]=v,h))}
+
+    s(Date.now());
+
+    for (let t = 0; t <= 1; t += 0.05) {
+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);
+        ctx.strokeStyle = `#${val}${val}${val}`;
+        const threshold = (t - 0.5) * 2;
+        for (let i = 0; i < 1; i += step) {
+            for (let j = 0; j < 1; j += step) {
+                const lines = segments(
+                    threshold,
+                    p => b(p[0], p[1], 10, 1, 1, 0.25, 0.5),
+                    [i, j],
+                    [i + step, j],
+                    [i, j + step],
+                    [i + step, j + step],
+                );
+                for (const [start, end] of lines) {
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);
+                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+</script>
+<p>Definitely looks a lot cooler now. If anything is unclear, you can always look at the source of the page because the code used to generate the diagrams is in it. Though since I wrote this up on the fly for this post, there may be some incorrect bits.</p>
+<p>To end, I'll mention that there is a 3d version of this known as marching cubes which uses the same idea but with cubes, more cases, and more ambiguities.</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/108>&lt; grad school semester 2 end</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-08-13 - update post 109: add saddle logic and random terrain</summary>
+<pre class=code-block><input id=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-1 type=checkbox><label for=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-1></label><code><span class=hljs-meta>@@ -92,4 +92,19 @@</span> function hill(x, y) {
+             case 10:
+<span class=hljs-deletion>-                // ignore</span>
+<span class=hljs-deletion>-                return [];</span>
+<span class=hljs-addition>+                const saddle =  (f(tl) + f(tr) + f(bl) + f(br)) / 4;</span>
+<span class=hljs-addition>+                if (saddle &gt; threshold &amp;&amp; f(tr) &gt; threshold ||</span>
+<span class=hljs-addition>+                    saddle &lt; threshold &amp;&amp; f(tr) &lt; threshold) {</span>
+<span class=hljs-addition>+                    p1 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);</span>
+<span class=hljs-addition>+                    p2 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);</span>
+<span class=hljs-addition>+                    p3 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);</span>
+<span class=hljs-addition>+                    p4 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);</span>
+<span class=hljs-addition>+                    return [[[tr[0], p1], [p2, bl[1]]],</span>
+<span class=hljs-addition>+                            [[p3, tl[1]], [tl[0], p4]]];</span>
+<span class=hljs-addition>+                } else {</span>
+<span class=hljs-addition>+                    p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);</span>
+<span class=hljs-addition>+                    p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);</span>
+<span class=hljs-addition>+                    p3 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);</span>
+<span class=hljs-addition>+                    p4 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);</span>
+<span class=hljs-addition>+                    return [[[tr[0], p1], [p2, tl[1]]],</span>
+<span class=hljs-addition>+                            [[tl[0], p3], [p4, bl[1]]]];</span>
+<span class=hljs-addition>+                }</span>
+             case 6:
+</code></pre>
+<pre class=code-block><input id=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-2 type=checkbox><label for=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-2></label><code><span class=hljs-meta>@@ -618,7 +633,53 @@</span> or below the threshold. One way to resolve this ambiguity is to take another
+ measurement at the spot. Another is to use bilinear interpolation, which is just
+<span class=hljs-deletion>-linear interpolation twice.</span>
+<span class=hljs-addition>+linear interpolation twice, or to average all the corners to obtain an estimate</span>
+<span class=hljs-addition>+of what the value could be.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now that everything is covered, let&#x27;s look at an example with simplex noise</span>
+<span class=hljs-addition>+generated terrain (this is seeded by the time it runs at).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;canvas id=&quot;simplex&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+&lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;module&quot;&gt;</span>
+<span class=hljs-addition>+    const canvas = clearCanvas(&quot;simplex&quot;);</span>
+<span class=hljs-addition>+    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    const step = 0.02;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    // simplex noise function from https://github.com/attilabuti/SimplexNoise</span>
+<span class=hljs-addition>+    let b, s, c, _, d, t, r, p, v, k, i, j, g, w, z, h, u, q;</span>
+<span class=hljs-addition>+    b=(x,y,o,a,f,e,l)=&gt;(r=_=&gt;o--?(v+=a*((x,y)=&gt;(k=(x,y,i,j,t=.5-x*x-y*y)=&gt;t&gt;=0&amp;&amp;t**4*(h=p[i+p[j&amp;c]&amp;c]%12&amp;15,u=h&lt;8?x:y,v=h&lt;4?y:0,(h&amp;1?-u:u)+(h&amp;2?-v:v)),70*(k(w=x-((i=~~(x+(s=(x+y)*.5*(d-1))))-(t=(i+(j=~~(y+s)))*(g=(3-d)/6))),z=y-(j-t),i&amp;=c,j&amp;=c)+k(w-(q=w&gt;z)+g,z-!q+g,i+q,j+!q)+k(w-1+2*g,z-1+2*g,i+1,j+1))))(x*f,y*f),r(a*=e,f*=l)):v)(v=0);s=a=&gt;{_=(m=&gt;_=&gt;((t=(t=m((t=m(t=(a=(a|0)+0x9e3779b9|0)^a&gt;&gt;&gt;16,569420461))^t&gt;&gt;&gt;15,0x735a2d97))^t&gt;&gt;&gt;15)&gt;&gt;&gt;0)/4294967296)(Math.imul,c=255);p=[...Array(c+1).keys()].map((v,i,q,h=q[r=i+~~(_(d=3**.5)*(c+1-i))])=&gt;(q[r]=v,h))}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    s(Date.now());</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let t = 0; t &lt;= 1; t += 0.05) {</span>
+<span class=hljs-addition>+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);</span>
+<span class=hljs-addition>+        ctx.strokeStyle = `#${val}${val}${val}`;</span>
+<span class=hljs-addition>+        const threshold = (t - 0.5) * 2;</span>
+<span class=hljs-addition>+        for (let i = 0; i &lt; 1; i += step) {</span>
+<span class=hljs-addition>+            for (let j = 0; j &lt; 1; j += step) {</span>
+<span class=hljs-addition>+                const lines = segments(</span>
+<span class=hljs-addition>+                    threshold,</span>
+<span class=hljs-addition>+                    p =&gt; b(p[0], p[1], 10, 1, 1, 0.25, 0.5),</span>
+<span class=hljs-addition>+                    [i, j],</span>
+<span class=hljs-addition>+                    [i + step, j],</span>
+<span class=hljs-addition>+                    [i, j + step],</span>
+<span class=hljs-addition>+                    [i + step, j + step],</span>
+<span class=hljs-addition>+                );</span>
+<span class=hljs-addition>+                for (const [start, end] of lines) {</span>
+<span class=hljs-addition>+                    ctx.beginPath();</span>
+<span class=hljs-addition>+                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);</span>
+<span class=hljs-addition>+                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);</span>
+<span class=hljs-addition>+                    ctx.stroke();</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+
+<span class=hljs-deletion>-If anything is unclear, you can always look at the source of the page because</span>
+<span class=hljs-deletion>-the code to generate the diagrams is there. Except the saddlepoint stuff.</span>
+<span class=hljs-addition>+Definitely looks a lot cooler now. If anything is unclear, you can always look</span>
+<span class=hljs-addition>+at the source of the page because the code used to generate the diagrams is in</span>
+<span class=hljs-addition>+it. Though since I wrote this up on the fly for this post, there may be some</span>
+<span class=hljs-addition>+incorrect bits.</span>
+
+<span class=hljs-deletion>-Also, what&#x27;s marching cubes? The same thing but in 3d!</span>
+<span class=hljs-addition>+To end, I&#x27;ll mention that there is a 3d version of this known as marching cubes</span>
+<span class=hljs-addition>+which uses the same idea but with cubes, more cases, and more ambiguities.</span>
+</code></pre>
+</details>
 <details>
 <summary>2024-08-12 - update post 109: missing narrative</summary>
 <pre class=code-block><input id=code-block-0c431bf82009ecf0eaff40f07a8efd26efdd666a-1 type=checkbox><label for=code-block-0c431bf82009ecf0eaff40f07a8efd26efdd666a-1></label><code><span class=hljs-meta>@@ -386,2 +386,4 @@</span> function segments(threshold, f, tl, tr, bl, br) {
