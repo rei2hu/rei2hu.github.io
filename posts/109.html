@@ -110,8 +110,8 @@ function clearCanvas(id) {
             case 5:
             case 10:
                 const saddle =  (f(tl) + f(tr) + f(bl) + f(br)) / 4;
-                if ((saddle > threshold && f(tr) > threshold) ||
-                    (saddle < threshold && f(tr) < threshold)) {
+                if (saddle > threshold && f(tr) > threshold ||
+                    saddle < threshold && f(tr) < threshold) {
                     p1 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
                     p2 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
                     p3 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
@@ -634,17 +634,6 @@ const canvas = clearCanvas("simplex");
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
-<details>
-<summary>2024-08-13 - update post 109: fix saddle condition</summary>
-<pre class=code-block><input id=code-block-aa53adfe07765d76e12da8e42c02780576b70dea-1 type=checkbox><label for=code-block-aa53adfe07765d76e12da8e42c02780576b70dea-1></label><code><span class=hljs-meta>@@ -93,4 +93,4 @@</span> function hill(x, y) {
-                 const saddle =  (f(tl) + f(tr) + f(bl) + f(br)) / 4;
-<span class=hljs-deletion>-                if (saddle &gt; threshold &amp;&amp; f(tr) &gt; threshold ||</span>
-<span class=hljs-deletion>-                    saddle &lt; threshold &amp;&amp; f(tr) &lt; threshold) {</span>
-<span class=hljs-addition>+                if ((saddle &gt; threshold &amp;&amp; f(tr) &gt; threshold) ||</span>
-<span class=hljs-addition>+                    (saddle &lt; threshold &amp;&amp; f(tr) &lt; threshold)) {</span>
-                     p1 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
-</code></pre>
-</details>
 <details>
 <summary>2024-08-13 - update post 109: add saddle logic and random terrain</summary>
 <pre class=code-block><input id=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-1 type=checkbox><label for=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-1></label><code><span class=hljs-meta>@@ -92,4 +92,19 @@</span> function hill(x, y) {
