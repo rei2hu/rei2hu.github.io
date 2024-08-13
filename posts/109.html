@@ -366,6 +366,7 @@ const canvas = clearCanvas("top-left-square-2");
     }
 }
 </code></pre>
+<p>And if we run it:</p>
 <canvas height=1000 id=contoured-1 width=1000>
 </canvas>
 <script type=module>
@@ -401,7 +402,7 @@ const canvas = clearCanvas("contoured-1");
         }
     }
 </script>
-<p>Great, now lets run this for thresholds between -1.9 and 1.9 and do some basic color scaling on the contour lines so we can deduce the height.</p>
+<p>Based on this, we can see that everything inside the shape is estimated to be above 1. Now lets run this for thresholds between -1.9 and 1.9 and do some basic color scaling on the contour lines so we can deduce the height.</p>
 <canvas height=1000 id=contoured-2 width=1000>
 </canvas>
 <script type=module>
@@ -580,6 +581,22 @@ const canvas = clearCanvas("saddle");
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-08-12 - update post 109: missing narrative</summary>
+<pre class=code-block><input id=code-block-0c431bf82009ecf0eaff40f07a8efd26efdd666a-1 type=checkbox><label for=code-block-0c431bf82009ecf0eaff40f07a8efd26efdd666a-1></label><code><span class=hljs-meta>@@ -386,2 +386,4 @@</span> function segments(threshold, f, tl, tr, bl, br) {
+
+<span class=hljs-addition>+And if we run it:</span>
+<span class=hljs-addition>+</span>
+ &lt;canvas id=&quot;contoured-1&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-0c431bf82009ecf0eaff40f07a8efd26efdd666a-2 type=checkbox><label for=code-block-0c431bf82009ecf0eaff40f07a8efd26efdd666a-2></label><code><span class=hljs-meta>@@ -423,3 +425,4 @@</span> function segments(threshold, f, tl, tr, bl, br) {
+
+<span class=hljs-deletion>-Great, now lets run this for thresholds between -1.9 and 1.9 and do some basic</span>
+<span class=hljs-addition>+Based on this, we can see that everything inside the shape is estimated to be</span>
+<span class=hljs-addition>+above 1. Now lets run this for thresholds between -1.9 and 1.9 and do some basic</span>
+ color scaling on the contour lines so we can deduce the height.
+</code></pre>
+</details>
 <details>
 <summary>2024-08-12 - add post 109</summary>
 <pre class=code-block><input id=code-block-ee3e50c3a52bc645710140f1f0232ba2ec734a43-1 type=checkbox><label for=code-block-ee3e50c3a52bc645710140f1f0232ba2ec734a43-1></label><code><span class=hljs-meta>@@ -0,0 +1,621 @@</span>
