@@ -628,12 +628,27 @@ const canvas = clearCanvas("simplex");
 </script>
 <p>Definitely looks a lot cooler now. If anything is unclear, you can always look at the source of the page because the code used to generate the diagrams is in it. Though since I wrote this up on the fly for this post, there may be some incorrect bits.</p>
 <p>To end, I'll mention that there is a 3d version of this known as marching cubes which uses the same idea but with cubes, more cases, and more ambiguities.</p>
+<p>And to continue past the end, I was thinking of any pieces of underlying logic or similarities that could be extracted. I guess the core idea is to estimate the locations of specific values for a function in a domain - for our example that would be the finding when <code>hill(x, y) == 1</code>. The way it's done is by sampling nearby points and using those values to extrapolate where the isovalue is. In this way, it seems somewhat similar to numerical techniques (like Euler/RK? but that's maybe a stretch).</p>
 <nav class=posts-nav_bottom>
 <div style="flex:0 0 50%"><a href=/./posts/108>&lt; grad school semester 2 end</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-08-15 - update post 109: add observation of underlying ideas</summary>
+<pre class=code-block><input id=code-block-84f137378d553066f808dcd319e7365f48b4955e-1 type=checkbox><label for=code-block-84f137378d553066f808dcd319e7365f48b4955e-1></label><code>@@ -685 +685,9 @@ To end, I&#x27;ll mention that there is a 3d version of this known as marching cubes
+ which uses the same idea but with cubes, more cases, and more ambiguities.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And to continue past the end, I was thinking of any pieces of underlying logic</span>
+<span class=hljs-addition>+or similarities that could be extracted. I guess the core idea is to estimate</span>
+<span class=hljs-addition>+the locations of specific values for a function in a domain - for our example</span>
+<span class=hljs-addition>+that would be the finding when `hill(x, y) == 1`. The way it&#x27;s done is by</span>
+<span class=hljs-addition>+sampling nearby points and using those values to extrapolate where the isovalue</span>
+<span class=hljs-addition>+is. In this way, it seems somewhat similar to numerical techniques (like</span>
+<span class=hljs-addition>+Euler/RK? but that&#x27;s maybe a stretch).</span>
+</code></pre>
+</details>
 <details>
 <summary>2024-08-13 - update post 109: add saddle logic and random terrain</summary>
 <pre class=code-block><input id=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-1 type=checkbox><label for=code-block-f6bf0a1c439b7b3de30e2072cf7f6d8748176ae4-1></label><code><span class=hljs-meta>@@ -92,4 +92,19 @@</span> function hill(x, y) {
