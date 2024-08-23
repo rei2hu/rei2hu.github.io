@@ -34,7 +34,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <div style="flex:0 0 50%"><a href=/./posts/108>&lt; grad school semester 2 end</a></div>
 </nav>
 <h1 id=contouring-with-marching-squares>contouring with marching squares</h1>
-<style>.template-body>canvas{width:60%;aspect-ratio:1/1;transform:translateX(30%)}</style>
+<style>.template-body>canvas{width:60%;aspect-ratio:1/1;transform:translateX(30%)}.template-body>.side-by-side{display:flex;flex-direction:row;gap:10px;justify-content:center}.template-body>.side-by-side>canvas{width:40%}</style>
 <p>Marching squares is a pretty straightforward algorithm to create contours for a 2d surface.</p>
 <p>Take a look at the following bit of code:</p>
 <pre class=code-block><input id=code-block-109-1 type=checkbox><label for=code-block-109-1></label><code><span class=hljs-comment>// assume x and y are bounded [0, 1]</span>
@@ -116,8 +116,8 @@ function clearCanvas(id) {
                     p2 = linear_interpolation(tl[1], bl[1], f(tl), f(bl), threshold);
                     p3 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
                     p4 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);
-                    return [[[tr[0], p1], [p2, bl[1]]],
-                            [[p3, tl[1]], [tl[0], p4]]];
+                    return [[[p1, tr[1]], [bl[0], p2]],
+                            [[tr[0], p3], [p4, br[1]]]];
                 } else {
                     p1 = linear_interpolation(tr[1], br[1], f(tr), f(br), threshold);
                     p2 = linear_interpolation(tl[0], tr[0], f(tl), f(tr), threshold);
@@ -551,19 +551,37 @@ const canvas = clearCanvas("saddle");
     ctx.beginPath();
     ctx.moveTo(
         canvas.width * 0.7,
-        canvas.height * 0.5,
+        canvas.height * 0.5 - 50,
     );
     ctx.lineTo(
-        canvas.width * 0.5,
+        canvas.width * 0.5 - 50,
         canvas.height * 0.7,
     );
     ctx.moveTo(
         canvas.width * 0.3,
-        canvas.height * 0.5,
+        canvas.height * 0.5 + 50,
     );
     ctx.lineTo(
-        canvas.width * 0.5,
+        canvas.width * 0.5 + 50,
         canvas.height * 0.3,
+    );
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(
+        canvas.width * 0.7,
+        canvas.height * 0.3,
+        150,
+        Math.PI * -1,
+        Math.PI * 0.5,
+    );
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(
+        canvas.width * 0.3,
+        canvas.height * 0.7,
+        150,
+        0,
+        Math.PI * 1.5,
     );
     ctx.stroke();
 
@@ -586,15 +604,39 @@ const canvas = clearCanvas("saddle");
         canvas.height * 0.5,
     );
     ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(
+        canvas.width * 0.7,
+        canvas.height * 0.3,
+        200,
+        Math.PI * -1,
+        Math.PI * 0.5,
+    );
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(
+        canvas.width * 0.3,
+        canvas.height * 0.7,
+        200,
+        0,
+        Math.PI * 1.5,
+    );
+    ctx.stroke();
 </script>
 <p>Depending on which way you draw the lines, the center point will either be above or below the threshold. One way to resolve this ambiguity is to take another measurement at the spot. Another is to use bilinear interpolation, which is just linear interpolation twice, or to average all the corners to obtain an estimate of what the value could be.</p>
-<p>Now that everything is covered, let's look at an example with simplex noise generated terrain (this is seeded by the time it runs at).</p>
-<canvas height=1000 id=simplex width=1000>
+<p>Now that everything is covered, let's look at an example with simplex noise generated terrain (this is seeded by the time it runs at) with two different grid sizes.</p>
+<div class=side-by-side>
+<canvas height=1000 id=simplex-1 width=1000>
 </canvas>
+<canvas height=1000 id=simplex-2 width=1000>
+</canvas>
+</div>
 <script type=module>
-const canvas = clearCanvas("simplex");
-    const ctx = canvas.getContext("2d");
-    const step = 0.02;
+const canvas1 = clearCanvas("simplex-1");
+    const canvas2 = clearCanvas("simplex-2");
+    const ctx1 = canvas1.getContext("2d");
+    const ctx2 = canvas2.getContext("2d");
+    let step = 0.1;
 
     // simplex noise function from https://github.com/attilabuti/SimplexNoise
     let b, s, c, _, d, t, r, p, v, k, i, j, g, w, z, h, u, q;
@@ -604,7 +646,7 @@ const canvas = clearCanvas("simplex");
 
     for (let t = 0; t <= 1; t += 0.05) {
         const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);
-        ctx.strokeStyle = `#${val}${val}${val}`;
+        ctx1.strokeStyle = `#${val}${val}${val}`;
         const threshold = (t - 0.5) * 2;
         for (let i = 0; i < 1; i += step) {
             for (let j = 0; j < 1; j += step) {
@@ -617,10 +659,36 @@ const canvas = clearCanvas("simplex");
                     [i + step, j + step],
                 );
                 for (const [start, end] of lines) {
-                    ctx.beginPath();
-                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);
-                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);
-                    ctx.stroke();
+                    ctx1.beginPath();
+                    ctx1.moveTo(canvas1.width * start[0], canvas1.height * start[1]);
+                    ctx1.lineTo(canvas1.width * end[0], canvas1.height * end[1]);
+                    ctx1.stroke();
+                }
+            }
+        }
+    }
+
+    step = 0.02;
+
+    for (let t = 0; t <= 1; t += 0.05) {
+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);
+        ctx2.strokeStyle = `#${val}${val}${val}`;
+        const threshold = (t - 0.5) * 2;
+        for (let i = 0; i < 1; i += step) {
+            for (let j = 0; j < 1; j += step) {
+                const lines = segments(
+                    threshold,
+                    p => b(p[0], p[1], 10, 1, 1, 0.25, 0.5),
+                    [i, j],
+                    [i + step, j],
+                    [i, j + step],
+                    [i + step, j + step],
+                );
+                for (const [start, end] of lines) {
+                    ctx2.beginPath();
+                    ctx2.moveTo(canvas2.width * start[0], canvas2.height * start[1]);
+                    ctx2.lineTo(canvas2.width * end[0], canvas2.height * end[1]);
+                    ctx2.stroke();
                 }
             }
         }
@@ -635,6 +703,159 @@ const canvas = clearCanvas("simplex");
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2024-08-23 - update post 109: add side by side comparison and update saddle explanation</summary>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-1 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-1></label><code><span class=hljs-meta>@@ -10,2 +10,11 @@</span>
+     }
+<span class=hljs-addition>+    .template-body &gt; .side-by-side {</span>
+<span class=hljs-addition>+        display: flex;</span>
+<span class=hljs-addition>+        flex-direction: row;</span>
+<span class=hljs-addition>+        gap: 10px;</span>
+<span class=hljs-addition>+        justify-content: center;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    .template-body &gt; .side-by-side &gt; canvas {</span>
+<span class=hljs-addition>+        width: 40%;</span>
+<span class=hljs-addition>+    }</span>
+ &lt;/style&gt;
+</code></pre>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-2 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-2></label><code><span class=hljs-meta>@@ -99,4 +108,4 @@</span> function hill(x, y) {
+                     p4 = linear_interpolation(bl[0], br[0], f(bl), f(br), threshold);
+<span class=hljs-deletion>-                    return [[[tr[0], p1], [p2, bl[1]]],</span>
+<span class=hljs-deletion>-                            [[p3, tl[1]], [tl[0], p4]]];</span>
+<span class=hljs-addition>+                    return [[[p1, tr[1]], [bl[0], p2]],</span>
+<span class=hljs-addition>+                            [[tr[0], p3], [p4, br[1]]]];</span>
+                 } else {
+</code></pre>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-3 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-3></label><code><span class=hljs-meta>@@ -592,6 +601,6 @@</span> here, lines could be drawn in multiple ways:
+         canvas.width * 0.7,
+<span class=hljs-deletion>-        canvas.height * 0.5,</span>
+<span class=hljs-addition>+        canvas.height * 0.5 - 50,</span>
+     );
+     ctx.lineTo(
+<span class=hljs-deletion>-        canvas.width * 0.5,</span>
+<span class=hljs-addition>+        canvas.width * 0.5 - 50,</span>
+         canvas.height * 0.7,
+</code></pre>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-4 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-4></label><code><span class=hljs-meta>@@ -600,7 +609,25 @@</span> here, lines could be drawn in multiple ways:
+         canvas.width * 0.3,
+<span class=hljs-deletion>-        canvas.height * 0.5,</span>
+<span class=hljs-addition>+        canvas.height * 0.5 + 50,</span>
+     );
+     ctx.lineTo(
+<span class=hljs-deletion>-        canvas.width * 0.5,</span>
+<span class=hljs-addition>+        canvas.width * 0.5 + 50,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.stroke();</span>
+<span class=hljs-addition>+    ctx.beginPath();</span>
+<span class=hljs-addition>+    ctx.arc(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+         canvas.height * 0.3,
+<span class=hljs-addition>+        150,</span>
+<span class=hljs-addition>+        Math.PI * -1,</span>
+<span class=hljs-addition>+        Math.PI * 0.5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.stroke();</span>
+<span class=hljs-addition>+    ctx.beginPath();</span>
+<span class=hljs-addition>+    ctx.arc(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+        150,</span>
+<span class=hljs-addition>+        0,</span>
+<span class=hljs-addition>+        Math.PI * 1.5,</span>
+     );
+</code></pre>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-5 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-5></label><code><span class=hljs-meta>@@ -627,2 +654,20 @@</span> here, lines could be drawn in multiple ways:
+     ctx.stroke();
+<span class=hljs-addition>+    ctx.beginPath();</span>
+<span class=hljs-addition>+    ctx.arc(</span>
+<span class=hljs-addition>+        canvas.width * 0.7,</span>
+<span class=hljs-addition>+        canvas.height * 0.3,</span>
+<span class=hljs-addition>+        200,</span>
+<span class=hljs-addition>+        Math.PI * -1,</span>
+<span class=hljs-addition>+        Math.PI * 0.5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.stroke();</span>
+<span class=hljs-addition>+    ctx.beginPath();</span>
+<span class=hljs-addition>+    ctx.arc(</span>
+<span class=hljs-addition>+        canvas.width * 0.3,</span>
+<span class=hljs-addition>+        canvas.height * 0.7,</span>
+<span class=hljs-addition>+        200,</span>
+<span class=hljs-addition>+        0,</span>
+<span class=hljs-addition>+        Math.PI * 1.5,</span>
+<span class=hljs-addition>+    );</span>
+<span class=hljs-addition>+    ctx.stroke();</span>
+</code></pre>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-6 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-6></label><code><span class=hljs-meta>@@ -637,10 +682,17 @@</span> of what the value could be.
+ Now that everything is covered, let&#x27;s look at an example with simplex noise
+<span class=hljs-deletion>-generated terrain (this is seeded by the time it runs at).</span>
+<span class=hljs-deletion>-</span>
+<span class=hljs-deletion>-&lt;canvas id=&quot;simplex&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-deletion>-&lt;/canvas&gt;</span>
+<span class=hljs-addition>+generated terrain (this is seeded by the time it runs at) with two different</span>
+<span class=hljs-addition>+grid sizes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div class=&quot;side-by-side&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;canvas id=&quot;simplex-1&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;/canvas&gt;</span>
+<span class=hljs-addition>+    &lt;canvas id=&quot;simplex-2&quot; width=&quot;1000&quot; height=&quot;1000&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;/canvas&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+ &lt;script type=&quot;module&quot;&gt;
+<span class=hljs-deletion>-    const canvas = clearCanvas(&quot;simplex&quot;);</span>
+<span class=hljs-deletion>-    const ctx = canvas.getContext(&quot;2d&quot;);</span>
+<span class=hljs-deletion>-    const step = 0.02;</span>
+<span class=hljs-addition>+    const canvas1 = clearCanvas(&quot;simplex-1&quot;);</span>
+<span class=hljs-addition>+    const canvas2 = clearCanvas(&quot;simplex-2&quot;);</span>
+<span class=hljs-addition>+    const ctx1 = canvas1.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    const ctx2 = canvas2.getContext(&quot;2d&quot;);</span>
+<span class=hljs-addition>+    let step = 0.1;</span>
+</code></pre>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-7 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-7></label><code><span class=hljs-meta>@@ -654,3 +706,3 @@</span> generated terrain (this is seeded by the time it runs at).
+         const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);
+<span class=hljs-deletion>-        ctx.strokeStyle = `#${val}${val}${val}`;</span>
+<span class=hljs-addition>+        ctx1.strokeStyle = `#${val}${val}${val}`;</span>
+         const threshold = (t - 0.5) * 2;
+</code></pre>
+<pre class=code-block><input id=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-8 type=checkbox><label for=code-block-4a3a405acb3f61eadc92fe707dfc6cdef0a6ae89-8></label><code><span class=hljs-meta>@@ -667,6 +719,32 @@</span> generated terrain (this is seeded by the time it runs at).
+                 for (const [start, end] of lines) {
+<span class=hljs-deletion>-                    ctx.beginPath();</span>
+<span class=hljs-deletion>-                    ctx.moveTo(canvas.width * start[0], canvas.height * start[1]);</span>
+<span class=hljs-deletion>-                    ctx.lineTo(canvas.width * end[0], canvas.height * end[1]);</span>
+<span class=hljs-deletion>-                    ctx.stroke();</span>
+<span class=hljs-addition>+                    ctx1.beginPath();</span>
+<span class=hljs-addition>+                    ctx1.moveTo(canvas1.width * start[0], canvas1.height * start[1]);</span>
+<span class=hljs-addition>+                    ctx1.lineTo(canvas1.width * end[0], canvas1.height * end[1]);</span>
+<span class=hljs-addition>+                    ctx1.stroke();</span>
+<span class=hljs-addition>+                }</span>
+<span class=hljs-addition>+            }</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    step = 0.02;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    for (let t = 0; t &lt;= 1; t += 0.05) {</span>
+<span class=hljs-addition>+        const val = Math.floor(0xff * (1 - t)).toString(16).padStart(2, 0);</span>
+<span class=hljs-addition>+        ctx2.strokeStyle = `#${val}${val}${val}`;</span>
+<span class=hljs-addition>+        const threshold = (t - 0.5) * 2;</span>
+<span class=hljs-addition>+        for (let i = 0; i &lt; 1; i += step) {</span>
+<span class=hljs-addition>+            for (let j = 0; j &lt; 1; j += step) {</span>
+<span class=hljs-addition>+                const lines = segments(</span>
+<span class=hljs-addition>+                    threshold,</span>
+<span class=hljs-addition>+                    p =&gt; b(p[0], p[1], 10, 1, 1, 0.25, 0.5),</span>
+<span class=hljs-addition>+                    [i, j],</span>
+<span class=hljs-addition>+                    [i + step, j],</span>
+<span class=hljs-addition>+                    [i, j + step],</span>
+<span class=hljs-addition>+                    [i + step, j + step],</span>
+<span class=hljs-addition>+                );</span>
+<span class=hljs-addition>+                for (const [start, end] of lines) {</span>
+<span class=hljs-addition>+                    ctx2.beginPath();</span>
+<span class=hljs-addition>+                    ctx2.moveTo(canvas2.width * start[0], canvas2.height * start[1]);</span>
+<span class=hljs-addition>+                    ctx2.lineTo(canvas2.width * end[0], canvas2.height * end[1]);</span>
+<span class=hljs-addition>+                    ctx2.stroke();</span>
+                 }
+</code></pre>
+</details>
 <details>
 <summary>2024-08-15 - update post 109: add observation of underlying ideas</summary>
 <pre class=code-block><input id=code-block-84f137378d553066f808dcd319e7365f48b4955e-1 type=checkbox><label for=code-block-84f137378d553066f808dcd319e7365f48b4955e-1></label><code>@@ -685 +685,9 @@ To end, I&#x27;ll mention that there is a 3d version of this known as marching cubes
