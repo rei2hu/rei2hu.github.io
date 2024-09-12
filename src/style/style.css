@@ -184,6 +184,15 @@
 		}
 	}
 
+	.posts-nav_before {
+		flex: 0 0 50%;
+	}
+
+	.posts-nav_after {
+		flex: 0 0 50%;
+		text-align: end;
+	}
+
 	.posts-nav_bottom {
 		margin-top: 1em;
 	}
@@ -419,29 +428,11 @@
 			src: url("cmr10.ttf");
 		}
 
-		/* only display if noscript has not turned into span */
-		:not(span) + script[type="text/tikz"] {
-			display: block;
-			font-family: monospace;
-			white-space: pre;
-			background: repeating-linear-gradient(
-				to right,
-				var(--bg-1) 0%,
-				var(--fg-1) 50%,
-				var(--bg-1) 100%
-			);
-			animation: tikz-loader 3s linear infinite forwards;
-			background-size: 200%;
-			border-radius: var(--code-border-radius);
-		}
-
-		@keyframes tikz-loader {
-			0% {
-				background-position: 0 0;
-			}
-			100% {
-				background-position: 200% 0;
-			}
+		.tikz-picture {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
 		}
 	}
 
@@ -466,11 +457,6 @@
 
 	/* center various non-text things */
 	@layer centering {
-		/* tikzjax generated svg containers so svgs are centered */
-		div.template-body noscript + div {
-			width: 100% !important;
-		}
-
 		table,
 		video,
 		img {

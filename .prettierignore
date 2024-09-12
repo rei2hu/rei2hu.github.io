@@ -1,8 +1,10 @@
-tex-mml-chtml.js
-tikz.js
+library.mjs
+*.gz
 *.svg
 *.txt
+*.wasm
 .prettierignore
+.eslintignore
 blobs/
 images/
 built/

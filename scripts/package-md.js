@@ -6,6 +6,7 @@ const exec = util.promisify(require("child_process").exec);
 const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./build-options");
+const { load } = require("./tikz");
 
 // formatting commits that i dont want to include
 // (only want to include commits that change actual content)
@@ -40,17 +41,30 @@ const unescapeHtml = (escapedHtml) =>
 const jaxExtensions = () => {
 	const inlineMathContent = [];
 	const displayMathContent = [];
+	const tikzPictureContent = [];
 
 	return [
-		// tikz tag handling
+		// try not to transform tikz jax tags by encoding it before
+		// transformation then decoding it after
 		// showdown replaces $ with ¨D
 		{
 			type: "lang",
 			regex: /¨D¨D\n(\\begin{tikzpicture}(\n|.)+?\\end{tikzpicture})\n¨D¨D/g,
-			replace: `<noscript><pre>$1</pre></noscript><script type="text/tikz">$1</script>`,
+			replace: (_str, g1) => {
+				tikzPictureContent.push(g1.replaceAll("¨D", "$"));
+				return `TIKZPICTURECONTENTPLACEHOLDER ${
+					tikzPictureContent.length - 1
+				}`;
+			},
 		},
-		// try not to transform inline mathjax code by encoding it before
-		// transformation then decoding it after
+		{
+			type: "output",
+			regex: /TIKZPICTURECONTENTPLACEHOLDER (\d+)/g,
+			replace: (_str, contentNum) => {
+				return `${tikzPictureContent[contentNum]}`;
+			},
+		},
+		// same for inline math
 		{
 			type: "lang",
 			regex: /\s¨D(.+?)¨D/g,
@@ -158,6 +172,36 @@ function fillTemplate({
 		.replace("$((title))", title);
 }
 
+async function generateTikzPictures(content) {
+	const generator = await load;
+	const matches =
+		content.match(/(\\begin{tikzpicture}(\n|.)+?\\end{tikzpicture})/g) ??
+		[];
+
+	for (const match of matches) {
+		// eslint-disable-next-line no-await-in-loop
+		const { machine, html } = await generator(match);
+
+		const w = `${machine.paperwidth}pt`;
+		const h = `${machine.paperheight}pt`;
+
+		// eslint-disable-next-line no-param-reassign
+		content = content.replace(
+			match,
+			`
+			<div class="tikz-picture" style="height: ${h}">
+				${html.replace(
+					"<svg>",
+					`<svg width=${w} height=${h} viewBox="-72 -72 ${machine.paperwidth} ${machine.paperheight}">`
+				)}
+			</div>
+		`
+		);
+	}
+
+	return content;
+}
+
 module.exports = {
 	processThenCopyMd(srcDir, targetDir, { desc = "", filter = [] } = {}) {
 		const usingFilters = filter.length > 0;
@@ -166,6 +210,8 @@ module.exports = {
 			.mkdir(path.resolve("built", targetDir), { recursive: true })
 			.then(async () => {
 				const posts = fs.readdirSync(path.resolve("src", srcDir));
+
+				console.log(`Handling data for ${posts.length} posts`);
 
 				// generate data for html
 				const fileObjs = await Promise.all(
@@ -260,11 +306,13 @@ module.exports = {
 									.basename(mdFileName, ".md")
 									.split(".")[1]
 									.slice(1),
-								contents: converter([
-									...jaxExtensions(),
-									...customElements(),
-									...codeBlockExtensions(id),
-								]).makeHtml(contents),
+								contents: await generateTikzPictures(
+									converter([
+										...jaxExtensions(),
+										...customElements(),
+										...codeBlockExtensions(id),
+									]).makeHtml(contents)
+								),
 								changes: commitsAndDiffs,
 							};
 						})
@@ -320,17 +368,17 @@ module.exports = {
 									usingFilters
 										? "FMD"
 										: id > 1
-										? `<div style="flex:0 0 50%"><a href="/${targetDir}/${
+										? `<div class="posts-nav_before"><a href="/${targetDir}/${
 												id - 1
 										  }">&lt; ${
 												fileObjs[id - 1 - 1].name
 										  }</a></div>`
-										: `<div style="flex:0 0 50%"></div>`,
+										: `<div class="posts-nav_after"></div>`,
 								after: () =>
 									usingFilters
 										? "FMD"
 										: id < fileObjs.length
-										? `<div style="text-align:end"><a href="/${targetDir}/${
+										? `<div class="posts-nav_after"><a href="/${targetDir}/${
 												id + 1
 										  }">${
 												fileObjs[id].name
