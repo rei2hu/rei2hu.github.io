@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>thoughts on ai utilization</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/58>&lt; a little append only ds idea</a></div> <div style=text-align:end><a href=/./posts/60>heroku go broku &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/58>&lt; a little append only ds idea</a></div> <div class=posts-nav_after><a href=/./posts/60>heroku go broku &gt;</a></div>
 </nav>
 <h1 id=thoughts-on-ai-utilization>thoughts on ai utilization</h1>
 <p>With the recent release of Stable Diffusion, I've been browsing a lot of ai generated materials. It is all quite impressive, but not-uncommonly, I would come across something that was slightly off. So I decided to write a little bit about considerations that should be taken when incorporating ai in things.</p>
@@ -43,7 +42,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <p>And then there is the use of ai to solve problems which have definitive answers; things like random trivia or even writing code! In these cases, generating a correct answer is important. It's kind of crazy to see how many people think this is a good thing - perhaps they believe in the accuracy of ai - without considering the impact an inaccurate or incorrect answer could have. Again, I think it boils down the need for human verification of the outputs, but if you do any kind of collaborative software engineering, it is sometimes <em>harder</em> to audit existing code that someone else has written than it is to write it yourself. It is also possible that verification of answers is simpler than generating them.</p>
 <p>In short, the complex black box types of ai that are gaining popularity for use in today's systems are more suited for subjective tasks where new perspectives are welcome, while its usage for objective tasks should be limited. In both cases, it should be pair with human oversight to avoid issues.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/58>&lt; a little append only ds idea</a></div> <div style=text-align:end><a href=/./posts/60>heroku go broku &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/58>&lt; a little append only ds idea</a></div> <div class=posts-nav_after><a href=/./posts/60>heroku go broku &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

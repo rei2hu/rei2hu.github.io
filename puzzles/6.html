@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>graphs 1</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./puzzles/5>&lt; divide and conquer 1</a></div> <div style=text-align:end><a href=/./puzzles/7>compound words &gt;</a></div>
+<div class=posts-nav_before><a href=/./puzzles/5>&lt; divide and conquer 1</a></div> <div class=posts-nav_after><a href=/./puzzles/7>compound words &gt;</a></div>
 </nav>
 <h1 id=graphs-1>Graphs 1</h1>
 <h2 id=question-1>Question 1</h2>
@@ -41,24 +40,17 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <p>However, it is also possible to use an unmodified version of Dijkstra's algorithm if we modify the weights of the edges somehow. In other words, we want to find functions $f$ and $g$ such that $f(r_1) + f(r_2) = g(r_1*r_2)$. At a high level, this looks like we are trying to find some kind of relationship between addition and multiplication and makes me think of expoonents because $x^a*x^b = x^{a + b}$. Is this what we want? Not exactly because this is inversed. However, exponents have an inverse which are logarithms and it just so happens to be the solution - $log(r_1) + log(r_2) = log(r_1 *r_2)$. Therefore, by taking the log of all edges, we can apply Djikstra's algorithm to find the $log$ of the best sequence of exchanges, and then use $b ^ {log_b(r_1* r_2)}$ to extract the actual number.</p>
 <p>(b) The exchange rates are updated frequently, reflecting the demand and supply of the various currencies. Occasionally the exchange rates satisfy the following property: there is a sequence of currencies $c_{i_1}, c_{i_2}, ..., c_{i_k}$ such that $r_{i_1,i_2} · r_{i_2,i_3} ... r_{i_{k−1},i_k} · r_{i_k,i_1} \gt 1$. Such anomalies last only a fraction of a minute on the currency exchange, but they provide an opportunity for risk-free profits. Give an efficient algorithm for detecting the presence of such an anomaly. Use the graph representation you found above.</p>
 <p>As a simple example, we might have a graph like</p>
-<noscript><pre>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-  \node [] (b) {$c_2$};
-  \node [left of = b, node distance = 2in] (a) {$c_1$};
-  \draw [->] (a) to [out=30,in=150] node [draw=none, above] {0.5} (b);
-  \draw [->] (b) to [out=210,in=-30] node [draw=none, below] {3} (a);
-\end{tikzpicture}</pre></noscript>
-<script type=text/tikz>\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, ->]
-  \node [] (b) {$c_2$};
-  \node [left of = b, node distance = 2in] (a) {$c_1$};
-  \draw [->] (a) to [out=30,in=150] node [draw=none, above] {0.5} (b);
-  \draw [->] (b) to [out=210,in=-30] node [draw=none, below] {3} (a);
-\end{tikzpicture}</script>
+<p>
+</p><div class=tikz-picture style=height:92.76355pt>
+<svg height=92.76355pt viewBox="-72 -72 166.27953 92.76355" width=166.27953pt><g transform="translate(83.13975524902342,-24.873672485351555) scale(1,-1)"><g> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke-width=0.4pt> <g> <g> <path d=" M  10.66977 0.0 C  10.66977 5.89282 5.89282 10.66977 0.0 10.66977 C  -5.89282 10.66977 -10.66977 5.89282 -10.66977 0.0 C  -10.66977 -5.89282 -5.89282 -10.66977 0.0 -10.66977 C  5.89282 -10.66977 10.66977 -5.89282 10.66977 0.0 Z M  0.0 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-4.40685,-1.40279)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmmi10 font-size=10 x=83.13975524902342 y=-24.873672485351555>c</text><text alignment-baseline=baseline fill=black font-family=cmr7 font-size=7 x=87.46731948852538 y=-23.37368774414062>2</text></g></g> </g> </g> </g> </g> <g> <path d=" M  -133.87022 0.0 C  -133.87022 5.89282 -138.64717 10.66977 -144.54 10.66977 C  -150.43282 10.66977 -155.20976 5.89282 -155.20976 0.0 C  -155.20976 -5.89282 -150.43282 -10.66977 -144.54 -10.66977 C  -138.64717 -10.66977 -133.87022 -5.89282 -133.87022 0.0 Z M  -144.54 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-148.94684,-1.40279)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmmi10 font-size=10 x=83.13975524902342 y=-24.873672485351555>c</text><text alignment-baseline=baseline fill=black font-family=cmr7 font-size=7 x=87.46731948852538 y=-23.37368774414062>1</text></g></g> </g> </g> </g> </g> <path d=" M  -135.09662 5.45212 C  -92.66026 29.95287 -51.87973 29.95287 -9.843 5.68298  " style=fill:none /> <g> <g transform=matrix(0.86877,-0.50156,0.50156,0.86877,-9.843,5.683)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-78.65887,32.48979)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=83.13975524902342 y=-24.873672485351555>0.5</text></g></g> </g> </g> </g> </g> <path d=" M  -9.44337 -5.45212 C  -51.87973 -29.95287 -92.66026 -29.95287 -134.69699 -5.68298  " style=fill:none /> <g> <g transform=matrix(-0.86877,0.50156,-0.50156,-0.86877,-134.69699,-5.683)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-74.76997,-37.91966)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=83.13975524902342 y=-24.873672485351555>3</text></g></g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g></svg>
+</div>
+<p></p>
 <p>We can convert between $c_1$ and $c_2$ and keep on making money due to this conversion. This example shows that there is free money when there is a path from a currency to itself where we end up with more than we started (the conversion rate is greater than 1).</p>
 <p>For this problem, I would choose to use the Floyd-Warshall algorithm as it determines the shortest path between each pair of vertices and would be better than running a shortest path from 1 to all vertices $v$ times. In this case, with the modification for where we multiply instead of add like in part a, the diagonals of the resultant matrix should all be less than or equal to 1. However, the existence of an advantageous exchange would have some of those values be greater than 1.</p>
 <p>If we went with the log representation, all of the values in our matrix should be negative. The presence of a positive number along the diagonal would indicate free money and the presence of 0 would indicate a neutral exchange (we end with what we started at).</p>
 <p>$$ \begin{align} log_b(x) = 0 &\implies b^{0} = x &\implies x = 1 \\ log_b(x) = n \text{ where } n \gt 0 &\implies b^{\text{n}} = x &\implies x \gt 1 \\ log_b(x) = -n \text{ where } n \gt 0 &\implies b^{\text{-n}} = \frac{1}{b^{\text{n}}} = x &\implies x \lt 1 \\ \end{align} $$</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./puzzles/5>&lt; divide and conquer 1</a></div> <div style=text-align:end><a href=/./puzzles/7>compound words &gt;</a></div>
+<div class=posts-nav_before><a href=/./puzzles/5>&lt; divide and conquer 1</a></div> <div class=posts-nav_after><a href=/./puzzles/7>compound words &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

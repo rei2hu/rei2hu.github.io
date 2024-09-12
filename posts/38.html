@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>native modules with electron</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/37>&lt; figured out I have a facebook</a></div> <div style=text-align:end><a href=/./posts/39>yet another life introspective &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/37>&lt; figured out I have a facebook</a></div> <div class=posts-nav_after><a href=/./posts/39>yet another life introspective &gt;</a></div>
 </nav>
 <h1 id=native-modules-with-electron>native modules with electron</h1>
 <p>So, as mentioned a few posts ago, I was trying my hand at writing an Electron app that pulled some data and ran some math with the Windows api via native modules. Unfortunately I ended up dropping it because I felt it would be a mess I couldn't be proud of (and I am proud of some real messes I've made so that says something) but at least I can write something technical for once.</p>
@@ -341,7 +340,7 @@ ipcRenderer.<span class="hljs-title function_">on</span>(<span class=hljs-string
 <p>Yay 100mb executable and a lot of other things…</p>
 <p>Oh right, because <code>electron-forge</code> expects <code>main.js</code> in this fashion I just made it with <code>require("./dist");</code> which then runs the compiled <code>src/preload.ts</code> file. I've probably forgotten to mention some other commands and <code>tsconfig</code> settings that are necessary… Well it should be pretty simple to fill in the blanks hopefully.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/37>&lt; figured out I have a facebook</a></div> <div style=text-align:end><a href=/./posts/39>yet another life introspective &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/37>&lt; figured out I have a facebook</a></div> <div class=posts-nav_after><a href=/./posts/39>yet another life introspective &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

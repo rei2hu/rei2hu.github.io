@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>getting github pages to work the way I want it to</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"></div> <div style=text-align:end><a href=/./posts/2>inefficient business logic &gt;</a></div>
+<div class=posts-nav_after></div> <div class=posts-nav_after><a href=/./posts/2>inefficient business logic &gt;</a></div>
 </nav>
 <h1 id=getting-github-pages-to-work-the-way-i-want-it-to>getting github pages to work the way I want it to</h1>
 <p>Moving my website to GitHub Pages has taken a little more effort than I originally thought it would due to a lack of control over how things get delivered and a few specific bugs that popped up here and there from trying to get a ton of stuff to work together.</p>
@@ -97,7 +96,7 @@ we can see that if the MIME type starts with certain things, they will be blocke
 <h2 id=closing>closing</h2>
 <p>Looking at these scripts… hmm yeah I think I'm going to regret making them the way they are right now. Either I will have to clean them up quickly or I will question my past self. Maybe not. Ideally I don't have to touch them… haha</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"></div> <div style=text-align:end><a href=/./posts/2>inefficient business logic &gt;</a></div>
+<div class=posts-nav_after></div> <div class=posts-nav_after><a href=/./posts/2>inefficient business logic &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

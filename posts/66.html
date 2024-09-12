@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>a godot game</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/65>&lt; setting up an os on removable media</a></div> <div style=text-align:end><a href=/./posts/67>positioning and filters &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/65>&lt; setting up an os on removable media</a></div> <div class=posts-nav_after><a href=/./posts/67>positioning and filters &gt;</a></div>
 </nav>
 <h1 id=a-godot-game>a godot game</h1>
 <style type=text/css>p{position:relative}#canvas-container{position:sticky;top:0;z-index:1}#canvas{filter:invert(1);display:block;position:relative!important;width:100%!important;height:auto!important;max-height:33vh}#canvas:focus{outline:0}.godot{font-family:'Noto Sans','Droid Sans',Arial,sans-serif;color:#e0e0e0;background-color:#3b3943;background-image:linear-gradient(to bottom,#403e48,#35333c);border:1px solid #45434e;box-shadow:0 0 1px 1px #2f2d35}</style>
@@ -54,7 +53,7 @@ Please try updating or use a different browser.
 <div></div>
 <div></div>
 </div>
-<div id=status-notice style=display:none class=godot></div>
+<div class=godot id=status-notice style=display:none></div>
 </div>
 <script src="/blobs/66/Reimu Geimu.js" defer type=text/javascript></script>
 <script src=/blobs/66/bootstrap.js defer type=text/javascript></script>
@@ -197,7 +196,7 @@ chunks. We then do another pass to determine how many adjacent chunks of a diffe
 <p>We clicked <code>(1, 2)</code> which has neighbors <code>(1, 1)</code>, <code>(1, 5)</code>, and <code>(3, 1)</code>. This means the borders of the new chunk are the unique neighbors of these 4 chunks together. This also means that any chunk which had <code>n</code> of these 4 chunks as neighbors now have <code>n - 1</code> less neighbors (loses all its neighbors, but gains a new one which is the consolidated chunk). <code>(4, 1)</code> had <code>(3, 1)</code> and <code>(1, 5)</code> as neighbors, so it ends up losing <code>2 - 1</code> neighbors, leaving it at 1. <code>(3, 5)</code>'s only neighbor was <code>(1, 5)</code> which means it loses <code>1 - 1</code> neighbors, leaving it at one.</p>
 <p>We then pick <code>(1, 1)</code> leaving the entire board as <code>o</code>s. Again, is this right? I have no clue, but it seems plausible for at least a basic answer.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/65>&lt; setting up an os on removable media</a></div> <div style=text-align:end><a href=/./posts/67>positioning and filters &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/65>&lt; setting up an os on removable media</a></div> <div class=posts-nav_after><a href=/./posts/67>positioning and filters &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

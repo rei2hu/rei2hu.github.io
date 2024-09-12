@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>file transfer through webrtc</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/27>&lt; personal yearly reflection 1</a></div> <div style=text-align:end><a href=/./posts/29>wrangling with a PaaS provider &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/27>&lt; personal yearly reflection 1</a></div> <div class=posts-nav_after><a href=/./posts/29>wrangling with a PaaS provider &gt;</a></div>
 </nav>
 <h1 id=file-transfer-through-webrtc>file transfer through webrtc</h1>
 <p>Recently, I've been trying out writing some simple webapps that take advantage of WebRTC. What I had written was a simple file sharing application. Naturally, one observation is that there is no need for the server once the peer connection is made so the files can be transferred outside of the server so that's pretty cool.</p>
@@ -76,7 +75,7 @@ so it must have been an async error. I just worked around it by sending addition
 <p>You can even guess at the sizes of the files below a certain threshold by the amount of bars on the receiver's side. Unfortunately I was too lazy to do the same for the sender.</p>
 <p>If interested, the source is kind of clean so I did make a public repository for it <a href=https://github.com/rei2hu/peer>here</a>.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/27>&lt; personal yearly reflection 1</a></div> <div style=text-align:end><a href=/./posts/29>wrangling with a PaaS provider &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/27>&lt; personal yearly reflection 1</a></div> <div class=posts-nav_after><a href=/./posts/29>wrangling with a PaaS provider &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

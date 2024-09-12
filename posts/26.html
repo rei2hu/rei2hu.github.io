@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>anonymous anti ddos ideas</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/25>&lt; errata 1-24</a></div> <div style=text-align:end><a href=/./posts/27>personal yearly reflection 1 &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/25>&lt; errata 1-24</a></div> <div class=posts-nav_after><a href=/./posts/27>personal yearly reflection 1 &gt;</a></div>
 </nav>
 <h1 id=anonymous-anti-ddos-ideas>anonymous anti ddos ideas</h1>
 <p>A lot of the stuff I make ends up missing functionality like actual user signup and authentication through some involved process e.g. verifying an email address. If you're running an api and you let people make requests anonymously, then you run a much higher risk of getting ddosed.</p>
@@ -63,7 +62,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <p>I ended up looking at some stuff about proof of work for curiosity's sake and the concept came up around 1993 specifically to combat spam/junk mail… so I guess it supports the idea that this could be a valid countermeasure against ddos attacks. The difference is that emails are sent out much less frequently compared to requests most likely so this approach's effects (takes more computing power) might be more pronounced in this use case.</p>
 <p>It's pretty cool when you think up some random ideas only for them to already exist and be implemented in various places.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/25>&lt; errata 1-24</a></div> <div style=text-align:end><a href=/./posts/27>personal yearly reflection 1 &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/25>&lt; errata 1-24</a></div> <div class=posts-nav_after><a href=/./posts/27>personal yearly reflection 1 &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

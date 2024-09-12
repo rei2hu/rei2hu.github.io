@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>use of type fields</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/46>&lt; personal yearly reflection 2</a></div> <div style=text-align:end><a href=/./posts/48>some sql optimization thoughts &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/46>&lt; personal yearly reflection 2</a></div> <div class=posts-nav_after><a href=/./posts/48>some sql optimization thoughts &gt;</a></div>
 </nav>
 <h1 id=use-of-type-fields>use of type fields</h1>
 <p>One thing I've noticed in a few bits of code over the past few years is the use of a <code>type</code> field to determine the true type of an object. For example, we are working at a pet store and are tasked with creating a class to represent cats and dogs, so we make an <code>Animal</code> class. We also determine a few properties that both cats and dogs share and have them in that class.</p>
@@ -142,7 +141,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <p>My other thought is around the interaction between databases and application code; when it comes to databases, I don't think there is any true way to model variants so you'll very often see a table with a type column with fields that may or may not be applicable. And then if you have to manually write the conversion methods, it's slightly easier to design a class that you can stuff the entire row into rather than several classes to specifically pick which fields should be taken. Of course, it might be easier to avoid this with the use of ORMs but those kind of cause their own class of problems too.</p>
 <p>There is also a problem around modeling these types of relationships in frontend components which also kind of don't support true inheritance but instead rely on composability that I half want to write something about but opted not to so I'm just leaving this sentence as a note down here.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/46>&lt; personal yearly reflection 2</a></div> <div style=text-align:end><a href=/./posts/48>some sql optimization thoughts &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/46>&lt; personal yearly reflection 2</a></div> <div class=posts-nav_after><a href=/./posts/48>some sql optimization thoughts &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

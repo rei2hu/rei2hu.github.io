@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>divide and conquer 1</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div style=text-align:end><a href=/./puzzles/6>graphs 1 &gt;</a></div>
+<div class=posts-nav_before><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div class=posts-nav_after><a href=/./puzzles/6>graphs 1 &gt;</a></div>
 </nav>
 <h1 id=divide-and-conquer-1>Divide and Conquer 1</h1>
 <h2 id=question-1>Question 1</h2>
@@ -55,7 +54,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <p>6. $T(3n / 4)$</p>
 <p>The final equation is something like $T(3n / 4) + T(n / 5) + O(n)$ which is $O(n)$. Breaking the groups into different sizes changes the runtime of steps 4 and 7. If we do break into groups of 3, the runtime turns into something like $T(n / 3) + T(2n / 3) + O(n)$ which doesn't really cut the cases down (through the master theorem it looks to be $O(nlogn)$). Using groups of 7, the equation is $T(n / 7) + T(5n / 7) + O(n)$ which reduces down to $O(n)$.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div style=text-align:end><a href=/./puzzles/6>graphs 1 &gt;</a></div>
+<div class=posts-nav_before><a href=/./puzzles/4>&lt; dynamic programming 3</a></div> <div class=posts-nav_after><a href=/./puzzles/6>graphs 1 &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

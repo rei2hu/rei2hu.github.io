@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>thoughts on data migration andor normalization</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/40>&lt; an amazon recruiter conversation</a></div> <div style=text-align:end><a href=/./posts/42>another sudoku solver &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/40>&lt; an amazon recruiter conversation</a></div> <div class=posts-nav_after><a href=/./posts/42>another sudoku solver &gt;</a></div>
 </nav>
 <h1 id=thoughts-on-data-migration-andy-normalization>thoughts on data migration Andy normalization</h1>
 <p>Man, can't use slashes in file names. We recently finished a pretty big data migration and I had some… <em>thoughts</em> throughout the process. I'm told the entire thing was in the works for a few years, and I was there for the last 6 months.</p>
@@ -108,7 +107,7 @@ and <code>tag.label</code> are no long in sync. This still causes us small amoun
 <p>That's used in various spots. Hopefully it's been plugged in better than
 <code>attachTag</code> although it depends on it…</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/40>&lt; an amazon recruiter conversation</a></div> <div style=text-align:end><a href=/./posts/42>another sudoku solver &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/40>&lt; an amazon recruiter conversation</a></div> <div class=posts-nav_after><a href=/./posts/42>another sudoku solver &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

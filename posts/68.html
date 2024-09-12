@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>use (and abuse) of pseudo-classes</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/67>&lt; positioning and filters</a></div> <div style=text-align:end><a href=/./posts/69>updating this site and checking for regressions &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/67>&lt; positioning and filters</a></div> <div class=posts-nav_after><a href=/./posts/69>updating this site and checking for regressions &gt;</a></div>
 </nav>
 <h1 id=use-and-abuse-of-pseudo-classes>use (and abuse) of pseudo-classes</h1>
 <style>.p68_demo-div::before{content:"Demo:"}.p68_demo-div{margin:20px;padding:20px}</style>
@@ -317,7 +316,7 @@ make requests to certain webpages based on what style is picked).</p>
 <p>You also may be wondering about the performance of these approaches in terms of a "how long does it take my browser to recalculate styles?" The short answer is I have no clue - figuring these things out is 90% done as a casual brain teaser and 10% because of my dislike of Javascript on sites that don't need it. Overall, I do not notice any significant performance impact on this website, which means it is fine… for this website.</p>
 <p>Cue story about senior frontend engineer talking about one of his old company's websites being slow due to complex css rules.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/67>&lt; positioning and filters</a></div> <div style=text-align:end><a href=/./posts/69>updating this site and checking for regressions &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/67>&lt; positioning and filters</a></div> <div class=posts-nav_after><a href=/./posts/69>updating this site and checking for regressions &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

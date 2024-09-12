@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>correlated queries and lateral joins</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/35>&lt; count elements in a list</a></div> <div style=text-align:end><a href=/./posts/37>figured out I have a facebook &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/35>&lt; count elements in a list</a></div> <div class=posts-nav_after><a href=/./posts/37>figured out I have a facebook &gt;</a></div>
 </nav>
 <h1 id=correlated-queries-and-lateral-joins>correlated queries and lateral joins</h1>
 <p>Recently I was able to try my hand at improving a query's performance for loading some data. For the sake of anonymity, I'll rephrase the problem it was solving; imagine having a table of users and a table of comments and you want to get the top users based on the "max" comment - max in quotes because the ordering is one of the inputs.</p>
@@ -134,7 +133,7 @@ limit <span class=hljs-number>10</span>;
 </code></pre>
 <p>1/10th of the loops! And the actual time of the query did go down to somewhere in the 30-40 second range. According to the analyze at least. But wait, the timeout is 30 seconds and you're still over 30 seconds. Yes, but this is in our development environment. Manual tests in prod suggest improvement should change duration from 2 minutes to around 10 seconds.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/35>&lt; count elements in a list</a></div> <div style=text-align:end><a href=/./posts/37>figured out I have a facebook &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/35>&lt; count elements in a list</a></div> <div class=posts-nav_after><a href=/./posts/37>figured out I have a facebook &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

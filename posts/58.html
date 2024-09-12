@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>a little append only ds idea</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/57>&lt; writing a browser extension</a></div> <div style=text-align:end><a href=/./posts/59>thoughts on ai utilization &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/57>&lt; writing a browser extension</a></div> <div class=posts-nav_after><a href=/./posts/59>thoughts on ai utilization &gt;</a></div>
 </nav>
 <h1 id=a-little-append-only-ds-idea>a little append only ds idea</h1>
 <p>So I randomly thought of what might be a decent append-only data structure;</p>
@@ -40,7 +39,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <p>It is pretty simple, but I've only really thought of its use for logs specifically; should be pretty efficient and you should be able to search for things by a timestamp pretty quickly. In fact, this is like building a B-tree from the root nodes and just in order. I guess it's a B-tree?</p>
 <p>Oh well, I doubt I'm the first person to come up with this idea.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/57>&lt; writing a browser extension</a></div> <div style=text-align:end><a href=/./posts/59>thoughts on ai utilization &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/57>&lt; writing a browser extension</a></div> <div class=posts-nav_after><a href=/./posts/59>thoughts on ai utilization &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

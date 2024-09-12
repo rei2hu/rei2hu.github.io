@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>a weird cpp error</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div> <div style=text-align:end><a href=/./posts/98>grad school semester 1 end &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div> <div class=posts-nav_after><a href=/./posts/98>grad school semester 1 end &gt;</a></div>
 </nav>
 <h1 id=a-weird-cpp-error>a weird cpp error</h1>
 <p>Const reference good.</p>
@@ -121,7 +120,7 @@ std::vector&lt;MPI_Request&gt; requests;
 <p>Because this change seemed to resolve the issue, I assume the compiler or something else was making a copy of the data for the loop body and cleaning it up before <code>MPI_ISend</code> actually sent the message. Is that the actual case? I don't know! It's a little weak based on what I think I know - namely that the memory wouldn't be 0'd out even if it was "cleaned up", since that would take extra cycles. Unless that's a c++ thing.</p>
 <p>It is something that I could probably spend some more time looking into, but the project still has a lot to go and I'll be focusing on that. I guess it also goes to show that const'ing everything that can be const'd is probably a good idea, not only in c++ but also in other languages.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div> <div style=text-align:end><a href=/./posts/98>grad school semester 1 end &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/96>&lt; arguing against pre-complicating a project</a></div> <div class=posts-nav_after><a href=/./posts/98>grad school semester 1 end &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

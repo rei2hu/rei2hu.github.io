@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>setting up an os on removable media</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/64>&lt; witnessed my first set of layoffs</a></div> <div style=text-align:end><a href=/./posts/66>a godot game &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/64>&lt; witnessed my first set of layoffs</a></div> <div class=posts-nav_after><a href=/./posts/66>a godot game &gt;</a></div>
 </nav>
 <h1 id=setting-up-an-os-on-removable-media>setting up an os on removable media</h1>
 <p>Specifically related to a 250GB Framework storage expansion card I was convinced to purchase alongside the laptop. I assume it works similar to any other removable media.</p>
@@ -89,7 +88,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <p>Make sure you do other steps like installing network related packages and actually setting up Linux/GRUB. If everything is done correctly, you should be able to boot without the installation media and get the GRUB bootloader to show when starting up (see BIOS menus around boot order, or try the one time boot override with F12 to see if there's an entry for it). You may also want to add an entry for your original OS so you may boot it while the storage card is attached.</p>
 <p>This setup allows loading the bootloader on the expansion card when it is attached but otherwise loads bootloaders found on the laptop's storage when it is removed. Hmm, very much like a CD… Do those still exist? Would it be possible to add a menu entry for the OS located on the expansion card to the laptop's boot loader? Possibly, but this way is cooler because you won't have a dead entry unless the card is attached I guess.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/64>&lt; witnessed my first set of layoffs</a></div> <div style=text-align:end><a href=/./posts/66>a godot game &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/64>&lt; witnessed my first set of layoffs</a></div> <div class=posts-nav_after><a href=/./posts/66>a godot game &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

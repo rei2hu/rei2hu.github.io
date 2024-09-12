@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>another sudoku solver</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/41>&lt; thoughts on data migration andor normalization</a></div> <div style=text-align:end><a href=/./posts/43>email organization for privacy enthusiasts &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/41>&lt; thoughts on data migration andor normalization</a></div> <div class=posts-nav_after><a href=/./posts/43>email organization for privacy enthusiasts &gt;</a></div>
 </nav>
 <h1 id=another-sudoku-solver>another sudoku solver</h1>
 <p>For some reason solving sudokus popped into my head last night and so I felt like writing one today. I had the basic idea which was to set up a graph so that when you solve one cell you know specifically which other cells are affected and then see if you can solve those. It's basically the common strategy for figuring out the solution until you have to guess.</p>
@@ -187,7 +186,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 <li>One other strategy for determining the value of a cell is if it's the only cell in its row/column/subgroup that contains that value. I'm not sure how to model that constraint here. I think it could be looked for after all the single possibility cells are filled out but before we start forking threads or goroutines or whatever.</li>
 </ol>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/41>&lt; thoughts on data migration andor normalization</a></div> <div style=text-align:end><a href=/./posts/43>email organization for privacy enthusiasts &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/41>&lt; thoughts on data migration andor normalization</a></div> <div class=posts-nav_after><a href=/./posts/43>email organization for privacy enthusiasts &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">

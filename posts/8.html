@@ -8,7 +8,6 @@
 <link href=/style/a11y.css rel=stylesheet>
 <link href=/favicon.svg rel=icon type=image/svg+xml>
 <script src=/scripts/image_loader.js></script>
-<script src=/scripts/tikz-loader.js defer></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
 <title>the coin flip example</title>
@@ -28,10 +27,10 @@ lights
 </nav>
 <div class=template-body>
 <noscript class=noscript-warning>
-Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div style="flex:0 0 50%"><a href=/./posts/7>&lt; monads</a></div> <div style=text-align:end><a href=/./posts/9>personal haskell project &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/7>&lt; monads</a></div> <div class=posts-nav_after><a href=/./posts/9>personal haskell project &gt;</a></div>
 </nav>
 <h1 id=the-coin-flip-example>the coin flip example</h1>
 <p>As I finish the monad section, I ran into a problem with the final coin flipping example. You are given instances for both <code>Functor</code> and <code>Monad</code> but are missing one for <code>Applicative</code> and I was unable to run the example without defining it first. And here came the first time I defined an instance myself.</p>
@@ -66,7 +65,7 @@ Javascript is necessary for displaying LaTeX and TikZ diagrams, some demos that 
 </code></pre>
 <p>I split it up into 3 lines just to show but basically it would be you have a chance to pick one of the functions and a chance to pick one of the elements and what is the chance you pick a pair of them. Well I already wrote the other one and that took me 30 minutes so who knows how long this one will take? I think it's very similar to <code>&gt;&gt;=</code> so some kind of shortcut could be used, similar to how I used <code>return</code> to define <code>pure</code>. Well I won't bother writing it anyways.</p>
 <nav class=posts-nav_bottom>
-<div style="flex:0 0 50%"><a href=/./posts/7>&lt; monads</a></div> <div style=text-align:end><a href=/./posts/9>personal haskell project &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/7>&lt; monads</a></div> <div class=posts-nav_after><a href=/./posts/9>personal haskell project &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
