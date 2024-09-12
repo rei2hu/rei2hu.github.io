@@ -21,6 +21,11 @@ jobs:
                   path: ./internals
                   fetch-depth: 0
 
+            - name: Install TeX binaries
+              # needed for kpsewhich, ideally there's an image where it already
+              # exists but...
+              run: sudo apt install texlive-binaries
+
             - name: Build site
               run: |
                   cd $GITHUB_WORKSPACE/internals;
