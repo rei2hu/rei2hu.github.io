@@ -22,15 +22,14 @@
 	"homepage": "https://github.com/rei2hu/rei2hu.github.io#readme",
 	"dependencies": {
 		"clean-css": "^5.3.2",
-		"dvi2html": "git://github.com/artisticat1/dvi2html#4684e25d25bc7cbac18cdf3d64ba888f00cbf179",
 		"highlight.js": "^11.9.0",
 		"html-minifier": "^4.0.0",
 		"javascript-obfuscator": "^4.1.0",
 		"js-bmp-packer": "git+https://github.com/rei2hu/js-bmp-packer.git",
 		"ncp": "^2.0.0",
-		"pako": "^1.0.8",
 		"sharp": "^0.32.6",
-		"showdown": "^2.1.0"
+		"showdown": "^2.1.0",
+		"tikzjax-server": "git+https://github.com/rei2hu/tikzjax-server.git"
 	},
 	"devDependencies": {
 		"eslint": "^7.4.0",

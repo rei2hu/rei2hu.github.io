@@ -6,7 +6,7 @@ const exec = util.promisify(require("child_process").exec);
 const showdown = require("showdown");
 const { minify } = require("html-minifier");
 const { minifyHtmlOpts } = require("./build-options");
-const { load } = require("./tikz");
+const { load } = require("tikzjax-server");
 
 // formatting commits that i dont want to include
 // (only want to include commits that change actual content)
