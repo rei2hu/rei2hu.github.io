@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>backend tikzpicture generation</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/110>&lt; broadcasts and multicasts in single and distributed systems</a></div>
+</nav>
+<h1 id=backend-tikzpicture-generation>backend tikzpicture generation</h1>
+<p>In my previous article, I leveraged the ability to create tikzpicture diagrams on the frontend a lot. It's a cool feature, but there are quite a number of layout shifts which should be avoided due to disorientation.</p>
+<p><img alt="images replacing text causing page to jump" src=/blobs/111/shift.gif></p>
+<p>To think that the work that I did for <a href=/posts/106>106</a> would be replaced so quickly… Actually, doing all the legwork in 106 made this transition pretty easy since I was already familiar with the internal workings.</p>
+<p>So what had to be changed? Virtually nothing. Why?</p>
+<ol>
+<li><p>I already did the work to separate dom manipulation from tikzpicture generation so I could customize the dom stuff to work with workers. Now I just replaced the "dom stuff" with stuff to integrate with my existing build scripts.</p></li>
+<li><p>The node.js WebAssembly api is the same between node.js and browser so no changes had to be made there.</p></li>
+<li><p>The original client module is some webpacked javascript, and the original source ran almost flawlessly in node as mjs files. Though I did rewrite the main file in cjs so I wouldn't have to deal with dynamic imports in my already existing cjs centric build scripts.</p>
+<p>Technically that's a lie, because once you have async code deep down (the unavoidable dynamic import), it's going to infect everything above it. This caused a small issue because I normally use Showdown.js's extension system to process custom content but Showdown doesn't allow processors (functions) to be asynchronous. So, I just stuck it after the entire Showdown step in the pipeline and it works.</p></li>
+</ol>
+<p>Really, it's a nice self contained bit of code once you figure out how it and its dependencies are built; looking at the source for this website (the actual prebuilt source) can show how. And this is better than just having external images, because I get to keep the source of the tikz diagram directly in posts which allows easy edits and allows my janky post git history features to keep track of changes.</p>
+<p>An example of knowing what's in place is having to set up TeX locally (which I have) and also setting it up in the Github Actions container (which I did lazily by having it download <code>texlive-binaries</code> each run). This is needed for
+<code>kpsewhich</code> which is require for <code>dvi2html</code>. Arguably one could package the information in manually but that's a bit more work.</p>
+<p>Also there is one hiccup in regards to the "self contained bit of code". There is basically a mock in-memory file system that's used with the code and it's not async safe, so I just put a bootleg lock over the methods that rely on it e.g.</p>
+<pre class=code-block><input id=code-block-111-1 type=checkbox><label for=code-block-111-1></label><code><span class=hljs-keyword>let</span> lock = <span class="hljs-title class_">Promise</span>.<span class="hljs-title function_">resolve</span>();
+
+<span class=hljs-keyword>function</span> <span class="hljs-title function_">do</span>(<span class=hljs-params>work</span>) {
+    <span class=hljs-keyword>const</span> myWork = lock.<span class="hljs-title function_">then</span>(work);
+    lock = myWork;
+    <span class=hljs-keyword>return</span> myWork;
+    <span class=hljs-comment>// return lock = lock.then(work) // ???</span>
+}
+</code></pre>
+<p>I think it works, since it's just promise chaining but I'm not 100% sure about that. It lets things build without running into an unreadable wasm error though so that must mean it's working.</p>
+<p>This also removed around 1mb of compressed data that was being loaded for each page, whether or not it had tikz diagrams on it or not (because all content is inserted into some template html which comes with the same set of script tags). While Github Pages does suggest that the browser caches things through cache control/max age headers, it's a fixed value of some minutes which is pretty low for those files (tex memory dump, wasm, and glue) since they will rarely, if ever, be updated. They're entirely gone now, though.</p>
+<p>Interestingly enough, this is the second thing I've moved from client-side javascript, the first thing being code block handling (expand/collapse and syntax highlighting). The only real thing left is MathJax, which is around 50% of the data - excluding media like images and videos that may vary between posts - that is transferred for viewing a post. Will I also move that over to the backend? Only if I think it's ruining ux, which I would say it doesn't. Anyways, I believe the backend implementation will insert mathml tags which, if I remember correctly, are very ignored by the big browser players so it might not be a good idea.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/110>&lt; broadcasts and multicasts in single and distributed systems</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-09-12 - add post 111</summary>
+<pre class=code-block><input id=code-block-44c2d69fd6127f4f73dc2487dbe493170bf3cc12-1 type=checkbox><label for=code-block-44c2d69fd6127f4f73dc2487dbe493170bf3cc12-1></label><code><span class=hljs-meta>@@ -0,0 +1,81 @@</span>
+<span class=hljs-addition>+# backend tikzpicture generation</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In my previous article, I leveraged the ability to create tikzpicture diagrams</span>
+<span class=hljs-addition>+on the frontend a lot. It&#x27;s a cool feature, but there are quite a number of</span>
+<span class=hljs-addition>+layout shifts which should be avoided due to disorientation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![images replacing text causing page to jump](/blobs/111/shift.gif)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To think that the work that I did for [106](/posts/106) would be replaced so</span>
+<span class=hljs-addition>+quickly... Actually, doing all the legwork in 106 made this transition pretty</span>
+<span class=hljs-addition>+easy since I was already familiar with the internal workings.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So what had to be changed? Virtually nothing. Why?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. I already did the work to separate dom manipulation from tikzpicture</span>
+<span class=hljs-addition>+   generation so I could customize the dom stuff to work with workers. Now I</span>
+<span class=hljs-addition>+   just replaced the &quot;dom stuff&quot; with stuff to integrate with my existing build</span>
+<span class=hljs-addition>+   scripts.</span>
+<span class=hljs-addition>+2. The node.js WebAssembly api is the same between node.js and browser so no</span>
+<span class=hljs-addition>+   changes had to be made there.</span>
+<span class=hljs-addition>+3. The original client module is some webpacked javascript, and the original</span>
+<span class=hljs-addition>+   source ran almost flawlessly in node as mjs files. Though I did rewrite the</span>
+<span class=hljs-addition>+   main file in cjs so I wouldn&#x27;t have to deal with dynamic imports in my</span>
+<span class=hljs-addition>+   already existing cjs centric build scripts.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    Technically that&#x27;s a lie, because once you have async code deep down (the</span>
+<span class=hljs-addition>+    unavoidable dynamic import), it&#x27;s going to infect everything above it. This</span>
+<span class=hljs-addition>+    caused a small issue because I normally use Showdown.js&#x27;s extension system</span>
+<span class=hljs-addition>+    to process custom content but Showdown doesn&#x27;t allow processors (functions)</span>
+<span class=hljs-addition>+    to be asynchronous. So, I just stuck it after the entire Showdown step in</span>
+<span class=hljs-addition>+    the pipeline and it works.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Really, it&#x27;s a nice self contained bit of code once you figure out how it and</span>
+<span class=hljs-addition>+its dependencies are built; looking at the source for this website (the actual</span>
+<span class=hljs-addition>+prebuilt source) can show how. And this is better than just having external</span>
+<span class=hljs-addition>+images, because I get to keep the source of the tikz diagram directly in posts</span>
+<span class=hljs-addition>+which allows easy edits and allows my janky post git history features to keep</span>
+<span class=hljs-addition>+track of changes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+An example of knowing what&#x27;s in place is having to set up TeX locally (which I</span>
+<span class=hljs-addition>+have) and also setting it up in the Github Actions container (which I did lazily</span>
+<span class=hljs-addition>+by having it download `texlive-binaries` each run). This is needed for</span>
+<span class=hljs-addition>+`kpsewhich` which is require for `dvi2html`. Arguably one could package the</span>
+<span class=hljs-addition>+information in manually but that&#x27;s a bit more work.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also there is one hiccup in regards to the &quot;self contained bit of code&quot;. There</span>
+<span class=hljs-addition>+is basically a mock in-memory file system that&#x27;s used with the code and it&#x27;s not</span>
+<span class=hljs-addition>+async safe, so I just put a bootleg lock over the methods that rely on it e.g.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```js</span>
+<span class=hljs-addition>+let lock = Promise.resolve();</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+function do(work) {</span>
+<span class=hljs-addition>+    const myWork = lock.then(work);</span>
+<span class=hljs-addition>+    lock = myWork;</span>
+<span class=hljs-addition>+    return myWork;</span>
+<span class=hljs-addition>+    // return lock = lock.then(work) // ???</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think it works, since it&#x27;s just promise chaining but I&#x27;m not 100% sure about</span>
+<span class=hljs-addition>+that. It lets things build without running into an unreadable wasm error though</span>
+<span class=hljs-addition>+so that must mean it&#x27;s working.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This also removed around 1mb of compressed data that was being loaded for each</span>
+<span class=hljs-addition>+page, whether or not it had tikz diagrams on it or not (because all content is</span>
+<span class=hljs-addition>+inserted into some template html which comes with the same set of script tags).</span>
+<span class=hljs-addition>+While Github Pages does suggest that the browser caches things through cache</span>
+<span class=hljs-addition>+control/max age headers, it&#x27;s a fixed value of some minutes which is pretty low</span>
+<span class=hljs-addition>+for those files (tex memory dump, wasm, and glue) since they will rarely, if</span>
+<span class=hljs-addition>+ever, be updated. They&#x27;re entirely gone now, though.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Interestingly enough, this is the second thing I&#x27;ve moved from client-side</span>
+<span class=hljs-addition>+javascript, the first thing being code block handling (expand/collapse and</span>
+<span class=hljs-addition>+syntax highlighting). The only real thing left is MathJax, which is around 50%</span>
+<span class=hljs-addition>+of the data - excluding media like images and videos that may vary between</span>
+<span class=hljs-addition>+posts - that is transferred for viewing a post. Will I also move that over to</span>
+<span class=hljs-addition>+the backend? Only if I think it&#x27;s ruining ux, which I would say it doesn&#x27;t.</span>
+<span class=hljs-addition>+Anyways, I believe the backend implementation will insert mathml tags which, if</span>
+<span class=hljs-addition>+I remember correctly, are very ignored by the big browser players so it might</span>
+<span class=hljs-addition>+not be a good idea.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
