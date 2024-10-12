@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>grad school semester 3 midpoint</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/111>&lt; backend tikzpicture generation</a></div>
+</nav>
+<h1 id=grad-school-semester-3-midpoint>grad school semester 3 midpoint</h1>
+<p>The last time I decided to write something about the semester was a few weeks after midterms, but this time I'm deciding to write a post in the middle.</p>
+<p>Why? To vent.</p>
+<p>So in my last grad school related post, I mentioned I'm taking two classes, computer security and distributed systems. There is a new professor teaching computer security - and I mean entirely new like first time as an (associate) professor.</p>
+<p>The class's content is nice - a bunch of high level computer security topics and real life examples like social network privacy, adversarial machine learning, and cryptography in addition to various open ended projects touching on them - but the midterm…</p>
+<p>I'll start with the good parts:</p>
+<ul>
+<li>It was a take home exam</li>
+<li>It was open book</li>
+<li>There was a specific 24 hour window to submit the exam with no time limit otherwise</li>
+</ul>
+<p>And the bad:</p>
+<ul>
+<li>The 24 hour window was on a weekday, announced a week in advance. This meant I could not take a day off to work on it, so I just tackled it after work hours.a</li>
+<li>Most of the questions asked about things not covered in the course.</li>
+</ul>
+<p>I'd like to expand on the second point, which is what probably screwed me over. The professor believed that people would use external resources and decided that putting a bunch of stuff that was not covered was fair. Honestly, the first part is reasonable but the second part is…</p>
+<p>I thought open book meant open notes and did not use any extra resources outside of notes and slides (pdfs of the lecture material presentation).</p>
+<p>Some choice quotes from the professor about the exam:</p>
+<blockquote>
+<p>Given the proliferation of generative AI, and the absence of proctoring a lot of the elements of the class, I find it hard to believe that people are doing work without any additional assistance. While I can technically "ban" the usage of search/generative AI, I am not in a position to verify if this ban was enforced by the students. Consequently, the only way I can ensure that people invest time and effort into studying is by having a proctored final exam with a large fraction of the grade (which is probably the only item in the class that reliably tests your understanding of the material).</p>
+</blockquote>
+<p>An actual question that I remember, because I happened to (maybe) know the answer by luck was:</p>
+<blockquote>
+<p>What's a key exchange algorithm that offers perfect forward secrecy (concept not covered in class) and post compromise security (concept not covered in class)?</p>
+<p>a. IKE (not covered in class)</p>
+<p>b. Double Ratchet Algorithm (not covered in class)</p>
+<p>c. RSA key exchange (not covered in class, though general RSA algorithm was)</p>
+<p>d. ??? (forgot what the option was, also not covered in class)</p>
+</blockquote>
+<p>Assuming you don't have any outside information, how is this possible to answer correctly? By luck. Well, at least for this one, I've heard of Double Ratchet and was semi familiar with its characteristics so I think that it was the answer (answers have yet to be released).</p>
+<p>There were like two questions that were more or less logical like:</p>
+<blockquote>
+<p>A hard fork in a cryptocurrency is… A soft fork is… X, Y, and Z happen. This is an example of…</p>
+<p>(covered cryptocurrencies, but did not cover specific examples of forking outside of "if two people disagree then a fork is made and the longer chain wins" with a bit more detail than that)</p>
+<p>a. A hard fork followed by a soft fork</p>
+<p>b. A soft fork</p>
+<p>c. A hard fork</p>
+<p>d. None of the above</p>
+</blockquote>
+<p>I mean, I assume I should be able to answer the question properly without any external information since it's like a reading comprehension thing (but who knows?)</p>
+<p>Anyways, with like maybe 3/4s of the questions on the midterm like that, there's not much to wonder about why I did so poorly (I'm talking in the D to F range). If there was better clarification on what the exam encompassed and what was allowed, or if I was less honorable and looked stuff up online without knowing if it was allowed beforehand, then I could've received a better grade.</p>
+<p>Fortunately, the midterm is only 10% of the grade (with the final being 35%… here's to hoping that I do better) so I'm only like 4% down. Also the grading scale doesn't include an A+ so I haven't shut myself off of a letter grade… yet.</p>
+<p>What about the distributed systems midterm? I plan to take it this weekend; it should go well. And great class by the way - in terms of content, homework, programming assignments, (and hopefully midterms). Basically, the questions revolve around the concepts and either tell you to apply them in a scenario, or ask about the implications of various changes to existing algorithms/systems.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/111>&lt; backend tikzpicture generation</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-10-11 - add post 112</summary>
+<pre class=code-block><input id=code-block-b0f66bc3c8d6385bbdeb8920ac704c702efeda8c-1 type=checkbox><label for=code-block-b0f66bc3c8d6385bbdeb8920ac704c702efeda8c-1></label><code><span class=hljs-meta>@@ -0,0 +1,107 @@</span>
+<span class=hljs-addition>+# grad school semester 3 midpoint</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The last time I decided to write something about the semester was a few weeks</span>
+<span class=hljs-addition>+after midterms, but this time I&#x27;m deciding to write a post in the middle.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Why? To vent.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So in my last grad school related post, I mentioned I&#x27;m taking two classes,</span>
+<span class=hljs-addition>+computer security and distributed systems. There is a new professor teaching</span>
+<span class=hljs-addition>+computer security - and I mean entirely new like first time as an (associate)</span>
+<span class=hljs-addition>+professor.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The class&#x27;s content is nice - a bunch of high level computer security topics and</span>
+<span class=hljs-addition>+real life examples like social network privacy, adversarial machine learning,</span>
+<span class=hljs-addition>+and cryptography in addition to various open ended projects touching on them -</span>
+<span class=hljs-addition>+but the midterm...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll start with the good parts:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- It was a take home exam</span>
+<span class=hljs-addition>+- It was open book</span>
+<span class=hljs-addition>+- There was a specific 24 hour window to submit the exam with no time limit</span>
+<span class=hljs-addition>+    otherwise</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And the bad:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- The 24 hour window was on a weekday, announced a week in advance. This meant</span>
+<span class=hljs-addition>+    I could not take a day off to work on it, so I just tackled it after work</span>
+<span class=hljs-addition>+    hours.a</span>
+<span class=hljs-addition>+- Most of the questions asked about things not covered in the course.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;d like to expand on the second point, which is what probably screwed me over.</span>
+<span class=hljs-addition>+The professor believed that people would use external resources and decided that</span>
+<span class=hljs-addition>+putting a bunch of stuff that was not covered was fair. Honestly, the first part</span>
+<span class=hljs-addition>+is reasonable but the second part is...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I thought open book meant open notes and did not use any extra resources outside</span>
+<span class=hljs-addition>+of notes and slides (pdfs of the lecture material presentation).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Some choice quotes from the professor about the exam:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Given the proliferation of generative AI, and the absence of proctoring a lot</span>
+<span class=hljs-addition>+&gt; of the elements of the class, I find it hard to believe that people are doing</span>
+<span class=hljs-addition>+&gt; work without any additional assistance. While I can technically &quot;ban&quot; the</span>
+<span class=hljs-addition>+&gt; usage of search/generative AI, I am not in a position to verify if this ban</span>
+<span class=hljs-addition>+&gt; was enforced by the students. Consequently, the only way I can ensure that</span>
+<span class=hljs-addition>+&gt; people invest time and effort into studying is by having a proctored final</span>
+<span class=hljs-addition>+&gt; exam with a large fraction of the grade (which is probably the only item in</span>
+<span class=hljs-addition>+&gt; the class that reliably tests your understanding of the material).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+An actual question that I remember, because I happened to (maybe) know the</span>
+<span class=hljs-addition>+answer by luck was:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; What&#x27;s a key exchange algorithm that offers perfect forward secrecy (concept</span>
+<span class=hljs-addition>+&gt; not covered in class) and post compromise security (concept not covered in</span>
+<span class=hljs-addition>+&gt; class)?</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; a. IKE (not covered in class)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; b. Double Ratchet Algorithm (not covered in class)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; c. RSA key exchange (not covered in class, though general RSA algorithm was)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; d. ??? (forgot what the option was, also not covered in class)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Assuming you don&#x27;t have any outside information, how is this possible to answer</span>
+<span class=hljs-addition>+correctly? By luck. Well, at least for this one, I&#x27;ve heard of Double Ratchet</span>
+<span class=hljs-addition>+and was semi familiar with its characteristics so I think that it was the answer</span>
+<span class=hljs-addition>+(answers have yet to be released).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There were like two questions that were more or less logical like:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; A hard fork in a cryptocurrency is... A soft fork is... X, Y, and Z happen.</span>
+<span class=hljs-addition>+&gt; This is an example of...</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; (covered cryptocurrencies, but did not cover specific examples of forking</span>
+<span class=hljs-addition>+&gt; outside of &quot;if two people disagree then a fork is made and the longer chain</span>
+<span class=hljs-addition>+&gt; wins&quot; with a bit more detail than that)</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; a. A hard fork followed by a soft fork</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; b. A soft fork</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; c. A hard fork</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; d. None of the above</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I mean, I assume I should be able to answer the question properly without any</span>
+<span class=hljs-addition>+external information since it&#x27;s like a reading comprehension thing (but who</span>
+<span class=hljs-addition>+knows?)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, with like maybe 3/4s of the questions on the midterm like that, there&#x27;s</span>
+<span class=hljs-addition>+not much to wonder about why I did so poorly (I&#x27;m talking in the D to F range).</span>
+<span class=hljs-addition>+If there was better clarification on what the exam encompassed and what was</span>
+<span class=hljs-addition>+allowed, or if I was less honorable and looked stuff up online without knowing</span>
+<span class=hljs-addition>+if it was allowed beforehand, then I could&#x27;ve received a better grade.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Fortunately, the midterm is only 10% of the grade (with the final being 35%...</span>
+<span class=hljs-addition>+here&#x27;s to hoping that I do better) so I&#x27;m only like 4% down. Also the grading</span>
+<span class=hljs-addition>+scale doesn&#x27;t include an A+ so I haven&#x27;t shut myself off of a letter grade...</span>
+<span class=hljs-addition>+yet.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What about the distributed systems midterm? I plan to take it this weekend; it</span>
+<span class=hljs-addition>+should go well. And great class by the way - in terms of content, homework,</span>
+<span class=hljs-addition>+programming assignments, (and hopefully midterms). Basically, the questions</span>
+<span class=hljs-addition>+revolve around the concepts and either tell you to apply them in a scenario, or</span>
+<span class=hljs-addition>+ask about the implications of various changes to existing algorithms/systems.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

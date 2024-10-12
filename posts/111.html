@@ -30,7 +30,7 @@ lights
 Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div class=posts-nav_before><a href=/./posts/110>&lt; broadcasts and multicasts in single and distributed systems</a></div>
+<div class=posts-nav_before><a href=/./posts/110>&lt; broadcasts and multicasts in single and distributed systems</a></div> <div class=posts-nav_after><a href=/./posts/112>grad school semester 3 midpoint &gt;</a></div>
 </nav>
 <h1 id=backend-tikzpicture-generation>backend tikzpicture generation</h1>
 <p>In my previous article, I leveraged the ability to create tikzpicture diagrams on the frontend a lot. It's a cool feature, but there are quite a number of layout shifts which should be avoided due to disorientation.</p>
@@ -60,7 +60,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>This also removed around 1mb of compressed data that was being loaded for each page, whether or not it had tikz diagrams on it or not (because all content is inserted into some template html which comes with the same set of script tags). While Github Pages does suggest that the browser caches things through cache control/max age headers, it's a fixed value of some minutes which is pretty low for those files (tex memory dump, wasm, and glue) since they will rarely, if ever, be updated. They're entirely gone now, though.</p>
 <p>Interestingly enough, this is the second thing I've moved from client-side javascript, the first thing being code block handling (expand/collapse and syntax highlighting). The only real thing left is MathJax, which is around 50% of the data - excluding media like images and videos that may vary between posts - that is transferred for viewing a post. Will I also move that over to the backend? Only if I think it's ruining ux, which I would say it doesn't. Anyways, I believe the backend implementation will insert mathml tags which, if I remember correctly, are very ignored by the big browser players so it might not be a good idea.</p>
 <nav class=posts-nav_bottom>
-<div class=posts-nav_before><a href=/./posts/110>&lt; broadcasts and multicasts in single and distributed systems</a></div>
+<div class=posts-nav_before><a href=/./posts/110>&lt; broadcasts and multicasts in single and distributed systems</a></div> <div class=posts-nav_after><a href=/./posts/112>grad school semester 3 midpoint &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
