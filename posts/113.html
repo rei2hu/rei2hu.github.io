@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>first 5 hour interview loop experience</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/112>&lt; grad school semester 3 midpoint</a></div>
+</nav>
+<h1 id=first-5-hour-interview-loop-experience>first 5 hour interview loop experience</h1>
+<p>I wanted to put big tech but that would imply I was interviewing at one of the "big tech" companies, which is not accurate. What I mean is that there were multiple rounds and they gave out system design, puzzle problems (lc), and other questions and these happened over the span of a 5 hour period.</p>
+<p>This was the first time I've had such an interview, and I decided to go in without preparation because I never want to give an inflated sense of my skills and wanted to see how I'd do by figuring things out on the fly.</p>
+<p>The first round was reasonable in my opinion; I was asked to write some code to perform a generic everyday task that involved interacting with files in a file system and make modifications as the requirements changed. Then I had to write some examples of testing it where, now that I think about it, I failed to mention a test that checks for invalid inputs. At the time I thought the round went well so I guess it wasn't too bad.</p>
+<p>For the second round, I got a puzzle problem about anagrams. I was able to solve the initial simple problem but I think I answered the space complexity question "incorrectly" based on the interviewer's response - I basically said that there were two things that it scaled on: linear with respect to the character set and logarithmic with respect to the length of the strings. They then asked for an exact number so I said 52 assuming [A-Za-z]. I also think they didn't understand the logarithmic answer, though I explained that we needed to maintain a count and the number of bits to store a number is the log of that number. It is kind of pedantic I will agree.</p>
+<p>There was a second part to the second round, where they asked a modified version of the first question and I wasn't able to get a runtime efficient answer for it, but was able to explain where things were inefficient (work was being repeated) in my solution. I was able to figure out an improved answer around 10 minutes after that round ended, but that of course was too late. If this was an onsite interview, could I have flagged down the interviewer after the fact and shown him my solution? Obviously, when it's virtual there's a chance that I looked it up but if it was onsite then there is less of a chance to do so.</p>
+<p>In the third round, I was mainly asked about a few work scenarios and also had to give some times when certain things happened. I was able to come up with examples for most things thanks to writing about them in previous posts, but I eventually got to a point where I had to really think and ended up giving an extremely vague scenarios that happened years ago that I had no details for - that was probably not well received because I was literally saying things like "a, b, and c" because I couldn't remember what a, b, and c were.</p>
+<p>The fourth round was system design. While I believe I am pretty good with high level system design theory, e.g. start with 1 server, 1 database; break into multiple services to allocate and scale resources; if application is bottleneck then run multiple instances and load balance; if database is bottleneck then maybe shard on some id; and so on, I definitely failed this round. I was given a single sentence to work off of like "design x", and wasn't sure how to begin. I started by jumping into data that might be recorded and putting together a schema for x, then coming up with endpoints based on what I thought my be needed, and then tried to start scaling it. Things went so poorly that I started deleting my design towards the end of the round because I overcomplicated it and I ended the round with just some text on the whiteboard explaining things… lol…</p>
+<p>The fifth round was another puzzle problem about inserting parenthesis so they match. I wasn't sure how to approach it, so I asked the interviewer if this is equivalent to finding unmatched parenthesis, and then going through that list to find what's missing - they said no and repeated the original question word for word and gave an example. I then took the example and showed what I meant and how it gave the same answer in this case but they never said if it was right or wrong, I guess it was an unexpected angle too tackle the puzzle. Without any more guidance, I decided to solve my alternate but potentially equivalent problem. I was able to write the entire thing, but I'm not sure the interviewer thought it was correct. They had me go through my code manually using two provided examples - it gave the correct answer for both of them - then had me answer space/time complexity questions about my solution which I gave, and asked me if I could improve on it. I said that I might be able to combine the parenthesis matching phase with the missing count phase but I don't know how to do it at the moment, and that because it's an interview question there's probably a slicker solution than what I came up with.</p>
+<p>I later looked up the two puzzle questions and lc was literally the first thing that came up from search - I can see why people practice lc now because it probably looks a lot better when you can answer these questions quickly and succinctly instead of slowly reasoning through them like I did. I still refuse to do it, though. The answer that I came up with for the anagram followup after the interview was the textbook answer. The answer that I came up with for the matching parenthesis was not, but if I did combine the two phases it was - I was hesitant to do so because I wasn't convinced that adding one parenthesis to specially crafted input could somehow make the whole thing collapse down and make previous unmatching parenthesis match; it would have taken me too much time to reason through that most likely.</p>
+<p>For system design I think the first thing I should have done is just go through one specific use case/user story for x, set up the system for that single case instead of a generic x system, then start scaling it. Because I was unable to come up with the initial design, I was not able to get anything done in that round. Interestingly, I feel like doing that first step is more product manager focused which is where I lack the most experience because every company I worked for has engineers focused on technical things only.</p>
+<p>That's how the interview went. If I had to rate myself, I would rate the rounds good, medium, medium/bad, bad, medium for an average of a little under medium; therefore I'm not expecting an offer. There are other details that I'm leaving out or fudged that change my assumptions on the importance of each round, too, and I'll just say the bad rounds were probably the most important.</p>
+<p>And honestly I have been losing sleep over it, which is why I've written this extremely early in the morning. Do these interviews require weeks or months of dedicated studying to pass? Is this expected and if so why is it like this? Am I willing to compromise my values and do interview preparation courses and/or cram puzzle solutions next time for a better chance? Not yet.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/112>&lt; grad school semester 3 midpoint</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-10-18 - add post 113</summary>
+<pre class=code-block><input id=code-block-71f2f0ab93137f40d7f3a17e5aeae82a208ebee7-1 type=checkbox><label for=code-block-71f2f0ab93137f40d7f3a17e5aeae82a208ebee7-1></label><code><span class=hljs-meta>@@ -0,0 +1,106 @@</span>
+<span class=hljs-addition>+# first 5 hour interview loop experience</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I wanted to put big tech but that would imply I was interviewing at one of the</span>
+<span class=hljs-addition>+&quot;big tech&quot; companies, which is not accurate. What I mean is that there were</span>
+<span class=hljs-addition>+multiple rounds and they gave out system design, puzzle problems (lc), and other</span>
+<span class=hljs-addition>+questions and these happened over the span of a 5 hour period.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This was the first time I&#x27;ve had such an interview, and I decided to go in</span>
+<span class=hljs-addition>+without preparation because I never want to give an inflated sense of my skills</span>
+<span class=hljs-addition>+and wanted to see how I&#x27;d do by figuring things out on the fly.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first round was reasonable in my opinion; I was asked to write some code to</span>
+<span class=hljs-addition>+perform a generic everyday task that involved interacting with files in a file</span>
+<span class=hljs-addition>+system and make modifications as the requirements changed. Then I had to write</span>
+<span class=hljs-addition>+some examples of testing it where, now that I think about it, I failed to</span>
+<span class=hljs-addition>+mention a test that checks for invalid inputs. At the time I thought the round</span>
+<span class=hljs-addition>+went well so I guess it wasn&#x27;t too bad.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For the second round, I got a puzzle problem about anagrams. I was able to solve</span>
+<span class=hljs-addition>+the initial simple problem but I think I answered the space complexity question</span>
+<span class=hljs-addition>+&quot;incorrectly&quot; based on the interviewer&#x27;s response - I basically said that there</span>
+<span class=hljs-addition>+were two things that it scaled on: linear with respect to the character set and</span>
+<span class=hljs-addition>+logarithmic with respect to the length of the strings. They then asked for an</span>
+<span class=hljs-addition>+exact number so I said 52 assuming [A-Za-z]. I also think they didn&#x27;t understand</span>
+<span class=hljs-addition>+the logarithmic answer, though I explained that we needed to maintain a count</span>
+<span class=hljs-addition>+and the number of bits to store a number is the log of that number. It is kind</span>
+<span class=hljs-addition>+of pedantic I will agree.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There was a second part to the second round, where they asked a modified version</span>
+<span class=hljs-addition>+of the first question and I wasn&#x27;t able to get a runtime efficient answer for</span>
+<span class=hljs-addition>+it, but was able to explain where things were inefficient (work was being</span>
+<span class=hljs-addition>+repeated) in my solution. I was able to figure out an improved answer around 10</span>
+<span class=hljs-addition>+minutes after that round ended, but that of course was too late. If this was an</span>
+<span class=hljs-addition>+onsite interview, could I have flagged down the interviewer after the fact and</span>
+<span class=hljs-addition>+shown him my solution? Obviously, when it&#x27;s virtual there&#x27;s a chance that I</span>
+<span class=hljs-addition>+looked it up but if it was onsite then there is less of a chance to do so.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In the third round, I was mainly asked about a few work scenarios and also had</span>
+<span class=hljs-addition>+to give some times when certain things happened. I was able to come up with</span>
+<span class=hljs-addition>+examples for most things thanks to writing about them in previous posts, but I</span>
+<span class=hljs-addition>+eventually got to a point where I had to really think and ended up giving an</span>
+<span class=hljs-addition>+extremely vague scenarios that happened years ago that I had no details for -</span>
+<span class=hljs-addition>+that was probably not well received because I was literally saying things like</span>
+<span class=hljs-addition>+&quot;a, b, and c&quot; because I couldn&#x27;t remember what a, b, and c were.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The fourth round was system design. While I believe I am pretty good with high</span>
+<span class=hljs-addition>+level system design theory, e.g. start with 1 server, 1 database; break into</span>
+<span class=hljs-addition>+multiple services to allocate and scale resources; if application is bottleneck</span>
+<span class=hljs-addition>+then run multiple instances and load balance; if database is bottleneck then</span>
+<span class=hljs-addition>+maybe shard on some id; and so on, I definitely failed this round. I was given a</span>
+<span class=hljs-addition>+single sentence to work off of like &quot;design x&quot;, and wasn&#x27;t sure how to begin. I</span>
+<span class=hljs-addition>+started by jumping into data that might be recorded and putting together a</span>
+<span class=hljs-addition>+schema for x, then coming up with endpoints based on what I thought my be</span>
+<span class=hljs-addition>+needed, and then tried to start scaling it. Things went so poorly that I started</span>
+<span class=hljs-addition>+deleting my design towards the end of the round because I overcomplicated it and</span>
+<span class=hljs-addition>+I ended the round with just some text on the whiteboard explaining things...</span>
+<span class=hljs-addition>+lol...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The fifth round was another puzzle problem about inserting parenthesis so they</span>
+<span class=hljs-addition>+match. I wasn&#x27;t sure how to approach it, so I asked the interviewer if this is</span>
+<span class=hljs-addition>+equivalent to finding unmatched parenthesis, and then going through that list to</span>
+<span class=hljs-addition>+find what&#x27;s missing - they said no and repeated the original question word for</span>
+<span class=hljs-addition>+word and gave an example. I then took the example and showed what I meant and</span>
+<span class=hljs-addition>+how it gave the same answer in this case but they never said if it was right or</span>
+<span class=hljs-addition>+wrong, I guess it was an unexpected angle too tackle the puzzle. Without any</span>
+<span class=hljs-addition>+more guidance, I decided to solve my alternate but potentially equivalent</span>
+<span class=hljs-addition>+problem. I was able to write the entire thing, but I&#x27;m not sure the interviewer</span>
+<span class=hljs-addition>+thought it was correct. They had me go through my code manually using two</span>
+<span class=hljs-addition>+provided examples - it gave the correct answer for both of them - then had me</span>
+<span class=hljs-addition>+answer space/time complexity questions about my solution which I gave, and asked</span>
+<span class=hljs-addition>+me if I could improve on it. I said that I might be able to combine the</span>
+<span class=hljs-addition>+parenthesis matching phase with the missing count phase but I don&#x27;t know how to</span>
+<span class=hljs-addition>+do it at the moment, and that because it&#x27;s an interview question there&#x27;s</span>
+<span class=hljs-addition>+probably a slicker solution than what I came up with.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I later looked up the two puzzle questions and lc was literally the first thing</span>
+<span class=hljs-addition>+that came up from search - I can see why people practice lc now because it</span>
+<span class=hljs-addition>+probably looks a lot better when you can answer these questions quickly and</span>
+<span class=hljs-addition>+succinctly instead of slowly reasoning through them like I did. I still refuse</span>
+<span class=hljs-addition>+to do it, though. The answer that I came up with for the anagram followup after</span>
+<span class=hljs-addition>+the interview was the textbook answer. The answer that I came up with for the</span>
+<span class=hljs-addition>+matching parenthesis was not, but if I did combine the two phases it was - I was</span>
+<span class=hljs-addition>+hesitant to do so because I wasn&#x27;t convinced that adding one parenthesis to</span>
+<span class=hljs-addition>+specially crafted input could somehow make the whole thing collapse down and</span>
+<span class=hljs-addition>+make previous unmatching parenthesis match; it would have taken me too much time</span>
+<span class=hljs-addition>+to reason through that most likely.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For system design I think the first thing I should have done is just go through</span>
+<span class=hljs-addition>+one specific use case/user story for x, set up the system for that single case</span>
+<span class=hljs-addition>+instead of a generic x system, then start scaling it. Because I was unable to</span>
+<span class=hljs-addition>+come up with the initial design, I was not able to get anything done in that</span>
+<span class=hljs-addition>+round. Interestingly, I feel like doing that first step is more product manager</span>
+<span class=hljs-addition>+focused which is where I lack the most experience because every company I worked</span>
+<span class=hljs-addition>+for has engineers focused on technical things only.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+That&#x27;s how the interview went. If I had to rate myself, I would rate the rounds</span>
+<span class=hljs-addition>+good, medium, medium/bad, bad, medium for an average of a little under medium;</span>
+<span class=hljs-addition>+therefore I&#x27;m not expecting an offer. There are other details that I&#x27;m leaving</span>
+<span class=hljs-addition>+out or fudged that change my assumptions on the importance of each round, too,</span>
+<span class=hljs-addition>+and I&#x27;ll just say the bad rounds were probably the most important.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And honestly I have been losing sleep over it, which is why I&#x27;ve written this</span>
+<span class=hljs-addition>+extremely early in the morning. Do these interviews require weeks or months of</span>
+<span class=hljs-addition>+dedicated studying to pass? Is this expected and if so why is it like this? Am I</span>
+<span class=hljs-addition>+willing to compromise my values and do interview preparation courses and/or cram</span>
+<span class=hljs-addition>+puzzle solutions next time for a better chance? Not yet.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
