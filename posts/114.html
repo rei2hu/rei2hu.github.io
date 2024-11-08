@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>factorio - gleba</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/113>&lt; first 5 hour interview loop experience</a></div>
+</nav>
+<h1 id=factorio---gleba>factorio - gleba</h1>
+<p>It's been a stressful month. (Almost) failed midterms, failed interviews,
+<del>possible depression of not being good enough</del>, falling behind schedules… I think I would have lost my mind if it wasn't for weekly game nights with some long time friends. Thank you internet for connecting me with these people over a decade ago.</p>
+<p>Anyways, I'm not here to talk about that; I would like to talk about Factorio. I remember writing a small piece on Factorio a year back and we were playing with the Space Exploration mod. With the Space Age expansion being released a couple of weeks ago, I have spent a lot of my free time on a new game with friends and had the honor of setting up a base on Gleba.</p>
+<p>If you're unfamiliar with the game, the core gameplay loop is automation, optimization, and scaling. Technically you don't need to automate anything but then progression is very slow. Anyways, once you do scale to certain sizes, you can then start from (basically) scratch on new planets which offer new resources. Gleba is one of them.</p>
+<p>I'll start off with a list of problems that had to be solved to get the factory up, running, and self-sustaining.</p>
+<ol>
+<li><p>I'm not getting enough seeds back to replant my trees! How can I fix that?</p>
+<ul>
+<li>Biochambers have an innate 50% productivity bonus. A tree gives 50 fruit and each fruit has a base 2% chance to give a seed. That's not much chance to have a seed surplus to scale your farms, so make sure to use them. Also clean up any excess seeds. (biochamber with productivity bonus image)</li></ul></li>
+<li><p>How do I structure my factory around nutrients?</p>
+<ul>
+<li><p>Every biochamber needs a nutrient and spoilage line, so why not combine them into one? This means a biochamber needs access to at least 3 belts typically: a nutrition/spoilage belt, an input items belt (typically bioflux and other), and an output items belt. Sometimes you may only need the nutrient and/or one other belt so plan ahead.</p>
+<p>I would suggest a large cyclical belt that snakes throughout the entire factory for this purpose.</p>
+<p>A single line also means that removing spoilage can be done at any point. Burned in a heat tower or converted back into nutrients.</p>
+<p><img src=/blobs/114/factory.png alt="factory image"></p></li></ul></li>
+<li><p>How do I make sure I don't run out of nutrients?</p>
+<ul>
+<li>There are two ways to do this, some recipes produce nutrients and can then pick up their own production to power themselves, guaranteeing infinite nutrients as long as their input is satisfied and belt is not clogged.</li></ul>
+<p>I also like to include a single assembly machine for processing yumako and one biochamber doing the yumako to nutrient recipe just in case - as long as this biochamber doesn't run out of nutrients, it can bootstrap the entire factory (and you could add more to avoid a single point of failure…)</p>
+<div style=display:flex;gap:10px>
+<div>
+<img src=/blobs/114/nutrients-1.png>
+</div>
+<div>
+<img src=/blobs/114/nutrients-2.png>
+</div>
+</div></li>
+<li><p>How can I deal with pentapod eggs hatching?</p>
+<ul>
+<li>Produce them but don't stockpile them. At the end of their belt, incinerate them in a heat tower. Any machine that needs eggs can pick them up earlier in the belt.
+<img src=/blobs/114/pentapod-eggs.png alt="pentapod eggs being belted to a heat tower"></li></ul></li>
+<li><p>How can I defend against stompers?</p>
+<ul>
+<li><p>Stomper defense is pretty tough. They ignore walls which means they will easily get on top of your defenses if there isn't much burst damage. If you use weapons requiring constant input like lasers or flamethrowers, they're useless once power poles or pipes are broken.</p>
+<p>Instead use rocket and gun turrets.</p>
+<p>Alternatively, abuse the AI and set up some decoy turrets for the stompers to focus on. Laser turrets and flamethrower turrets have the most health at 1000 and 1400, but I find laser turrets easier to automate.</p>
+<p><img src=/blobs/114/defense.png alt=defense></p></li></ul></li>
+</ol>
+<p>Enjoy some images of learning the defense lesson while on the job. It's hard to see but those are stompers walking over the main base.</p>
+<div style=display:flex;gap:10px>
+<div>
+<img src=/blobs/114/farm-overrun.png>
+</div>
+<div>
+<img src=/blobs/114/base-overrun.png>
+</div>
+</div>
+<p><img src=/blobs/114/aftermath.png alt="aftermath of being stomped"></p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/113>&lt; first 5 hour interview loop experience</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2024-11-08 - add post 114</summary>
+<pre class=code-block><input id=code-block-a488835bb089b8e8f05dc9c3ae76137b0df66e4e-1 type=checkbox><label for=code-block-a488835bb089b8e8f05dc9c3ae76137b0df66e4e-1></label><code><span class=hljs-meta>@@ -0,0 +1,104 @@</span>
+<span class=hljs-addition>+# factorio - gleba</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable no-inline-html --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s been a stressful month. (Almost) failed midterms, failed interviews,</span>
+<span class=hljs-addition>+~~possible depression of not being good enough~~, falling behind schedules... I</span>
+<span class=hljs-addition>+think I would have lost my mind if it wasn&#x27;t for weekly game nights with some</span>
+<span class=hljs-addition>+long time friends. Thank you internet for connecting me with these people over a</span>
+<span class=hljs-addition>+decade ago.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, I&#x27;m not here to talk about that; I would like to talk about Factorio. I</span>
+<span class=hljs-addition>+remember writing a small piece on Factorio a year back and we were playing with</span>
+<span class=hljs-addition>+the Space Exploration mod. With the Space Age expansion being released a couple</span>
+<span class=hljs-addition>+of weeks ago, I have spent a lot of my free time on a new game with friends and</span>
+<span class=hljs-addition>+had the honor of setting up a base on Gleba.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If you&#x27;re unfamiliar with the game, the core gameplay loop is automation,</span>
+<span class=hljs-addition>+optimization, and scaling. Technically you don&#x27;t need to automate anything but</span>
+<span class=hljs-addition>+then progression is very slow. Anyways, once you do scale to certain sizes, you</span>
+<span class=hljs-addition>+can then start from (basically) scratch on new planets which offer new</span>
+<span class=hljs-addition>+resources. Gleba is one of them.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll start off with a list of problems that had to be solved to get the factory</span>
+<span class=hljs-addition>+up, running, and self-sustaining.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. I&#x27;m not getting enough seeds back to replant my trees! How can I fix that?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    - Biochambers have an innate 50% productivity bonus. A tree gives 50 fruit</span>
+<span class=hljs-addition>+      and each fruit has a base 2% chance to give a seed. That&#x27;s not much chance</span>
+<span class=hljs-addition>+      to have a seed surplus to scale your farms, so make sure to use them. Also</span>
+<span class=hljs-addition>+      clean up any excess seeds. (biochamber with productivity bonus image)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+2. How do I structure my factory around nutrients?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    - Every biochamber needs a nutrient and spoilage line, so why not combine</span>
+<span class=hljs-addition>+      them into one? This means a biochamber needs access to at least 3 belts</span>
+<span class=hljs-addition>+      typically: a nutrition/spoilage belt, an input items belt (typically</span>
+<span class=hljs-addition>+      bioflux and other), and an output items belt. Sometimes you may only need</span>
+<span class=hljs-addition>+      the nutrient and/or one other belt so plan ahead.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        I would suggest a large cyclical belt that snakes throughout the entire</span>
+<span class=hljs-addition>+        factory for this purpose.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        A single line also means that removing spoilage can be done at any</span>
+<span class=hljs-addition>+        point. Burned in a heat tower or converted back into nutrients.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        ![factory image](/blobs/114/factory.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+3. How do I make sure I don&#x27;t run out of nutrients?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    - There are two ways to do this, some recipes produce nutrients and can then</span>
+<span class=hljs-addition>+      pick up their own production to power themselves, guaranteeing infinite</span>
+<span class=hljs-addition>+      nutrients as long as their input is satisfied and belt is not clogged.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    I also like to include a single assembly machine for processing yumako and</span>
+<span class=hljs-addition>+    one biochamber doing the yumako to nutrient recipe just in case - as long as</span>
+<span class=hljs-addition>+    this biochamber doesn&#x27;t run out of nutrients, it can bootstrap the entire</span>
+<span class=hljs-addition>+    factory (and you could add more to avoid a single point of failure...)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &lt;div style=&quot;display: flex; gap: 10px&quot;&gt;</span>
+<span class=hljs-addition>+        &lt;div&gt;</span>
+<span class=hljs-addition>+            &lt;img src=&quot;/blobs/114/nutrients-1.png&quot;/&gt;</span>
+<span class=hljs-addition>+        &lt;/div&gt;</span>
+<span class=hljs-addition>+        &lt;div&gt;</span>
+<span class=hljs-addition>+            &lt;img src=&quot;/blobs/114/nutrients-2.png&quot;/&gt;</span>
+<span class=hljs-addition>+        &lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+4. How can I deal with pentapod eggs hatching?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    - Produce them but don&#x27;t stockpile them. At the end of their belt,</span>
+<span class=hljs-addition>+      incinerate them in a heat tower. Any machine that needs eggs can pick them</span>
+<span class=hljs-addition>+      up earlier in the belt.</span>
+<span class=hljs-addition>+      ![pentapod eggs being belted to a heat tower](/blobs/114/pentapod-eggs.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+5. How can I defend against stompers?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    - Stomper defense is pretty tough. They ignore walls which means they will</span>
+<span class=hljs-addition>+      easily get on top of your defenses if there isn&#x27;t much burst damage. If</span>
+<span class=hljs-addition>+      you use weapons requiring constant input like lasers or flamethrowers,</span>
+<span class=hljs-addition>+      they&#x27;re useless once power poles or pipes are broken.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        Instead use rocket and gun turrets.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        Alternatively, abuse the AI and set up some decoy turrets for the</span>
+<span class=hljs-addition>+        stompers to focus on. Laser turrets and flamethrower turrets have the</span>
+<span class=hljs-addition>+        most health at 1000 and 1400, but I find laser turrets easier to</span>
+<span class=hljs-addition>+        automate.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+        ![defense](/blobs/114/defense.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Enjoy some images of learning the defense lesson while on the job. It&#x27;s hard to</span>
+<span class=hljs-addition>+see but those are stompers walking over the main base.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;div style=&quot;display: flex; gap: 10px&quot;&gt;</span>
+<span class=hljs-addition>+    &lt;div&gt;</span>
+<span class=hljs-addition>+        &lt;img src=&quot;/blobs/114/farm-overrun.png&quot;/&gt;</span>
+<span class=hljs-addition>+    &lt;/div&gt;</span>
+<span class=hljs-addition>+    &lt;div&gt;</span>
+<span class=hljs-addition>+        &lt;img src=&quot;/blobs/114/base-overrun.png&quot;/&gt;</span>
+<span class=hljs-addition>+    &lt;/div&gt;</span>
+<span class=hljs-addition>+&lt;/div&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![aftermath of being stomped](/blobs/114/aftermath.png)</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
