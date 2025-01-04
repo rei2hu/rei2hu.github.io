@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>framework gaming and egpus</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<a href=/puzzles>puzzles</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/117>&lt; framework gaming and poe 2</a></div>
+</nav>
+<h1 id=framework-gaming-and-egpus>framework gaming and egpus</h1>
+<p>So last year (new year's joke), I successfully put together an egpu (external graphics processing unit) and hooked it up to my framework laptop. So far, it has satisfied all of my graphics needs and it seems like the bottleneck is now the cpu.</p>
+<p>Instead of talking about actual gaming with the egpu, I'd like to discuss a bunch of random things that came up when purchasing, building, and using it. I'm a novice when it comes to hardware so a lot of this may be uninteresting.</p>
+<p>I decided to buy the parts late November last year, and ordered a dock, psu (power supply unit), and a gpu. This was kind of an impulse buy, as there were good black friday deals and I did not do too much research on egpus beforehand; in fact I wasn't sure that the pieces I bought would be compatible with each other - the main thing I looked at was that the psu could power the gpu.</p>
+<p>I ordered the dock separately from the psu and gpu because it seemed to only be available from aliexpress, an exp gdc something something; that ended up arriving within 2 weeks or so. On the other hand, I received estimated dates for the psu and gpu around the same time - expected arrival late January.</p>
+<p>This brought up an question that I discussed with some friends - is it reasonable to expect a package to be shipped and delivered within 2 weeks in the modern world? The general consensus was yes, and because the gpu/psu was expected to arrive two months after ordering, I ordered similar items from elsewhere and cancelled the original order. The reordered items arrived in late December.</p>
+<p>While I was waiting for the items, I did more research on gpus. What I bought was a nvidia rtx 4060 i.e. the low end of the newest series of cards at the time. What I read online was that the 4060 is barely an upgrade compared to the 3060 which sports more vram, more cores, and more (a lot of other things). I came across this tidbit a few days before the gpu was going to arrive so I did not attempt to swap it out. It still performs better though, but it does seem weird that the newer generation would have less resources. Either way, I'm sure my needs are much less than what the cards can handle so hopefully I'll never hit the limits.</p>
+<p>Putting together the egpu was actually pretty simple, but anytime I heard a weird cracking noise I was afraid that I just threw \$400 down the drain because I broke something. I don't have a case for the parts so it's freeform and does look quite wonky and lopsided but is overall stable.</p>
+<p>Hooking it up was also very simple - plug it in, turn the laptop on, and install drivers. Everything works fine… kind of. So, framework laptops have hardware switches for its mic and cameras, which I typically keep off. For some reason, if they're off when the laptop starts (and the egpu is plugged in), I have no audio devices and toggling the switch won't fix anything. The simple workaround is to have the switch turned on when powering on the laptop, then I can use it freely afterwards. I have no idea why this is happening.</p>
+<p>I've also had my entire screen freeze a couple of times which resulted in having to hold the power button to restart the laptop…</p>
+<p>But overall it's very convenient; want to use your laptop normally? Unplug from the egpu. Want to game or do graphics intensive work? Plug into the egpu. As long as you powered on your laptop with the egpu plugged in, you can plug and unplug it without any worry.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/117>&lt; framework gaming and poe 2</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-01-04 - add post 118</summary>
+<pre class=code-block><input id=code-block-85204c95a2bfb29ddfe6605f43af2b6c755de890-1 type=checkbox><label for=code-block-85204c95a2bfb29ddfe6605f43af2b6c755de890-1></label><code><span class=hljs-meta>@@ -0,0 +1,59 @@</span>
+<span class=hljs-addition>+# framework gaming and egpus</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So last year (new year&#x27;s joke), I successfully put together an egpu (external</span>
+<span class=hljs-addition>+graphics processing unit) and hooked it up to my framework laptop. So far, it</span>
+<span class=hljs-addition>+has satisfied all of my graphics needs and it seems like the bottleneck is now</span>
+<span class=hljs-addition>+the cpu.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Instead of talking about actual gaming with the egpu, I&#x27;d like to discuss a</span>
+<span class=hljs-addition>+bunch of random things that came up when purchasing, building, and using it. I&#x27;m</span>
+<span class=hljs-addition>+a novice when it comes to hardware so a lot of this may be uninteresting.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I decided to buy the parts late November last year, and ordered a dock, psu</span>
+<span class=hljs-addition>+(power supply unit), and a gpu. This was kind of an impulse buy, as there were</span>
+<span class=hljs-addition>+good black friday deals and I did not do too much research on egpus beforehand;</span>
+<span class=hljs-addition>+in fact I wasn&#x27;t sure that the pieces I bought would be compatible with each</span>
+<span class=hljs-addition>+other - the main thing I looked at was that the psu could power the gpu.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I ordered the dock separately from the psu and gpu because it seemed to only be</span>
+<span class=hljs-addition>+available from aliexpress, an exp gdc something something; that ended up</span>
+<span class=hljs-addition>+arriving within 2 weeks or so. On the other hand, I received estimated dates for</span>
+<span class=hljs-addition>+the psu and gpu around the same time - expected arrival late January.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This brought up an question that I discussed with some friends - is it</span>
+<span class=hljs-addition>+reasonable to expect a package to be shipped and delivered within 2 weeks in the</span>
+<span class=hljs-addition>+modern world? The general consensus was yes, and because the gpu/psu was</span>
+<span class=hljs-addition>+expected to arrive two months after ordering, I ordered similar items from</span>
+<span class=hljs-addition>+elsewhere and cancelled the original order. The reordered items arrived in late</span>
+<span class=hljs-addition>+December.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While I was waiting for the items, I did more research on gpus. What I bought</span>
+<span class=hljs-addition>+was a nvidia rtx 4060 i.e. the low end of the newest series of cards at the</span>
+<span class=hljs-addition>+time. What I read online was that the 4060 is barely an upgrade compared to the</span>
+<span class=hljs-addition>+3060 which sports more vram, more cores, and more (a lot of other things). I</span>
+<span class=hljs-addition>+came across this tidbit a few days before the gpu was going to arrive so I did</span>
+<span class=hljs-addition>+not attempt to swap it out. It still performs better though, but it does seem</span>
+<span class=hljs-addition>+weird that the newer generation would have less resources. Either way, I&#x27;m sure</span>
+<span class=hljs-addition>+my needs are much less than what the cards can handle so hopefully I&#x27;ll never</span>
+<span class=hljs-addition>+hit the limits.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Putting together the egpu was actually pretty simple, but anytime I heard a</span>
+<span class=hljs-addition>+weird cracking noise I was afraid that I just threw \$400 down the drain because</span>
+<span class=hljs-addition>+I broke something. I don&#x27;t have a case for the parts so it&#x27;s freeform and does</span>
+<span class=hljs-addition>+look quite wonky and lopsided but is overall stable.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Hooking it up was also very simple - plug it in, turn the laptop on, and install</span>
+<span class=hljs-addition>+drivers. Everything works fine... kind of. So, framework laptops have hardware</span>
+<span class=hljs-addition>+switches for its mic and cameras, which I typically keep off. For some reason,</span>
+<span class=hljs-addition>+if they&#x27;re off when the laptop starts (and the egpu is plugged in), I have no</span>
+<span class=hljs-addition>+audio devices and toggling the switch won&#x27;t fix anything. The simple workaround</span>
+<span class=hljs-addition>+is to have the switch turned on when powering on the laptop, then I can use it</span>
+<span class=hljs-addition>+freely afterwards. I have no idea why this is happening.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve also had my entire screen freeze a couple of times which resulted in having</span>
+<span class=hljs-addition>+to hold the power button to restart the laptop...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But overall it&#x27;s very convenient; want to use your laptop normally? Unplug from</span>
+<span class=hljs-addition>+the egpu. Want to game or do graphics intensive work? Plug into the egpu. As</span>
+<span class=hljs-addition>+long as you powered on your laptop with the egpu plugged in, you can plug and</span>
+<span class=hljs-addition>+unplug it without any worry.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
