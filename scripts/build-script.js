@@ -172,9 +172,11 @@ if (all || md || fmd) {
 			"A blog of sorts. Thoughts may be unorganized and writing quality may be poor.",
 		filter: changedFiles,
 	});
+	/*
 	processThenCopyMd("./md/puzzles", "./puzzles", {
 		desc:
 			"Personal solutions or workthroughs of random puzzles. Should be decent quality. I do not guarantee the correctness of solutions or programs.",
 		filter: changedFiles,
 	});
+	*/
 }
