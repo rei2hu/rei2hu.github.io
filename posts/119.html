@@ -16,7 +16,6 @@
 <nav class=site-nav id=nav>
 <a href=/ >home</a>
 <a href=/posts>posts</a>
-<a href=/puzzles>puzzles</a>
 <div id=lights-container>
 <label title="toggle light/dark mode. only persistent with javascript">
 <input id=lights type=checkbox>
@@ -30,7 +29,7 @@ lights
 Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div class=posts-nav_after></div> <div class=posts-nav_after><a href=/./puzzles/2>dynamic programming 2 &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/118>&lt; framework gaming and egpus</a></div> <div class=posts-nav_after><a href=/./posts/120>dynamic programming 2 &gt;</a></div>
 </nav>
 <h1 id=dynamic-programming-1>Dynamic Programming 1</h1>
 <h2 id=question-1>Question 1</h2>
@@ -474,11 +473,14 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>$$ \begin{align} p(i, i) &= \{a_i\} \\ p(i, j) &= \{m * n \mid m \in p(i, k), n \in p(k + 1, j), i \leq k \lt j \} \\ f(s, i, j) &= s \in p(i, j) \\ \end{align} $$</p>
 <p>In fact, I basically followed this simpler formula for filling out the table. It also shows how dynamic programming optimizes builds from smaller subproblems to solve the large one.</p>
 <nav class=posts-nav_bottom>
-<div class=posts-nav_after></div> <div class=posts-nav_after><a href=/./puzzles/2>dynamic programming 2 &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/118>&lt; framework gaming and egpus</a></div> <div class=posts-nav_after><a href=/./posts/120>dynamic programming 2 &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-01-13 - move puzzles to posts</summary>
+</details>
 <details>
 <summary>2020-12-04 - fix some calculations</summary>
 <pre class=code-block><input id=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-1 type=checkbox><label for=code-block-33e78b9b63dc902355fa5ed524110057a426e7be-1></label><code><span class=hljs-meta>@@ -91,13 +91,13 @@</span> The we fill out the table and look for the maximum in the last row for the solut

@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>functors and applicatives</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/123>&lt; divide and conquer 1</a></div> <div class=posts-nav_after><a href=/./posts/125>compound words &gt;</a></div>
+</nav>
+<h1 id=functors-and-applicatives>functors and applicatives</h1>
+<p>But back to Haskell…</p>
+<p>I've been going through the Functors/Applicative sections of <code>learnyouahaskell</code>
+and it has been a ride understanding it. Fortunately, I hang out with some pretty knowledgeable people and they helped me along.</p>
+<p>One of the parts I didn't understand the most was where the definition for <code>&lt;*&gt;</code>
+for the <code>Applicative ((-&gt;) r)</code> instance. This was explained to me in this method:</p>
+<ol>
+<li><p>Check the type of <code>&lt;*&gt;</code></p>
+<pre class=code-block><input id=code-block-124-1 type=checkbox><label for=code-block-124-1></label><code><span class=hljs-type>Prelude</span>&gt; :t &lt;*&gt;
+(&lt;*&gt;) :: <span class=hljs-type>Applicative</span> f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</code></pre></li>
+<li><p>In this case, <code>f</code> is <code>((-&gt;) r)</code> or <code>r -&gt;</code> which gives</p>
+<pre class=code-block><input id=code-block-124-2 type=checkbox><label for=code-block-124-2></label><code><span class=hljs-title>f</span> (a -&gt; b) -&gt; f a -&gt; f b
+=&gt; (r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt; (r -&gt; b)
+</code></pre></li>
+<li><p>And now to define <code>f &lt;*&gt; g</code></p>
+<pre class=code-block><input id=code-block-124-3 type=checkbox><label for=code-block-124-3></label><code><span class=hljs-comment>-- based on the type of &lt;*&gt; we know</span>
+<span class=hljs-comment>-- f :: (r -&gt; a -&gt; b)</span>
+<span class=hljs-comment>-- g :: (r -&gt; a)</span>
+<span class=hljs-comment>-- we want to return (r -&gt; b) so let&#x27;s start with that</span>
+\r -&gt; b
+<span class=hljs-comment>-- how can we get `b`? by filling out `f`</span>
+\r -&gt; f r a
+<span class=hljs-comment>-- and one way to get `a` is by using `g`</span>
+\r -&gt; f r (g r)
+<span class=hljs-comment>-- therefore</span>
+<span class=hljs-title>f</span> &lt;*&gt; g = \r -&gt; f r (g r)
+</code></pre></li>
+</ol>
+<p>I did the above by hand and double checked the final answer so I assume this is how you would derive the definition. Things like this make me wonder if there's another definition out there that would satisfy the
+<code>(r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt;(r -&gt; b)</code> typing, but I'm told there's a proof out there that shows the above is the only sensible definition.</p>
+<p>I believe this is kind of stumbling upon the topic of free theorems. This is basically the idea that for some types, there is only one function that satisfies the type. I can only think of one off the top of my head which is
+<code>a -&gt; a</code> whose function is <code>id</code>.</p>
+<p>And this brought me to thinking about how <code>deriving</code> works. That would be something to look into in the future perhaps.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/123>&lt; divide and conquer 1</a></div> <div class=posts-nav_after><a href=/./posts/125>compound words &gt;</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-01-13 - move puzzles to posts</summary>
+</details>
+<details>
+<summary>2020-07-18 - move some blog posts over</summary>
+<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,54 @@</span>
+<span class=hljs-addition>+# functors and applicatives</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But back to Haskell...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve been going through the Functors/Applicative sections of `learnyouahaskell`</span>
+<span class=hljs-addition>+and it has been a ride understanding it. Fortunately, I hang out with some pretty</span>
+<span class=hljs-addition>+knowledgable people and they helped me along.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One of the parts I didn&#x27;t understand the most was where the definition for `&lt;*&gt;`</span>
+<span class=hljs-addition>+for the `Applicative ((-&gt;) r)` instance. This was explained to me in this method:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Check the type of `&lt;*&gt;`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ```haskell</span>
+<span class=hljs-addition>+    Prelude&gt; :t &lt;*&gt;</span>
+<span class=hljs-addition>+    (&lt;*&gt;) :: Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b</span>
+<span class=hljs-addition>+    ```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+2. In this case, `f` is `((-&gt;) r)` or `r -&gt;` which gives</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ```haskell</span>
+<span class=hljs-addition>+    f (a -&gt; b) -&gt; f a -&gt; f b</span>
+<span class=hljs-addition>+    =&gt; (r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt; (r -&gt; b)</span>
+<span class=hljs-addition>+    ```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+3. And now to define `f &lt;*&gt; g`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ```haskell</span>
+<span class=hljs-addition>+    -- based on the type of &lt;*&gt; we know</span>
+<span class=hljs-addition>+    -- f :: (r -&gt; a -&gt; b)</span>
+<span class=hljs-addition>+    -- g :: (r -&gt; a)</span>
+<span class=hljs-addition>+    -- we want to return (r -&gt; b) so let&#x27;s start with that</span>
+<span class=hljs-addition>+    \r -&gt; b</span>
+<span class=hljs-addition>+    -- how can we get `b`? by filling out `f`</span>
+<span class=hljs-addition>+    \r -&gt; f r a</span>
+<span class=hljs-addition>+    -- and one way to get `a` is by using `g`</span>
+<span class=hljs-addition>+    \r -&gt; f r (g r)</span>
+<span class=hljs-addition>+    -- therefore</span>
+<span class=hljs-addition>+    f &lt;*&gt; g = \r -&gt; f r (g r)</span>
+<span class=hljs-addition>+    ```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I did the above by hand and double checked the final answer so I assume this is</span>
+<span class=hljs-addition>+how you would derive the definition. Things like this make me wonder if there&#x27;s</span>
+<span class=hljs-addition>+another definition out there that would satisfy the</span>
+<span class=hljs-addition>+`(r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt;(r -&gt; b)` typing, but I&#x27;m told there&#x27;s a proof out</span>
+<span class=hljs-addition>+there that shows the above is the only sensible definition.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I believe this is kind of stumbling upon the topic of free theorems. This is basically</span>
+<span class=hljs-addition>+the idea that for some types, there is only one function that satisfies the type.</span>
+<span class=hljs-addition>+I can only think of one off the top of my head which is `a -&gt; a` whose function</span>
+<span class=hljs-addition>+is `id`.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And this brought me to thinking about how `deriving` works. That would be something</span>
+<span class=hljs-addition>+to look into in the future perhaps.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

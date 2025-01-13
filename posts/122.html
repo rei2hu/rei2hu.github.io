@@ -16,7 +16,6 @@
 <nav class=site-nav id=nav>
 <a href=/ >home</a>
 <a href=/posts>posts</a>
-<a href=/puzzles>puzzles</a>
 <div id=lights-container>
 <label title="toggle light/dark mode. only persistent with javascript">
 <input id=lights type=checkbox>
@@ -30,7 +29,7 @@ lights
 Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div class=posts-nav_before><a href=/./puzzles/3>&lt; randomized algorithms 1</a></div> <div class=posts-nav_after><a href=/./puzzles/5>divide and conquer 1 &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/121>&lt; randomized algorithms 1</a></div> <div class=posts-nav_after><a href=/./posts/123>divide and conquer 1 &gt;</a></div>
 </nav>
 <h1 id=dynamic-programming-3>Dynamic Programming 3</h1>
 <h2 id=question-1>Question 1</h2>
@@ -146,11 +145,14 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>Because this seems like a unique solution, let's take a small stab at the complexity here. We know there will be $(m) + (m - 1) + ... + 1$ cells. For $m$ cells (the initial diagonal) the cost is constant to fill each one, as there is only 1 case. However, as the diagonal increases, so do the number of cases. Refer to the previous image; the blue diagonal had 2 cases per cell and the green 3. Therefore we come out to something like this: $(1)(m) + (2)(m - 1) + ... (m)(1)$ calculations. The terms of that summation seem to be $O(m^2)$ and there are a total of $m$ terms, which leads to a $O(m^3)$ runtime.</p>
 <p>A small thought I had afterwards: I'd like to believe that I knew I could have come up with the standard solution everywhere else uses, but realized that was a lot of inefficiency because there is no reason to consider splitting the string into subproblems where cuts are not invovled.</p>
 <nav class=posts-nav_bottom>
-<div class=posts-nav_before><a href=/./puzzles/3>&lt; randomized algorithms 1</a></div> <div class=posts-nav_after><a href=/./puzzles/5>divide and conquer 1 &gt;</a></div>
+<div class=posts-nav_before><a href=/./posts/121>&lt; randomized algorithms 1</a></div> <div class=posts-nav_after><a href=/./posts/123>divide and conquer 1 &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-01-13 - move puzzles to posts</summary>
+</details>
 <details>
 <summary>2020-12-23 - add exercise 5</summary>
 <pre class=code-block><input id=code-block-5b50e89dfddf96baedc30c2dcc43ce863ad09cc2-1 type=checkbox><label for=code-block-5b50e89dfddf96baedc30c2dcc43ce863ad09cc2-1></label><code><span class=hljs-meta>@@ -158,2 +158,8 @@</span> terms of that summation seem to be $O(m^2)$ and there are a total of $m$ terms,

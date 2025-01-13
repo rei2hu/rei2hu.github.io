@@ -10,13 +10,12 @@
 <script src=/scripts/image_loader.js></script>
 <script src=/scripts/tex-mml-chtml.js defer></script>
 <script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
-<title>functors and applicatives</title>
+<title>graphs 1</title>
 </head>
 <body>
 <nav class=site-nav id=nav>
 <a href=/ >home</a>
 <a href=/posts>posts</a>
-<a href=/puzzles>puzzles</a>
 <div id=lights-container>
 <label title="toggle light/dark mode. only persistent with javascript">
 <input id=lights type=checkbox>
@@ -32,40 +31,23 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <nav class=posts-nav_top>
 <div class=posts-nav_before><a href=/./posts/5>&lt; reducing a list of arguments</a></div> <div class=posts-nav_after><a href=/./posts/7>monads &gt;</a></div>
 </nav>
-<h1 id=functors-and-applicatives>functors and applicatives</h1>
-<p>But back to Haskell…</p>
-<p>I've been going through the Functors/Applicative sections of <code>learnyouahaskell</code>
-and it has been a ride understanding it. Fortunately, I hang out with some pretty knowledgeable people and they helped me along.</p>
-<p>One of the parts I didn't understand the most was where the definition for <code>&lt;*&gt;</code>
-for the <code>Applicative ((-&gt;) r)</code> instance. This was explained to me in this method:</p>
-<ol>
-<li><p>Check the type of <code>&lt;*&gt;</code></p>
-<pre class=code-block><input id=code-block-6-1 type=checkbox><label for=code-block-6-1></label><code><span class=hljs-type>Prelude</span>&gt; :t &lt;*&gt;
-(&lt;*&gt;) :: <span class=hljs-type>Applicative</span> f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
-</code></pre></li>
-<li><p>In this case, <code>f</code> is <code>((-&gt;) r)</code> or <code>r -&gt;</code> which gives</p>
-<pre class=code-block><input id=code-block-6-2 type=checkbox><label for=code-block-6-2></label><code><span class=hljs-title>f</span> (a -&gt; b) -&gt; f a -&gt; f b
-=&gt; (r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt; (r -&gt; b)
-</code></pre></li>
-<li><p>And now to define <code>f &lt;*&gt; g</code></p>
-<pre class=code-block><input id=code-block-6-3 type=checkbox><label for=code-block-6-3></label><code><span class=hljs-comment>-- based on the type of &lt;*&gt; we know</span>
-<span class=hljs-comment>-- f :: (r -&gt; a -&gt; b)</span>
-<span class=hljs-comment>-- g :: (r -&gt; a)</span>
-<span class=hljs-comment>-- we want to return (r -&gt; b) so let&#x27;s start with that</span>
-\r -&gt; b
-<span class=hljs-comment>-- how can we get `b`? by filling out `f`</span>
-\r -&gt; f r a
-<span class=hljs-comment>-- and one way to get `a` is by using `g`</span>
-\r -&gt; f r (g r)
-<span class=hljs-comment>-- therefore</span>
-<span class=hljs-title>f</span> &lt;*&gt; g = \r -&gt; f r (g r)
-</code></pre></li>
-</ol>
-<p>I did the above by hand and double checked the final answer so I assume this is how you would derive the definition. Things like this make me wonder if there's another definition out there that would satisfy the
-<code>(r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt;(r -&gt; b)</code> typing, but I'm told there's a proof out there that shows the above is the only sensible definition.</p>
-<p>I believe this is kind of stumbling upon the topic of free theorems. This is basically the idea that for some types, there is only one function that satisfies the type. I can only think of one off the top of my head which is
-<code>a -&gt; a</code> whose function is <code>id</code>.</p>
-<p>And this brought me to thinking about how <code>deriving</code> works. That would be something to look into in the future perhaps.</p>
+<h1 id=graphs-1>Graphs 1</h1>
+<h2 id=question-1>Question 1</h2>
+<p>Shortest path algorithms can be applied in currency trading. Let $c_1$, $c_2$, …, $c_n$ be various currencies; for instance, $c_1$ might be dollars, $c_2$ pounds and $c_3$ lire. For any two currencies $c_i$ and $c_j$, there is an exchange rate $r_{i,j}$; this means that you can purchase $r_{i,j}$ units of currency $c_j$ in exchange for one unit of $c_i$. These exchange rates satisfy the condition that $r_{i,j} · r_{j,i} \lt 1$, so that if you start with a unit of currency $c_i$, change it into currency $c_j$ and then convert back to currency $c_i$, you end up with less than one unit of currency $c_i$ (the difference is the cost of the transaction).</p>
+<p>(a) Give an efficient algorithm for the following problem: Given a set of exchange rates $r_{i,j}$, and two currencies $s$ and $t$, find the most advantageous sequence of currency exchanges for converting currency $s$ into currency $t$. Toward this goal, you should represent the currencies and rates by a graph whose edge lengths are real numbers.</p>
+<p>This can be done by using a graph with vertices that represent the currencies and edges that represent the exchange rates between currencies which we then apply a slightly modified Dijkstra's algorithm - instead of adding the edges we multiply them and we try to maximize instead of minimize the value.</p>
+<p>However, it is also possible to use an unmodified version of Dijkstra's algorithm if we modify the weights of the edges somehow. In other words, we want to find functions $f$ and $g$ such that $f(r_1) + f(r_2) = g(r_1*r_2)$. At a high level, this looks like we are trying to find some kind of relationship between addition and multiplication and makes me think of expoonents because $x^a*x^b = x^{a + b}$. Is this what we want? Not exactly because this is inversed. However, exponents have an inverse which are logarithms and it just so happens to be the solution - $log(r_1) + log(r_2) = log(r_1 *r_2)$. Therefore, by taking the log of all edges, we can apply Djikstra's algorithm to find the $log$ of the best sequence of exchanges, and then use $b ^ {log_b(r_1* r_2)}$ to extract the actual number.</p>
+<p>(b) The exchange rates are updated frequently, reflecting the demand and supply of the various currencies. Occasionally the exchange rates satisfy the following property: there is a sequence of currencies $c_{i_1}, c_{i_2}, ..., c_{i_k}$ such that $r_{i_1,i_2} · r_{i_2,i_3} ... r_{i_{k−1},i_k} · r_{i_k,i_1} \gt 1$. Such anomalies last only a fraction of a minute on the currency exchange, but they provide an opportunity for risk-free profits. Give an efficient algorithm for detecting the presence of such an anomaly. Use the graph representation you found above.</p>
+<p>As a simple example, we might have a graph like</p>
+<p>
+</p><div class=tikz-picture style=height:92.76355pt>
+<svg height=92.76355pt viewBox="-72 -72 166.27953 92.76355" width=166.27953pt><g transform="translate(83.13975524902342,-24.873672485351555) scale(1,-1)"><g> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke-width=0.4pt> <g> <g> <path d=" M  10.66977 0.0 C  10.66977 5.89282 5.89282 10.66977 0.0 10.66977 C  -5.89282 10.66977 -10.66977 5.89282 -10.66977 0.0 C  -10.66977 -5.89282 -5.89282 -10.66977 0.0 -10.66977 C  5.89282 -10.66977 10.66977 -5.89282 10.66977 0.0 Z M  0.0 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-4.40685,-1.40279)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmmi10 font-size=10 x=83.13975524902342 y=-24.873672485351555>c</text><text alignment-baseline=baseline fill=black font-family=cmr7 font-size=7 x=87.46731948852538 y=-23.37368774414062>2</text></g></g> </g> </g> </g> </g> <g> <path d=" M  -133.87022 0.0 C  -133.87022 5.89282 -138.64717 10.66977 -144.54 10.66977 C  -150.43282 10.66977 -155.20976 5.89282 -155.20976 0.0 C  -155.20976 -5.89282 -150.43282 -10.66977 -144.54 -10.66977 C  -138.64717 -10.66977 -133.87022 -5.89282 -133.87022 0.0 Z M  -144.54 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-148.94684,-1.40279)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmmi10 font-size=10 x=83.13975524902342 y=-24.873672485351555>c</text><text alignment-baseline=baseline fill=black font-family=cmr7 font-size=7 x=87.46731948852538 y=-23.37368774414062>1</text></g></g> </g> </g> </g> </g> <path d=" M  -135.09662 5.45212 C  -92.66026 29.95287 -51.87973 29.95287 -9.843 5.68298  " style=fill:none /> <g> <g transform=matrix(0.86877,-0.50156,0.50156,0.86877,-9.843,5.683)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-78.65887,32.48979)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=83.13975524902342 y=-24.873672485351555>0.5</text></g></g> </g> </g> </g> </g> <path d=" M  -9.44337 -5.45212 C  -51.87973 -29.95287 -92.66026 -29.95287 -134.69699 -5.68298  " style=fill:none /> <g> <g transform=matrix(-0.86877,0.50156,-0.50156,-0.86877,-134.69699,-5.683)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-74.76997,-37.91966)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)" stroke=none><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=83.13975524902342 y=-24.873672485351555>3</text></g></g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g></svg>
+</div>
+<p></p>
+<p>We can convert between $c_1$ and $c_2$ and keep on making money due to this conversion. This example shows that there is free money when there is a path from a currency to itself where we end up with more than we started (the conversion rate is greater than 1).</p>
+<p>For this problem, I would choose to use the Floyd-Warshall algorithm as it determines the shortest path between each pair of vertices and would be better than running a shortest path from 1 to all vertices $v$ times. In this case, with the modification for where we multiply instead of add like in part a, the diagonals of the resultant matrix should all be less than or equal to 1. However, the existence of an advantageous exchange would have some of those values be greater than 1.</p>
+<p>If we went with the log representation, all of the values in our matrix should be negative. The presence of a positive number along the diagonal would indicate free money and the presence of 0 would indicate a neutral exchange (we end with what we started at).</p>
+<p>$$ \begin{align} log_b(x) = 0 &\implies b^{0} = x &\implies x = 1 \\ log_b(x) = n \text{ where } n \gt 0 &\implies b^{\text{n}} = x &\implies x \gt 1 \\ log_b(x) = -n \text{ where } n \gt 0 &\implies b^{\text{-n}} = \frac{1}{b^{\text{n}}} = x &\implies x \lt 1 \\ \end{align} $$</p>
 <nav class=posts-nav_bottom>
 <div class=posts-nav_before><a href=/./posts/5>&lt; reducing a list of arguments</a></div> <div class=posts-nav_after><a href=/./posts/7>monads &gt;</a></div>
 </nav>
@@ -73,62 +55,100 @@ for the <code>Applicative ((-&gt;) r)</code> instance. This was explained to me 
 <div class="commit-list de-emphasized">
 <span>History:</span>
 <details>
-<summary>2020-07-18 - move some blog posts over</summary>
-<pre class=code-block><input id=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1 type=checkbox><label for=code-block-274f4b91969fd5fa00cc3e1820c5259eb817f442-1></label><code><span class=hljs-meta>@@ -0,0 +1,54 @@</span>
-<span class=hljs-addition>+# functors and applicatives</span>
+<summary>2025-01-13 - move puzzles to posts</summary>
+</details>
+<details>
+<summary>2021-01-10 - add exercise 6</summary>
+<pre class=code-block><input id=code-block-192515bf25946019e5f389ed06d8a96f938a8c01-1 type=checkbox><label for=code-block-192515bf25946019e5f389ed06d8a96f938a8c01-1></label><code><span class=hljs-meta>@@ -0,0 +1,89 @@</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD041 --&gt;</span>
+<span class=hljs-addition>+## Question 1</span>
 <span class=hljs-addition>+</span>
-<span class=hljs-addition>+But back to Haskell...</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+I&#x27;ve been going through the Functors/Applicative sections of `learnyouahaskell`</span>
-<span class=hljs-addition>+and it has been a ride understanding it. Fortunately, I hang out with some pretty</span>
-<span class=hljs-addition>+knowledgable people and they helped me along.</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+One of the parts I didn&#x27;t understand the most was where the definition for `&lt;*&gt;`</span>
-<span class=hljs-addition>+for the `Applicative ((-&gt;) r)` instance. This was explained to me in this method:</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+1. Check the type of `&lt;*&gt;`</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+    ```haskell</span>
-<span class=hljs-addition>+    Prelude&gt; :t &lt;*&gt;</span>
-<span class=hljs-addition>+    (&lt;*&gt;) :: Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b</span>
-<span class=hljs-addition>+    ```</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+2. In this case, `f` is `((-&gt;) r)` or `r -&gt;` which gives</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+    ```haskell</span>
-<span class=hljs-addition>+    f (a -&gt; b) -&gt; f a -&gt; f b</span>
-<span class=hljs-addition>+    =&gt; (r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt; (r -&gt; b)</span>
-<span class=hljs-addition>+    ```</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+3. And now to define `f &lt;*&gt; g`</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+    ```haskell</span>
-<span class=hljs-addition>+    -- based on the type of &lt;*&gt; we know</span>
-<span class=hljs-addition>+    -- f :: (r -&gt; a -&gt; b)</span>
-<span class=hljs-addition>+    -- g :: (r -&gt; a)</span>
-<span class=hljs-addition>+    -- we want to return (r -&gt; b) so let&#x27;s start with that</span>
-<span class=hljs-addition>+    \r -&gt; b</span>
-<span class=hljs-addition>+    -- how can we get `b`? by filling out `f`</span>
-<span class=hljs-addition>+    \r -&gt; f r a</span>
-<span class=hljs-addition>+    -- and one way to get `a` is by using `g`</span>
-<span class=hljs-addition>+    \r -&gt; f r (g r)</span>
-<span class=hljs-addition>+    -- therefore</span>
-<span class=hljs-addition>+    f &lt;*&gt; g = \r -&gt; f r (g r)</span>
-<span class=hljs-addition>+    ```</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+I did the above by hand and double checked the final answer so I assume this is</span>
-<span class=hljs-addition>+how you would derive the definition. Things like this make me wonder if there&#x27;s</span>
-<span class=hljs-addition>+another definition out there that would satisfy the</span>
-<span class=hljs-addition>+`(r -&gt; a -&gt; b) -&gt; (r -&gt; a) -&gt;(r -&gt; b)` typing, but I&#x27;m told there&#x27;s a proof out</span>
-<span class=hljs-addition>+there that shows the above is the only sensible definition.</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+I believe this is kind of stumbling upon the topic of free theorems. This is basically</span>
-<span class=hljs-addition>+the idea that for some types, there is only one function that satisfies the type.</span>
-<span class=hljs-addition>+I can only think of one off the top of my head which is `a -&gt; a` whose function</span>
-<span class=hljs-addition>+is `id`.</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+And this brought me to thinking about how `deriving` works. That would be something</span>
-<span class=hljs-addition>+to look into in the future perhaps.</span>
+<span class=hljs-addition>+&lt;p&gt;</span>
+<span class=hljs-addition>+Shortest path algorithms can be applied in currency trading. Let $c_1$, $c_2$,</span>
+<span class=hljs-addition>+..., $c_n$ be various currencies; for instance, $c_1$ might be dollars, $c_2$ pounds</span>
+<span class=hljs-addition>+and $c_3$ lire. For any two currencies $c_i$ and $c_j$, there is an exchange rate</span>
+<span class=hljs-addition>+$r_{i,j}$; this means that you can purchase $r_{i,j}$ units of currency $c_j$ in</span>
+<span class=hljs-addition>+exchange for one unit of $c_i$. These exchange rates satisfy the condition that</span>
+<span class=hljs-addition>+$r_{i,j} · r_{j,i} \lt 1$, so that if you start with a unit of currency $c_i$, change</span>
+<span class=hljs-addition>+it into currency $c_j$ and then convert back to currency $c_i$, you end up with</span>
+<span class=hljs-addition>+less than one unit of currency $c_i$ (the difference is the cost of the transaction).</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+(a) Give an efficient algorithm for the following problem: Given a set of exchange</span>
+<span class=hljs-addition>+rates $r_{i,j}$, and two currencies $s$ and $t$, find the most advantageous sequence</span>
+<span class=hljs-addition>+of currency exchanges for converting currency $s$ into currency $t$. Toward this</span>
+<span class=hljs-addition>+goal, you should represent the currencies and rates by a graph whose edge lengths</span>
+<span class=hljs-addition>+are real numbers.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+This can be done by using a graph with vertices that represent the currencies and</span>
+<span class=hljs-addition>+edges that represent the exchange rates between currencies which we then apply a</span>
+<span class=hljs-addition>+slightly modified Dijkstra&#x27;s algorithm - instead of adding the edges we multiply</span>
+<span class=hljs-addition>+them and we try to maximize instead of minimize the value.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+However, it is also possible to use an unmodified version of Dijkstra&#x27;s algorithm</span>
+<span class=hljs-addition>+if we modify the weights of the edges somehow. In other words, we want to find functions</span>
+<span class=hljs-addition>+$f$ and $g$ such that $f(r_1) + f(r_2) = g(r_1*r_2)$. At a high level, this looks</span>
+<span class=hljs-addition>+like we are trying to find some kind of relationship between addition and multiplication</span>
+<span class=hljs-addition>+and makes me think of expoonents because $x^a*x^b = x^{a + b}$. Is this what we want?</span>
+<span class=hljs-addition>+Not exactly because this is inversed. However, exponents have an inverse which are</span>
+<span class=hljs-addition>+logarithms and it just so happens to be the solution - $log(r_1) + log(r_2) =</span>
+<span class=hljs-addition>+log(r_1 * r_2)$. Therefore, by taking the log of all edges, we can apply Djikstra&#x27;s</span>
+<span class=hljs-addition>+algorithm to find the $log$ of the best sequence of exchanges, and then use</span>
+<span class=hljs-addition>+$b ^ {log_b(r_1 * r_2)}$ to extract the actual number.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+(b) The exchange rates are updated frequently, reflecting the demand and supply</span>
+<span class=hljs-addition>+of the various currencies. Occasionally the exchange rates satisfy the following</span>
+<span class=hljs-addition>+property: there is a sequence of currencies $c_{i_1}$, $c_{i_2}$, ..., c_{i_k} such</span>
+<span class=hljs-addition>+that $r_{i_1,i_2} · r_{i_2,i_3} · · · r_{i_{k−1},i_k} · r_{i_k,i_1} \gt 1$. Such</span>
+<span class=hljs-addition>+anomalies last only a fraction of a minute on the currency exchange, but they provide</span>
+<span class=hljs-addition>+an opportunity for risk-free profits. Give an efficient algorithm for detecting</span>
+<span class=hljs-addition>+the presence of such an anomaly. Use the graph representation you found above.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+As a simple example, we might have a graph like</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;script type=&quot;text/tikz&quot;&gt;</span>
+<span class=hljs-addition>+  \begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+    \node [] (b) {$c_2$};</span>
+<span class=hljs-addition>+    \node [left of = b, node distance = 2in] (a) {$c_1$};</span>
+<span class=hljs-addition>+    \draw [-&gt;] (a) to [out=30,in=150] node [draw=none, above] {0.5} (b);</span>
+<span class=hljs-addition>+    \draw [-&gt;] (b) to [out=210,in=-30] node [draw=none, below] {3} (a);</span>
+<span class=hljs-addition>+  \end{tikzpicture}</span>
+<span class=hljs-addition>+&lt;/script&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+We can convert between $c_1$ and $c_2$ and keep on making money due to this conversion.</span>
+<span class=hljs-addition>+This example shows that there is free money when there is a path from a currency</span>
+<span class=hljs-addition>+to itself where we end up with more than we started (the conversion rate is greater</span>
+<span class=hljs-addition>+than 1).</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+For this problem, I would choose to use the Floyd-Warshall algorithm as it determines</span>
+<span class=hljs-addition>+the shortest path between each pair of vertices and would be better than running</span>
+<span class=hljs-addition>+a shortest path from 1 to all vertices $v$ times. In this case, with the modification</span>
+<span class=hljs-addition>+for where we multiply instead of add like in part a, the diagonals of the resultant</span>
+<span class=hljs-addition>+matrix should all be less than or equal to 1. However, the existence of an advantageous</span>
+<span class=hljs-addition>+exchange would have some of those values be greater than 1.</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+&lt;br /&gt;</span>
+<span class=hljs-addition>+If we went with the log representation, all of the values in our matrix should be</span>
+<span class=hljs-addition>+negative. The presence of a positive number along the diagonal would indicate free</span>
+<span class=hljs-addition>+money and the presence of 0 would indicate a neutral exchange (we end with what</span>
+<span class=hljs-addition>+we started at).</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable MD013 --&gt;</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{align}</span>
+<span class=hljs-addition>+    log_b(x) = 0                         &amp;\implies b^{0} = x                                  &amp;\implies x = 1 \\</span>
+<span class=hljs-addition>+    log_b(x) = n \text{ where } n \gt 0  &amp;\implies b^{\text{n}} = x                           &amp;\implies x \gt 1 \\</span>
+<span class=hljs-addition>+    log_b(x) = -n \text{ where } n \gt 0 &amp;\implies b^{\text{-n}} = \frac{1}{b^{\text{n}}} = x &amp;\implies x \lt 1 \\</span>
+<span class=hljs-addition>+\end{align}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable MD013 --&gt;</span>
+<span class=hljs-addition>+&lt;/p&gt;</span>
 </code></pre>
 </details>
 </div>

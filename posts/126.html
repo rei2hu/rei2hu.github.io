@@ -16,7 +16,6 @@
 <nav class=site-nav id=nav>
 <a href=/ >home</a>
 <a href=/posts>posts</a>
-<a href=/puzzles>puzzles</a>
 <div id=lights-container>
 <label title="toggle light/dark mode. only persistent with javascript">
 <input id=lights type=checkbox>
@@ -30,7 +29,7 @@ lights
 Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
 </noscript>
 <nav class=posts-nav_top>
-<div class=posts-nav_before><a href=/./puzzles/7>&lt; compound words</a></div>
+<div class=posts-nav_before><a href=/./posts/125>&lt; compound words</a></div> <div class=posts-nav_after><a href=/./posts/127>puzzle combinations &gt;</a></div>
 </nav>
 <h1 id=5-letter-words-that-made-of-25-distinct-letters>5 letter words that made of 25 distinct letters</h1>
 <p>A colleague shared a
@@ -39,7 +38,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <a href=https://gist.github.com/rei2hu/ffa463d49a67f1b20131a84e12fa0924>This</a> was the word list that he provided for testing (althoug <code>wc -l</code> on my local file gives me 12973 lines so maybe not but I was too lazy to move the file off a work computer to local then upload it).</p>
 <p>My colleague pointed out that there are solutions that took up to a month and down to approximately 20 minutes while he has solutions that take 10 minutes and then 70 seconds with some data specific tricks which is quite interesting. If you watch the video, you'll note that the "good" solution relies on graph theory which seemed overly complex in my opinion.</p>
 <p>My attempt at a solution is:</p>
-<pre class=code-block><input id=code-block-8-1 type=checkbox><label for=code-block-8-1></label><code><span class=hljs-keyword>const</span> seen = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
+<pre class=code-block><input id=code-block-126-1 type=checkbox><label for=code-block-126-1></label><code><span class=hljs-keyword>const</span> seen = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
 <span class=hljs-keyword>const</span> words = <span class=hljs-built_in>require</span>(<span class=hljs-string>&quot;fs&quot;</span>)
     .<span class="hljs-title function_">readFileSync</span>(process.<span class=hljs-property>argv</span>[<span class=hljs-number>2</span>], <span class=hljs-string>&quot;utf8&quot;</span>)
     .<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;\n&quot;</span>)
@@ -80,7 +79,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <a href=https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt>here</a>
 and instead listed all of the possible solutions.</p>
 <p>So a small modification gives</p>
-<pre class=code-block><input id=code-block-8-2 type=checkbox><label for=code-block-8-2></label><code><span class=hljs-keyword>const</span> seen = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
+<pre class=code-block><input id=code-block-126-2 type=checkbox><label for=code-block-126-2></label><code><span class=hljs-keyword>const</span> seen = <span class=hljs-keyword>new</span> <span class="hljs-title class_">Set</span>();
 <span class=hljs-keyword>const</span> words = <span class=hljs-built_in>require</span>(<span class=hljs-string>&quot;fs&quot;</span>)
     .<span class="hljs-title function_">readFileSync</span>(process.<span class=hljs-property>argv</span>[<span class=hljs-number>2</span>], <span class=hljs-string>&quot;utf8&quot;</span>)
     .<span class="hljs-title function_">split</span>(<span class=hljs-string>&quot;\n&quot;</span>)
@@ -127,11 +126,14 @@ and instead listed all of the possible solutions.</p>
 <p>Perhaps my entire thing is wrong, but I'll leave that as an exercise to the reader.</p>
 <p>And a random revelation I had is that after the filtering process, the solution is constant time as there is a finite amount of 5 letter words made up of distinct letters.</p>
 <nav class=posts-nav_bottom>
-<div class=posts-nav_before><a href=/./puzzles/7>&lt; compound words</a></div>
+<div class=posts-nav_before><a href=/./posts/125>&lt; compound words</a></div> <div class=posts-nav_after><a href=/./posts/127>puzzle combinations &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-01-13 - move puzzles to posts</summary>
+</details>
 <details>
 <summary>2022-09-11 - update puzzle 8</summary>
 <pre class=code-block><input id=code-block-3ad3b19684effa0cd3a602093f5dba31e744836e-1 type=checkbox><label for=code-block-3ad3b19684effa0cd3a602093f5dba31e744836e-1></label><code>@@ -129 +129,5 @@ Either way, after processing, both lists were approximately 5000 words long.

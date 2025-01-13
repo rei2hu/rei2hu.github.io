@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>puzzle combinations</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/126>&lt; 5 letter words made up of 25 distinct letters</a></div>
+</nav>
+<h1 id=puzzle-combinations>puzzle combinations</h1>
+<p>I was thinking about gifts, and what makes a good gift. A couple years ago, I purchased a Lego set thinking it would be a great gift; it was a flower set which means you would spend some time putting it together and could put the completed piece on display like a houseplant.</p>
+<p>I think it was received with a little ridicule (granted, this was a gift exchange for adults), but I was able to see the finished product recently when visiting. It looks nice in my opinion.</p>
+<p>Anyways, I was thinking of gift ideas again, but this post isn't going to be about gift ideas. I thought of puzzles for a similar reason - some fun assembly then a finished product. Then my mind randomly wandered to thinking about the total number of puzzle piece configurations a puzzle could have.</p>
+<p>To keep things simple, consider a rectangular puzzle with square-ish pieces with 4 sides, and each side either has a protruding part or a… not-protruding part. Or is an edge. Of course, there are many ways this can be set up but let's just leave the classification simple with 2 (3) classes.</p>
+<p>If a puzzle is x by y pieces, how many possible piece configurations are there?</p>
+<p>At first glance, this was pretty difficult because the possible configurations of one piece depends on the surrounding ones. Maybe not too difficult because I already explained it in a way that makes what I thought of more obvious - each edge has 2 or 3 possibilities, so it's a simple combination problem depending on the number of edges in the puzzle.</p>
+<p>For example a 2x2 puzzle has 4 non-side edges, so there should be 16 possible configurations. A 3x3 puzzle has 12 non-side edges, so there should be $2^{12}$ possible configurations.</p>
+<p>Is it right? It seems plausible but I didn't check. I also haven't bothered figuring out a closed form solution for the number of non-side edges for this kind of puzzle given the sides.</p>
+<p>Also in the meantime I decided to remove the puzzle section of my blog and instead incorporate the puzzle posts here. It kind of messes with the order and post dates but I can't insert them where they should belong without bumping the links of all the other posts so I'll eat it. This could be a good lesson into not having the post ids derived from the same data used to order the posts, but for more generic scenarios.</p>
+<p>Maybe instead of manually breaking things up, I use a tagging system. If I ever feel like putting one together.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/126>&lt; 5 letter words made up of 25 distinct letters</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-01-13 - add post 127</summary>
+<pre class=code-block><input id=code-block-9210b8670bae9474070cfc67ebc96ab12bd81445-1 type=checkbox><label for=code-block-9210b8670bae9474070cfc67ebc96ab12bd81445-1></label><code><span class=hljs-meta>@@ -0,0 +1,46 @@</span>
+<span class=hljs-addition>+# puzzle combinations</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was thinking about gifts, and what makes a good gift. A couple years ago, I</span>
+<span class=hljs-addition>+purchased a Lego set thinking it would be a great gift; it was a flower set</span>
+<span class=hljs-addition>+which means you would spend some time putting it together and could put the</span>
+<span class=hljs-addition>+completed piece on display like a houseplant.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think it was received with a little ridicule (granted, this was a gift</span>
+<span class=hljs-addition>+exchange for adults), but I was able to see the finished product recently when</span>
+<span class=hljs-addition>+visiting. It looks nice in my opinion.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, I was thinking of gift ideas again, but this post isn&#x27;t going to be</span>
+<span class=hljs-addition>+about gift ideas. I thought of puzzles for a similar reason - some fun assembly</span>
+<span class=hljs-addition>+then a finished product. Then my mind randomly wandered to thinking about the</span>
+<span class=hljs-addition>+total number of puzzle piece configurations a puzzle could have.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To keep things simple, consider a rectangular puzzle with square-ish pieces with</span>
+<span class=hljs-addition>+4 sides, and each side either has a protruding part or a... not-protruding part.</span>
+<span class=hljs-addition>+Or is an edge. Of course, there are many ways this can be set up but let&#x27;s just</span>
+<span class=hljs-addition>+leave the classification simple with 2 (3) classes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If a puzzle is x by y pieces, how many possible piece configurations are there?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At first glance, this was pretty difficult because the possible configurations</span>
+<span class=hljs-addition>+of one piece depends on the surrounding ones. Maybe not too difficult because I</span>
+<span class=hljs-addition>+already explained it in a way that makes what I thought of more obvious - each</span>
+<span class=hljs-addition>+edge has 2 or 3 possibilities, so it&#x27;s a simple combination problem depending on</span>
+<span class=hljs-addition>+the number of edges in the puzzle.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For example a 2x2 puzzle has 4 non-side edges, so there should be 16 possible</span>
+<span class=hljs-addition>+configurations. A 3x3 puzzle has 12 non-side edges, so there should be $2^{12}$</span>
+<span class=hljs-addition>+possible configurations.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Is it right? It seems plausible but I didn&#x27;t check. I also haven&#x27;t bothered</span>
+<span class=hljs-addition>+figuring out a closed form solution for the number of non-side edges for this</span>
+<span class=hljs-addition>+kind of puzzle given the sides.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also in the meantime I decided to remove the puzzle section of my blog and</span>
+<span class=hljs-addition>+instead incorporate the puzzle posts here. It kind of messes with the order and</span>
+<span class=hljs-addition>+post dates but I can&#x27;t insert them where they should belong without bumping the</span>
+<span class=hljs-addition>+links of all the other posts so I&#x27;ll eat it. This could be a good lesson into</span>
+<span class=hljs-addition>+not having the post ids derived from the same data used to order the posts, but</span>
+<span class=hljs-addition>+for more generic scenarios.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Maybe instead of manually breaking things up, I use a tagging system. If I ever</span>
+<span class=hljs-addition>+feel like putting one together.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
