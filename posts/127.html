@@ -40,7 +40,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>At first glance, this was pretty difficult because the possible configurations of one piece depends on the surrounding ones. Maybe not too difficult because I already explained it in a way that makes what I thought of more obvious - each edge has 2 or 3 possibilities, so it's a simple combination problem depending on the number of edges in the puzzle.</p>
 <p>For example a 2x2 puzzle has 4 non-side edges, so there should be 16 possible configurations. A 3x3 puzzle has 12 non-side edges, so there should be $2^{12}$ possible configurations.</p>
 <p>Is it right? It seems plausible but I didn't check. I also haven't bothered figuring out a closed form solution for the number of non-side edges for this kind of puzzle given the sides.</p>
-<p>Then you realize that some of the configurations could be considered the same as they're just rotations for each other. How do you account for that? Divide by 4?</p>
+<p>Then you realize that some of the configurations could be considered the same as they're just rotations for each other. How do you account for that? Divide by 4? That's probably not correct because I believe some configurations will be the same when rotated 180 degrees and some may be the same in any orientation (assuming 90 degree rotations).</p>
 <p>Also in the meantime I decided to remove the puzzle section of my blog and instead incorporate the puzzle posts here. It kind of messes with the order and post dates but I can't insert them where they should belong without bumping the links of all the other posts so I'll eat it. This could be a good lesson into not having the post ids derived from the same data used to order the posts, but for more generic scenarios.</p>
 <p>Maybe instead of manually breaking things up, I use a tagging system. If I ever feel like putting one together.</p>
 <nav class=posts-nav_bottom>
@@ -51,10 +51,13 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <span>History:</span>
 <details>
 <summary>2025-01-18 - update post 127: another thought</summary>
-<pre class=code-block><input id=code-block-0fa5d277a2a39143529e2d6353625b3553ec6b27-1 type=checkbox><label for=code-block-0fa5d277a2a39143529e2d6353625b3553ec6b27-1></label><code><span class=hljs-meta>@@ -37,2 +37,5 @@</span> kind of puzzle given the sides.
+<pre class=code-block><input id=code-block-497a2d6bd3e930106c5541e8015c99be0fa0df32-1 type=checkbox><label for=code-block-497a2d6bd3e930106c5541e8015c99be0fa0df32-1></label><code><span class=hljs-meta>@@ -37,2 +37,8 @@</span> kind of puzzle given the sides.
 
 <span class=hljs-addition>+Then you realize that some of the configurations could be considered the same as</span>
 <span class=hljs-addition>+they&#x27;re just rotations for each other. How do you account for that? Divide by 4?</span>
+<span class=hljs-addition>+That&#x27;s probably not correct because I believe some configurations will be the</span>
+<span class=hljs-addition>+same when rotated 180 degrees and some may be the same in any orientation</span>
+<span class=hljs-addition>+(assuming 90 degree rotations).</span>
 <span class=hljs-addition>+</span>
  Also in the meantime I decided to remove the puzzle section of my blog and
 </code></pre>
