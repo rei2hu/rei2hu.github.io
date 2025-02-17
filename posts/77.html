@@ -40,12 +40,28 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 </blockquote>
 <p>I believe the solution would be disabling this, which can be done through the BIOS. I also knew that I could sacrifice performance because the game performance was already above standards (when things weren't overheating). Turning off the option worked. I'm able to play at a consistent 45 fps.</p>
 <p>It turns out that there is also another way to disable turbo boost, which is setting the maximum processor state for advanced power options to something less than 100%, like 99%. I guess it makes sense but is weirdly not officially documented anywhere. Also trying to reach those settings is a little chore on Windows navigation menus as I had to go through the control panel.</p>
+<p>So even later, I've come across ThrottleStop which can be used to control a lot of things for your CPU. I wasn't too sure if it would be useful, because in my experience, laptop CPUs are typically more locked down, but there are some applicable settings. Under TPL, one can control the long/short power options which control how much power turbo is able to use; and less power is less heat. Instead of fully disabling turbo, I did some manual testing to find a number that maxes out at around 85c, which offers enough performance for my needs and also isn't at risk of thermal throttle.</p>
 <nav class=posts-nav_bottom>
 <div class=posts-nav_before><a href=/./posts/76>&lt; menma's tera cease&desist</a></div> <div class=posts-nav_after><a href=/./posts/78>tera mods &gt;</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-02-17 - update post 77: add new cpu antiheat info</summary>
+<pre class=code-block><input id=code-block-7b81367caab059682beadba39cec90a4705c7f07-1 type=checkbox><label for=code-block-7b81367caab059682beadba39cec90a4705c7f07-1></label><code>@@ -40 +40,10 @@ documented anywhere. Also trying to reach those settings is a little chore on
+ Windows navigation menus as I had to go through the control panel.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So even later, I&#x27;ve come across ThrottleStop which can be used to control a lot</span>
+<span class=hljs-addition>+of things for your CPU. I wasn&#x27;t too sure if it would be useful, because in my</span>
+<span class=hljs-addition>+experience, laptop CPUs are typically more locked down, but there are some</span>
+<span class=hljs-addition>+applicable settings. Under TPL, one can control the long/short power options</span>
+<span class=hljs-addition>+which control how much power turbo is able to use; and less power is less heat.</span>
+<span class=hljs-addition>+Instead of fully disabling turbo, I did some manual testing to find a number</span>
+<span class=hljs-addition>+that maxes out at around 85c, which offers enough performance for my needs and</span>
+<span class=hljs-addition>+also isn&#x27;t at risk of thermal throttle.</span>
+</code></pre>
+</details>
 <details>
 <summary>2023-08-01 - add post 77</summary>
 <pre class=code-block><input id=code-block-eeb3f5d495277563140fe6f8a17a02ade0dcec50-1 type=checkbox><label for=code-block-eeb3f5d495277563140fe6f8a17a02ade0dcec50-1></label><code><span class=hljs-meta>@@ -0,0 +1,40 @@</span>
