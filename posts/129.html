@@ -1,0 +1,493 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>framework troubleshooting</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/128>&lt; encounter with formal math</a></div>
+</nav>
+<h1 id=framework-troubleshooting>framework troubleshooting</h1>
+<p>If your framework laptop is not powering on, I would suggest looking at
+<a href=https://knowledgebase.frame.work/en_us/my-framework-laptop-intel-12th-gen-intel-core-is-not-powering-on-BJWtouV3q>this support page</a>
+to start and messaging support.</p>
+<p>Last Friday night, my framework laptop refused to power on. Uh-oh. I had an assignment whose deadline was that Sunday and, with my only personal computer dead, only had a phone… which I rarely use at all.</p>
+<p>Furthermore, as a password manager user, I did not have access to most of my accounts until I could get a computer with internet access to download a copy of my database and the proper password management software to use it. Fortunately, I do keep my most important passwords memorized and was able to reset the few accounts I needed to access at that moment through my phone. Spoilers: I was able to recover my laptop, but I think I could have moved to a new one without much issue.</p>
+<h2 id=actual-troubleshooting>actual troubleshooting</h2>
+<p>In addition to sending some messages off to the professor of the class whose assignment's deadline I may just miss, I started searching online for any kind of information, quickly coming across the knowledgebase article linked above and following the steps.</p>
+<blockquote>
+<p>If your power button doesn't light up when pressed… Double check the Touchpad Cable that goes between the Touchpad and the Mainboard…</p>
+</blockquote>
+<p>My power button was not lighting up, so I opened up the laptop and checked the connection. It was fine.</p>
+<blockquote>
+<p>If your power button lights up briefly but then turns off…</p>
+</blockquote>
+<p>No, the power button is not lighting up at all.</p>
+<blockquote>
+<p>If your power button lights up, but you don't see the screen come on, and the side LEDs are solid…</p>
+</blockquote>
+<p>No…</p>
+<blockquote>
+<p>If your power button lights up, but you don't see the screen come on, and the side LEDs are blinking…</p>
+</blockquote>
+<p>As I said, the power button just is not lighting up at all, and the remaining steps assume that it should be. I decided to ignore the "If your power button lights up" sentence in the headers. Both sections that don't troubleshoot the light itself say to monitor the LED lights on the side 20 seconds or for 5 minutes after boot. While the entire laptop seemed dead, I went ahead and did it anyways.</p>
+<p>There was something - after 20 seconds of nothing; no power button light, no monitor light, only a solid white LED light that probably indicates the charger is plugged in - I saw the following:</p>
+<blockquote>
+<p>the side LEDs next to the Expansion Cards will blink out a code with the status of various subsystems/boot initialization steps.</p>
+</blockquote>
+<p>Good progress. What were the colors?</p>
+<p>Green, green, red, green, green, green, green, green, red, red, green, green, orange, green, green, green, green, green, green, green, green. In other words:</p>
+<table>
+<thead>
+<tr>
+<th>color</th>
+<th>system/code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>green</td>
+<td>Battery connected check</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Power Good 3V5V supply</td>
+</tr>
+<tr>
+<td>red</td>
+<td>Power Good VCCIN_AUX</td>
+</tr>
+<tr>
+<td>green</td>
+<td>CPU deassert sleep S4</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Power boot core VR</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Touchpad detected</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Audio board Detected</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Thermal sensor detected</td>
+</tr>
+<tr>
+<td>red</td>
+<td>Fan detected and spins up</td>
+</tr>
+<tr>
+<td>red</td>
+<td>CPU reached S0 state</td>
+</tr>
+<tr>
+<td>green</td>
+<td>DDR initialized OK</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Internal display initialized OK</td>
+</tr>
+<tr>
+<td>orange</td>
+<td>post codes</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 0</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 1</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 2</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 3</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 4</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 5</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 6</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 7</td>
+</tr>
+</tbody>
+</table>
+<p>So no power good signal from vccin_aux, fan not detected, and cpu did not reach S0 state. I'm no expert (or even beginner) when it comes to things like this, but my guess was that the cpu was not starting due to some power/voltage issue. I then decided to search online for people with similar issues.</p>
+<p>I was lucky enough to come across
+<a href=https://community.frame.work/t/led-sequence-vccin-aux/31577>this</a> thread on the framework forums where a few people have had the similar symptoms as I did, but there was no real solution given. The only thing suggested was to
+<a href=https://guides.frame.work/Guide/Fully+Resetting+the+Mainboard+State/113>reset the mainboard</a>
+which I did. It did not change anything.</p>
+<p>After some more fruitless digging, I decided to engage support. I detailed everything to them and they actually responded soon after despite it being late on Friday. They asked for videos and pictures of everything, so I did that… and then mentioned my upcoming deadlines and asked if I should just buy a new mainboard instead. And did that without any response because, frankly, I was freaking out. Eventually, I turned in for the day after making no progress and had a restless night.</p>
+<p>When I woke up, I tried my powering on the framework again… it worked. What? I don't know what could have caused this but the two things that might have done so are: leaving the charger unplugged overnight, having the laptop sit in a relatively cold environment. Don't ask. I was able to knock out my Sunday deadline assignment but the laptop croaked soon after; the screen froze and I had to hold the power button to shut it off, only for it to not be able to power back on.</p>
+<p>I added these details in my messages with framework support, who had not responded yet. I then looked at the LED lights again; instead of the previous pattern, they gave a different colors this time:</p>
+<table>
+<thead>
+<tr>
+<th>color</th>
+<th>system/code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>green</td>
+<td>Battery connected check</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Power Good 3V5V supply</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Power Good VCCIN_AUX</td>
+</tr>
+<tr>
+<td>green</td>
+<td>CPU deassert sleep S4</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Power boot core VR</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Touchpad detected</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Audio board Detected</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Thermal sensor detected</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Fan detected and spins up</td>
+</tr>
+<tr>
+<td>green</td>
+<td>CPU reached S0 state</td>
+</tr>
+<tr>
+<td>red</td>
+<td>DDR initialized OK</td>
+</tr>
+<tr>
+<td>green</td>
+<td>Internal display initialized OK</td>
+</tr>
+<tr>
+<td>orange</td>
+<td>post codes</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 0</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 1</td>
+</tr>
+<tr>
+<td>blue</td>
+<td>post bit 2</td>
+</tr>
+<tr>
+<td>blue</td>
+<td>post bit 3</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 4</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 5</td>
+</tr>
+<tr>
+<td>blue</td>
+<td>post bit 6</td>
+</tr>
+<tr>
+<td>green</td>
+<td>post bit 7</td>
+</tr>
+</tbody>
+</table>
+<p>An issue with DDR? The knowledgebase article actually has a section on potential fixes for "DDR initialized OK"</p>
+<blockquote>
+<p>Resolving "DDR initialized OK" error codes If the side LEDs blink out a code with the 11th blink red, that indicates a potential error with memory. Please try the following:</p>
+<p>If you have two sticks of RAM, test them out one at a time.</p>
+<p>Test if one of the two memory sockets isn't working by trying one socket at a time.</p>
+<p>If you have other DDR4 SO-DIMMs on hand to try, test those out.</p>
+</blockquote>
+<p>I tried these steps but the laptop still refused to boot, and furthermore the blinking LED started to blink the previous pattern with VCCIN_AUX and other things being red. At this point, I sent support (which still had not responded yet, though it was a weekend) an update and gave up for the day. I left the laptop unplugged like last night in the hopes that I could recreate today's scenario where I could boot it at least once.</p>
+<p>You may be interested in the meaning of the post codes, and the main resources/references I found were the links in
+<a href=https://community.frame.work/t/post-code-bits-meaning/11857>this thread</a>. I believe it was <code>0x4c DXE_VARIABLE_INIT_FAIL Fail to initial Variable Service</code>
+whatever that means.</p>
+<p>Next morning, I attempted to power the laptop back on; it did not work. However, the LEDs had gone back to blinking out the "DDR initialized pattern". I also received my first response from support overnight. It was prefaced with "We understand that you may already performed some of this steps however, we just want to make sure that nothing was missed.", and then told me to check that the side LED lights and keyboard cable were properly attached, despite providing them with videos of the LED light blinking before. Really, just the entire knowledgebase article but I had been referencing but worded a little differently. I was… pretty miffed. At the bottom of their response, they then detailed the "DDR initialized OK" troubleshooting steps with the added step of removing the SSD and expansion cards.</p>
+<p>I went through it, and noticed that having RAM in only slot 0 would result in no blinking LEDs while having RAM in both slots 1 and 0 would. I then tried powering the laptop on with the SSD and only RAM in slot 0, and it worked! The laptop was saved (though I can only use one stick of RAM and I'm not too sure how stable it is, but it's been working fine for a few days so far).</p>
+<p>In the meantime I updated support and asked them to cancel the mainboard order I made, but they couldn't so I have to wait for it to be delivered and then send it back. Furthermore, the tracking service they use, aftership, uses cloudflare protection so…</p>
+<p><img alt="endless cloudflare verification loop" src=/blobs/129/cf.gif></p>
+<p>Endless verification loop! Very cool <del>framework</del> <del>aftership</del> cloudflare!</p>
+<p>Jokes aside, I'm decently happy with how things turned out as a workaround was found. Though at the end of the day, the VCCIN_AUX LED pattern was never truly solved; it just happened to turn into a DRAM issue which was.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/128>&lt; encounter with formal math</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-02-25 - add post 129</summary>
+<pre class=code-block><input id=code-block-a44386ca93a607ad81c7bc618fc18d15d52a8909-1 type=checkbox><label for=code-block-a44386ca93a607ad81c7bc618fc18d15d52a8909-1></label><code><span class=hljs-meta>@@ -0,0 +1,199 @@</span>
+<span class=hljs-addition>+# framework troubleshooting</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+If your framework laptop is not powering on, I would suggest looking at</span>
+<span class=hljs-addition>+[this support page](https://knowledgebase.frame.work/en_us/my-framework-laptop-intel-12th-gen-intel-core-is-not-powering-on-BJWtouV3q)</span>
+<span class=hljs-addition>+to start and messaging support.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Last Friday night, my framework laptop refused to power on. Uh-oh. I had an</span>
+<span class=hljs-addition>+assignment whose deadline was that Sunday and, with my only personal computer</span>
+<span class=hljs-addition>+dead, only had a phone... which I rarely use at all.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Furthermore, as a password manager user, I did not have access to most of my</span>
+<span class=hljs-addition>+accounts until I could get a computer with internet access to download a copy of</span>
+<span class=hljs-addition>+my database and the proper password management software to use it. Fortunately,</span>
+<span class=hljs-addition>+I do keep my most important passwords memorized and was able to reset the few</span>
+<span class=hljs-addition>+accounts I needed to access at that moment through my phone. Spoilers: I was</span>
+<span class=hljs-addition>+able to recover my laptop, but I think I could have moved to a new one without</span>
+<span class=hljs-addition>+much issue.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## actual troubleshooting</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In addition to sending some messages off to the professor of the class whose</span>
+<span class=hljs-addition>+assignment&#x27;s deadline I may just miss, I started searching online for any kind</span>
+<span class=hljs-addition>+of information, quickly coming across the knowledgebase article linked above and</span>
+<span class=hljs-addition>+following the steps.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; If your power button doesn&#x27;t light up when pressed... Double check the</span>
+<span class=hljs-addition>+&gt; Touchpad Cable that goes between the Touchpad and the Mainboard...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My power button was not lighting up, so I opened up the laptop and checked the</span>
+<span class=hljs-addition>+connection. It was fine.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; If your power button lights up briefly but then turns off...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+No, the power button is not lighting up at all.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; If your power button lights up, but you don&#x27;t see the screen come on, and the</span>
+<span class=hljs-addition>+&gt; side LEDs are solid...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+No...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; If your power button lights up, but you don&#x27;t see the screen come on, and the</span>
+<span class=hljs-addition>+&gt; side LEDs are blinking...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As I said, the power button just is not lighting up at all, and the remaining</span>
+<span class=hljs-addition>+steps assume that it should be. I decided to ignore the &quot;If your power button</span>
+<span class=hljs-addition>+lights up&quot; sentence in the headers. Both sections that don&#x27;t troubleshoot the</span>
+<span class=hljs-addition>+light itself say to monitor the LED lights on the side 20 seconds or for 5</span>
+<span class=hljs-addition>+minutes after boot. While the entire laptop seemed dead, I went ahead and did it</span>
+<span class=hljs-addition>+anyways.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There was something - after 20 seconds of nothing; no power button light, no</span>
+<span class=hljs-addition>+monitor light, only a solid white LED light that probably indicates the charger</span>
+<span class=hljs-addition>+is plugged in - I saw the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; the side LEDs next to the Expansion Cards will blink out a code with the</span>
+<span class=hljs-addition>+&gt; status of various subsystems/boot initialization steps.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Good progress. What were the colors?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Green, green, red, green, green, green, green, green, red, red, green, green,</span>
+<span class=hljs-addition>+orange, green, green, green, green, green, green, green, green. In other words:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| color  | system/code                     |</span>
+<span class=hljs-addition>+| ------ | ------------------------------- |</span>
+<span class=hljs-addition>+| green  | Battery connected check         |</span>
+<span class=hljs-addition>+| green  | Power Good 3V5V supply          |</span>
+<span class=hljs-addition>+| red    | Power Good VCCIN_AUX            |</span>
+<span class=hljs-addition>+| green  | CPU deassert sleep S4           |</span>
+<span class=hljs-addition>+| green  | Power boot core VR              |</span>
+<span class=hljs-addition>+| green  | Touchpad detected               |</span>
+<span class=hljs-addition>+| green  | Audio board Detected            |</span>
+<span class=hljs-addition>+| green  | Thermal sensor detected         |</span>
+<span class=hljs-addition>+| red    | Fan detected and spins up       |</span>
+<span class=hljs-addition>+| red    | CPU reached S0 state            |</span>
+<span class=hljs-addition>+| green  | DDR initialized OK              |</span>
+<span class=hljs-addition>+| green  | Internal display initialized OK |</span>
+<span class=hljs-addition>+| orange | post codes                      |</span>
+<span class=hljs-addition>+| green  | post bit 0                      |</span>
+<span class=hljs-addition>+| green  | post bit 1                      |</span>
+<span class=hljs-addition>+| green  | post bit 2                      |</span>
+<span class=hljs-addition>+| green  | post bit 3                      |</span>
+<span class=hljs-addition>+| green  | post bit 4                      |</span>
+<span class=hljs-addition>+| green  | post bit 5                      |</span>
+<span class=hljs-addition>+| green  | post bit 6                      |</span>
+<span class=hljs-addition>+| green  | post bit 7                      |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So no power good signal from vccin_aux, fan not detected, and cpu did not reach</span>
+<span class=hljs-addition>+S0 state. I&#x27;m no expert (or even beginner) when it comes to things like this,</span>
+<span class=hljs-addition>+but my guess was that the cpu was not starting due to some power/voltage issue.</span>
+<span class=hljs-addition>+I then decided to search online for people with similar issues.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was lucky enough to come across</span>
+<span class=hljs-addition>+[this](https://community.frame.work/t/led-sequence-vccin-aux/31577) thread on</span>
+<span class=hljs-addition>+the framework forums where a few people have had the similar symptoms as I did,</span>
+<span class=hljs-addition>+but there was no real solution given. The only thing suggested was to</span>
+<span class=hljs-addition>+[reset the mainboard](https://guides.frame.work/Guide/Fully+Resetting+the+Mainboard+State/113)</span>
+<span class=hljs-addition>+which I did. It did not change anything.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+After some more fruitless digging, I decided to engage support. I detailed</span>
+<span class=hljs-addition>+everything to them and they actually responded soon after despite it being late</span>
+<span class=hljs-addition>+on Friday. They asked for videos and pictures of everything, so I did that...</span>
+<span class=hljs-addition>+and then mentioned my upcoming deadlines and asked if I should just buy a new</span>
+<span class=hljs-addition>+mainboard instead. And did that without any response because, frankly, I was</span>
+<span class=hljs-addition>+freaking out. Eventually, I turned in for the day after making no progress and</span>
+<span class=hljs-addition>+had a restless night.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When I woke up, I tried my powering on the framework again... it worked. What? I</span>
+<span class=hljs-addition>+don&#x27;t know what could have caused this but the two things that might have done</span>
+<span class=hljs-addition>+so are: leaving the charger unplugged overnight, having the laptop sit in a</span>
+<span class=hljs-addition>+relatively cold environment. Don&#x27;t ask. I was able to knock out my Sunday</span>
+<span class=hljs-addition>+deadline assignment but the laptop croaked soon after; the screen froze and I</span>
+<span class=hljs-addition>+had to hold the power button to shut it off, only for it to not be able to power</span>
+<span class=hljs-addition>+back on.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I added these details in my messages with framework support, who had not</span>
+<span class=hljs-addition>+responded yet. I then looked at the LED lights again; instead of the previous</span>
+<span class=hljs-addition>+pattern, they gave a different colors this time:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| color  | system/code                     |</span>
+<span class=hljs-addition>+| ------ | ------------------------------- |</span>
+<span class=hljs-addition>+| green  | Battery connected check         |</span>
+<span class=hljs-addition>+| green  | Power Good 3V5V supply          |</span>
+<span class=hljs-addition>+| green  | Power Good VCCIN_AUX            |</span>
+<span class=hljs-addition>+| green  | CPU deassert sleep S4           |</span>
+<span class=hljs-addition>+| green  | Power boot core VR              |</span>
+<span class=hljs-addition>+| green  | Touchpad detected               |</span>
+<span class=hljs-addition>+| green  | Audio board Detected            |</span>
+<span class=hljs-addition>+| green  | Thermal sensor detected         |</span>
+<span class=hljs-addition>+| green  | Fan detected and spins up       |</span>
+<span class=hljs-addition>+| green  | CPU reached S0 state            |</span>
+<span class=hljs-addition>+| red    | DDR initialized OK              |</span>
+<span class=hljs-addition>+| green  | Internal display initialized OK |</span>
+<span class=hljs-addition>+| orange | post codes                      |</span>
+<span class=hljs-addition>+| green  | post bit 0                      |</span>
+<span class=hljs-addition>+| green  | post bit 1                      |</span>
+<span class=hljs-addition>+| blue   | post bit 2                      |</span>
+<span class=hljs-addition>+| blue   | post bit 3                      |</span>
+<span class=hljs-addition>+| green  | post bit 4                      |</span>
+<span class=hljs-addition>+| green  | post bit 5                      |</span>
+<span class=hljs-addition>+| blue   | post bit 6                      |</span>
+<span class=hljs-addition>+| green  | post bit 7                      |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+An issue with DDR? The knowledgebase article actually has a section on potential</span>
+<span class=hljs-addition>+fixes for &quot;DDR initialized OK&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Resolving &quot;DDR initialized OK&quot; error codes If the side LEDs blink out a code</span>
+<span class=hljs-addition>+&gt; with the 11th blink red, that indicates a potential error with memory. Please</span>
+<span class=hljs-addition>+&gt; try the following:</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; If you have two sticks of RAM, test them out one at a time.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Test if one of the two memory sockets isn&#x27;t working by trying one socket at a</span>
+<span class=hljs-addition>+&gt; time.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; If you have other DDR4 SO-DIMMs on hand to try, test those out.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I tried these steps but the laptop still refused to boot, and furthermore the</span>
+<span class=hljs-addition>+blinking LED started to blink the previous pattern with VCCIN_AUX and other</span>
+<span class=hljs-addition>+things being red. At this point, I sent support (which still had not responded</span>
+<span class=hljs-addition>+yet, though it was a weekend) an update and gave up for the day. I left the</span>
+<span class=hljs-addition>+laptop unplugged like last night in the hopes that I could recreate today&#x27;s</span>
+<span class=hljs-addition>+scenario where I could boot it at least once.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You may be interested in the meaning of the post codes, and the main</span>
+<span class=hljs-addition>+resources/references I found were the links in</span>
+<span class=hljs-addition>+[this thread](https://community.frame.work/t/post-code-bits-meaning/11857). I</span>
+<span class=hljs-addition>+believe it was `0x4c DXE_VARIABLE_INIT_FAIL Fail to initial Variable Service`</span>
+<span class=hljs-addition>+whatever that means.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Next morning, I attempted to power the laptop back on; it did not work. However,</span>
+<span class=hljs-addition>+the LEDs had gone back to blinking out the &quot;DDR initialized pattern&quot;. I also</span>
+<span class=hljs-addition>+received my first response from support overnight. It was prefaced with &quot;We</span>
+<span class=hljs-addition>+understand that you may already performed some of this steps however, we just</span>
+<span class=hljs-addition>+want to make sure that nothing was missed.&quot;, and then told me to check that the</span>
+<span class=hljs-addition>+side LED lights and keyboard cable were properly attached, despite providing</span>
+<span class=hljs-addition>+them with videos of the LED light blinking before. Really, just the entire</span>
+<span class=hljs-addition>+knowledgebase article but I had been referencing but worded a little</span>
+<span class=hljs-addition>+differently. I was... pretty miffed. At the bottom of their response, they then</span>
+<span class=hljs-addition>+detailed the &quot;DDR initialized OK&quot; troubleshooting steps with the added step of</span>
+<span class=hljs-addition>+removing the SSD and expansion cards.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I went through it, and noticed that having RAM in only slot 0 would result in no</span>
+<span class=hljs-addition>+blinking LEDs while having RAM in both slots 1 and 0 would. I then tried</span>
+<span class=hljs-addition>+powering the laptop on with the SSD and only RAM in slot 0, and it worked! The</span>
+<span class=hljs-addition>+laptop was saved (though I can only use one stick of RAM and I&#x27;m not too sure</span>
+<span class=hljs-addition>+how stable it is, but it&#x27;s been working fine for a few days so far).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In the meantime I updated support and asked them to cancel the mainboard order I</span>
+<span class=hljs-addition>+made, but they couldn&#x27;t so I have to wait for it to be delivered and then send</span>
+<span class=hljs-addition>+it back. Furthermore, the tracking service they use, aftership, uses cloudflare</span>
+<span class=hljs-addition>+protection so...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![endless cloudflare verification loop](/blobs/129/cf.gif)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Endless verification loop! Very cool ~~framework~~ ~~aftership~~ cloudflare!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Jokes aside, I&#x27;m decently happy with how things turned out as a workaround was</span>
+<span class=hljs-addition>+found. Though at the end of the day, the VCCIN_AUX LED pattern was never truly</span>
+<span class=hljs-addition>+solved; it just happened to turn into a DRAM issue which was.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
