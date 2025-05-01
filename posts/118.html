@@ -41,7 +41,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>Putting together the egpu was actually pretty simple, but anytime I heard a weird cracking noise I was afraid that I just threw \$400 down the drain because I broke something. I don't have a case for the parts so it's freeform and does look quite wonky and lopsided but is overall stable.</p>
 <p>Overall it's very convenient; want to use your laptop normally? Unplug from the egpu. Want to game or do graphics intensive work? Plug into the egpu. As long as you powered on your laptop with the egpu plugged in, you can plug and unplug it without any worry.</p>
 <h2 id=semi-solved-issues>(semi-solved) issues</h2>
-<p>One issue I ran into was that, for some reason when powering on the laptop with the egpu plugged in, I had no audio drivers - nothing showed in device management. Obviously one could work around this by using external microphones and speakers, but this was quite weird. After lots of random testing, I found out that this only happens when the hardware switch for the framework's built in laptop is disabled as the laptop powers on. Sliding the switch to on position before turning the laptop on resolves the issue (and you can toggle it afterwards without a problem).</p>
+<p>One issue I ran into was that, for some reason when powering on the laptop with the egpu plugged in, I had no audio drivers - nothing showed in device management. Obviously one could work around this by using external microphones and speakers, but this was quite weird. After lots of random testing, I found out that this only happens when the hardware switch for the framework's built in laptop is disabled as the laptop powers on. Sliding the switch to on position before turning the laptop on resolves the issue (and you can toggle it afterwards without a problem). A few months in and this doesn't seem to be the actual fix, because I still run into the issue even with the aforementioned steps.</p>
 <p>Another issue I had was around the display freezing and never recovering, necessitating restarting the laptop by holding the power button to shut it off before turning it back on. I first found a workaround which was to quickly unplug the egpu when this happened, causing most programs running on it to crash but the display itself to recover, but think I've solved the issue by changing the link state power management in advanced power settings.</p>
 <p>I haven't run into any other problems yet.</p>
 <nav class=posts-nav_bottom>
@@ -50,6 +50,16 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-05-01 - update post 118: note that audio fix doesn't seem to work</summary>
+<pre class=code-block><input id=code-block-84926f143a88fadae466a9a47822f0db40d26463-1 type=checkbox><label for=code-block-84926f143a88fadae466a9a47822f0db40d26463-1></label><code><span class=hljs-meta>@@ -59,3 +59,5 @@</span> laptop is disabled as the laptop powers on. Sliding the switch to on position
+ before turning the laptop on resolves the issue (and you can toggle it
+<span class=hljs-deletion>-afterwards without a problem).</span>
+<span class=hljs-addition>+afterwards without a problem). A few months in and this doesn&#x27;t seem to be the</span>
+<span class=hljs-addition>+actual fix, because I still run into the issue even with the aforementioned</span>
+<span class=hljs-addition>+steps.</span>
+</code></pre>
+</details>
 <details>
 <summary>2025-02-08 - update post 118: change organization and add some more content</summary>
 <pre class=code-block><input id=code-block-d32866e7648341c00e1183f5b19bf5ae666febfa-1 type=checkbox><label for=code-block-d32866e7648341c00e1183f5b19bf5ae666febfa-1></label><code><span class=hljs-meta>@@ -11,7 +11,8 @@</span> a novice when it comes to hardware so a lot of this may be uninteresting.
