@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>6 months of egpu</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/132>&lt; complaining about the next generation</a></div>
+</nav>
+<h1 id=6-months-of-egpu>6 months of egpu</h1>
+<p>I've been using an external graphics processing unit (egpu) for 6 months and thought I'd write a bit about my current experience.</p>
+<p>The setup I use consists of a Corsair RM650 power supply unit, an EXP GDC TG3P4G3 dock, and a Nvidia GeForce RTX 4060 graphics card. And I have a Framework 13 for my laptop which has Thunderbolt 4 certified ports.</p>
+<p>The point of an egpu is to get better graphics performance out of a laptop, so let's see how it does. The first thing that should probably be looked at are some benchmarks. Now, as a forewarning, I have literally never attempted things like hardware benchmarking so a lot of this will look and sound very amateurish, because it is.</p>
+<h2 id=benchmarks>benchmarks</h2>
+<p>When searching for benchmarks to run, the first thing I came across was PassMark, which has a 3D benchmark. The overall score was <strong>under 10,000</strong> with DirectX 9, 10, 11, 12 tests achieving half the number of frames compared to the average (around 50 fps versus 100 fps) and GPU Compute coming in at around 2500 ops/sec compared to the average of 9300 ops/sec - a crazy difference.</p>
+<p><img alt="passmark benchmark" src=/blobs/133/passmark.png></p>
+<p>Is something seriously messed up with my setup? Or with the benchmark? What does an overall score of 10,000 mean compared to the median/average around 20,000? If we look at the
+<a href=https://www.passmark.com/support/performancetest_faq/understanding-results.php>Understanding Results</a>
+link, it mentions things like</p>
+<blockquote>
+<p>The bigger the number the faster the computer.</p>
+</blockquote>
+<p>and</p>
+<blockquote>
+<p>A computer with a CPU result of 4000 can process roughly twice as much data as a computer with a result of 2000.</p>
+</blockquote>
+<p>and</p>
+<blockquote>
+<p>Double the score, double the performance?</p>
+<p>If the Mark value is doubled, does this mean double the performance?</p>
+<p>The vague wishy washy answer is: Yes it does, some of the time, at least for a limited set of circumstances.</p>
+</blockquote>
+<p>Am I only getting half of the maximum performance with this setup? I don't know, so I decided to try another couple of benchmarks - 3DMark. Yes, it's a different thing. I ran the Steel Nomad DX12 and the Time Spy benchmarks and mocked up the results here against other 4060s. The scores were not exactly 2300 and 8000 but were close enough.</p>
+<p><img alt="3dmark benchmarks" src=/blobs/133/3dmark.png></p>
+<p>Here, we see that the Steel Nomad benchmark was pretty on par, while the Time Spy result is quite under. However, unlike PassMark, 3DMark does have differentiate between gpu and cpu scores. In fact, Steel Nomad only has a gpu score component, implying that the gpu performance of an external 4060 matched the average 4060, assuming most of the scores submitted were from non-egpu setups. What about Time Spy?</p>
+<p><img alt="timespy gpu benchmark" src=/blobs/133/timespy.png></p>
+<p>Better than before, but still under, and, in fact, on the very tail end of the distribution so not good at all. Through this one can surmise that my cpu is going to be a limiting factor in benchmarks from the differences.</p>
+<p>So what do these benchmarks say about this setup performance-wise? In some situations I may have subpar performance, and in others it may match a typical setup.</p>
+<p>Ok, benchmarks are cool and all, but what about actual games? In the next section I'll look at what games I've played and also go on random asides on what I think about the games themselves. These are games that would have been previously unplayable without an egpu.</p>
+<h2 id=cyberpunk-2077-2020-2023>Cyberpunk 2077 (2020, 2023)</h2>
+<blockquote>
+<p>Just don't forget, the game is fixed.</p>
+</blockquote>
+<p>That's a quote from the
+<a href="https://www.youtube.com/watch?v=P39n86v-T7w">Cyberpunk 2077: Phantom Liberty - All In</a>
+promotional video, and it's hilarious when you consider the broken state of the game on release. I'm not sure if the double meaning was intended, but I think it was clever nonetheless.</p>
+<p>With the egpu, the game itself was smooth, and I enjoyed the game for around 150 hours, doing all of the quests, endings, and completing multiple playthroughs. The only time I noticed an issue was when vehicles collided, as the game and audio would both start stuttering, but I think that's more of a cpu issue and wasn't a common occurrence.</p>
+<p>Overall an enjoyable game and an enjoyable experience.</p>
+<h2 id=path-of-exile-2-2024>Path of Exile 2 (2024)</h2>
+<p>As a long-time Path of Exile player from all the way back when the Domination/Nemesis league was being run, I was quite excited for Path of Exile 2, and even bought it before I had the egpu. In fact, this game was one of the reasons I bought an egpu, as the integrated graphics (Intel Iris Xe Graphics) was definitely not enough to run the game.</p>
+<p>The game runs well with the egpu, but the new bottleneck was network where issues like lag and desync made the game not smooth. And I overall do not enjoy playing Path of Exile 2; I think I just don't enjoy grindy games anymore, and it's severely lacking in content and builds even since the 0.2 patch. I do have around 150 hours in the game though. Some of that time is from before the egpu though, but I'm not sure how much.</p>
+<h2 id=helldivers-2-2024>Helldivers 2 (2024)</h2>
+<p>I admittedly have never played the first entry in the Helldivers franchise, but a friend wanted me to play Helldivers 2 with them. I do enjoy co-op games a lot, and thought it would be quite similar to Alien Swarm: Reactive Drop which I also enjoy, so why not.</p>
+<p>Unlike the previous games I've talked about, Helldivers 2 takes some effort to get running smoothly. In fact, even with manual config changes, it's likely that the game starts stuttering in common scenarios. There is a lot of discourse online about how recent patches have really tanked the game's performance, and I feel like a victim of those changes.</p>
+<p>I did enjoy the Super Earth content update though, but, in general, as a game, in my opinion (that's a lot of commas!), I think there is just a lack of things to do. It's still fun with friends though, and it can be fun with randoms but it's a toss up. This game has probably one of the most dubious randoms of all co-op/casual games I've ever played. 150 hours. Again.</p>
+<h2 id=risk-of-rain-2-2019>Risk of Rain 2 (2019)</h2>
+<p>Another friend wanted to play Risk of Rain 2. Ok, sure, let's do it. For whatever reason, trying to run it without the egpu causes the game to run at 15 or less frames, despite looking relatively simplistic and having seemingly simple requirements.</p>
+<p>It's a fun game - it definitely gives you a sense of accomplishment when beating harder things, and also satisfies that becoming overpowered feeling if you do a run for long enough and get enough items. It also actually had some optimizations recently though I haven't played it since then, but it was running fine on the egpu beforehand. Without DLC, I've unlocked everything and played most of the gamemodes, though I haven't been skilled enough to complete an eclipse run yet.</p>
+<p>Crossplay is broken as hell, as having it enabled seems to cause constant disconnections in even non-crossplay lobbies. I've spent 40 hours on the game.</p>
+<h2 id=baldurs-gate-3-2023>Baldur's Gate 3 (2023)</h2>
+<p>I remember playing Baldur's Gate 3 with just the integrated graphics card; things got pretty toasty, I used tactical view to somehow improve frames, and cutscenes would play without everything loaded in. This is a little deviation from the "previously unplayable without an egpu" but it's something that's a lot smoother with. And I'd say it was only playable because it's turn-based.</p>
+<p>With the egpu, the game is a lot smoother. It still does dip under 30 frames sometimes in Act 3, but as a turn-based game it's still quite playable. I enjoy the game immensely from general atmosphere to story to exploration to gameplay complexity.</p>
+<p>And there was patch 8 which added some new content just in time for a new playthrough. I think I've spent around 200 hours on it since getting the egpu.</p>
+<h2 id=clair-obscur-expedition-33-2025>Clair Obscur: Expedition 33 (2025)</h2>
+<p>Possibly the next big game, well, it's already big… as in popular. I like the game for everything except the gameplay itself. Story, music, visuals are all amazing, but I find the gameplay itself is pretty lacking. It doesn't really have the mechanical depth that I expect from a turn-based game. Or at least I didn't find where the fancy mechanics were hidden.</p>
+<p>I think the story and game are pretty linear though that only affects replayability which I don't find too important. The game ran surprisingly smoothly, and it took 50 hours to do everything I could find.</p>
+<h2 id=jump-ship-demo-2025>Jump Ship (Demo) (2025)</h2>
+<p>Ending this with another co-op game that was released a few weeks ago literally, and not one I would think of putting here unless I experienced poor performance like in Risk of Rain 2.</p>
+<p>The first time I played with friends I was getting under 20 frames despite having the egpu plugged in. We finished some missions but I didn't think I would be playing anymore, but I enjoyed the game so I tried the tutorial and the frames were fine.</p>
+<p>The next time we played I consistently had above 45 frames, which is good enough for me. A nice co-op game and I have 10 hours in it. It's kind of like railjack gameplay from Warframe, but a lot better.</p>
+<h2 id=conclusion>conclusion</h2>
+<p>I think the egpu was extremely worth it; a good \$400s spent. There were other games that I've played, but I'm not sure how important the egpu was in terms of frames for those. Either way, those other games have been smooth thanks to the egpu or not. For the games listed, I was mainly playing on medium to low settings.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/132>&lt; complaining about the next generation</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-06-18 - add post 133</summary>
+<pre class=code-block><input id=code-block-eaa6e24be6d957bb71d669247004a76d9629308f-1 type=checkbox><label for=code-block-eaa6e24be6d957bb71d669247004a76d9629308f-1></label><code><span class=hljs-meta>@@ -0,0 +1,197 @@</span>
+<span class=hljs-addition>+# 6 months of egpu</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ve been using an external graphics processing unit (egpu) for 6 months and</span>
+<span class=hljs-addition>+thought I&#x27;d write a bit about my current experience.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The setup I use consists of a Corsair RM650 power supply unit, an EXP GDC</span>
+<span class=hljs-addition>+TG3P4G3 dock, and a Nvidia GeForce RTX 4060 graphics card. And I have a</span>
+<span class=hljs-addition>+Framework 13 for my laptop which has Thunderbolt 4 certified ports.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The point of an egpu is to get better graphics performance out of a laptop, so</span>
+<span class=hljs-addition>+let&#x27;s see how it does. The first thing that should probably be looked at are</span>
+<span class=hljs-addition>+some benchmarks. Now, as a forewarning, I have literally never attempted things</span>
+<span class=hljs-addition>+like hardware benchmarking so a lot of this will look and sound very amateurish,</span>
+<span class=hljs-addition>+because it is.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## benchmarks</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+When searching for benchmarks to run, the first thing I came across was</span>
+<span class=hljs-addition>+PassMark, which has a 3D benchmark. The overall score was **under 10,000** with</span>
+<span class=hljs-addition>+DirectX 9, 10, 11, 12 tests achieving half the number of frames compared to the</span>
+<span class=hljs-addition>+average (around 50 fps versus 100 fps) and GPU Compute coming in at around 2500</span>
+<span class=hljs-addition>+ops/sec compared to the average of 9300 ops/sec - a crazy difference.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![passmark benchmark](/blobs/133/passmark.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Is something seriously messed up with my setup? Or with the benchmark? What does</span>
+<span class=hljs-addition>+an overall score of 10,000 mean compared to the median/average around 20,000? If</span>
+<span class=hljs-addition>+we look at the</span>
+<span class=hljs-addition>+[Understanding Results](https://www.passmark.com/support/performancetest_faq/understanding-results.php)</span>
+<span class=hljs-addition>+link, it mentions things like</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; The bigger the number the faster the computer.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+and</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; A computer with a CPU result of 4000 can process roughly twice as much data as</span>
+<span class=hljs-addition>+&gt; a computer with a result of 2000.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+and</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Double the score, double the performance?</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; If the Mark value is doubled, does this mean double the performance?</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; The vague wishy washy answer is: Yes it does, some of the time, at least for a</span>
+<span class=hljs-addition>+&gt; limited set of circumstances.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Am I only getting half of the maximum performance with this setup? I don&#x27;t know,</span>
+<span class=hljs-addition>+so I decided to try another couple of benchmarks - 3DMark. Yes, it&#x27;s a different</span>
+<span class=hljs-addition>+thing. I ran the Steel Nomad DX12 and the Time Spy benchmarks and mocked up the</span>
+<span class=hljs-addition>+results here against other 4060s. The scores were not exactly 2300 and 8000 but</span>
+<span class=hljs-addition>+were close enough.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![3dmark benchmarks](/blobs/133/3dmark.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here, we see that the Steel Nomad benchmark was pretty on par, while the Time</span>
+<span class=hljs-addition>+Spy result is quite under. However, unlike PassMark, 3DMark does have</span>
+<span class=hljs-addition>+differentiate between gpu and cpu scores. In fact, Steel Nomad only has a gpu</span>
+<span class=hljs-addition>+score component, implying that the gpu performance of an external 4060 matched</span>
+<span class=hljs-addition>+the average 4060, assuming most of the scores submitted were from non-egpu</span>
+<span class=hljs-addition>+setups. What about Time Spy?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+![timespy gpu benchmark](/blobs/133/timespy.png)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Better than before, but still under, and, in fact, on the very tail end of the</span>
+<span class=hljs-addition>+distribution so not good at all. Through this one can surmise that my cpu is</span>
+<span class=hljs-addition>+going to be a limiting factor in benchmarks from the differences.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So what do these benchmarks say about this setup performance-wise? In some</span>
+<span class=hljs-addition>+situations I may have subpar performance, and in others it may match a typical</span>
+<span class=hljs-addition>+setup.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ok, benchmarks are cool and all, but what about actual games? In the next</span>
+<span class=hljs-addition>+section I&#x27;ll look at what games I&#x27;ve played and also go on random asides on what</span>
+<span class=hljs-addition>+I think about the games themselves. These are games that would have been</span>
+<span class=hljs-addition>+previously unplayable without an egpu.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Cyberpunk 2077 (2020, 2023)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Just don&#x27;t forget, the game is fixed.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+That&#x27;s a quote from the</span>
+<span class=hljs-addition>+[Cyberpunk 2077: Phantom Liberty - All In](https://www.youtube.com/watch?v=P39n86v-T7w)</span>
+<span class=hljs-addition>+promotional video, and it&#x27;s hilarious when you consider the broken state of the</span>
+<span class=hljs-addition>+game on release. I&#x27;m not sure if the double meaning was intended, but I think it</span>
+<span class=hljs-addition>+was clever nonetheless.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+With the egpu, the game itself was smooth, and I enjoyed the game for around 150</span>
+<span class=hljs-addition>+hours, doing all of the quests, endings, and completing multiple playthroughs.</span>
+<span class=hljs-addition>+The only time I noticed an issue was when vehicles collided, as the game and</span>
+<span class=hljs-addition>+audio would both start stuttering, but I think that&#x27;s more of a cpu issue and</span>
+<span class=hljs-addition>+wasn&#x27;t a common occurrence.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Overall an enjoyable game and an enjoyable experience.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Path of Exile 2 (2024)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As a long-time Path of Exile player from all the way back when the</span>
+<span class=hljs-addition>+Domination/Nemesis league was being run, I was quite excited for Path of Exile</span>
+<span class=hljs-addition>+2, and even bought it before I had the egpu. In fact, this game was one of the</span>
+<span class=hljs-addition>+reasons I bought an egpu, as the integrated graphics (Intel Iris Xe Graphics)</span>
+<span class=hljs-addition>+was definitely not enough to run the game.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The game runs well with the egpu, but the new bottleneck was network where</span>
+<span class=hljs-addition>+issues like lag and desync made the game not smooth. And I overall do not enjoy</span>
+<span class=hljs-addition>+playing Path of Exile 2; I think I just don&#x27;t enjoy grindy games anymore, and</span>
+<span class=hljs-addition>+it&#x27;s severely lacking in content and builds even since the 0.2 patch. I do have</span>
+<span class=hljs-addition>+around 150 hours in the game though. Some of that time is from before the egpu</span>
+<span class=hljs-addition>+though, but I&#x27;m not sure how much.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Helldivers 2 (2024)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I admittedly have never played the first entry in the Helldivers franchise, but</span>
+<span class=hljs-addition>+a friend wanted me to play Helldivers 2 with them. I do enjoy co-op games a lot,</span>
+<span class=hljs-addition>+and thought it would be quite similar to Alien Swarm: Reactive Drop which I also</span>
+<span class=hljs-addition>+enjoy, so why not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Unlike the previous games I&#x27;ve talked about, Helldivers 2 takes some effort to</span>
+<span class=hljs-addition>+get running smoothly. In fact, even with manual config changes, it&#x27;s likely that</span>
+<span class=hljs-addition>+the game starts stuttering in common scenarios. There is a lot of discourse</span>
+<span class=hljs-addition>+online about how recent patches have really tanked the game&#x27;s performance, and I</span>
+<span class=hljs-addition>+feel like a victim of those changes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I did enjoy the Super Earth content update though, but, in general, as a game,</span>
+<span class=hljs-addition>+in my opinion (that&#x27;s a lot of commas!), I think there is just a lack of things</span>
+<span class=hljs-addition>+to do. It&#x27;s still fun with friends though, and it can be fun with randoms but</span>
+<span class=hljs-addition>+it&#x27;s a toss up. This game has probably one of the most dubious randoms of all</span>
+<span class=hljs-addition>+co-op/casual games I&#x27;ve ever played. 150 hours. Again.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Risk of Rain 2 (2019)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another friend wanted to play Risk of Rain 2. Ok, sure, let&#x27;s do it. For</span>
+<span class=hljs-addition>+whatever reason, trying to run it without the egpu causes the game to run at 15</span>
+<span class=hljs-addition>+or less frames, despite looking relatively simplistic and having seemingly</span>
+<span class=hljs-addition>+simple requirements.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+It&#x27;s a fun game - it definitely gives you a sense of accomplishment when beating</span>
+<span class=hljs-addition>+harder things, and also satisfies that becoming overpowered feeling if you do a</span>
+<span class=hljs-addition>+run for long enough and get enough items. It also actually had some</span>
+<span class=hljs-addition>+optimizations recently though I haven&#x27;t played it since then, but it was running</span>
+<span class=hljs-addition>+fine on the egpu beforehand. Without DLC, I&#x27;ve unlocked everything and played</span>
+<span class=hljs-addition>+most of the gamemodes, though I haven&#x27;t been skilled enough to complete an</span>
+<span class=hljs-addition>+eclipse run yet.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Crossplay is broken as hell, as having it enabled seems to cause constant</span>
+<span class=hljs-addition>+disconnections in even non-crossplay lobbies. I&#x27;ve spent 40 hours on the game.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Baldur&#x27;s Gate 3 (2023)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I remember playing Baldur&#x27;s Gate 3 with just the integrated graphics card;</span>
+<span class=hljs-addition>+things got pretty toasty, I used tactical view to somehow improve frames, and</span>
+<span class=hljs-addition>+cutscenes would play without everything loaded in. This is a little deviation</span>
+<span class=hljs-addition>+from the &quot;previously unplayable without an egpu&quot; but it&#x27;s something that&#x27;s a lot</span>
+<span class=hljs-addition>+smoother with. And I&#x27;d say it was only playable because it&#x27;s turn-based.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+With the egpu, the game is a lot smoother. It still does dip under 30 frames</span>
+<span class=hljs-addition>+sometimes in Act 3, but as a turn-based game it&#x27;s still quite playable. I enjoy</span>
+<span class=hljs-addition>+the game immensely from general atmosphere to story to exploration to gameplay</span>
+<span class=hljs-addition>+complexity.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And there was patch 8 which added some new content just in time for a new</span>
+<span class=hljs-addition>+playthrough. I think I&#x27;ve spent around 200 hours on it since getting the egpu.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Clair Obscur: Expedition 33 (2025)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Possibly the next big game, well, it&#x27;s already big... as in popular. I like the</span>
+<span class=hljs-addition>+game for everything except the gameplay itself. Story, music, visuals are all</span>
+<span class=hljs-addition>+amazing, but I find the gameplay itself is pretty lacking. It doesn&#x27;t really</span>
+<span class=hljs-addition>+have the mechanical depth that I expect from a turn-based game. Or at least I</span>
+<span class=hljs-addition>+didn&#x27;t find where the fancy mechanics were hidden.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think the story and game are pretty linear though that only affects</span>
+<span class=hljs-addition>+replayability which I don&#x27;t find too important. The game ran surprisingly</span>
+<span class=hljs-addition>+smoothly, and it took 50 hours to do everything I could find.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Jump Ship (Demo) (2025)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ending this with another co-op game that was released a few weeks ago literally,</span>
+<span class=hljs-addition>+and not one I would think of putting here unless I experienced poor performance</span>
+<span class=hljs-addition>+like in Risk of Rain 2.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first time I played with friends I was getting under 20 frames despite</span>
+<span class=hljs-addition>+having the egpu plugged in. We finished some missions but I didn&#x27;t think I would</span>
+<span class=hljs-addition>+be playing anymore, but I enjoyed the game so I tried the tutorial and the</span>
+<span class=hljs-addition>+frames were fine.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The next time we played I consistently had above 45 frames, which is good enough</span>
+<span class=hljs-addition>+for me. A nice co-op game and I have 10 hours in it. It&#x27;s kind of like railjack</span>
+<span class=hljs-addition>+gameplay from Warframe, but a lot better.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think the egpu was extremely worth it; a good \$400s spent. There were other</span>
+<span class=hljs-addition>+games that I&#x27;ve played, but I&#x27;m not sure how important the egpu was in terms of</span>
+<span class=hljs-addition>+frames for those. Either way, those other games have been smooth thanks to the</span>
+<span class=hljs-addition>+egpu or not. For the games listed, I was mainly playing on medium to low</span>
+<span class=hljs-addition>+settings.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
