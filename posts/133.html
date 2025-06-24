@@ -38,7 +38,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <h2 id=benchmarks>benchmarks</h2>
 <p>When searching for benchmarks to run, the first thing I came across was PassMark, which has a 3D benchmark. The overall score was <strong>under 10,000</strong> with DirectX 9, 10, 11, 12 tests achieving half the number of frames compared to the average (around 50 fps versus 100 fps) and GPU Compute coming in at around 2500 ops/sec compared to the average of 9300 ops/sec - a crazy difference.</p>
 <p><img alt="passmark benchmark" src=/blobs/133/passmark.png></p>
-<p>Is something seriously messed up with my setup? Or with the benchmark? What does an overall score of 10,000 mean compared to the median/average around 20,000? If we look at the
+<p>Is something seriously messed up with my setup? Or with the benchmark? Is this the performance gap between people who overclock versus those that don't? What does an overall score of 10,000 mean compared to the median/average around 20,000? If we look at the
 <a href=https://www.passmark.com/support/performancetest_faq/understanding-results.php>Understanding Results</a>
 link, it mentions things like</p>
 <blockquote>
@@ -59,7 +59,7 @@ link, it mentions things like</p>
 <p>Here, we see that the Steel Nomad benchmark was pretty on par, while the Time Spy result is quite under. However, unlike PassMark, 3DMark does have differentiate between gpu and cpu scores. In fact, Steel Nomad only has a gpu score component, implying that the gpu performance of an external 4060 matched the average 4060, assuming most of the scores submitted were from non-egpu setups. What about Time Spy?</p>
 <p><img alt="timespy gpu benchmark" src=/blobs/133/timespy.png></p>
 <p>Better than before, but still under, and, in fact, on the very tail end of the distribution so not good at all. Through this one can surmise that my cpu is going to be a limiting factor in benchmarks from the differences.</p>
-<p>So what do these benchmarks say about this setup performance-wise? In some situations I may have subpar performance, and in others it may match a typical setup.</p>
+<p>So what do these benchmarks say about this setup performance-wise? In some situations I may have subpar performance, and in others it may match a typical setup. One thing to keep in mind, that I read many times, is that higher end graphics cards are not ideal for this setup because the performance bottleneck in this case is the thunderbolt connection. I do not know how to check the actual numbers there, but as far as I can tell, the 4060 can be fully utilized.</p>
 <p>Ok, benchmarks are cool and all, but what about actual games? In the next section I'll look at what games I've played and also go on random asides on what I think about the games themselves. These are games that would have been previously unplayable without an egpu.</p>
 <h2 id=cyberpunk-2077-2020-2023>Cyberpunk 2077 (2020, 2023)</h2>
 <blockquote>
@@ -75,7 +75,7 @@ promotional video, and it's hilarious when you consider the broken state of the 
 <p>The game runs well with the egpu, but the new bottleneck was network where issues like lag and desync made the game not smooth. And I overall do not enjoy playing Path of Exile 2; I think I just don't enjoy grindy games anymore, and it's severely lacking in content and builds even since the 0.2 patch. I do have around 150 hours in the game though. Some of that time is from before the egpu though, but I'm not sure how much.</p>
 <h2 id=helldivers-2-2024>Helldivers 2 (2024)</h2>
 <p>I admittedly have never played the first entry in the Helldivers franchise, but a friend wanted me to play Helldivers 2 with them. I do enjoy co-op games a lot, and thought it would be quite similar to Alien Swarm: Reactive Drop which I also enjoy, so why not.</p>
-<p>Unlike the previous games I've talked about, Helldivers 2 takes some effort to get running smoothly. In fact, even with manual config changes, it's likely that the game starts stuttering in common scenarios. There is a lot of discourse online about how recent patches have really tanked the game's performance, and I feel like a victim of those changes.</p>
+<p>Unlike the previous games I've talked about, Helldivers 2 takes some effort to get running smoothly. In fact, even with manual config changes, it's likely that the game starts stuttering in common scenarios. There is a lot of discourse online about how recent patches have really tanked the game's performance, and I feel like a victim of those changes. To be honest, I think it's a cpu issue.</p>
 <p>I did enjoy the Super Earth content update though, but, in general, as a game, in my opinion (that's a lot of commas!), I think there is just a lack of things to do. It's still fun with friends though, and it can be fun with randoms but it's a toss up. This game has probably one of the most dubious randoms of all co-op/casual games I've ever played. 150 hours. Again.</p>
 <h2 id=risk-of-rain-2-2019>Risk of Rain 2 (2019)</h2>
 <p>Another friend wanted to play Risk of Rain 2. Ok, sure, let's do it. For whatever reason, trying to run it without the egpu causes the game to run at 15 or less frames, despite looking relatively simplistic and having seemingly simple requirements.</p>
@@ -93,13 +93,46 @@ promotional video, and it's hilarious when you consider the broken state of the 
 <p>The first time I played with friends I was getting under 20 frames despite having the egpu plugged in. We finished some missions but I didn't think I would be playing anymore, but I enjoyed the game so I tried the tutorial and the frames were fine.</p>
 <p>The next time we played I consistently had above 45 frames, which is good enough for me. A nice co-op game and I have 10 hours in it. It's kind of like railjack gameplay from Warframe, but a lot better.</p>
 <h2 id=conclusion>conclusion</h2>
-<p>I think the egpu was extremely worth it; a good \$400s spent. There were other games that I've played, but I'm not sure how important the egpu was in terms of frames for those. Either way, those other games have been smooth thanks to the egpu or not. For the games listed, I was mainly playing on medium to low settings.</p>
+<p>I think the egpu was extremely worth it; a good \$400s spent. There were other games that I've played, but I'm not sure how important the egpu was in terms of frames for those. Either way, those other games have been smooth thanks to the egpu or not. For the games listed, I was mainly playing on medium to low settings. When games were not smooth, the issue seems to stem from a weak cpu, which is actually upgradeable because Framework.</p>
 <nav class=posts-nav_bottom>
 <div class=posts-nav_before><a href=/./posts/132>&lt; complaining about the next generation</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-06-23 - update post 133: add a few details</summary>
+<pre class=code-block><input id=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-1 type=checkbox><label for=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-1></label><code><span class=hljs-meta>@@ -25,5 +25,6 @@</span> ops/sec compared to the average of 9300 ops/sec - a crazy difference.
+
+<span class=hljs-deletion>-Is something seriously messed up with my setup? Or with the benchmark? What does</span>
+<span class=hljs-deletion>-an overall score of 10,000 mean compared to the median/average around 20,000? If</span>
+<span class=hljs-deletion>-we look at the</span>
+<span class=hljs-addition>+Is something seriously messed up with my setup? Or with the benchmark? Is this</span>
+<span class=hljs-addition>+the performance gap between people who overclock versus those that don&#x27;t? What</span>
+<span class=hljs-addition>+does an overall score of 10,000 mean compared to the median/average around</span>
+<span class=hljs-addition>+20,000? If we look at the</span>
+ [Understanding Results](https://www.passmark.com/support/performancetest_faq/understanding-results.php)
+</code></pre>
+<pre class=code-block><input id=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-2 type=checkbox><label for=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-2></label><code><span class=hljs-meta>@@ -70,3 +71,6 @@</span> So what do these benchmarks say about this setup performance-wise? In some
+ situations I may have subpar performance, and in others it may match a typical
+<span class=hljs-deletion>-setup.</span>
+<span class=hljs-addition>+setup. One thing to keep in mind, that I read many times, is that higher end</span>
+<span class=hljs-addition>+graphics cards are not ideal for this setup because the performance bottleneck</span>
+<span class=hljs-addition>+in this case is the thunderbolt connection. I do not know how to check the</span>
+<span class=hljs-addition>+actual numbers there, but as far as I can tell, the 4060 can be fully utilized.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-3 type=checkbox><label for=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-3></label><code><span class=hljs-meta>@@ -121,3 +125,3 @@</span> the game starts stuttering in common scenarios. There is a lot of discourse
+ online about how recent patches have really tanked the game&#x27;s performance, and I
+<span class=hljs-deletion>-feel like a victim of those changes.</span>
+<span class=hljs-addition>+feel like a victim of those changes. To be honest, I think it&#x27;s a cpu issue.</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-4 type=checkbox><label for=code-block-a25bfbb2efe38254dcf46ae619c2b515c59eac07-4></label><code><span class=hljs-meta>@@ -196,2 +200,3 @@</span> frames for those. Either way, those other games have been smooth thanks to the
+ egpu or not. For the games listed, I was mainly playing on medium to low
+<span class=hljs-deletion>-settings.</span>
+<span class=hljs-addition>+settings. When games were not smooth, the issue seems to stem from a weak cpu,</span>
+<span class=hljs-addition>+which is actually upgradeable because Framework.</span>
+</code></pre>
+</details>
 <details>
 <summary>2025-06-18 - add post 133</summary>
 <pre class=code-block><input id=code-block-eaa6e24be6d957bb71d669247004a76d9629308f-1 type=checkbox><label for=code-block-eaa6e24be6d957bb71d669247004a76d9629308f-1></label><code><span class=hljs-meta>@@ -0,0 +1,197 @@</span>
