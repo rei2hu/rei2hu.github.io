@@ -41,7 +41,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>Using the equation from earlier, we can model $log(t)$ as a simple linear regression, i.e. $log(t) \approx log(\alpha) + y \cdot \frac{log(2)}{2}$, and we can create a model for that with uninformative priors because I have no idea what the values could be, or rather, we'll let the modeling software figure it out:</p>
 <p>$$ log(t_i)\text{ | }\beta_1, \beta_2, \sigma^2, y_i \sim N(\beta_1 + (y_i - \bar{y_i}) \cdot \beta_2) $$</p>
 <p>$$ \beta_1, \beta_2 \sim N(0, 1000) $$</p>
-<p>$$ \sigma \sim gamma(0.001, 0.001) $$</p>
+<p>$$ \sigma \sim \Gamma(0.001, 0.001) $$</p>
 <p>Now we just need some data to fit it with. Fortunately, Wikipedia also has
 <a href=https://en.wikipedia.org/wiki/Transistor_count#Microprocessors>an article</a> on that. Here's the data sourced from the article at the time of writing that and that I've somewhat cleaned, using the highest possible value for the count e.g. sometimes it said "x - y" and I would choose y or "x (y excluding…)" where I would choose x.</p>
 <pre class=code-block><input id=code-block-134-1 type=checkbox><label for=code-block-134-1></label><code>&quot;Processor&quot;,&quot;Count&quot;,&quot;Year&quot;
@@ -348,7 +348,7 @@ lp__  <span class=hljs-number>1995.663</span> <span class=hljs-number>1.0001480<
 <span>History:</span>
 <details>
 <summary>2025-07-28 - add post 134</summary>
-<pre class=code-block><input id=code-block-273d88631c62178df721ffa84fa91583b60efd49-1 type=checkbox><label for=code-block-273d88631c62178df721ffa84fa91583b60efd49-1></label><code><span class=hljs-meta>@@ -0,0 +1,366 @@</span>
+<pre class=code-block><input id=code-block-ac61b3a126ad465f66591c8b076d5a78fac60453-1 type=checkbox><label for=code-block-ac61b3a126ad465f66591c8b076d5a78fac60453-1></label><code><span class=hljs-meta>@@ -0,0 +1,366 @@</span>
 <span class=hljs-addition>+# bayesian analysis of transistor count</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+&gt; Moore&#x27;s law is the observation that the number of transistors in an integrated</span>
@@ -383,7 +383,7 @@ lp__  <span class=hljs-number>1995.663</span> <span class=hljs-number>1.0001480<
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+$$</span>
-<span class=hljs-addition>+\sigma \sim gamma(0.001, 0.001)</span>
+<span class=hljs-addition>+\sigma \sim \Gamma(0.001, 0.001)</span>
 <span class=hljs-addition>+$$</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
