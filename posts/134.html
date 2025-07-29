@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>bayesian analysis of transistor count</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/133>&lt; 6 months of egpu</a></div>
+</nav>
+<h1 id=bayesian-analysis-of-transistor-count>bayesian analysis of transistor count</h1>
+<blockquote>
+<p>Moore's law is the observation that the number of transistors in an integrated circuit (IC) doubles about every two years.</p>
+</blockquote>
+<p>From <a href=https://en.wikipedia.org/wiki/Moore%27s_law>Wikipedia</a></p>
+<p>Though surely this can't hold forever, whether that's due to slowed technological innovation or some physical property of silicon or gold atoms or whatever (don't ask me, I'm not a physicist!)</p>
+<p>Whether or not this will continue to hold true, for now, if it is, it would imply that the transistor count $t$ of a microprocessor is roughly $t \approx \alpha \cdot 2^{y/2}$ where $\alpha$ is some positive constant and $y$ is the year.</p>
+<p>Using the equation from earlier, we can model $log(t)$ as a simple linear regression, i.e. $log(t) \approx log(\alpha) + y \cdot \frac{log(2)}{2}$, and we can create a model for that with uninformative priors because I have no idea what the values could be, or rather, we'll let the modeling software figure it out:</p>
+<p>$$ log(t_i)\text{ | }\beta_1, \beta_2, \sigma^2, y_i \sim N(\beta_1 + (y_i - \bar{y_i}) \cdot \beta_2) $$</p>
+<p>$$ \beta_1, \beta_2 \sim N(0, 1000) $$</p>
+<p>$$ \sigma \sim gamma(0.001, 0.001) $$</p>
+<p>Now we just need some data to fit it with. Fortunately, Wikipedia also has
+<a href=https://en.wikipedia.org/wiki/Transistor_count#Microprocessors>an article</a> on that. Here's the data sourced from the article at the time of writing that and that I've somewhat cleaned, using the highest possible value for the count e.g. sometimes it said "x - y" and I would choose y or "x (y excluding…)" where I would choose x.</p>
+<pre class=code-block><input id=code-block-134-1 type=checkbox><label for=code-block-134-1></label><code>&quot;Processor&quot;,&quot;Count&quot;,&quot;Year&quot;
+&quot;MP944 (20-bit, 6-chip, 28 chips total)&quot;,74442,1970
+&quot;Intel 4004 (4-bit, 16-pin)&quot;,2250,1971
+&quot;TMX 1795 (8-bit, 24-pin)&quot;,3078,1971
+&quot;Intel 8008 (8-bit, 18-pin)&quot;,3500,1972
+&quot;NEC μCOM-4 (4-bit, 42-pin)&quot;,2500,1973
+&quot;Toshiba TLCS-12 (12-bit)&quot;,11000,1973
+&quot;Intel 4040 (4-bit, 16-pin)&quot;,3000,1974
+&quot;Motorola 6800 (8-bit, 40-pin)&quot;,4100,1974
+&quot;Intel 8080 (8-bit, 40-pin)&quot;,6000,1974
+&quot;TMS 1000 (4-bit, 28-pin)&quot;,8000,1974
+&quot;MOS Technology 6502 (8-bit, 40-pin)&quot;,4528,1975
+&quot;Intersil IM6100 (12-bit, 40-pin; clone of PDP-8)&quot;,4000,1975
+&quot;CDP 1801 (8-bit, 2-chip, 40-pin)&quot;,5000,1975
+&quot;RCA 1802 (8-bit, 40-pin)&quot;,5000,1976
+&quot;Zilog Z80 (8-bit, 4-bit ALU, 40-pin)&quot;,8500,1976
+&quot;Intel 8085 (8-bit, 40-pin)&quot;,6500,1976
+&quot;TMS9900 (16-bit)&quot;,8000,1976
+&quot;Bellmac-8 (8-bit)&quot;,7000,1977
+&quot;Motorola 6809 (8-bit with some 16-bit features, 40-pin)&quot;,9000,1978
+&quot;Intel 8086 (16-bit, 40-pin)&quot;,29000,1978
+&quot;Zilog Z8000 (16-bit)&quot;,17500,1979
+&quot;Intel 8088 (16-bit, 8-bit data bus)&quot;,29000,1979
+&quot;Motorola 68000 (16/32-bit, 32-bit registers, 16-bit  ALU)&quot;,68000,1979
+&quot;Intel 8051 (8-bit, 40-pin)&quot;,50000,1980
+&quot;WDC 65C02&quot;,11500,1981
+&quot;ROMP (32-bit)&quot;,45000,1981
+&quot;Intel 80186 (16-bit, 68-pin)&quot;,55000,1982
+&quot;Intel 80286 (16-bit, 68-pin)&quot;,134000,1982
+&quot;WDC 65C816 (8/16-bit)&quot;,22000,1983
+&quot;NEC V20&quot;,63000,1984
+&quot;Motorola 68020 (32-bit; 114 pins used)&quot;,190000,1984
+&quot;Intel 80386 (32-bit, 132-pin; no cache)&quot;,275000,1985
+&quot;ARM 1 (32-bit; no cache)&quot;,25000,1985
+&quot;Novix NC4016 (16-bit)&quot;,16000,1985
+&quot;SPARC MB86900 (32-bit; no cache)&quot;,110000,1986
+&quot;NEC V60 (32-bit; no cache)&quot;,375000,1986
+&quot;ARM 2 (32-bit, 84-pin; no cache)&quot;,27000,1986
+&quot;Z80000 (32-bit; very small cache)&quot;,91000,1986
+&quot;NEC V70 (32-bit; no cache)&quot;,385000,1987
+&quot;Hitachi Gmicro/200&quot;,730000,1987
+&quot;Motorola 68030 (32-bit, very small caches)&quot;,273000,1987
+&quot;TI Explorer&#x27;s 32-bit Lisp machine chip&quot;,553000,1987
+&quot;DEC WRL MultiTitan&quot;,180000,1988
+&quot;Intel i960 (32-bit, 33-bit memory subsystem, no cache)&quot;,250000,1988
+&quot;Intel i960CA (32-bit, cache)&quot;,6e+05,1989
+&quot;Intel i860 (32/64-bit, 128-bit SIMD, cache, VLIW)&quot;,1e+06,1989
+&quot;Intel 80486 (32-bit, 8KB cache)&quot;,1180235,1989
+&quot;ARM 3 (32-bit, 4KB cache)&quot;,310000,1989
+&quot;POWER1 (9-chip module, 72 kB of cache)&quot;,6900000,1990
+&quot;Motorola 68040 (32-bit, 8KB caches)&quot;,1200000,1990
+&quot;R4000 (64-bit, 16KB of caches)&quot;,1350000,1991
+&quot;ARM 6 (32-bit, no cache for this 60 variant)&quot;,35000,1991
+&quot;Hitachi SH-1 (32-bit, no cache)&quot;,6e+05,1992
+&quot;Intel i960CF (32-bit, cache)&quot;,9e+05,1992
+&quot;Alpha 21064 (64-bit, 290-pin; 16KB of caches)&quot;,1680000,1992
+&quot;Hitachi HARP-1 (32-bit, cache)&quot;,2800000,1993
+&quot;Pentium (32-bit, 16KB of caches)&quot;,3100000,1993
+&quot;POWER2 (8-chip module, 288 kB of cache)&quot;,23037000,1993
+&quot;ARM700 (32-bit; 8KB cache)&quot;,578977,1994
+&quot;MuP21 (21-bit, 40-pin; includes video)&quot;,7000,1994
+&quot;Motorola 68060 (32-bit, 16KB of caches)&quot;,2500000,1994
+&quot;PowerPC 601 (32-bit, 32KB of caches)&quot;,2800000,1994
+&quot;PowerPC 603 (32-bit, 16KB of caches)&quot;,1600000,1994
+&quot;PowerPC 603e (32-bit, 32KB of caches)&quot;,2600000,1995
+&quot;Alpha 21164 EV5 (64-bit, 112 kB cache)&quot;,9300000,1995
+&quot;SA-110 (32-bit, 32KB of caches)&quot;,2500000,1995
+&quot;Pentium Pro (32-bit, 16KB of caches; L2 cache on-package, but on separate die)&quot;,5500000,1995
+&quot;PA-8000 64-bit, no cache&quot;,3800000,1995
+&quot;Alpha 21164A EV56 (64-bit, 112 kB cache)&quot;,9660000,1996
+&quot;AMD K5 (32-bit, caches)&quot;,4300000,1996
+&quot;Pentium II Klamath (32-bit, 64-bit SIMD, caches)&quot;,7500000,1997
+&quot;AMD K6 (32-bit, caches)&quot;,8800000,1997
+&quot;F21 (21-bit; includes e.g. video)&quot;,15000,1997
+&quot;AVR (8-bit, 40-pin; w/memory)&quot;,140000,1997
+&quot;Pentium II Deschutes (32-bit, large cache)&quot;,7500000,1998
+&quot;Alpha 21264 EV6 (64-bit)&quot;,15200000,1998
+&quot;Alpha 21164PC PCA57 (64-bit, 48 kB cache)&quot;,5700000,1998
+&quot;Hitachi SH-4 (32-bit, caches)&quot;,3200000,1998
+&quot;ARM 9TDMI (32-bit, no cache)&quot;,111000,1999
+&quot;Pentium III Katmai (32-bit, 128-bit SIMD, caches)&quot;,9500000,1999
+&quot;Emotion Engine (64-bit, 128-bit SIMD, cache)&quot;,13500000,1999
+&quot;Pentium II Mobile Dixon (32-bit, caches)&quot;,27400000,1999
+&quot;AMD K6-III (32-bit, caches)&quot;,21300000,1999
+&quot;AMD K7 (32-bit, caches)&quot;,2.2e+07,1999
+&quot;Gekko (32-bit, large cache)&quot;,2.1e+07,2000
+&quot;Pentium III Coppermine (32-bit, large cache)&quot;,2.1e+07,2000
+&quot;Pentium 4 Willamette (32-bit, large cache)&quot;,4.2e+07,2000
+&quot;SPARC64 V (64-bit, large cache)&quot;,1.91e+08,2001
+&quot;Pentium III Tualatin (32-bit, large cache)&quot;,4.5e+07,2001
+&quot;Pentium 4 Northwood (32-bit, large cache)&quot;,5.5e+07,2002
+&quot;Itanium 2 McKinley (64-bit, large cache)&quot;,2.2e+08,2002
+&quot;Alpha 21364 (64-bit, 946-pin, SIMD, very large caches)&quot;,1.52e+08,2003
+&quot;AMD K7 Barton (32-bit, large cache)&quot;,54300000,2003
+&quot;AMD K8 (64-bit, large cache)&quot;,105900000,2003
+&quot;Pentium M Banias (32-bit)&quot;,7.7e+07,2003
+&quot;Itanium 2 Madison 6M (64-bit)&quot;,4.1e+08,2003
+&quot;PlayStation 2 single chip (CPU + GPU)&quot;,53500000,2003
+&quot;Pentium 4 Prescott (32-bit, large cache)&quot;,1.12e+08,2004
+&quot;Pentium M Dothan (32-bit)&quot;,1.44e+08,2004
+&quot;SPARC64 V+ (64-bit, large cache)&quot;,4e+08,2004
+&quot;Itanium 2 (64-bit;9MB cache)&quot;,5.92e+08,2004
+&quot;Pentium 4 Prescott-2M (32-bit, large cache)&quot;,1.69e+08,2005
+&quot;Pentium D Smithfield (64-bit, large cache)&quot;,2.28e+08,2005
+&quot;Xenon (64-bit, 128-bit SIMD, large cache)&quot;,1.65e+08,2005
+&quot;Cell (32-bit, cache)&quot;,2.5e+08,2005
+&quot;Pentium 4 Cedar Mill (32-bit, large cache)&quot;,1.84e+08,2006
+&quot;Pentium D Presler (64-bit, large cache)&quot;,3.62e+08,2006
+&quot;Core 2 Duo Conroe (dual-core 64-bit, large caches)&quot;,2.91e+08,2006
+&quot;Dual-core Itanium 2 (64-bit, SIMD, large caches)&quot;,1.7e+09,2006
+&quot;AMD K10 quad-core 2M L3 (64-bit, large caches)&quot;,4.63e+08,2007
+&quot;ARM Cortex-A9 (32-bit, (optional) SIMD, caches)&quot;,2.6e+07,2007
+&quot;Core 2 Duo Wolfdale (dual-core 64-bit, SIMD, caches)&quot;,4.11e+08,2007
+&quot;POWER6 (64-bit, large caches)&quot;,7.89e+08,2007
+&quot;Core 2 Duo Allendale (dual-core 64-bit, SIMD, large caches)&quot;,1.69e+08,2007
+&quot;Uniphier&quot;,2.5e+08,2007
+&quot;SPARC64 VI (64-bit, SIMD, large caches)&quot;,5.4e+08,2007
+&quot;Core 2 Duo Wolfdale 3M (dual-core 64-bit, SIMD, large caches)&quot;,2.3e+08,2008
+&quot;Core i7 (quad-core 64-bit, SIMD, large caches)&quot;,7.31e+08,2008
+&quot;AMD K10 quad-core 6M L3 (64-bit, SIMD, large caches)&quot;,7.58e+08,2008
+&quot;Atom (32-bit, large cache)&quot;,4.7e+07,2008
+&quot;SPARC64 VII (64-bit, SIMD, large caches)&quot;,6e+08,2008
+&quot;Six-core Xeon 7400 (64-bit, SIMD, large caches)&quot;,1.9e+09,2008
+&quot;Six-core Opteron 2400 (64-bit, SIMD, large caches)&quot;,9.04e+08,2009
+&quot;SPARC64 VIIIfx (64-bit, SIMD, large caches)&quot;,7.6e+08,2009
+&quot;Atom (Pineview) 64-bit, 1-core, 512 kB L2 cache&quot;,1.23e+08,2010
+&quot;Atom (Pineview) 64-bit, 2-core, 1 MB L2 cache&quot;,1.76e+08,2010
+&quot;SPARC T3 (16-core 64-bit, SIMD, large caches)&quot;,1e+09,2010
+&quot;Six-core Core i7 (Gulftown)&quot;,1.17e+09,2010
+&quot;POWER7 32M L3 (8-core 64-bit, SIMD, large caches)&quot;,1.2e+09,2010
+&quot;Quad-core z196 (64-bit, very large caches)&quot;,1.4e+09,2010
+&quot;Quad-core Itanium Tukwila (64-bit, SIMD, large caches)&quot;,2e+09,2010
+&quot;Xeon Nehalem-EX (8-core 64-bit, SIMD, large caches)&quot;,2.3e+09,2010
+&quot;SPARC64 IXfx (64-bit, SIMD, large caches)&quot;,1.87e+09,2011
+&quot;Quad-core + GPU Core i7 (64-bit, SIMD, large caches)&quot;,1.16e+09,2011
+&quot;Six-core Core i7/8-core Xeon E5
+ (Sandy Bridge-E/EP) (64-bit, SIMD, large caches)&quot;,2.27e+09,2011
+&quot;Xeon Westmere-EX (10-core 64-bit, SIMD, large caches)&quot;,2.6e+09,2011
+&quot;Atom &quot;&quot;Medfield&quot;&quot; (64-bit)&quot;,4.32e+08,2012
+&quot;SPARC64 X (64-bit, SIMD, caches)&quot;,2.99e+09,2012
+&quot;AMD Bulldozer (8-core 64-bit, SIMD, caches)&quot;,1.2e+09,2012
+&quot;Quad-core + GPU AMD Trinity (64-bit, SIMD, caches)&quot;,1.303e+09,2012
+&quot;Quad-core + GPU Core i7 Ivy Bridge (64-bit, SIMD, caches)&quot;,1.4e+09,2012
+&quot;POWER7+ (8-core 64-bit, SIMD, 80MB L3 cache)&quot;,2.1e+09,2012
+&quot;Six-core zEC12 (64-bit, SIMD, large caches)&quot;,2.75e+09,2012
+&quot;Itanium Poulson (8-core 64-bit, SIMD, caches)&quot;,3.1e+09,2012
+&quot;Xeon Phi (61-core 32-bit, 512-bit SIMD, caches)&quot;,5e+09,2012
+&quot;Apple A7 (dual-core 64/32-bit ARM64, &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1e+09,2013
+&quot;Six-core Core i7 Ivy Bridge E (64-bit, SIMD, caches)&quot;,1.86e+09,2013
+&quot;POWER8 (12-core 64-bit, SIMD, caches)&quot;,4.2e+09,2013
+&quot;Xbox One main SoC (64-bit, SIMD, caches)&quot;,5e+09,2013
+&quot;Quad-core + GPU Core i7 Haswell (64-bit, SIMD, caches)&quot;,1.4e+09,2014
+&quot;Apple A8 (dual-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,2e+09,2014
+&quot;Core i7 Haswell-E (8-core 64-bit, SIMD, caches)&quot;,2.6e+09,2014
+&quot;Apple A8X (tri-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3e+09,2014
+&quot;Xeon Ivy Bridge-EX (15-core 64-bit, SIMD, caches)&quot;,4.31e+09,2014
+&quot;Xeon Haswell-E5 (18-core 64-bit, SIMD, caches)&quot;,5.56e+09,2014
+&quot;Quad-core + GPU GT2 Core i7 Skylake K (64-bit, SIMD, caches)&quot;,1.75e+09,2015
+&quot;Dual-core + GPU Iris Core i7 Broadwell-U (64-bit, SIMD, caches)&quot;,1.9e+09,2015
+&quot;Apple A9 (dual-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,2e+09,2015
+&quot;Apple A9 (dual-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,2e+09,2015
+&quot;Apple A9X (dual core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3e+09,2015
+&quot;IBM z13 (64-bit, caches)&quot;,3.99e+09,2015
+&quot;IBM z13 Storage Controller&quot;,7.1e+09,2015
+&quot;SPARC M7 (32-core 64-bit, SIMD, caches)&quot;,1e+10,2015
+&quot;Core i7 Broadwell-E (10-core 64-bit, SIMD, caches)&quot;,3.2e+09,2016
+&quot;Apple A10 Fusion (quad-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3.3e+09,2016
+&quot;HiSilicon Kirin 960 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,4e+09,2016
+&quot;Xeon Broadwell-E5 (22-core 64-bit, SIMD, caches)&quot;,7.2e+09,2016
+&quot;Xeon Phi (72-core 64-bit, 512-bit SIMD, caches)&quot;,8e+09,2016
+&quot;Qualcomm Snapdragon 835 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3e+09,2016
+&quot;Apple A11 Bionic (hexa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,4.3e+09,2017
+&quot;AMD Zen CCX (core complex unit: 4 cores, 8 MB L3 cache)&quot;,1.4e+09,2017
+&quot;AMD Zeppelin SoC Ryzen (64-bit, SIMD, caches)&quot;,4.8e+09,2017
+&quot;AMD Ryzen 5 1600 Ryzen (64-bit, SIMD, caches)&quot;,4.8e+09,2017
+&quot;IBM z14 (64-bit, SIMD, caches)&quot;,6.1e+09,2017
+&quot;IBM z14 Storage Controller (64-bit)&quot;,9.7e+09,2017
+&quot;HiSilicon Kirin 970 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.5e+09,2017
+&quot;Xbox One X (Project Scorpio) main SoC (64-bit, SIMD, caches)&quot;,7e+09,2017
+&quot;Xeon Platinum 8180 (28-core 64-bit, SIMD, caches)&quot;,8e+09,2017
+&quot;Xeon (unspecified)&quot;,7.1e+09,2017
+&quot;POWER9 (64-bit, SIMD, caches)&quot;,8e+09,2017
+&quot;Freedom U500 Base Platform Chip (E51, 4×U54) RISC-V (64-bit, caches)&quot;,2.5e+08,2017
+&quot;SPARC64 XII (12-core 64-bit, SIMD, caches)&quot;,5.45e+09,2017
+&quot;Apple A10X Fusion (hexa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,4.3e+09,2017
+&quot;Centriq 2400 (64/32-bit, SIMD, caches)&quot;,1.8e+10,2017
+&quot;AMD Epyc (32-core 64-bit, SIMD, caches)&quot;,1.92e+10,2017
+&quot;Qualcomm Snapdragon 845 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.3e+09,2017
+&quot;Qualcomm Snapdragon 850 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.3e+09,2017
+&quot;HiSilicon Kirin 710 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.5e+09,2018
+&quot;Apple A12 Bionic (hexa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,6.9e+09,2018
+&quot;HiSilicon Kirin 980 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,6.9e+09,2018
+&quot;Qualcomm Snapdragon 8cx / SCX8180 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,8.5e+09,2018
+&quot;Apple A12X Bionic (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1e+10,2018
+&quot;Fujitsu A64FX (64/32-bit, SIMD, caches)&quot;,8.786e+09,2018
+&quot;Tegra Xavier SoC (64/32-bit)&quot;,9e+09,2018
+&quot;Qualcomm Snapdragon 855 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,6.7e+09,2018
+&quot;AMD Zen 2 core (0.5 MB L2 + 4 MB L3 cache)&quot;,4.75e+08,2019
+&quot;AMD Zen 2 CCX (core complex: 4 cores, 16 MB L3 cache)&quot;,1.9e+09,2019
+&quot;AMD Zen 2 CCD (core complex die: 8 cores, 32 MB L3 cache)&quot;,3.8e+09,2019
+&quot;AMD Zen 2 client I/O die&quot;,2.09e+09,2019
+&quot;AMD Zen 2 server I/O die&quot;,8.34e+09,2019
+&quot;AMD Zen 2 Renoir die&quot;,9.8e+09,2019
+&quot;AMD Ryzen 7 3700X (64-bit, SIMD, caches, I/O die)&quot;,5.99e+09,2019
+&quot;HiSilicon Kirin 990 4G&quot;,8e+09,2019
+&quot;Apple A13 (hexa-core 64-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,8.5e+09,2019
+&quot;IBM z15 CP chip (12 cores, 256 MB L3 cache)&quot;,9.2e+09,2019
+&quot;IBM z15 SC chip (960 MB L4 cache)&quot;,1.22e+10,2019
+&quot;AMD Ryzen 9 3900X (64-bit, SIMD, caches, I/O die)&quot;,9.89e+09,2019
+&quot;HiSilicon Kirin 990 5G&quot;,1.03e+10,2019
+&quot;AWS Graviton2 (64-bit, 64-core ARM-based, SIMD, caches)&quot;,3e+10,2019
+&quot;AMD Epyc Rome (64-bit, SIMD, caches)&quot;,3.954e+10,2019
+&quot;Qualcomm Snapdragon 865 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1.03e+10,2019
+&quot;TI Jacinto TDA4VM (ARM A72, DSP, SRAM)&quot;,3.5e+09,2020
+&quot;Apple A14 Bionic (hexa-core 64-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1.18e+10,2020
+&quot;Apple M1 (octa-core 64-bit ARM64 SoC, SIMD, caches)&quot;,1.6e+10,2020
+&quot;HiSilicon Kirin 9000&quot;,1.53e+10,2020
+&quot;AMD Zen 3 CCX (core complex unit: 8 cores, 32 MB L3 cache)&quot;,4.08e+09,2020
+&quot;AMD Zen 3 CCD (core complex die)&quot;,4.15e+09,2020
+&quot;Core 11th gen Rocket Lake (8-core 64-bit, SIMD, large caches)&quot;,6e+09,2021
+&quot;AMD Ryzen 7 5800H (64-bit, SIMD, caches, I/O and GPU)&quot;,1.07e+10,2021
+&quot;Apple A15&quot;,1.5e+10,2021
+&quot;Apple M1 Pro (10-core, 64-bit)&quot;,3.37e+10,2021
+&quot;Apple M1 Max (10-core, 64-bit)&quot;,5.7e+10,2021
+&quot;Power10 dual-chip module (30 SMT8 cores or 60 SMT4 cores)&quot;,3.6e+10,2021
+&quot;Dimensity 9000 (ARM64 SoC)&quot;,1.53e+10,2021
+&quot;Apple A16 (ARM64 SoC)&quot;,1.6e+10,2022
+&quot;Apple M1 Ultra (dual-chip module, 2×10 cores)&quot;,1.14e+11,2022
+&quot;AMD Epyc 7773X (Milan-X) (multi-chip module, 64 cores, 768 MB L3 cache)&quot;,2.6e+10,2022
+&quot;IBM Telum dual-chip module (2×8 cores, 2×256 MB cache)&quot;,4.5e+10,2022
+&quot;Apple M2 (deca-core 64-bit ARM64 SoC, SIMD, caches)&quot;,2e+10,2022
+&quot;Dimensity 9200 (ARM64 SoC)&quot;,1.7e+10,2022
+&quot;Qualcomm Snapdragon 8 Gen 2 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1.6e+10,2022
+&quot;AMD EPYC Genoa (4th gen/9004 series) 13-chip module (up to 96 cores and 384 MB (L3) + 96 MB (L2) cache)&quot;,9e+10,2022
+&quot;HiSilicon Kirin 9000s&quot;,9.51e+09,2023
+&quot;Apple M4 (deca-core 64-bit ARM64 SoC, SIMD, caches)&quot;,2.8e+10,2024
+&quot;Apple M3 (octa-core 64-bit ARM64 SoC, SIMD, caches)&quot;,2.5e+10,2023
+&quot;Apple M3 Pro (dodeca-core 64-bit ARM64 SoC, SIMD, caches)&quot;,3.7e+10,2023
+&quot;Apple M3 Max (16-core 64-bit ARM64 SoC, SIMD, caches)&quot;,9.2e+10,2023
+&quot;Apple A17&quot;,1.9e+10,2023
+&quot;Sapphire Rapids quad-chip module (up to 60 cores and 112.5 MB of cache)&quot;,4.8e+10,2023
+&quot;Apple M2 Pro (12-core 64-bit ARM64 SoC, SIMD, caches)&quot;,4e+10,2023
+&quot;Apple M2 Max (12-core 64-bit ARM64 SoC, SIMD, caches)&quot;,6.7e+10,2023
+&quot;Apple M2 Ultra (two M2 Max dies)&quot;,1.34e+11,2023
+&quot;AMD Epyc Bergamo (4th gen/97X4 series) 9-chip module (up to 128 cores and 256 MB (L3) + 128 MB (L2) cache)&quot;,8.2e+10,2023
+&quot;AMD Instinct MI300A (multi-chip module, 24 cores, 128GB GPU memory + 256MB (LLC/L3) cache)&quot;,1.46e+11,2023
+&quot;RV32-WUJI: 3-atom-thick molybdenum disulfide on sapphire; RISC-V architecture&quot;,5931,2025
+</code></pre>
+<p>We have our data and we have our model; now let's write it in Stan.</p>
+<pre class=code-block><input id=code-block-134-2 type=checkbox><label for=code-block-134-2></label><code><span class=hljs-title>data</span> {
+  <span class=hljs-type>int</span>&lt;<span class=hljs-keyword>lower</span>=<span class=hljs-number>1</span>&gt; N;
+  <span class=hljs-type>vector</span>[N] Year;
+  <span class=hljs-type>vector</span>[N] logCount;
+}
+<span class=hljs-title>transformed</span> <span class=hljs-title>data</span> {
+  <span class=hljs-type>real</span> meanYear = <span class=hljs-built_in>mean</span>(Year); <span class=hljs-comment>// center year</span>
+}
+<span class=hljs-title>parameters</span> {
+  <span class=hljs-type>real</span> beta1;
+  <span class=hljs-type>real</span> beta2;
+  <span class=hljs-type>real</span>&lt;<span class=hljs-keyword>lower</span>=<span class=hljs-number>0</span>&gt; sigma;
+}
+<span class=hljs-title>model</span> {
+  beta1 ~ <span class=hljs-built_in>normal</span>(<span class=hljs-number>0</span>, <span class=hljs-number>1000</span>);
+  beta2 ~ <span class=hljs-built_in>normal</span>(<span class=hljs-number>0</span>, <span class=hljs-number>1000</span>);
+  sigma ~ <span class=hljs-built_in>gamma</span>(<span class=hljs-number>0.001</span>, <span class=hljs-number>0.001</span>);
+
+  <span class=hljs-keyword>for</span> (i <span class=hljs-keyword>in</span> <span class=hljs-number>1</span> : N)
+    logCount[i] ~ <span class=hljs-built_in>normal</span>(beta1 + beta2 * (Year[i] - meanYear), sigma);
+}
+</code></pre>
+<p>And fit it to the dataset in R.</p>
+<pre class=code-block><input id=code-block-134-3 type=checkbox><label for=code-block-134-3></label><code>fit <span class=hljs-operator>=</span> stan<span class=hljs-punctuation>(</span>model_code <span class=hljs-operator>=</span> model_code<span class=hljs-punctuation>,</span>
+           data <span class=hljs-operator>=</span> <span class=hljs-built_in>list</span><span class=hljs-punctuation>(</span>N <span class=hljs-operator>=</span> <span class=hljs-built_in>length</span><span class=hljs-punctuation>(</span>data<span class=hljs-operator>$</span>Processor<span class=hljs-punctuation>)</span><span class=hljs-punctuation>,</span>
+                       logCount <span class=hljs-operator>=</span> <span class=hljs-built_in>log</span><span class=hljs-punctuation>(</span>data<span class=hljs-operator>$</span>Count<span class=hljs-punctuation>)</span><span class=hljs-punctuation>,</span>
+                       Year <span class=hljs-operator>=</span> data<span class=hljs-operator>$</span>Year<span class=hljs-punctuation>)</span><span class=hljs-punctuation>,</span>
+           chains <span class=hljs-operator>=</span> <span class=hljs-number>4</span><span class=hljs-punctuation>,</span>
+           seed <span class=hljs-operator>=</span> <span class=hljs-number>123</span><span class=hljs-punctuation>)</span>
+</code></pre>
+<p>Then check the posterior summary.</p>
+<pre class=code-block><input id=code-block-134-4 type=checkbox><label for=code-block-134-4></label><code>summary<span class=hljs-punctuation>(</span>fit<span class=hljs-punctuation>)</span>
+<span class=hljs-operator>$</span>summary
+              mean      se_mean          sd        <span class=hljs-number>2.5</span><span class=hljs-operator>%          25%</span>          <span class=hljs-number>50</span><span class=hljs-operator>%          75%</span>        <span class=hljs-number>97.5</span>%
+beta1   <span class=hljs-number>18.3998254</span> <span class=hljs-number>1.616183e-03</span> <span class=hljs-number>0.101542812</span>   <span class=hljs-number>18.206679</span>   <span class=hljs-number>18.3312085</span>   <span class=hljs-number>18.3982784</span>   <span class=hljs-number>18.4652631</span>   <span class=hljs-number>18.6062902</span>
+beta2    <span class=hljs-number>0.3230952</span> <span class=hljs-number>9.586144e-05</span> <span class=hljs-number>0.006775313</span>    <span class=hljs-number>0.309999</span>    <span class=hljs-number>0.3186071</span>    <span class=hljs-number>0.3231043</span>    <span class=hljs-number>0.3275844</span>    <span class=hljs-number>0.3363578</span>
+sigma    <span class=hljs-number>1.5656914</span> <span class=hljs-number>1.215401e-03</span> <span class=hljs-number>0.070942077</span>    <span class=hljs-number>1.430532</span>    <span class=hljs-number>1.5174614</span>    <span class=hljs-number>1.5633471</span>    <span class=hljs-number>1.6099205</span>    <span class=hljs-number>1.7157355</span>
+lp__  <span class=hljs-operator>-</span><span class=hljs-number>232.3964081</span> <span class=hljs-number>2.771899e-02</span> <span class=hljs-number>1.238286203</span> <span class=hljs-operator>-</span><span class=hljs-number>235.640914</span> <span class=hljs-operator>-</span><span class=hljs-number>232.9814656</span> <span class=hljs-operator>-</span><span class=hljs-number>232.0617668</span> <span class=hljs-operator>-</span><span class=hljs-number>231.4930609</span> <span class=hljs-operator>-</span><span class=hljs-number>230.9820222</span>
+         n_eff      Rhat
+beta1 <span class=hljs-number>3947.456</span> <span class=hljs-number>1.0006986</span>
+beta2 <span class=hljs-number>4995.405</span> <span class=hljs-number>0.9996045</span>
+sigma <span class=hljs-number>3406.974</span> <span class=hljs-number>0.9998960</span>
+lp__  <span class=hljs-number>1995.663</span> <span class=hljs-number>1.0001480</span>
+</code></pre>
+<p>Convergence statistics look good (and the trace plots look fine trust me!)</p>
+<p>This gives a 95% confidence interval for $\beta_2$ to be around (0.310, 0.336). However, our originally calculated coefficient for $y$ was $log(2) / 2$ or around $0.347$; this suggests that $log(t)$ has not been increasing as fast as Moore's law would imply, so I guess we've already fallen behind!</p>
+<p>At least according to this analysis.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/133>&lt; 6 months of egpu</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-07-28 - add post 134</summary>
+<pre class=code-block><input id=code-block-273d88631c62178df721ffa84fa91583b60efd49-1 type=checkbox><label for=code-block-273d88631c62178df721ffa84fa91583b60efd49-1></label><code><span class=hljs-meta>@@ -0,0 +1,366 @@</span>
+<span class=hljs-addition>+# bayesian analysis of transistor count</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; Moore&#x27;s law is the observation that the number of transistors in an integrated</span>
+<span class=hljs-addition>+&gt; circuit (IC) doubles about every two years.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+From [Wikipedia](https://en.wikipedia.org/wiki/Moore%27s_law)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Though surely this can&#x27;t hold forever, whether that&#x27;s due to slowed</span>
+<span class=hljs-addition>+technological innovation or some physical property of silicon or gold atoms or</span>
+<span class=hljs-addition>+whatever (don&#x27;t ask me, I&#x27;m not a physicist!)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Whether or not this will continue to hold true, for now, if it is, it would</span>
+<span class=hljs-addition>+imply that the transistor count $t$ of a microprocessor is roughly</span>
+<span class=hljs-addition>+$t \approx \alpha</span>
+<span class=hljs-addition>+\cdot 2^{y/2}$ where $\alpha$ is some positive constant and $y$</span>
+<span class=hljs-addition>+is the year.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Using the equation from earlier, we can model $log(t)$ as a simple linear</span>
+<span class=hljs-addition>+regression, i.e. $log(t) \approx log(\alpha) + y \cdot \frac{log(2)}{2}$, and we</span>
+<span class=hljs-addition>+can create a model for that with uninformative priors because I have no idea</span>
+<span class=hljs-addition>+what the values could be, or rather, we&#x27;ll let the modeling software figure it</span>
+<span class=hljs-addition>+out:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+log(t_i)\text{ | }\beta_1, \beta_2, \sigma^2, y_i \sim N(\beta_1 + (y_i - \bar{y_i}) \cdot \beta_2)</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\beta_1, \beta_2 \sim N(0, 1000)</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\sigma \sim gamma(0.001, 0.001)</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now we just need some data to fit it with. Fortunately, Wikipedia also has</span>
+<span class=hljs-addition>+[an article](https://en.wikipedia.org/wiki/Transistor_count#Microprocessors) on</span>
+<span class=hljs-addition>+that. Here&#x27;s the data sourced from the article at the time of writing that and</span>
+<span class=hljs-addition>+that I&#x27;ve somewhat cleaned, using the highest possible value for the count e.g.</span>
+<span class=hljs-addition>+sometimes it said &quot;x - y&quot; and I would choose y or &quot;x (y excluding...)&quot; where I</span>
+<span class=hljs-addition>+would choose x.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+&quot;Processor&quot;,&quot;Count&quot;,&quot;Year&quot;</span>
+<span class=hljs-addition>+&quot;MP944 (20-bit, 6-chip, 28 chips total)&quot;,74442,1970</span>
+<span class=hljs-addition>+&quot;Intel 4004 (4-bit, 16-pin)&quot;,2250,1971</span>
+<span class=hljs-addition>+&quot;TMX 1795 (8-bit, 24-pin)&quot;,3078,1971</span>
+<span class=hljs-addition>+&quot;Intel 8008 (8-bit, 18-pin)&quot;,3500,1972</span>
+<span class=hljs-addition>+&quot;NEC μCOM-4 (4-bit, 42-pin)&quot;,2500,1973</span>
+<span class=hljs-addition>+&quot;Toshiba TLCS-12 (12-bit)&quot;,11000,1973</span>
+<span class=hljs-addition>+&quot;Intel 4040 (4-bit, 16-pin)&quot;,3000,1974</span>
+<span class=hljs-addition>+&quot;Motorola 6800 (8-bit, 40-pin)&quot;,4100,1974</span>
+<span class=hljs-addition>+&quot;Intel 8080 (8-bit, 40-pin)&quot;,6000,1974</span>
+<span class=hljs-addition>+&quot;TMS 1000 (4-bit, 28-pin)&quot;,8000,1974</span>
+<span class=hljs-addition>+&quot;MOS Technology 6502 (8-bit, 40-pin)&quot;,4528,1975</span>
+<span class=hljs-addition>+&quot;Intersil IM6100 (12-bit, 40-pin; clone of PDP-8)&quot;,4000,1975</span>
+<span class=hljs-addition>+&quot;CDP 1801 (8-bit, 2-chip, 40-pin)&quot;,5000,1975</span>
+<span class=hljs-addition>+&quot;RCA 1802 (8-bit, 40-pin)&quot;,5000,1976</span>
+<span class=hljs-addition>+&quot;Zilog Z80 (8-bit, 4-bit ALU, 40-pin)&quot;,8500,1976</span>
+<span class=hljs-addition>+&quot;Intel 8085 (8-bit, 40-pin)&quot;,6500,1976</span>
+<span class=hljs-addition>+&quot;TMS9900 (16-bit)&quot;,8000,1976</span>
+<span class=hljs-addition>+&quot;Bellmac-8 (8-bit)&quot;,7000,1977</span>
+<span class=hljs-addition>+&quot;Motorola 6809 (8-bit with some 16-bit features, 40-pin)&quot;,9000,1978</span>
+<span class=hljs-addition>+&quot;Intel 8086 (16-bit, 40-pin)&quot;,29000,1978</span>
+<span class=hljs-addition>+&quot;Zilog Z8000 (16-bit)&quot;,17500,1979</span>
+<span class=hljs-addition>+&quot;Intel 8088 (16-bit, 8-bit data bus)&quot;,29000,1979</span>
+<span class=hljs-addition>+&quot;Motorola 68000 (16/32-bit, 32-bit registers, 16-bit  ALU)&quot;,68000,1979</span>
+<span class=hljs-addition>+&quot;Intel 8051 (8-bit, 40-pin)&quot;,50000,1980</span>
+<span class=hljs-addition>+&quot;WDC 65C02&quot;,11500,1981</span>
+<span class=hljs-addition>+&quot;ROMP (32-bit)&quot;,45000,1981</span>
+<span class=hljs-addition>+&quot;Intel 80186 (16-bit, 68-pin)&quot;,55000,1982</span>
+<span class=hljs-addition>+&quot;Intel 80286 (16-bit, 68-pin)&quot;,134000,1982</span>
+<span class=hljs-addition>+&quot;WDC 65C816 (8/16-bit)&quot;,22000,1983</span>
+<span class=hljs-addition>+&quot;NEC V20&quot;,63000,1984</span>
+<span class=hljs-addition>+&quot;Motorola 68020 (32-bit; 114 pins used)&quot;,190000,1984</span>
+<span class=hljs-addition>+&quot;Intel 80386 (32-bit, 132-pin; no cache)&quot;,275000,1985</span>
+<span class=hljs-addition>+&quot;ARM 1 (32-bit; no cache)&quot;,25000,1985</span>
+<span class=hljs-addition>+&quot;Novix NC4016 (16-bit)&quot;,16000,1985</span>
+<span class=hljs-addition>+&quot;SPARC MB86900 (32-bit; no cache)&quot;,110000,1986</span>
+<span class=hljs-addition>+&quot;NEC V60 (32-bit; no cache)&quot;,375000,1986</span>
+<span class=hljs-addition>+&quot;ARM 2 (32-bit, 84-pin; no cache)&quot;,27000,1986</span>
+<span class=hljs-addition>+&quot;Z80000 (32-bit; very small cache)&quot;,91000,1986</span>
+<span class=hljs-addition>+&quot;NEC V70 (32-bit; no cache)&quot;,385000,1987</span>
+<span class=hljs-addition>+&quot;Hitachi Gmicro/200&quot;,730000,1987</span>
+<span class=hljs-addition>+&quot;Motorola 68030 (32-bit, very small caches)&quot;,273000,1987</span>
+<span class=hljs-addition>+&quot;TI Explorer&#x27;s 32-bit Lisp machine chip&quot;,553000,1987</span>
+<span class=hljs-addition>+&quot;DEC WRL MultiTitan&quot;,180000,1988</span>
+<span class=hljs-addition>+&quot;Intel i960 (32-bit, 33-bit memory subsystem, no cache)&quot;,250000,1988</span>
+<span class=hljs-addition>+&quot;Intel i960CA (32-bit, cache)&quot;,6e+05,1989</span>
+<span class=hljs-addition>+&quot;Intel i860 (32/64-bit, 128-bit SIMD, cache, VLIW)&quot;,1e+06,1989</span>
+<span class=hljs-addition>+&quot;Intel 80486 (32-bit, 8KB cache)&quot;,1180235,1989</span>
+<span class=hljs-addition>+&quot;ARM 3 (32-bit, 4KB cache)&quot;,310000,1989</span>
+<span class=hljs-addition>+&quot;POWER1 (9-chip module, 72 kB of cache)&quot;,6900000,1990</span>
+<span class=hljs-addition>+&quot;Motorola 68040 (32-bit, 8KB caches)&quot;,1200000,1990</span>
+<span class=hljs-addition>+&quot;R4000 (64-bit, 16KB of caches)&quot;,1350000,1991</span>
+<span class=hljs-addition>+&quot;ARM 6 (32-bit, no cache for this 60 variant)&quot;,35000,1991</span>
+<span class=hljs-addition>+&quot;Hitachi SH-1 (32-bit, no cache)&quot;,6e+05,1992</span>
+<span class=hljs-addition>+&quot;Intel i960CF (32-bit, cache)&quot;,9e+05,1992</span>
+<span class=hljs-addition>+&quot;Alpha 21064 (64-bit, 290-pin; 16KB of caches)&quot;,1680000,1992</span>
+<span class=hljs-addition>+&quot;Hitachi HARP-1 (32-bit, cache)&quot;,2800000,1993</span>
+<span class=hljs-addition>+&quot;Pentium (32-bit, 16KB of caches)&quot;,3100000,1993</span>
+<span class=hljs-addition>+&quot;POWER2 (8-chip module, 288 kB of cache)&quot;,23037000,1993</span>
+<span class=hljs-addition>+&quot;ARM700 (32-bit; 8KB cache)&quot;,578977,1994</span>
+<span class=hljs-addition>+&quot;MuP21 (21-bit, 40-pin; includes video)&quot;,7000,1994</span>
+<span class=hljs-addition>+&quot;Motorola 68060 (32-bit, 16KB of caches)&quot;,2500000,1994</span>
+<span class=hljs-addition>+&quot;PowerPC 601 (32-bit, 32KB of caches)&quot;,2800000,1994</span>
+<span class=hljs-addition>+&quot;PowerPC 603 (32-bit, 16KB of caches)&quot;,1600000,1994</span>
+<span class=hljs-addition>+&quot;PowerPC 603e (32-bit, 32KB of caches)&quot;,2600000,1995</span>
+<span class=hljs-addition>+&quot;Alpha 21164 EV5 (64-bit, 112 kB cache)&quot;,9300000,1995</span>
+<span class=hljs-addition>+&quot;SA-110 (32-bit, 32KB of caches)&quot;,2500000,1995</span>
+<span class=hljs-addition>+&quot;Pentium Pro (32-bit, 16KB of caches; L2 cache on-package, but on separate die)&quot;,5500000,1995</span>
+<span class=hljs-addition>+&quot;PA-8000 64-bit, no cache&quot;,3800000,1995</span>
+<span class=hljs-addition>+&quot;Alpha 21164A EV56 (64-bit, 112 kB cache)&quot;,9660000,1996</span>
+<span class=hljs-addition>+&quot;AMD K5 (32-bit, caches)&quot;,4300000,1996</span>
+<span class=hljs-addition>+&quot;Pentium II Klamath (32-bit, 64-bit SIMD, caches)&quot;,7500000,1997</span>
+<span class=hljs-addition>+&quot;AMD K6 (32-bit, caches)&quot;,8800000,1997</span>
+<span class=hljs-addition>+&quot;F21 (21-bit; includes e.g. video)&quot;,15000,1997</span>
+<span class=hljs-addition>+&quot;AVR (8-bit, 40-pin; w/memory)&quot;,140000,1997</span>
+<span class=hljs-addition>+&quot;Pentium II Deschutes (32-bit, large cache)&quot;,7500000,1998</span>
+<span class=hljs-addition>+&quot;Alpha 21264 EV6 (64-bit)&quot;,15200000,1998</span>
+<span class=hljs-addition>+&quot;Alpha 21164PC PCA57 (64-bit, 48 kB cache)&quot;,5700000,1998</span>
+<span class=hljs-addition>+&quot;Hitachi SH-4 (32-bit, caches)&quot;,3200000,1998</span>
+<span class=hljs-addition>+&quot;ARM 9TDMI (32-bit, no cache)&quot;,111000,1999</span>
+<span class=hljs-addition>+&quot;Pentium III Katmai (32-bit, 128-bit SIMD, caches)&quot;,9500000,1999</span>
+<span class=hljs-addition>+&quot;Emotion Engine (64-bit, 128-bit SIMD, cache)&quot;,13500000,1999</span>
+<span class=hljs-addition>+&quot;Pentium II Mobile Dixon (32-bit, caches)&quot;,27400000,1999</span>
+<span class=hljs-addition>+&quot;AMD K6-III (32-bit, caches)&quot;,21300000,1999</span>
+<span class=hljs-addition>+&quot;AMD K7 (32-bit, caches)&quot;,2.2e+07,1999</span>
+<span class=hljs-addition>+&quot;Gekko (32-bit, large cache)&quot;,2.1e+07,2000</span>
+<span class=hljs-addition>+&quot;Pentium III Coppermine (32-bit, large cache)&quot;,2.1e+07,2000</span>
+<span class=hljs-addition>+&quot;Pentium 4 Willamette (32-bit, large cache)&quot;,4.2e+07,2000</span>
+<span class=hljs-addition>+&quot;SPARC64 V (64-bit, large cache)&quot;,1.91e+08,2001</span>
+<span class=hljs-addition>+&quot;Pentium III Tualatin (32-bit, large cache)&quot;,4.5e+07,2001</span>
+<span class=hljs-addition>+&quot;Pentium 4 Northwood (32-bit, large cache)&quot;,5.5e+07,2002</span>
+<span class=hljs-addition>+&quot;Itanium 2 McKinley (64-bit, large cache)&quot;,2.2e+08,2002</span>
+<span class=hljs-addition>+&quot;Alpha 21364 (64-bit, 946-pin, SIMD, very large caches)&quot;,1.52e+08,2003</span>
+<span class=hljs-addition>+&quot;AMD K7 Barton (32-bit, large cache)&quot;,54300000,2003</span>
+<span class=hljs-addition>+&quot;AMD K8 (64-bit, large cache)&quot;,105900000,2003</span>
+<span class=hljs-addition>+&quot;Pentium M Banias (32-bit)&quot;,7.7e+07,2003</span>
+<span class=hljs-addition>+&quot;Itanium 2 Madison 6M (64-bit)&quot;,4.1e+08,2003</span>
+<span class=hljs-addition>+&quot;PlayStation 2 single chip (CPU + GPU)&quot;,53500000,2003</span>
+<span class=hljs-addition>+&quot;Pentium 4 Prescott (32-bit, large cache)&quot;,1.12e+08,2004</span>
+<span class=hljs-addition>+&quot;Pentium M Dothan (32-bit)&quot;,1.44e+08,2004</span>
+<span class=hljs-addition>+&quot;SPARC64 V+ (64-bit, large cache)&quot;,4e+08,2004</span>
+<span class=hljs-addition>+&quot;Itanium 2 (64-bit;9MB cache)&quot;,5.92e+08,2004</span>
+<span class=hljs-addition>+&quot;Pentium 4 Prescott-2M (32-bit, large cache)&quot;,1.69e+08,2005</span>
+<span class=hljs-addition>+&quot;Pentium D Smithfield (64-bit, large cache)&quot;,2.28e+08,2005</span>
+<span class=hljs-addition>+&quot;Xenon (64-bit, 128-bit SIMD, large cache)&quot;,1.65e+08,2005</span>
+<span class=hljs-addition>+&quot;Cell (32-bit, cache)&quot;,2.5e+08,2005</span>
+<span class=hljs-addition>+&quot;Pentium 4 Cedar Mill (32-bit, large cache)&quot;,1.84e+08,2006</span>
+<span class=hljs-addition>+&quot;Pentium D Presler (64-bit, large cache)&quot;,3.62e+08,2006</span>
+<span class=hljs-addition>+&quot;Core 2 Duo Conroe (dual-core 64-bit, large caches)&quot;,2.91e+08,2006</span>
+<span class=hljs-addition>+&quot;Dual-core Itanium 2 (64-bit, SIMD, large caches)&quot;,1.7e+09,2006</span>
+<span class=hljs-addition>+&quot;AMD K10 quad-core 2M L3 (64-bit, large caches)&quot;,4.63e+08,2007</span>
+<span class=hljs-addition>+&quot;ARM Cortex-A9 (32-bit, (optional) SIMD, caches)&quot;,2.6e+07,2007</span>
+<span class=hljs-addition>+&quot;Core 2 Duo Wolfdale (dual-core 64-bit, SIMD, caches)&quot;,4.11e+08,2007</span>
+<span class=hljs-addition>+&quot;POWER6 (64-bit, large caches)&quot;,7.89e+08,2007</span>
+<span class=hljs-addition>+&quot;Core 2 Duo Allendale (dual-core 64-bit, SIMD, large caches)&quot;,1.69e+08,2007</span>
+<span class=hljs-addition>+&quot;Uniphier&quot;,2.5e+08,2007</span>
+<span class=hljs-addition>+&quot;SPARC64 VI (64-bit, SIMD, large caches)&quot;,5.4e+08,2007</span>
+<span class=hljs-addition>+&quot;Core 2 Duo Wolfdale 3M (dual-core 64-bit, SIMD, large caches)&quot;,2.3e+08,2008</span>
+<span class=hljs-addition>+&quot;Core i7 (quad-core 64-bit, SIMD, large caches)&quot;,7.31e+08,2008</span>
+<span class=hljs-addition>+&quot;AMD K10 quad-core 6M L3 (64-bit, SIMD, large caches)&quot;,7.58e+08,2008</span>
+<span class=hljs-addition>+&quot;Atom (32-bit, large cache)&quot;,4.7e+07,2008</span>
+<span class=hljs-addition>+&quot;SPARC64 VII (64-bit, SIMD, large caches)&quot;,6e+08,2008</span>
+<span class=hljs-addition>+&quot;Six-core Xeon 7400 (64-bit, SIMD, large caches)&quot;,1.9e+09,2008</span>
+<span class=hljs-addition>+&quot;Six-core Opteron 2400 (64-bit, SIMD, large caches)&quot;,9.04e+08,2009</span>
+<span class=hljs-addition>+&quot;SPARC64 VIIIfx (64-bit, SIMD, large caches)&quot;,7.6e+08,2009</span>
+<span class=hljs-addition>+&quot;Atom (Pineview) 64-bit, 1-core, 512 kB L2 cache&quot;,1.23e+08,2010</span>
+<span class=hljs-addition>+&quot;Atom (Pineview) 64-bit, 2-core, 1 MB L2 cache&quot;,1.76e+08,2010</span>
+<span class=hljs-addition>+&quot;SPARC T3 (16-core 64-bit, SIMD, large caches)&quot;,1e+09,2010</span>
+<span class=hljs-addition>+&quot;Six-core Core i7 (Gulftown)&quot;,1.17e+09,2010</span>
+<span class=hljs-addition>+&quot;POWER7 32M L3 (8-core 64-bit, SIMD, large caches)&quot;,1.2e+09,2010</span>
+<span class=hljs-addition>+&quot;Quad-core z196 (64-bit, very large caches)&quot;,1.4e+09,2010</span>
+<span class=hljs-addition>+&quot;Quad-core Itanium Tukwila (64-bit, SIMD, large caches)&quot;,2e+09,2010</span>
+<span class=hljs-addition>+&quot;Xeon Nehalem-EX (8-core 64-bit, SIMD, large caches)&quot;,2.3e+09,2010</span>
+<span class=hljs-addition>+&quot;SPARC64 IXfx (64-bit, SIMD, large caches)&quot;,1.87e+09,2011</span>
+<span class=hljs-addition>+&quot;Quad-core + GPU Core i7 (64-bit, SIMD, large caches)&quot;,1.16e+09,2011</span>
+<span class=hljs-addition>+&quot;Six-core Core i7/8-core Xeon E5</span>
+<span class=hljs-addition>+ (Sandy Bridge-E/EP) (64-bit, SIMD, large caches)&quot;,2.27e+09,2011</span>
+<span class=hljs-addition>+&quot;Xeon Westmere-EX (10-core 64-bit, SIMD, large caches)&quot;,2.6e+09,2011</span>
+<span class=hljs-addition>+&quot;Atom &quot;&quot;Medfield&quot;&quot; (64-bit)&quot;,4.32e+08,2012</span>
+<span class=hljs-addition>+&quot;SPARC64 X (64-bit, SIMD, caches)&quot;,2.99e+09,2012</span>
+<span class=hljs-addition>+&quot;AMD Bulldozer (8-core 64-bit, SIMD, caches)&quot;,1.2e+09,2012</span>
+<span class=hljs-addition>+&quot;Quad-core + GPU AMD Trinity (64-bit, SIMD, caches)&quot;,1.303e+09,2012</span>
+<span class=hljs-addition>+&quot;Quad-core + GPU Core i7 Ivy Bridge (64-bit, SIMD, caches)&quot;,1.4e+09,2012</span>
+<span class=hljs-addition>+&quot;POWER7+ (8-core 64-bit, SIMD, 80MB L3 cache)&quot;,2.1e+09,2012</span>
+<span class=hljs-addition>+&quot;Six-core zEC12 (64-bit, SIMD, large caches)&quot;,2.75e+09,2012</span>
+<span class=hljs-addition>+&quot;Itanium Poulson (8-core 64-bit, SIMD, caches)&quot;,3.1e+09,2012</span>
+<span class=hljs-addition>+&quot;Xeon Phi (61-core 32-bit, 512-bit SIMD, caches)&quot;,5e+09,2012</span>
+<span class=hljs-addition>+&quot;Apple A7 (dual-core 64/32-bit ARM64, &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1e+09,2013</span>
+<span class=hljs-addition>+&quot;Six-core Core i7 Ivy Bridge E (64-bit, SIMD, caches)&quot;,1.86e+09,2013</span>
+<span class=hljs-addition>+&quot;POWER8 (12-core 64-bit, SIMD, caches)&quot;,4.2e+09,2013</span>
+<span class=hljs-addition>+&quot;Xbox One main SoC (64-bit, SIMD, caches)&quot;,5e+09,2013</span>
+<span class=hljs-addition>+&quot;Quad-core + GPU Core i7 Haswell (64-bit, SIMD, caches)&quot;,1.4e+09,2014</span>
+<span class=hljs-addition>+&quot;Apple A8 (dual-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,2e+09,2014</span>
+<span class=hljs-addition>+&quot;Core i7 Haswell-E (8-core 64-bit, SIMD, caches)&quot;,2.6e+09,2014</span>
+<span class=hljs-addition>+&quot;Apple A8X (tri-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3e+09,2014</span>
+<span class=hljs-addition>+&quot;Xeon Ivy Bridge-EX (15-core 64-bit, SIMD, caches)&quot;,4.31e+09,2014</span>
+<span class=hljs-addition>+&quot;Xeon Haswell-E5 (18-core 64-bit, SIMD, caches)&quot;,5.56e+09,2014</span>
+<span class=hljs-addition>+&quot;Quad-core + GPU GT2 Core i7 Skylake K (64-bit, SIMD, caches)&quot;,1.75e+09,2015</span>
+<span class=hljs-addition>+&quot;Dual-core + GPU Iris Core i7 Broadwell-U (64-bit, SIMD, caches)&quot;,1.9e+09,2015</span>
+<span class=hljs-addition>+&quot;Apple A9 (dual-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,2e+09,2015</span>
+<span class=hljs-addition>+&quot;Apple A9 (dual-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,2e+09,2015</span>
+<span class=hljs-addition>+&quot;Apple A9X (dual core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3e+09,2015</span>
+<span class=hljs-addition>+&quot;IBM z13 (64-bit, caches)&quot;,3.99e+09,2015</span>
+<span class=hljs-addition>+&quot;IBM z13 Storage Controller&quot;,7.1e+09,2015</span>
+<span class=hljs-addition>+&quot;SPARC M7 (32-core 64-bit, SIMD, caches)&quot;,1e+10,2015</span>
+<span class=hljs-addition>+&quot;Core i7 Broadwell-E (10-core 64-bit, SIMD, caches)&quot;,3.2e+09,2016</span>
+<span class=hljs-addition>+&quot;Apple A10 Fusion (quad-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3.3e+09,2016</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 960 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,4e+09,2016</span>
+<span class=hljs-addition>+&quot;Xeon Broadwell-E5 (22-core 64-bit, SIMD, caches)&quot;,7.2e+09,2016</span>
+<span class=hljs-addition>+&quot;Xeon Phi (72-core 64-bit, 512-bit SIMD, caches)&quot;,8e+09,2016</span>
+<span class=hljs-addition>+&quot;Qualcomm Snapdragon 835 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,3e+09,2016</span>
+<span class=hljs-addition>+&quot;Apple A11 Bionic (hexa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,4.3e+09,2017</span>
+<span class=hljs-addition>+&quot;AMD Zen CCX (core complex unit: 4 cores, 8 MB L3 cache)&quot;,1.4e+09,2017</span>
+<span class=hljs-addition>+&quot;AMD Zeppelin SoC Ryzen (64-bit, SIMD, caches)&quot;,4.8e+09,2017</span>
+<span class=hljs-addition>+&quot;AMD Ryzen 5 1600 Ryzen (64-bit, SIMD, caches)&quot;,4.8e+09,2017</span>
+<span class=hljs-addition>+&quot;IBM z14 (64-bit, SIMD, caches)&quot;,6.1e+09,2017</span>
+<span class=hljs-addition>+&quot;IBM z14 Storage Controller (64-bit)&quot;,9.7e+09,2017</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 970 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.5e+09,2017</span>
+<span class=hljs-addition>+&quot;Xbox One X (Project Scorpio) main SoC (64-bit, SIMD, caches)&quot;,7e+09,2017</span>
+<span class=hljs-addition>+&quot;Xeon Platinum 8180 (28-core 64-bit, SIMD, caches)&quot;,8e+09,2017</span>
+<span class=hljs-addition>+&quot;Xeon (unspecified)&quot;,7.1e+09,2017</span>
+<span class=hljs-addition>+&quot;POWER9 (64-bit, SIMD, caches)&quot;,8e+09,2017</span>
+<span class=hljs-addition>+&quot;Freedom U500 Base Platform Chip (E51, 4×U54) RISC-V (64-bit, caches)&quot;,2.5e+08,2017</span>
+<span class=hljs-addition>+&quot;SPARC64 XII (12-core 64-bit, SIMD, caches)&quot;,5.45e+09,2017</span>
+<span class=hljs-addition>+&quot;Apple A10X Fusion (hexa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,4.3e+09,2017</span>
+<span class=hljs-addition>+&quot;Centriq 2400 (64/32-bit, SIMD, caches)&quot;,1.8e+10,2017</span>
+<span class=hljs-addition>+&quot;AMD Epyc (32-core 64-bit, SIMD, caches)&quot;,1.92e+10,2017</span>
+<span class=hljs-addition>+&quot;Qualcomm Snapdragon 845 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.3e+09,2017</span>
+<span class=hljs-addition>+&quot;Qualcomm Snapdragon 850 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.3e+09,2017</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 710 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,5.5e+09,2018</span>
+<span class=hljs-addition>+&quot;Apple A12 Bionic (hexa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,6.9e+09,2018</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 980 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,6.9e+09,2018</span>
+<span class=hljs-addition>+&quot;Qualcomm Snapdragon 8cx / SCX8180 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,8.5e+09,2018</span>
+<span class=hljs-addition>+&quot;Apple A12X Bionic (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1e+10,2018</span>
+<span class=hljs-addition>+&quot;Fujitsu A64FX (64/32-bit, SIMD, caches)&quot;,8.786e+09,2018</span>
+<span class=hljs-addition>+&quot;Tegra Xavier SoC (64/32-bit)&quot;,9e+09,2018</span>
+<span class=hljs-addition>+&quot;Qualcomm Snapdragon 855 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,6.7e+09,2018</span>
+<span class=hljs-addition>+&quot;AMD Zen 2 core (0.5 MB L2 + 4 MB L3 cache)&quot;,4.75e+08,2019</span>
+<span class=hljs-addition>+&quot;AMD Zen 2 CCX (core complex: 4 cores, 16 MB L3 cache)&quot;,1.9e+09,2019</span>
+<span class=hljs-addition>+&quot;AMD Zen 2 CCD (core complex die: 8 cores, 32 MB L3 cache)&quot;,3.8e+09,2019</span>
+<span class=hljs-addition>+&quot;AMD Zen 2 client I/O die&quot;,2.09e+09,2019</span>
+<span class=hljs-addition>+&quot;AMD Zen 2 server I/O die&quot;,8.34e+09,2019</span>
+<span class=hljs-addition>+&quot;AMD Zen 2 Renoir die&quot;,9.8e+09,2019</span>
+<span class=hljs-addition>+&quot;AMD Ryzen 7 3700X (64-bit, SIMD, caches, I/O die)&quot;,5.99e+09,2019</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 990 4G&quot;,8e+09,2019</span>
+<span class=hljs-addition>+&quot;Apple A13 (hexa-core 64-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,8.5e+09,2019</span>
+<span class=hljs-addition>+&quot;IBM z15 CP chip (12 cores, 256 MB L3 cache)&quot;,9.2e+09,2019</span>
+<span class=hljs-addition>+&quot;IBM z15 SC chip (960 MB L4 cache)&quot;,1.22e+10,2019</span>
+<span class=hljs-addition>+&quot;AMD Ryzen 9 3900X (64-bit, SIMD, caches, I/O die)&quot;,9.89e+09,2019</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 990 5G&quot;,1.03e+10,2019</span>
+<span class=hljs-addition>+&quot;AWS Graviton2 (64-bit, 64-core ARM-based, SIMD, caches)&quot;,3e+10,2019</span>
+<span class=hljs-addition>+&quot;AMD Epyc Rome (64-bit, SIMD, caches)&quot;,3.954e+10,2019</span>
+<span class=hljs-addition>+&quot;Qualcomm Snapdragon 865 (octa-core 64/32-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1.03e+10,2019</span>
+<span class=hljs-addition>+&quot;TI Jacinto TDA4VM (ARM A72, DSP, SRAM)&quot;,3.5e+09,2020</span>
+<span class=hljs-addition>+&quot;Apple A14 Bionic (hexa-core 64-bit ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1.18e+10,2020</span>
+<span class=hljs-addition>+&quot;Apple M1 (octa-core 64-bit ARM64 SoC, SIMD, caches)&quot;,1.6e+10,2020</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 9000&quot;,1.53e+10,2020</span>
+<span class=hljs-addition>+&quot;AMD Zen 3 CCX (core complex unit: 8 cores, 32 MB L3 cache)&quot;,4.08e+09,2020</span>
+<span class=hljs-addition>+&quot;AMD Zen 3 CCD (core complex die)&quot;,4.15e+09,2020</span>
+<span class=hljs-addition>+&quot;Core 11th gen Rocket Lake (8-core 64-bit, SIMD, large caches)&quot;,6e+09,2021</span>
+<span class=hljs-addition>+&quot;AMD Ryzen 7 5800H (64-bit, SIMD, caches, I/O and GPU)&quot;,1.07e+10,2021</span>
+<span class=hljs-addition>+&quot;Apple A15&quot;,1.5e+10,2021</span>
+<span class=hljs-addition>+&quot;Apple M1 Pro (10-core, 64-bit)&quot;,3.37e+10,2021</span>
+<span class=hljs-addition>+&quot;Apple M1 Max (10-core, 64-bit)&quot;,5.7e+10,2021</span>
+<span class=hljs-addition>+&quot;Power10 dual-chip module (30 SMT8 cores or 60 SMT4 cores)&quot;,3.6e+10,2021</span>
+<span class=hljs-addition>+&quot;Dimensity 9000 (ARM64 SoC)&quot;,1.53e+10,2021</span>
+<span class=hljs-addition>+&quot;Apple A16 (ARM64 SoC)&quot;,1.6e+10,2022</span>
+<span class=hljs-addition>+&quot;Apple M1 Ultra (dual-chip module, 2×10 cores)&quot;,1.14e+11,2022</span>
+<span class=hljs-addition>+&quot;AMD Epyc 7773X (Milan-X) (multi-chip module, 64 cores, 768 MB L3 cache)&quot;,2.6e+10,2022</span>
+<span class=hljs-addition>+&quot;IBM Telum dual-chip module (2×8 cores, 2×256 MB cache)&quot;,4.5e+10,2022</span>
+<span class=hljs-addition>+&quot;Apple M2 (deca-core 64-bit ARM64 SoC, SIMD, caches)&quot;,2e+10,2022</span>
+<span class=hljs-addition>+&quot;Dimensity 9200 (ARM64 SoC)&quot;,1.7e+10,2022</span>
+<span class=hljs-addition>+&quot;Qualcomm Snapdragon 8 Gen 2 (octa-core ARM64 &quot;&quot;mobile SoC&quot;&quot;, SIMD, caches)&quot;,1.6e+10,2022</span>
+<span class=hljs-addition>+&quot;AMD EPYC Genoa (4th gen/9004 series) 13-chip module (up to 96 cores and 384 MB (L3) + 96 MB (L2) cache)&quot;,9e+10,2022</span>
+<span class=hljs-addition>+&quot;HiSilicon Kirin 9000s&quot;,9.51e+09,2023</span>
+<span class=hljs-addition>+&quot;Apple M4 (deca-core 64-bit ARM64 SoC, SIMD, caches)&quot;,2.8e+10,2024</span>
+<span class=hljs-addition>+&quot;Apple M3 (octa-core 64-bit ARM64 SoC, SIMD, caches)&quot;,2.5e+10,2023</span>
+<span class=hljs-addition>+&quot;Apple M3 Pro (dodeca-core 64-bit ARM64 SoC, SIMD, caches)&quot;,3.7e+10,2023</span>
+<span class=hljs-addition>+&quot;Apple M3 Max (16-core 64-bit ARM64 SoC, SIMD, caches)&quot;,9.2e+10,2023</span>
+<span class=hljs-addition>+&quot;Apple A17&quot;,1.9e+10,2023</span>
+<span class=hljs-addition>+&quot;Sapphire Rapids quad-chip module (up to 60 cores and 112.5 MB of cache)&quot;,4.8e+10,2023</span>
+<span class=hljs-addition>+&quot;Apple M2 Pro (12-core 64-bit ARM64 SoC, SIMD, caches)&quot;,4e+10,2023</span>
+<span class=hljs-addition>+&quot;Apple M2 Max (12-core 64-bit ARM64 SoC, SIMD, caches)&quot;,6.7e+10,2023</span>
+<span class=hljs-addition>+&quot;Apple M2 Ultra (two M2 Max dies)&quot;,1.34e+11,2023</span>
+<span class=hljs-addition>+&quot;AMD Epyc Bergamo (4th gen/97X4 series) 9-chip module (up to 128 cores and 256 MB (L3) + 128 MB (L2) cache)&quot;,8.2e+10,2023</span>
+<span class=hljs-addition>+&quot;AMD Instinct MI300A (multi-chip module, 24 cores, 128GB GPU memory + 256MB (LLC/L3) cache)&quot;,1.46e+11,2023</span>
+<span class=hljs-addition>+&quot;RV32-WUJI: 3-atom-thick molybdenum disulfide on sapphire; RISC-V architecture&quot;,5931,2025</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We have our data and we have our model; now let&#x27;s write it in Stan.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```stan</span>
+<span class=hljs-addition>+data {</span>
+<span class=hljs-addition>+  int&lt;lower=1&gt; N;</span>
+<span class=hljs-addition>+  vector[N] Year;</span>
+<span class=hljs-addition>+  vector[N] logCount;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+transformed data {</span>
+<span class=hljs-addition>+  real meanYear = mean(Year); // center year</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+parameters {</span>
+<span class=hljs-addition>+  real beta1;</span>
+<span class=hljs-addition>+  real beta2;</span>
+<span class=hljs-addition>+  real&lt;lower=0&gt; sigma;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+model {</span>
+<span class=hljs-addition>+  beta1 ~ normal(0, 1000);</span>
+<span class=hljs-addition>+  beta2 ~ normal(0, 1000);</span>
+<span class=hljs-addition>+  sigma ~ gamma(0.001, 0.001);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+  for (i in 1 : N)</span>
+<span class=hljs-addition>+    logCount[i] ~ normal(beta1 + beta2 * (Year[i] - meanYear), sigma);</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And fit it to the dataset in R.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```R</span>
+<span class=hljs-addition>+fit = stan(model_code = model_code,</span>
+<span class=hljs-addition>+           data = list(N = length(data$Processor),</span>
+<span class=hljs-addition>+                       logCount = log(data$Count),</span>
+<span class=hljs-addition>+                       Year = data$Year),</span>
+<span class=hljs-addition>+           chains = 4,</span>
+<span class=hljs-addition>+           seed = 123)</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Then check the posterior summary.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```R</span>
+<span class=hljs-addition>+summary(fit)</span>
+<span class=hljs-addition>+$summary</span>
+<span class=hljs-addition>+              mean      se_mean          sd        2.5%          25%          50%          75%        97.5%</span>
+<span class=hljs-addition>+beta1   18.3998254 1.616183e-03 0.101542812   18.206679   18.3312085   18.3982784   18.4652631   18.6062902</span>
+<span class=hljs-addition>+beta2    0.3230952 9.586144e-05 0.006775313    0.309999    0.3186071    0.3231043    0.3275844    0.3363578</span>
+<span class=hljs-addition>+sigma    1.5656914 1.215401e-03 0.070942077    1.430532    1.5174614    1.5633471    1.6099205    1.7157355</span>
+<span class=hljs-addition>+lp__  -232.3964081 2.771899e-02 1.238286203 -235.640914 -232.9814656 -232.0617668 -231.4930609 -230.9820222</span>
+<span class=hljs-addition>+         n_eff      Rhat</span>
+<span class=hljs-addition>+beta1 3947.456 1.0006986</span>
+<span class=hljs-addition>+beta2 4995.405 0.9996045</span>
+<span class=hljs-addition>+sigma 3406.974 0.9998960</span>
+<span class=hljs-addition>+lp__  1995.663 1.0001480</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-enable line-length --&gt;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Convergence statistics look good (and the trace plots look fine trust me!)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This gives a 95% confidence interval for $\beta_2$ to be around (0.310, 0.336).</span>
+<span class=hljs-addition>+However, our originally calculated coefficient for $y$ was $log(2) / 2$ or</span>
+<span class=hljs-addition>+around $0.347$; this suggests that $log(t)$ has not been increasing as fast as</span>
+<span class=hljs-addition>+Moore&#x27;s law would imply, so I guess we&#x27;ve already fallen behind!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At least according to this analysis.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
