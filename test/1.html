@@ -1,0 +1,1443 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>index</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_after></div>
+</nav>
+<h2 id=benchmarking-the-support-of-markdown-with-a-comprehensive-checklist>Benchmarking the support of Markdown with a comprehensive checklist</h2>
+<p><strong>You're working on a project featuring Markdown?</strong></p>
+<p>Drop <a href=https://raw.githubusercontent.com/RoneoOrg/markdown/main/README.md>the source of this page</a> wherever you want to test <em>or showcase</em> the support of Markdown, and check that every single feature is properly rendered.</p>
+<p><strong>Table of Contents</strong></p>
+<ul>
+<li><a href=#basic-formatting>Basic formatting</a></li>
+<li><a href=#blockquotes>Blockquotes</a></li>
+<li><a href=#lists>Lists</a></li>
+<li><a href=#linebreaks>Linebreaks</a></li>
+<li><a href=#links>Links</a></li>
+<li><a href=#code-formatting>Code formatting</a></li>
+<li><a href=#task-lists>Task lists</a></li>
+<li><a href=#tables>Tables</a></li>
+<li><a href=#headings>Headings</a></li>
+<li><a href=#mathjax>MathJax</a></li>
+<li><a href=#tikz>TikZ</a></li>
+</ul>
+<h2 id=basic-formatting>Basic formatting</h2>
+<h3 id=bold-text><strong>Bold</strong> text</h3>
+<p><strong>Syntax:</strong></p>
+<pre><code>You can mark some text as bold with **two asterisks**
+or __two underscores__.
+</code></pre>
+<p><strong>Output:</strong></p>
+<p>You can mark some text as bold with <strong>two asterisks</strong>
+or <strong>two underscores</strong>.</p>
+<h3 id=italic><em>Italic</em></h3>
+<pre><code>Use a *single asterisk* or a _single underscore_ for italic.
+</code></pre>
+<p><strong>Output:</strong></p>
+<p>Use a <em>single asterisk</em> or a <em>single underscore</em> for italic.</p>
+<h3 id=bold-and-italic><strong><em>Bold and italic</em></strong></h3>
+<pre><code>Three stars gives `***bold and italic***`
+</code></pre>
+<p>Three stars gives <strong><em>bold and italic</em></strong></p>
+<h3 id=strikethrough><del>Strikethrough</del></h3>
+<p>Using <code>~~two tildes~~</code> will strikethrough: <del>two tildes</del></p>
+<h2 id=blockquotes>Blockquotes</h2>
+<p><strong>Syntax:</strong></p>
+<pre><code>&gt; blockquote
+</code></pre>
+<p><strong>Output</strong>:</p>
+<blockquote>
+<p>blockquote</p>
+</blockquote>
+<h3 id=nested-blockquotes>Nested blockquotes</h3>
+<p><strong>Syntax:</strong></p>
+<pre><code>&gt; First level
+&gt;
+&gt;&gt; Second level
+</code></pre>
+<p><strong>Output:</strong></p>
+<blockquote>
+<p>First level</p>
+<blockquote>
+<p>Second level</p>
+</blockquote>
+</blockquote>
+<h3 id=markdown-in-blockquotes>Markdown in blockquotes</h3>
+<pre class=code-block><input id=code-block-1-1 type=checkbox><label for=code-block-1-1></label><code>&gt; **Markdown** can be used *inside quotes*
+&gt;
+&gt; 1.   This is the first list item.
+&gt; 1.   This is the second list item.
+&gt;
+&gt; ~~strikethrough~~
+&gt;
+&gt; Here&#x27;s some example code:
+&gt;
+&gt;     return shell_exec(&quot;echo $input | $markdown_script&quot;);
+</code></pre>
+<p><strong>Output:</strong></p>
+<blockquote>
+<p><strong>Markdown</strong> can be used <em>inside quotes</em></p>
+<ol>
+<li>This is the first list item.</li>
+<li>This is the second list item.</li>
+</ol>
+<p><del>strikethrough</del></p>
+<p>Here's some example code:</p>
+<pre><code>return shell_exec("echo $input | $markdown_script");
+</code></pre>
+</blockquote>
+<h2 id=lists>Lists</h2>
+<h3 id=unordered-list>Unordered list</h3>
+<p>Cant be marked with <code>-</code>, <code>+</code> or <code>*</code></p>
+<pre class=code-block><input id=code-block-1-2 type=checkbox><label for=code-block-1-2></label><code><span class=hljs-bullet>-</span> First item
+<span class=hljs-bullet>-</span> Second item
+<span class=hljs-bullet>-</span> Third item
+</code></pre>
+<pre class=code-block><input id=code-block-1-3 type=checkbox><label for=code-block-1-3></label><code><span class=hljs-bullet>+</span> First item
+<span class=hljs-bullet>+</span> Second item
+<span class=hljs-bullet>+</span> Third item
+</code></pre>
+<pre class=code-block><input id=code-block-1-4 type=checkbox><label for=code-block-1-4></label><code><span class=hljs-bullet>*</span> First item
+<span class=hljs-bullet>*</span> Second item
+<span class=hljs-bullet>*</span> Third item
+</code></pre>
+<p><strong>Output:</strong></p>
+<ul>
+<li><p>First item</p></li>
+<li><p>Second item</p></li>
+<li><p>Third item</p></li>
+<li><p>First item</p></li>
+<li><p>Second item</p></li>
+<li><p>Third item</p></li>
+<li><p>First item</p></li>
+<li><p>Second item</p></li>
+<li><p>Third item</p></li>
+</ul>
+<h3 id=ordered-lists>Ordered lists</h3>
+<p>Incrementation is automatic, you can simply use <code>1.</code> everywhere</p>
+<pre class=code-block><input id=code-block-1-5 type=checkbox><label for=code-block-1-5></label><code>1. First item
+1. Second item
+1. Third item
+</code></pre>
+<p><strong>Output:</strong></p>
+<ol>
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ol>
+<h3 id=nested-list>Nested list</h3>
+<pre class=code-block><input id=code-block-1-6 type=checkbox><label for=code-block-1-6></label><code>- First item
+- Second item
+- Third item
+  1. Indented item
+  1. Indented item
+- Fourth item
+</code></pre>
+<p><strong>Output:</strong></p>
+<ul>
+<li>First item</li>
+<li>Second item</li>
+<li>Third item</li>
+</ul>
+<ol>
+<li>Indented item</li>
+<li>Indented item</li>
+</ol>
+<ul>
+<li>Fourth item</li>
+</ul>
+<h2 id=linebreaks>Linebreaks</h2>
+<p><strong>When you hit enter just once</strong> between two lines, both lines are joined into a single paragraph.</p>
+<p>But, if you <strong>leave a blank line between them</strong>, they will split into two paragraphs.</p>
+<p><strong>Demonstration</strong>:</p>
+<pre class=code-block><input id=code-block-1-7 type=checkbox><label for=code-block-1-7></label><code>This text is a paragraph.
+This won&#x27;t be another paragraph, it will join the line above it.
+
+This will be another paragraph, as it has a blank line above it.
+</code></pre>
+<p><strong>Output:</strong></p>
+<p>This text is a paragraph. This won't be another paragraph, it will join the line above it.</p>
+<p>This will be another paragraph, as it has a blank line above it.</p>
+<h3 id=force-line-breaks>Force line breaks</h3>
+<p>To force a line break, <strong>end a line with two or more whitespaces</strong>, and then type return.</p>
+<pre class=code-block><input id=code-block-1-8 type=checkbox><label for=code-block-1-8></label><code>This is the first line.··
+Second line
+</code></pre>
+<p><strong>Output:</strong></p>
+<p>This is the first line.<br>
+Second line</p>
+<h3 id=horizontal-lines>Horizontal lines</h3>
+<p>Can be inserted with four <code>*</code>, <code>-</code> or <code>_</code></p>
+<pre class=code-block><input id=code-block-1-9 type=checkbox><label for=code-block-1-9></label><code>----
+
+****
+
+____
+</code></pre>
+<p><strong>Output:</strong></p>
+<hr>
+<hr>
+<hr>
+<h2 id=links>Links</h2>
+<h3 id=basic-links>Basic links</h3>
+<pre class=code-block><input id=code-block-1-10 type=checkbox><label for=code-block-1-10></label><code>[Semantic description](https://roneo.org/markdown)  
+&lt;address@example.com&gt;  
+&lt;https://roneo.org/markdown&gt; works too. Must be used for explicit links.
+</code></pre>
+<p><strong>Output:</strong></p>
+<p><a href=https://roneo.org/markdown>Semantic description</a><br>
+<a href=m&#97;&#105;&#108;&#x74;&#111;&#x3a;&#x61;&#x64;&#100;&#114;&#x65;&#x73;s&#x40;&#101;&#x78;&#97;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#x63;&#111;&#109;>&#97;&#x64;&#x64;&#114;&#101;&#x73;&#115;&#x40;&#x65;&#x78;&#97;&#109;&#112;&#x6c;&#x65;&#46;c&#x6f;&#109;</a><br>
+<a href=https://roneo.org/markdown>https://roneo.org/markdown</a> works too. Must be used for explicit links.</p>
+<h3 id=links-using-text-reference>Links using text reference</h3>
+<pre class=code-block><input id=code-block-1-11 type=checkbox><label for=code-block-1-11></label><code>[I&#x27;m a link][Reference text]
+
+[This link] will do the same as well. It works as the identifier itself.
+
+
+[reference text]: https://jamstack.club
+[this link]: https://roneo.org/markdown
+</code></pre>
+<p><strong>Output:</strong></p>
+<p><a href=https://jamstack.club>I'm a link</a></p>
+<p><a href=https://roneo.org/markdown>This link</a> will do the same as well. It works as the identifier itself.</p>
+<p><strong>Note:</strong> The reference text is <em>not</em> case sensitive</p>
+<h3 id=link-with-a-title-on-hover>Link with a title on hover</h3>
+<pre class=code-block><input id=code-block-1-12 type=checkbox><label for=code-block-1-12></label><code>[Random text][random-identifier].
+Hover the mouse over it to see the title.
+
+Several syntaxes are accepted:
+[One](https://eff.org &quot;First site&quot;)
+[Two](https://example.com &#x27;Second site&#x27;)
+[Three](https://example.com (Third site))
+
+[random-identifier]: https://roneo.org/markdown &quot;This example has a title&quot;
+</code></pre>
+<p><strong>Output:</strong></p>
+<p><a href=https://roneo.org/markdown title="This example has a title">Random text</a>. Hover the mouse over it to see the title.</p>
+<p>Several syntaxes are accepted:
+<a href=https://eff.org title="First site">One</a>
+<a href=https://jamstack.club title="Second site">Two</a>
+[Three](https://debian.org (Third site))</p>
+<h3 id=links-with-markdown-style>Links with Markdown style</h3>
+<p>To <strong><em>emphasize</em></strong> links, add asterisks before and after the brackets and parentheses.</p>
+<pre><code>I love supporting the **[EFF](https://eff.org)**.  
+This is the *[Markdown Guide](https://www.markdownguide.org)*.
+</code></pre>
+<p>To denote links as <code>code</code>, add backticks <em>inside</em> the brackets:</p>
+<pre><code>See the section on [`code`](#code).
+</code></pre>
+<p><strong>Output:</strong></p>
+<p>I love supporting the <strong><a href=https://eff.org>EFF</a></strong>.<br>
+This is the <em><a href=https://www.markdownguide.org>Markdown Guide</a></em>.<br>
+See the section on <a href=#code><code>code</code></a>.</p>
+<h3 id=attribute-a-custom-anchor-to-a-heading>Attribute a custom anchor to a heading</h3>
+<p>Anchors are automatically generated based on the heading's content. You can customize the anchor this way:</p>
+<pre><code>### Heading {#custom-id}
+</code></pre>
+<p><strong>Output:</strong></p>
+<h4 id=heading-custom-id>Heading {#custom-id}</h4>
+<h2 id=code-formatting>Code formatting</h2>
+<h3 id=inline>Inline</h3>
+<p>Wrap with single backticks to highlight as<code>`code`</code> → <code>code</code></p>
+<h3 id=codeblocks>Codeblocks</h3>
+<p>Create a code block with three backticks <code>```</code> before and after your block of code.</p>
+<p><strong>Output:</strong></p>
+<pre class=code-block><input id=code-block-1-13 type=checkbox><label for=code-block-1-13></label><code>sudo apt hello
+cat /etc/apt/sources.list
+</code></pre>
+<p>Also possible with a tabulation or four empty spaces at the beginning of the lines:</p>
+<p><strong>Tabulation</strong></p>
+<pre><code>sudo apt hello
+echo "hi"
+</code></pre>
+<p><strong>Four whitespaces</strong></p>
+<pre><code>sudo apt hello
+</code></pre>
+<h3 id=codeblocks-with-syntax-highlighting>Codeblocks with syntax highlighting</h3>
+<p>Set the language right after the first backticks (for example <code>```html</code>) to get syntax highlighting</p>
+<h4 id=samples>Samples:</h4>
+<h4 id=html>HTML</h4>
+<pre class=code-block><input id=code-block-1-14 type=checkbox><label for=code-block-1-14></label><code><span class=hljs-meta>&lt;!DOCTYPE <span class=hljs-keyword>html</span>&gt;</span>
+<span class=hljs-tag>&lt;<span class=hljs-name>html</span> <span class=hljs-attr>lang</span>=<span class=hljs-string>&quot;fr&quot;</span> <span class=hljs-attr>itemscope</span> <span class=hljs-attr>itemtype</span>=<span class=hljs-string>&quot;http://schema.org/WebPage&quot;</span>&gt;</span>
+  <span class=hljs-tag>&lt;<span class=hljs-name>head</span>&gt;</span>
+  <span class=hljs-tag>&lt;<span class=hljs-name>meta</span> <span class=hljs-attr>charset</span>=<span class=hljs-string>&quot;utf-8&quot;</span> /&gt;</span>
+  <span class=hljs-tag>&lt;<span class=hljs-name>meta</span> <span class=hljs-attr>http-equiv</span>=<span class=hljs-string>&quot;X-UA-Compatible&quot;</span> <span class=hljs-attr>content</span>=<span class=hljs-string>&quot;IE=edge&quot;</span>&gt;</span>
+  <span class=hljs-tag>&lt;<span class=hljs-name>meta</span> <span class=hljs-attr>name</span>=<span class=hljs-string>&quot;viewport&quot;</span> <span class=hljs-attr>content</span>=<span class=hljs-string>&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0&quot;</span>&gt;</span>
+</code></pre>
+<h4 id=css>CSS</h4>
+<pre class=code-block><input id=code-block-1-15 type=checkbox><label for=code-block-1-15></label><code><span class=hljs-comment>/* Comment */</span>
+<span class=hljs-selector-class>.blog-post</span> <span class=hljs-selector-tag>h2</span>, <span class=hljs-selector-tag>h3</span> {
+  <span class=hljs-attribute>margin-top</span>: <span class=hljs-number>1.6em</span>;
+  <span class=hljs-attribute>margin-bottom</span>: <span class=hljs-number>0.8em</span>;
+}
+</code></pre>
+<h4 id=bash>Bash</h4>
+<pre class=code-block><input id=code-block-1-16 type=checkbox><label for=code-block-1-16></label><code><span class=hljs-comment># Comment</span>
+
+<span class=hljs-keyword>if</span> [[ ! <span class=hljs-variable>$system</span> =~ Linux|MacOS|BSD ]]; <span class=hljs-keyword>then</span>
+    <span class=hljs-built_in>echo</span> <span class=hljs-string>&quot;This version of bashtop does not support <span class=hljs-variable>$system</span> platform.&quot;</span>
+
+sudo apt install <span class=hljs-built_in>test</span>
+</code></pre>
+<h4 id=diff>Diff</h4>
+<pre class=code-block><input id=code-block-1-17 type=checkbox><label for=code-block-1-17></label><code><span class=hljs-deletion>- delete</span>
+<span class=hljs-addition>+ add</span>
+<span class=hljs-addition>! test</span>
+# comment
+</code></pre>
+<h3 id=escaping-with-backslashes>Escaping with backslashes</h3>
+<p>Any ASCII punctuation character may be escaped using a single backslash.</p>
+<p>Example:</p>
+<pre><code>\*this is not italic*
+</code></pre>
+<p><strong>Output:</strong></p>
+<p>*this is not italic*</p>
+<p>Markdown provides backslash escapes for the following characters:</p>
+<pre class=code-block><input id=code-block-1-18 type=checkbox><label for=code-block-1-18></label><code>\   backslash
+`   backtick
+*   asterisk
+_   underscore
+{}  curly braces
+[]  square brackets
+()  parentheses
+#   hash mark
++   plus sign
+-   minus sign (hyphen)
+.   dot
+!   exclamation mark
+</code></pre>
+<h2 id=task-lists>Task lists</h2>
+<pre class=code-block><input id=code-block-1-19 type=checkbox><label for=code-block-1-19></label><code>- [X] Write the press release
+- [ ] Update the website
+</code></pre>
+<p><strong>Output:</strong></p>
+<ul>
+<li>[x] Write the press release</li>
+<li>[ ] Update the website</li>
+</ul>
+<h2 id=tables>Tables</h2>
+<pre class=code-block><input id=code-block-1-20 type=checkbox><label for=code-block-1-20></label><code>| Syntax    | Description |
+| --------- | ----------- |
+| Header    | Title       |
+| Paragraph | Text        |
+</code></pre>
+<p>or</p>
+<pre class=code-block><input id=code-block-1-21 type=checkbox><label for=code-block-1-21></label><code>| Syntax | Description |
+| - | --- |
+| Header | Title |
+| Paragraph | Text|
+</code></pre>
+<p>will not render the same way:</p>
+<table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header</td>
+<td>Title</td>
+</tr>
+<tr>
+<td>Paragraph</td>
+<td>Text</td>
+</tr>
+</tbody>
+</table>
+<p>| Syntax | Description | | - | --- | | Header | Title | | Paragraph | Text|</p>
+<p>Use at least two dashes in the separator:</p>
+<pre class=code-block><input id=code-block-1-22 type=checkbox><label for=code-block-1-22></label><code>| Syntax | Description |
+| -- | --- |
+| Header | Title |
+| Paragraph | Text|
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header</td>
+<td>Title</td>
+</tr>
+<tr>
+<td>Paragraph</td>
+<td>Text</td>
+</tr>
+</tbody>
+</table>
+<h3 id=text-alignment-in-tables>Text alignment in tables</h3>
+<pre class=code-block><input id=code-block-1-23 type=checkbox><label for=code-block-1-23></label><code>| Syntax    | Description |   Test Text |
+| :-------- | :---------: | ----------: |
+| Header    |    Title    | Here&#x27;s this |
+| Paragraph |    Text     |    And more |
+</code></pre>
+<p>See the way the text is aligned, depending on the position of <code>':'</code></p>
+<table>
+<thead>
+<tr>
+<th style=text-align:left>Syntax</th>
+<th style=text-align:center>Description</th>
+<th style=text-align:right>Test Text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style=text-align:left>Header</td>
+<td style=text-align:center>Title</td>
+<td style=text-align:right>Here's this</td>
+</tr>
+<tr>
+<td style=text-align:left>Paragraph</td>
+<td style=text-align:center>Text</td>
+<td style=text-align:right>And more</td>
+</tr>
+</tbody>
+</table>
+<h2 id=headings>Headings</h2>
+<p>Add <code>##</code> at the beginning of a line to set as Heading.<br>
+You can use up to 6 <code>#</code> symbols for the corresponding Heading levels</p>
+<pre class=code-block><input id=code-block-1-24 type=checkbox><label for=code-block-1-24></label><code>## Heading 1
+[...]
+
+###### Heading 6
+</code></pre>
+<h2 id=heading-2>Heading 2</h2>
+<p>pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</p>
+<h3 id=heading-3>Heading 3</h3>
+<p>pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</p>
+<h4 id=heading-4>Heading 4</h4>
+<p>pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</p>
+<h5 id=heading-5>Heading 5</h5>
+<p>pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</p>
+<h6 id=heading-6>Heading 6</h6>
+<p>pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</p>
+<h2 id=references>References</h2>
+<ul>
+<li>Source of this page: <a href=https://roneo.org/markdown>roneo.org/markdown</a></li>
+<li><a href=https://www.markdownguide.org/basic-syntax>Markdown Guide - Basic Syntax</a></li>
+<li><a href=https://www.markdownguide.org/extended-syntax>Markdown Guide - Extended Syntax</a></li>
+<li><a href=https://daringfireball.net/projects/markdown/syntax>Daring Fireball: Markdown Syntax Documentation</a></li>
+<li><a href=https://about.gitlab.com/handbook/markdown-guide/ >Markdown Guide at Gitlab.com</a></li>
+<li><a href=https://spec.commonmark.org/0.29/ >CommonMark Spec</a></li>
+</ul>
+<h2 id=related-projects>Related projects</h2>
+<ul>
+<li>https://github.com/ericwbailey/markdown-test-file</li>
+<li>https://scottspence.com/posts/writing-with-markdown</li>
+<li>https://codingnconcepts.com/markdown/markdown-syntax/</li>
+<li>https://codeit.suntprogramator.dev/basic-markdown-syntax/</li>
+<li>https://daringfireball.net/projects/markdown/syntax.text</li>
+</ul>
+<h2 id=mathjax>MathJax</h2>
+<h3 id=sourcehttpsgithubcomatom-communitymarkdown-preview-plusblobmasterexamplemd><a href=https://github.com/atom-community/markdown-preview-plus/blob/master/EXAMPLE.md>(<em>source</em>)</a></h3>
+<p> $x$ math at the start of the document</p>
+<p>Nested: $M = \text{while e^2 $e^2$ do $c^2$ end}$</p>
+<p>This document is to test $\LaTeX$ rendering with <a href=https://atom.io/packages/markdown-preview-plus>markdown-preview-plus</a>.</p>
+<p><strong>Numbered equations</strong></p>
+<p>$$ \begin{equation} \int_0^x \sin(x) dx \label{eq:test} \end{equation} $$ $\eqref{eq:test}$</p>
+<p><strong>Blockquotes</strong></p>
+<blockquote>
+<ol>
+<li>A block quote</li>
+<li>With a list inside</li>
+<li>With $math$</li>
+</ol>
+</blockquote>
+<p><strong>Math environment Syntax testing</strong></p>
+<p>Inline Math should work with <code>$</code> $\frac{x+y}{y}$</p>
+<p>Use <code>\$\$</code> on separate lines (no escape):</p>
+<p>$$ a+b $$</p>
+<p>Use <code>\$\$</code> on the same line (no escape): $¨DE=mc^2$$</p>
+<hr>
+<p><strong>Some Tex Functions</strong>
+$k \times k$, $n \times 2$, $2 \times n$, $\times$ $x \cdot y$, $\cdot$ $\sqrt{x^2+y^2+z^2}$ $\alpha \beta \gamma$</p>
+<p>$$ \begin{aligned} x\ &= y\\ mc^2\ &= E \end{aligned} $$</p>
+<hr>
+<p><strong>Escaped Math environments</strong></p>
+<p>In the following examples no math environments should render:</p>
+<p>a $undefined$ and a \$100 Bill.</p>
+<p>All McScrooge sees</p>
+<p>$$ and even more: $$</p>
+<p>\[x+y] \(x+y)</p>
+<pre class=code-block><input id=code-block-1-25 type=checkbox><label for=code-block-1-25></label><code>$x
+</code></pre>
+<pre class=code-block><input id=code-block-1-26 type=checkbox><label for=code-block-1-26></label><code>\$
+</code></pre>
+<p><code>\$</code>, <code>\[ \]</code>, <code>$x$</code></p>
+<hr>
+<p><strong>Testing <code>\newcommand</code></strong></p>
+<p>For all $x$ and $y$ in $\mathbb{R}^k$ it is true that $$ \newcommand{sca}[1]{\langle #1 \rangle} |\sca{x,y}|^2 \le \sca{x,x} \cdot \sca{y,y}, $$</p>
+<p>\newcommand{\scalong}[1]{(#1<em>1,\dots,#1</em>k)}</p>
+<p>where $\sca{\cdot,\cdot}$ denotes the inner product $\sca{\scalong{x}, \scalong{x}} = \sum_{i=1}^k x_i y_i$.</p>
+<hr>
+<p><strong>Testing several math fonts</strong>
+$$ p(\mathbf{m}) \sim \mathcal{N}(\mathbf{m}) e^{-\sum_{i} \beta_i m_i} $$</p>
+<p>$$ \langle \vec{m} \rangle = \frac{1}{Z(\vec{\beta})}\vec{m}(\mu) \sum_{\mu\in\mathcal{G}} e^{-\vec{\beta}\cdot\vec{m}(\mu)} $$</p>
+<hr>
+<p>Notice below that the <code>\[</code>-separated display math doesn't have a blank line before and after (i.e. in an actual $\LaTeX$ document it wouldn't be placed in a separate paragraph):</p>
+<p>The <em>characteristic polynomial</em> $\chi(\lambda)$ of the $3 \times 3$ matrix $$ \left( \begin{array}{ccc} a & b & c \\ d & e & f \\ g & h & i \end{array} \right) $$ is given by the formula $$ \chi(\lambda) = \left| \begin{array}{ccc} \lambda - a & -b & -c \\ -d & \lambda - e & -f \\ -g & -h & \lambda - i \end{array} \right|. $$</p>
+<p>This is a long line: $\chi(\lambda) = a e i-a e \lambda -a f h-a i \lambda +a \lambda ^2-b d i+b d \lambda +b f g+c d h-c e g+c g \lambda -e i \lambda +e \lambda ^2+f h \lambda +i \lambda ^2-\lambda ^3$</p>
+<hr>
+<p><strong>Does it work in different MD elements?</strong></p>
+<h1 id=mathmathjaxinlinecontentplaceholder-28-in-heading-1>Math $x^2$ in heading 1</h1>
+<h2 id=mathmathjaxinlinecontentplaceholder-29-in-heading-2>Math $x^2$ in heading 2</h2>
+<h3 id=mathmathjaxinlinecontentplaceholder-30-in-heading-3>Math $x^2$ in heading 3</h3>
+<h4 id=mathmathjaxinlinecontentplaceholder-31-in-heading-4>Math $x^2$ in heading 4</h4>
+<p> $x_1, x_2, \dots, x_N$ should not conflict with <code>_</code> <em>italics</em>? $(f*g*h)(x)$ should not conflict with <code>*</code> <em>syn<strong></strong></em>tax? $[a+b](c+d)$ should not conflict link <a href=#>syntax</a>?</p>
+<p><em>math $x^2$ in emphasis</em></p>
+<p><strong>math $x^2$ in bold</strong></p>
+<p><a href=http://www.mathjax.org/ >math $x^2$ in link</a></p>
+<p><code>math $x^2$ in code</code></p>
+<p><del>math $x^2$ in strikethrough</del></p>
+<p><strong>In Tables</strong></p>
+<table>
+<thead>
+<tr>
+<th style=text-align:left>Left-Aligned</th>
+<th style=text-align:center>Center Aligned</th>
+<th style=text-align:right>Right Aligned</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style=text-align:left> $a+b$</td>
+<td style=text-align:center>some wordy text</td>
+<td style=text-align:right>$1600</td>
+</tr>
+<tr>
+<td style=text-align:left> $a+b$</td>
+<td style=text-align:center>some wordy text</td>
+<td style=text-align:right>$1600</td>
+</tr>
+<tr>
+<td style=text-align:left> $a+b$</td>
+<td style=text-align:center>some wordy text</td>
+<td style=text-align:right>$1600</td>
+</tr>
+</tbody>
+</table>
+<h2 id=tikz>TikZ</h2>
+<p>
+</p><div class=tikz-picture style=height:303.61699pt>
+<svg height=303.61699pt viewBox="-72 -72 303.61699 303.61699" width=303.61699pt><g transform="translate(22.632980346679684,103.10960388183591) scale(1,-1)"><g> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke-width=0.4pt> <g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  14.22636 0.0 C  14.22636 7.8571 7.8571 14.22636 0.0 14.22636 C  -7.8571 14.22636 -14.22636 7.8571 -14.22636 0.0 C  -14.22636 -7.8571 -7.8571 -14.22636 0.0 -14.22636 C  7.8571 -14.22636 14.22636 -7.8571 14.22636 0.0 Z M  0.0 0.0  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-2.60243,-3.47221)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmmi10 font-size=10 x=22.632980346679684 y=103.10960388183591>d</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  128.03738 0.0 C  128.03738 7.8571 121.66812 14.22636 113.81102 14.22636 C  105.95392 14.22636 99.58466 7.8571 99.58466 0.0 C  99.58466 -7.8571 105.95392 -14.22636 113.81102 -14.22636 C  121.66812 -14.22636 128.03738 -7.8571 128.03738 0.0 Z M  113.81102 0.0  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,111.31102,-3.22221)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>1</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  14.22636 -113.81102 C  14.22636 -105.95392 7.8571 -99.58466 0.0 -99.58466 C  -7.8571 -99.58466 -14.22636 -105.95392 -14.22636 -113.81102 C  -14.22636 -121.66812 -7.8571 -128.03738 0.0 -128.03738 C  7.8571 -128.03738 14.22636 -121.66812 14.22636 -113.81102 Z M  0.0 -113.81102  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-2.5,-117.03323)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>2</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  128.03738 -113.81102 C  128.03738 -105.95392 121.66812 -99.58466 113.81102 -99.58466 C  105.95392 -99.58466 99.58466 -105.95392 99.58466 -113.81102 C  99.58466 -121.66812 105.95392 -128.03738 113.81102 -128.03738 C  121.66812 -128.03738 128.03738 -121.66812 128.03738 -113.81102 Z M  113.81102 -113.81102  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,111.31102,-117.03323)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>3</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  94.70299 80.47662 C  94.70299 88.33372 88.33372 94.70299 80.47662 94.70299 C  72.61952 94.70299 66.25026 88.33372 66.25026 80.47662 C  66.25026 72.61952 72.61952 66.25026 80.47662 66.25026 C  88.33372 66.25026 94.70299 72.61952 94.70299 80.47662 Z M  80.47662 80.47662  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,77.97662,77.25441)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>4</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  208.514 80.47662 C  208.514 88.33372 202.14474 94.70299 194.28764 94.70299 C  186.43054 94.70299 180.06128 88.33372 180.06128 80.47662 C  180.06128 72.61952 186.43054 66.25026 194.28764 66.25026 C  202.14474 66.25026 208.514 72.61952 208.514 80.47662 Z M  194.28764 80.47662  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,191.78764,77.25441)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>5</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  94.70299 -33.3344 C  94.70299 -25.4773 88.33372 -19.10803 80.47662 -19.10803 C  72.61952 -19.10803 66.25026 -25.4773 66.25026 -33.3344 C  66.25026 -41.1915 72.61952 -47.56076 80.47662 -47.56076 C  88.33372 -47.56076 94.70299 -41.1915 94.70299 -33.3344 Z M  80.47662 -33.3344  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,77.97662,-36.55661)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>6</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  208.514 -33.3344 C  208.514 -25.4773 202.14474 -19.10803 194.28764 -19.10803 C  186.43054 -19.10803 180.06128 -25.4773 180.06128 -33.3344 C  180.06128 -41.1915 186.43054 -47.56076 194.28764 -47.56076 C  202.14474 -47.56076 208.514 -41.1915 208.514 -33.3344 Z M  194.28764 -33.3344  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,191.78764,-36.55661)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>7</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  -66.25026 80.47662 C  -66.25026 88.33372 -72.61952 94.70299 -80.47662 94.70299 C  -88.33372 94.70299 -94.70299 88.33372 -94.70299 80.47662 C  -94.70299 72.61952 -88.33372 66.25026 -80.47662 66.25026 C  -72.61952 66.25026 -66.25026 72.61952 -66.25026 80.47662 Z M  -80.47662 80.47662  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-82.97662,77.25441)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>8</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  47.56076 80.47662 C  47.56076 88.33372 41.1915 94.70299 33.3344 94.70299 C  25.4773 94.70299 19.10803 88.33372 19.10803 80.47662 C  19.10803 72.61952 25.4773 66.25026 33.3344 66.25026 C  41.1915 66.25026 47.56076 72.61952 47.56076 80.47662 Z M  33.3344 80.47662  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,30.8344,77.25441)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>9</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  -66.25026 -33.3344 C  -66.25026 -25.4773 -72.61952 -19.10803 -80.47662 -19.10803 C  -88.33372 -19.10803 -94.70299 -25.4773 -94.70299 -33.3344 C  -94.70299 -41.1915 -88.33372 -47.56076 -80.47662 -47.56076 C  -72.61952 -47.56076 -66.25026 -41.1915 -66.25026 -33.3344 Z M  -80.47662 -33.3344  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-85.47664,-36.55661)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>10</text></g></g> </g> </g> </g> </g> </g> <g> <path d=" M  47.56076 -33.3344 C  47.56076 -25.4773 41.1915 -19.10803 33.3344 -19.10803 C  25.4773 -19.10803 19.10803 -25.4773 19.10803 -33.3344 C  19.10803 -41.1915 25.4773 -47.56076 33.3344 -47.56076 C  41.1915 -47.56076 47.56076 -41.1915 47.56076 -33.3344 Z M  33.3344 -33.3344  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,28.33438,-36.55661)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>11</text></g></g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  14.22636 160.95325 C  14.22636 168.81035 7.8571 175.17961 0.0 175.17961 C  -7.8571 175.17961 -14.22636 168.81035 -14.22636 160.95325 C  -14.22636 153.09615 -7.8571 146.72688 0.0 146.72688 C  7.8571 146.72688 14.22636 153.09615 14.22636 160.95325 Z M  0.0 160.95325  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-5.00002,157.73103)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>12</text></g></g> </g> </g> </g> </g> </g> <g> <path d=" M  128.03738 160.95325 C  128.03738 168.81035 121.66812 175.17961 113.81102 175.17961 C  105.95392 175.17961 99.58466 168.81035 99.58466 160.95325 C  99.58466 153.09615 105.95392 146.72688 113.81102 146.72688 C  121.66812 146.72688 128.03738 153.09615 128.03738 160.95325 Z M  113.81102 160.95325  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,108.811,157.73103)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>13</text></g></g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <path d=" M  14.22636 47.14223 C  14.22636 54.99933 7.8571 61.36859 0.0 61.36859 C  -7.8571 61.36859 -14.22636 54.99933 -14.22636 47.14223 C  -14.22636 39.28513 -7.8571 32.91586 0.0 32.91586 C  7.8571 32.91586 14.22636 39.28513 14.22636 47.14223 Z M  0.0 47.14223  " style=fill:none /> </g> </g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-5.00002,43.92001)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(22.632980346679684,103.10960388183591) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=22.632980346679684 y=103.10960388183591>14</text></g></g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  14.42636 0.0 L  98.92467 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,98.92467,0.0)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  10.2012 -10.20097 L  103.2825 -103.28316  " style=fill:none /> <g> <g transform=matrix(0.71062,-0.71065,0.71065,0.71062,103.28249,-103.28316)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  99.38466 0.0 L  14.88635 0.0  " style=fill:none /> <g> <g transform=matrix(-1.0,0.0,0.0,-1.0,14.88635,0.0)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  124.01178 10.20097 L  183.76074 69.9504  " style=fill:none /> <g> <g transform=matrix(0.7071,0.7071,-0.7071,0.7071,183.76074,69.9504)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  13.34795 -108.28206 L  180.5141 -39.03941  " style=fill:none /> <g> <g transform=matrix(0.92525,0.38322,-0.38322,0.92525,180.5141,-39.03941)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  -10.20076 -103.61005 L  -69.94972 -43.86063  " style=fill:none /> <g> <g transform=matrix(-0.7071,0.7071,-0.7071,-0.7071,-69.94972,-43.86063)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  108.28206 -100.46307 L  39.03941 66.70308  " style=fill:none /> <g> <g transform=matrix(-0.38322,0.92525,-0.92525,-0.38322,39.03941,66.70308)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  99.38466 -113.81102 L  14.88635 -113.81102  " style=fill:none /> <g> <g transform=matrix(-1.0,0.0,0.0,-1.0,14.88635,-113.81102)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  80.47662 94.90298 L  80.47662 95.36298  " style=fill:none /> <g> <g transform=matrix(0.0,1.0,-1.0,0.0,80.47662,94.443)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  80.47662 66.05026 L  80.47662 -18.44804  " style=fill:none /> <g> <g transform=matrix(0.0,-1.0,1.0,0.0,80.47662,-18.44804)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  179.86128 80.47662 L  -65.59027 80.47662  " style=fill:none /> <g> <g transform=matrix(-1.0,0.0,0.0,-1.0,-65.59027,80.47662)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  180.9397 86.00558 L  13.77354 155.24823  " style=fill:none /> <g> <g transform=matrix(-0.92525,0.38322,-0.38322,-0.92525,13.77354,155.24823)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  70.27586 -23.13342 L  10.5269 36.616  " style=fill:none /> <g> <g transform=matrix(-0.7071,0.7071,-0.7071,-0.7071,10.5269,36.616)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  90.6776 -23.13298 L  103.285 -10.52623  " style=fill:none /> <g> <g transform=matrix(0.7071,0.7071,-0.7071,0.7071,103.285,-10.52623)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  180.9397 -38.86336 L  13.77354 -108.106  " style=fill:none /> <g> <g transform=matrix(-0.92525,-0.38322,0.38322,-0.92525,13.77354,-108.106)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  184.08688 -43.53537 L  124.33792 -103.28479  " style=fill:none /> <g> <g transform=matrix(-0.7071,-0.7071,0.7071,-0.7071,124.33792,-103.28479)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  -66.05026 80.47662 L  65.59027 80.47662  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,65.59027,80.47662)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  -67.12868 86.00558 L  100.03748 155.24823  " style=fill:none /> <g> <g transform=matrix(0.92525,0.38322,-0.38322,0.92525,100.03748,155.24823)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  47.76076 80.47662 L  179.40129 80.47662  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,179.40129,80.47662)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  38.86359 67.12868 L  74.77138 -19.56085  " style=fill:none /> <g> <g transform=matrix(0.38326,-0.92525,0.92525,0.38326,74.77136,-19.56085)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  47.76076 -33.3344 L  179.40129 -33.3344  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,179.40129,-33.3344)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  23.1332 -23.13342 L  -69.9481 69.94876  " style=fill:none /> <g> <g transform=matrix(-0.71062,0.71065,-0.71065,-0.71062,-69.94809,69.94876)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  5.52896 147.6053 L  27.62915 94.25017  " style=fill:none /> <g> <g transform=matrix(0.38324,-0.92525,0.92525,0.38324,27.62915,94.25017)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  -5.52896 147.6053 L  -74.7716 -19.56085  " style=fill:none /> <g> <g transform=matrix(-0.38322,-0.92525,0.92525,-0.38322,-74.7716,-19.56085)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  0.0 32.71587 L  0.0 14.88635  " style=fill:none /> <g> <g transform=matrix(0.0,-1.0,1.0,0.0,0.0,14.88635)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> <g> <g stroke=rgb(100.0%,0.0%,0.0%)> <g fill=rgb(100.0%,0.0%,0.0%)> <path d=" M  13.34795 41.61304 L  100.03748 5.70525  " style=fill:none /> <g> <g transform=matrix(0.92525,-0.38326,0.38326,0.92525,100.03748,5.70526)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g></svg>
+</div>
+<p></p>
+<p>
+</p><div class=tikz-picture style=height:107.09778pt>
+<svg height=107.09778pt viewBox="-72 -72 85.75865 107.09778" width=85.75865pt><g transform="translate(-18.72091674804687,-61.40023803710936) scale(1,-1)"><g> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke-width=0.4pt> <g> <g> <path d=" M  10.66977 0.0 C  10.66977 5.89282 5.89282 10.66977 0.0 10.66977 C  -5.89282 10.66977 -10.66977 5.89282 -10.66977 0.0 C  -10.66977 -5.89282 -5.89282 -10.66977 0.0 -10.66977 C  5.89282 -10.66977 10.66977 -5.89282 10.66977 0.0 Z M  0.0 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-2.6389,-2.15277)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=-18.72091674804687 y=-61.40023803710936>x</text></g></g> </g> </g> </g> </g> <g> <g> <path d=" M  -10.66977 -42.67912 C  -10.66977 -36.7863 -15.44672 -32.00935 -21.33954 -32.00935 C  -27.23236 -32.00935 -32.00931 -36.7863 -32.00931 -42.67912 C  -32.00931 -48.57195 -27.23236 -53.34889 -21.33954 -53.34889 C  -15.44672 -53.34889 -10.66977 -48.57195 -10.66977 -42.67912 Z M  -21.33954 -42.67912  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-23.97844,-43.85968)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=-18.72091674804687 y=-61.40023803710936>y</text></g></g> </g> </g> </g> </g> <path d=" M  -4.8615 -9.72218 L  -16.272 -32.54388  " style=fill:none /> <g> <g transform=matrix(-0.44899,-0.898,0.898,-0.44899,-16.272,-32.54387)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  -32.00931 -85.35825 C  -32.00931 -79.46542 -36.78625 -74.68848 -42.67908 -74.68848 C  -48.5719 -74.68848 -53.34885 -79.46542 -53.34885 -85.35825 C  -53.34885 -91.25107 -48.5719 -96.02802 -42.67908 -96.02802 C  -36.78625 -96.02802 -32.00931 -91.25107 -32.00931 -85.35825 Z M  -42.67908 -85.35825  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-46.84575,-87.51102)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=-18.72091674804687 y=-61.40023803710936>m</text></g></g> </g> </g> </g> </g> <path d=" M  -26.20103 -52.4013 L  -37.61154 -75.223  " style=fill:none /> <g> <g transform=matrix(-0.44899,-0.898,0.898,-0.44899,-37.61154,-75.22299)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-42.87932,-64.01868)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"></g></g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  10.66982 -85.35825 C  10.66982 -79.46542 5.89287 -74.68848 0.00005 -74.68848 C  -5.89278 -74.68848 -10.66972 -79.46542 -10.66972 -85.35825 C  -10.66972 -91.25107 -5.89278 -96.02802 0.00005 -96.02802 C  5.89287 -96.02802 10.66982 -91.25107 10.66982 -85.35825 Z M  0.00005 -85.35825  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-2.77774,-87.51102)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=-18.72091674804687 y=-61.40023803710936>n</text></g></g> </g> </g> </g> </g> <path d=" M  -16.47804 -52.4013 L  -5.06749 -75.223  " style=fill:none /> <g> <g transform=matrix(0.44899,-0.898,0.898,0.44899,-5.06749,-75.22299)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,0.20026,-64.01868)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"></g></g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-21.53978,-21.33955)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"></g></g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  32.00935 -42.67912 C  32.00935 -36.7863 27.2324 -32.00935 21.33958 -32.00935 C  15.44676 -32.00935 10.66982 -36.7863 10.66982 -42.67912 C  10.66982 -48.57195 15.44676 -53.34889 21.33958 -53.34889 C  27.2324 -53.34889 32.00935 -48.57195 32.00935 -42.67912 Z M  21.33958 -42.67912  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,19.11737,-44.8319)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=-18.72091674804687 y=-61.40023803710936>z</text></g></g> </g> </g> </g> </g> <path d=" M  4.8615 -9.72218 L  16.27205 -32.54388  " style=fill:none /> <g> <g transform=matrix(0.44899,-0.898,0.898,0.44899,16.27205,-32.54387)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,21.5398,-21.33955)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(-18.72091674804687,-61.40023803710936) scale(-1,-1)"></g></g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g></svg>
+</div>
+<p></p>
+<p>
+</p><div class=tikz-picture style=height:151.74678pt>
+<svg height=151.74678pt viewBox="-72 -72 153.98401 151.74678" width=153.98401pt><g transform="translate(4.669830322265624,-61.40023803710936) scale(1,-1)"><g> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke-width=0.4pt> <g> <g> <path d=" M  10.66977 0.0 C  10.66977 5.89282 5.89282 10.66977 0.0 10.66977 C  -5.89282 10.66977 -10.66977 5.89282 -10.66977 0.0 C  -10.66977 -5.89282 -5.89282 -10.66977 0.0 -10.66977 C  5.89282 -10.66977 10.66977 -5.89282 10.66977 0.0 Z M  0.0 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-5.00002,-3.22221)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>15</text></g></g> </g> </g> </g> </g> <g> <g> <path d=" M  -32.00934 -42.67912 C  -32.00934 -36.7863 -36.78629 -32.00935 -42.67911 -32.00935 C  -48.57193 -32.00935 -53.34888 -36.7863 -53.34888 -42.67912 C  -53.34888 -48.57195 -48.57193 -53.34889 -42.67911 -53.34889 C  -36.78629 -53.34889 -32.00934 -48.57195 -32.00934 -42.67912 Z M  -42.67911 -42.67912  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-45.17911,-45.90134)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>6</text></g></g> </g> </g> </g> </g> <path d=" M  -7.68608 -7.68608 L  -34.6676 -34.66779  " style=fill:none /> <g> <g transform=matrix(-0.70709,-0.7071,0.7071,-0.70709,-34.6676,-34.66779)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  -51.29745 -85.35825 C  -51.29745 -78.33244 -56.99284 -72.63705 -64.01865 -72.63705 C  -71.04445 -72.63705 -76.73984 -78.33244 -76.73984 -85.35825 C  -76.73984 -92.38405 -71.04445 -98.07944 -64.01865 -98.07944 C  -56.99284 -98.07944 -51.29745 -92.38405 -51.29745 -85.35825 Z M  -64.01865 -85.35825  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-71.51866,-88.7749)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>C:3</text></g></g> </g> </g> </g> </g> <path d=" M  -47.54012 -52.4013 L  -58.24023 -73.80122 M  -47.54012 -52.4013 L  -58.03455 -73.3898  " style=fill:none /> <g> <g transform=matrix(-0.44719,-0.89442,0.89442,-0.44719,-58.03453,-73.3898)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-66.25993,-66.32347)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>0</text></g></g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-66.25993,-66.32347)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>0</text></g></g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  -10.66975 -85.35825 C  -10.66975 -79.46542 -15.4467 -74.68848 -21.33952 -74.68848 C  -27.23235 -74.68848 -32.0093 -79.46542 -32.0093 -85.35825 C  -32.0093 -91.25107 -27.23235 -96.02802 -21.33952 -96.02802 C  -15.4467 -96.02802 -10.66975 -91.25107 -10.66975 -85.35825 Z M  -21.33952 -85.35825  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-23.83952,-88.58046)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>3</text></g></g> </g> </g> </g> </g> <path d=" M  -37.81761 -52.4013 L  -26.40706 -75.223  " style=fill:none /> <g> <g transform=matrix(0.44899,-0.898,0.898,0.44899,-26.40706,-75.22299)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  -30.14513 -128.03737 C  -30.14513 -121.11499 -35.75668 -115.50343 -42.67906 -115.50343 C  -49.60144 -115.50343 -55.213 -121.11499 -55.213 -128.03737 C  -55.213 -134.95975 -49.60144 -140.5713 -42.67906 -140.5713 C  -35.75668 -140.5713 -30.14513 -134.95975 -30.14513 -128.03737 Z M  -42.67906 -128.03737  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-49.97075,-131.45403)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>E:1</text></g></g> </g> </g> </g> </g> <path d=" M  -26.20068 -95.08043 L  -36.77786 -116.23479  " style=fill:none /> <g> <g transform=matrix(-0.44899,-0.898,0.898,-0.44899,-36.77786,-116.23477)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-44.9623,-109.08635)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>0</text></g></g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  12.63971 -128.03737 C  12.63971 -121.0566 6.98083 -115.39772 0.00006 -115.39772 C  -6.98071 -115.39772 -12.63959 -121.0566 -12.63959 -128.03737 C  -12.63959 -135.01814 -6.98071 -140.67702 0.00006 -140.67702 C  6.98083 -140.67702 12.63971 -135.01814 12.63971 -128.03737 Z M  0.00006 -128.03737  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-7.43051,-131.45403)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>B:2</text></g></g> </g> </g> </g> </g> <path d=" M  -16.45895 -95.11923 L  -5.94841 -116.14023  " style=fill:none /> <g> <g transform=matrix(0.44899,-0.898,0.898,0.44899,-5.94841,-116.14021)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-2.73065,-109.05847)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>1</text></g></g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-23.63931,-67.24089)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>1</text></g></g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-34.70923,-24.56177)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>0</text></g></g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  53.34892 -42.67912 C  53.34892 -36.7863 48.57198 -32.00935 42.67915 -32.00935 C  36.78633 -32.00935 32.00938 -36.7863 32.00938 -42.67912 C  32.00938 -48.57195 36.78633 -53.34889 42.67915 -53.34889 C  48.57198 -53.34889 53.34892 -48.57195 53.34892 -42.67912 Z M  42.67915 -42.67912  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,40.17915,-45.90134)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>9</text></g></g> </g> </g> </g> </g> <path d=" M  7.68608 -7.68608 L  34.66782 -34.66762  " style=fill:none /> <g> <g transform=matrix(0.7071,-0.70709,0.70709,0.7071,34.66782,-34.66762)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  34.24635 -85.35825 C  34.24635 -78.22997 28.4679 -72.4515 21.33961 -72.4515 C  14.21133 -72.4515 8.43288 -78.22997 8.43288 -85.35825 C  8.43288 -92.48653 14.21133 -98.26498 21.33961 -98.26498 C  28.4679 -98.26498 34.24635 -92.48653 34.24635 -85.35825 Z M  21.33961 -85.35825  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,13.63127,-88.7749)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>D:4</text></g></g> </g> </g> </g> </g> <path d=" M  37.7989 -52.44011 L  27.40671 -73.22385  " style=fill:none /> <g> <g transform=matrix(-0.4472,-0.89442,0.89442,-0.4472,27.40671,-73.22385)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,19.13019,-66.2599)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>0</text></g></g> </g> </g> </g> </g> </g> <g> <g> <path d=" M  76.84418 -85.35825 C  76.84418 -78.27487 71.10211 -72.5328 64.01874 -72.5328 C  56.93536 -72.5328 51.1933 -78.27487 51.1933 -85.35825 C  51.1933 -92.44162 56.93536 -98.18369 64.01874 -98.18369 C  71.10211 -98.18369 76.84418 -92.44162 76.84418 -85.35825 Z M  64.01874 -85.35825  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,56.37984,-88.7749)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>A:5</text></g></g> </g> </g> </g> </g> <path d=" M  47.55972 -52.44011 L  57.988 -73.29655  " style=fill:none /> <g> <g transform=matrix(0.44722,-0.89442,0.89442,0.44722,57.98799,-73.29655)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,61.24648,-66.29625)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>1</text></g></g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,29.70934,-24.56169)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(4.669830322265624,-61.40023803710936) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=4.669830322265624 y=-61.40023803710936>1</text></g></g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g></svg>
+</div>
+<p></p>
+<p>
+</p><div class=tikz-picture style=height:92.76355pt>
+<svg height=92.76355pt viewBox="-72 -72 166.27953 92.76355" width=166.27953pt><g transform="translate(83.13975524902342,-24.873672485351555) scale(1,-1)"><g> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke-width=0.4pt> <g> <g> <path d=" M  10.66977 0.0 C  10.66977 5.89282 5.89282 10.66977 0.0 10.66977 C  -5.89282 10.66977 -10.66977 5.89282 -10.66977 0.0 C  -10.66977 -5.89282 -5.89282 -10.66977 0.0 -10.66977 C  5.89282 -10.66977 10.66977 -5.89282 10.66977 0.0 Z M  0.0 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-4.40685,-1.40279)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmmi10 font-size=10 x=83.13975524902342 y=-24.873672485351555>c</text><text alignment-baseline=baseline fill=black font-family=cmr7 font-size=7 x=87.46731948852538 y=-23.37368774414062>2</text></g></g> </g> </g> </g> </g> <g> <path d=" M  -133.87022 0.0 C  -133.87022 5.89282 -138.64717 10.66977 -144.54 10.66977 C  -150.43282 10.66977 -155.20976 5.89282 -155.20976 0.0 C  -155.20976 -5.89282 -150.43282 -10.66977 -144.54 -10.66977 C  -138.64717 -10.66977 -133.87022 -5.89282 -133.87022 0.0 Z M  -144.54 0.0  " style=fill:none /> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-148.94684,-1.40279)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmmi10 font-size=10 x=83.13975524902342 y=-24.873672485351555>c</text><text alignment-baseline=baseline fill=black font-family=cmr7 font-size=7 x=87.46731948852538 y=-23.37368774414062>1</text></g></g> </g> </g> </g> </g> <path d=" M  -135.09662 5.45212 C  -92.66026 29.95287 -51.87973 29.95287 -9.843 5.68298  " style=fill:none /> <g> <g transform=matrix(0.86877,-0.50156,0.50156,0.86877,-9.843,5.683)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-78.65887,32.48979)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=83.13975524902342 y=-24.873672485351555>0.5</text></g></g> </g> </g> </g> </g> <path d=" M  -9.44337 -5.45212 C  -51.87973 -29.95287 -92.66026 -29.95287 -134.69699 -5.68298  " style=fill:none /> <g> <g transform=matrix(-0.86877,0.50156,-0.50156,-0.86877,-134.69699,-5.683)> <g> <g stroke-width=0.31999pt> <g stroke-dasharray=none stroke-dashoffset=0.0pt> <g stroke-linecap=round> <g stroke-linejoin=round> <path d=" M  -1.19998 1.59998 C  -1.09998 0.99998 0.0 0.09999 0.29999 0.0 C  0.0 -0.09999 -1.09998 -0.99998 -1.19998 -1.59998  " style=fill:none /> </g> </g> </g> </g> </g> </g> </g> <g> <g> <g transform=matrix(1.0,0.0,0.0,1.0,-74.76997,-37.91966)> <g stroke=rgb(0.0%,0.0%,0.0%)> <g fill=rgb(0.0%,0.0%,0.0%)> <g stroke=none transform="scale(-1,1) translate(83.13975524902342,-24.873672485351555) scale(-1,-1)"><text alignment-baseline=baseline fill=black font-family=cmr10 font-size=10 x=83.13975524902342 y=-24.873672485351555>3</text></g></g> </g> </g> </g> </g> </g> </g> </g> </g> </g> </g></svg>
+</div>
+<p></p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_after></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-08-25 - add test page</summary>
+<pre class=code-block><input id=code-block-bc6cd1a84e9ffe12aad3d0a9e7f514241c74239e-1 type=checkbox><label for=code-block-bc6cd1a84e9ffe12aad3d0a9e7f514241c74239e-1></label><code><span class=hljs-meta>@@ -0,0 +1,853 @@</span>
+<span class=hljs-addition>+&lt;!-- markdownlint-disable --&gt;</span>
+<span class=hljs-addition>+## Benchmarking the support of Markdown with a comprehensive checklist</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**You&#x27;re working on a project featuring Markdown?**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Drop [the source of this page](https://raw.githubusercontent.com/RoneoOrg/markdown/main/README.md) wherever you want to test *or showcase* the support of Markdown, and check that every single feature is properly rendered.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Table of Contents**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- [Basic formatting](#basic-formatting)</span>
+<span class=hljs-addition>+- [Blockquotes](#blockquotes)</span>
+<span class=hljs-addition>+- [Lists](#lists)</span>
+<span class=hljs-addition>+- [Linebreaks](#linebreaks)</span>
+<span class=hljs-addition>+- [Links](#links)</span>
+<span class=hljs-addition>+- [Code formatting](#code-formatting)</span>
+<span class=hljs-addition>+- [Task lists](#task-lists)</span>
+<span class=hljs-addition>+- [Tables](#tables)</span>
+<span class=hljs-addition>+- [Headings](#headings)</span>
+<span class=hljs-addition>+- [MathJax](#mathjax)</span>
+<span class=hljs-addition>+- [TikZ](#tikz)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Basic formatting</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### **Bold** text</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Syntax:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    You can mark some text as bold with **two asterisks**</span>
+<span class=hljs-addition>+    or __two underscores__.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You can mark some text as bold with **two asterisks**</span>
+<span class=hljs-addition>+or __two underscores__.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### *Italic*</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    Use a *single asterisk* or a _single underscore_ for italic.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Use a *single asterisk* or a _single underscore_ for italic.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### ***Bold and italic***</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    Three stars gives `***bold and italic***`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Three stars gives ***bold and italic***</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### ~~Strikethrough~~</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Using `~~two tildes~~` will strikethrough:  ~~two tildes~~</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Blockquotes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Syntax:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &gt; blockquote</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output**:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; blockquote</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Nested blockquotes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Syntax:**</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+&gt; First level</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt;&gt; Second level</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; First level</span>
+<span class=hljs-addition>+&gt;&gt; Second level</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Markdown in blockquotes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+&gt; **Markdown** can be used *inside quotes*</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; 1.   This is the first list item.</span>
+<span class=hljs-addition>+&gt; 1.   This is the second list item.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ~~strikethrough~~</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Here&#x27;s some example code:</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt;     return shell_exec(&quot;echo $input | $markdown_script&quot;);</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; **Markdown** can be used *inside quotes*</span>
+<span class=hljs-addition>+&gt; 1. This is the first list item.</span>
+<span class=hljs-addition>+&gt; 1. This is the second list item.</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; ~~strikethrough~~</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt; Here&#x27;s some example code:</span>
+<span class=hljs-addition>+&gt;</span>
+<span class=hljs-addition>+&gt;     return shell_exec(&quot;echo $input | $markdown_script&quot;);</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Lists</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Unordered list</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Cant be marked with `-`, `+` or `*`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```markdown</span>
+<span class=hljs-addition>+- First item</span>
+<span class=hljs-addition>+- Second item</span>
+<span class=hljs-addition>+- Third item</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```markdown</span>
+<span class=hljs-addition>++ First item</span>
+<span class=hljs-addition>++ Second item</span>
+<span class=hljs-addition>++ Third item</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```markdown</span>
+<span class=hljs-addition>+* First item</span>
+<span class=hljs-addition>+* Second item</span>
+<span class=hljs-addition>+* Third item</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- First item</span>
+<span class=hljs-addition>+- Second item</span>
+<span class=hljs-addition>+- Third item</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>++ First item</span>
+<span class=hljs-addition>++ Second item</span>
+<span class=hljs-addition>++ Third item</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+* First item</span>
+<span class=hljs-addition>+* Second item</span>
+<span class=hljs-addition>+* Third item</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Ordered lists</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Incrementation is automatic, you can simply use `1.` everywhere</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+1. First item</span>
+<span class=hljs-addition>+1. Second item</span>
+<span class=hljs-addition>+1. Third item</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. First item</span>
+<span class=hljs-addition>+1. Second item</span>
+<span class=hljs-addition>+1. Third item</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Nested list</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+- First item</span>
+<span class=hljs-addition>+- Second item</span>
+<span class=hljs-addition>+- Third item</span>
+<span class=hljs-addition>+  1. Indented item</span>
+<span class=hljs-addition>+  1. Indented item</span>
+<span class=hljs-addition>+- Fourth item</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- First item</span>
+<span class=hljs-addition>+- Second item</span>
+<span class=hljs-addition>+- Third item</span>
+<span class=hljs-addition>+  1. Indented item</span>
+<span class=hljs-addition>+  1. Indented item</span>
+<span class=hljs-addition>+- Fourth item</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Linebreaks</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**When you hit enter just once** between two lines, both lines are joined into a single paragraph.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But, if you **leave a blank line between them**, they will split into two paragraphs.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Demonstration**:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+This text is a paragraph.</span>
+<span class=hljs-addition>+This won&#x27;t be another paragraph, it will join the line above it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This will be another paragraph, as it has a blank line above it.</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This text is a paragraph. This won&#x27;t be another paragraph, it will join the line above it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This will be another paragraph, as it has a blank line above it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Force line breaks</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To force a line break, **end a line with two or more whitespaces**, and then type return.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+This is the first line.··</span>
+<span class=hljs-addition>+Second line</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is the first line.  </span>
+<span class=hljs-addition>+Second line</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Horizontal lines</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Can be inserted with four `*`, `-` or `_`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+****</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+____</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+****</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+____</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Links</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Basic links</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+[Semantic description](https://roneo.org/markdown)  </span>
+<span class=hljs-addition>+&lt;address@example.com&gt;  </span>
+<span class=hljs-addition>+&lt;https://roneo.org/markdown&gt; works too. Must be used for explicit links.</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[Semantic description](https://roneo.org/markdown)  </span>
+<span class=hljs-addition>+&lt;address@example.com&gt;  </span>
+<span class=hljs-addition>+&lt;https://roneo.org/markdown&gt; works too. Must be used for explicit links.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Links using text reference</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+[I&#x27;m a link][Reference text]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[This link] will do the same as well. It works as the identifier itself.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[reference text]: https://jamstack.club</span>
+<span class=hljs-addition>+[this link]: https://roneo.org/markdown</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[I&#x27;m a link][Reference text]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[This link] will do the same as well. It works as the identifier itself.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[reference text]: https://jamstack.club</span>
+<span class=hljs-addition>+[this link]: https://roneo.org/markdown</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Note:** The reference text is *not* case sensitive</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Link with a title on hover</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+[Random text][random-identifier].</span>
+<span class=hljs-addition>+Hover the mouse over it to see the title.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Several syntaxes are accepted:</span>
+<span class=hljs-addition>+[One](https://eff.org &quot;First site&quot;)</span>
+<span class=hljs-addition>+[Two](https://example.com &#x27;Second site&#x27;)</span>
+<span class=hljs-addition>+[Three](https://example.com (Third site))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[random-identifier]: https://roneo.org/markdown &quot;This example has a title&quot;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[Random text][random-identifier]. Hover the mouse over it to see the title.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Several syntaxes are accepted:</span>
+<span class=hljs-addition>+[One](https://eff.org &quot;First site&quot;)</span>
+<span class=hljs-addition>+[Two](https://jamstack.club &#x27;Second site&#x27;)</span>
+<span class=hljs-addition>+[Three](https://debian.org (Third site))</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[random-identifier]: https://roneo.org/markdown &quot;This example has a title&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Links with Markdown style</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To ***emphasize*** links, add asterisks before and after the brackets and parentheses.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    I love supporting the **[EFF](https://eff.org)**.  </span>
+<span class=hljs-addition>+    This is the *[Markdown Guide](https://www.markdownguide.org)*.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To denote links as `code`, add backticks *inside* the brackets:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    See the section on [`code`](#code).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I love supporting the **[EFF](https://eff.org)**.  </span>
+<span class=hljs-addition>+This is the *[Markdown Guide](https://www.markdownguide.org)*.  </span>
+<span class=hljs-addition>+See the section on [`code`](#code).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Attribute a custom anchor to a heading</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anchors are automatically generated based on the heading&#x27;s content. You can customize the anchor this way:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    ### Heading {#custom-id}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### Heading {#custom-id}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Code formatting</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Inline</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Wrap with single backticks to highlight as`` `code` `` → `code`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Codeblocks</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Create a code block with three backticks `` ``` `` before and after your block of code.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+sudo apt hello</span>
+<span class=hljs-addition>+cat /etc/apt/sources.list</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Also possible with a tabulation or four empty spaces at the beginning of the lines:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Tabulation**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    sudo apt hello</span>
+<span class=hljs-addition>+    echo &quot;hi&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Four whitespaces**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    sudo apt hello</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Codeblocks with syntax highlighting</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Set the language right after the first backticks (for example `` ```html  ``) to get syntax highlighting</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### Samples:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### HTML</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```html</span>
+<span class=hljs-addition>+&lt;!DOCTYPE html&gt;</span>
+<span class=hljs-addition>+&lt;html lang=&quot;fr&quot; itemscope itemtype=&quot;http://schema.org/WebPage&quot;&gt;</span>
+<span class=hljs-addition>+  &lt;head&gt;</span>
+<span class=hljs-addition>+  &lt;meta charset=&quot;utf-8&quot; /&gt;</span>
+<span class=hljs-addition>+  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;</span>
+<span class=hljs-addition>+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0&quot;&gt;</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### CSS</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```css</span>
+<span class=hljs-addition>+/* Comment */</span>
+<span class=hljs-addition>+.blog-post h2, h3 {</span>
+<span class=hljs-addition>+  margin-top: 1.6em;</span>
+<span class=hljs-addition>+  margin-bottom: 0.8em;</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### Bash</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```bash</span>
+<span class=hljs-addition>+# Comment</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+if [[ ! $system =~ Linux|MacOS|BSD ]]; then</span>
+<span class=hljs-addition>+    echo &quot;This version of bashtop does not support $system platform.&quot;</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+sudo apt install test</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### Diff</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```diff</span>
+<span class=hljs-addition>+- delete</span>
+<span class=hljs-addition>++ add</span>
+<span class=hljs-addition>+! test</span>
+<span class=hljs-addition>+# comment</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Escaping with backslashes</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Any ASCII punctuation character may be escaped using a single backslash.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Example:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    \*this is not italic*</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+\*this is not italic*</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Markdown provides backslash escapes for the following characters:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+\   backslash</span>
+<span class=hljs-addition>+`   backtick</span>
+<span class=hljs-addition>+*   asterisk</span>
+<span class=hljs-addition>+_   underscore</span>
+<span class=hljs-addition>+{}  curly braces</span>
+<span class=hljs-addition>+[]  square brackets</span>
+<span class=hljs-addition>+()  parentheses</span>
+<span class=hljs-addition>+#   hash mark</span>
+<span class=hljs-addition>++   plus sign</span>
+<span class=hljs-addition>+-   minus sign (hyphen)</span>
+<span class=hljs-addition>+.   dot</span>
+<span class=hljs-addition>+!   exclamation mark</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Task lists</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+- [X] Write the press release</span>
+<span class=hljs-addition>+- [ ] Update the website</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Output:**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- [x] Write the press release</span>
+<span class=hljs-addition>+- [ ] Update the website</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Tables</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+| Syntax    | Description |</span>
+<span class=hljs-addition>+| --------- | ----------- |</span>
+<span class=hljs-addition>+| Header    | Title       |</span>
+<span class=hljs-addition>+| Paragraph | Text        |</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+or</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+| Syntax | Description |</span>
+<span class=hljs-addition>+| - | --- |</span>
+<span class=hljs-addition>+| Header | Title |</span>
+<span class=hljs-addition>+| Paragraph | Text|</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+will not render the same way:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Syntax    | Description |</span>
+<span class=hljs-addition>+| --------- | ----------- |</span>
+<span class=hljs-addition>+| Header    | Title       |</span>
+<span class=hljs-addition>+| Paragraph | Text        |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Syntax | Description |</span>
+<span class=hljs-addition>+| - | --- |</span>
+<span class=hljs-addition>+| Header | Title |</span>
+<span class=hljs-addition>+| Paragraph | Text|</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Use at least two dashes in the separator:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+| Syntax | Description |</span>
+<span class=hljs-addition>+| -- | --- |</span>
+<span class=hljs-addition>+| Header | Title |</span>
+<span class=hljs-addition>+| Paragraph | Text|</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Syntax | Description |</span>
+<span class=hljs-addition>+| -- | --- |</span>
+<span class=hljs-addition>+| Header | Title |</span>
+<span class=hljs-addition>+| Paragraph | Text|</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Text alignment in tables</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+| Syntax    | Description |   Test Text |</span>
+<span class=hljs-addition>+| :-------- | :---------: | ----------: |</span>
+<span class=hljs-addition>+| Header    |    Title    | Here&#x27;s this |</span>
+<span class=hljs-addition>+| Paragraph |    Text     |    And more |</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+See the way the text is aligned, depending on the position of `&#x27;:&#x27;`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Syntax    | Description |   Test Text |</span>
+<span class=hljs-addition>+| :-------- | :---------: | ----------: |</span>
+<span class=hljs-addition>+| Header    |    Title    | Here&#x27;s this |</span>
+<span class=hljs-addition>+| Paragraph |    Text     |    And more |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Headings</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Add `##` at the beginning of a line to set as Heading.  </span>
+<span class=hljs-addition>+You can use up to 6 `#` symbols for the corresponding Heading levels</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+## Heading 1</span>
+<span class=hljs-addition>+[...]</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+###### Heading 6</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Heading 2</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Heading 3 ##################################</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### Heading 4</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+##### Heading 5</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+###### Heading 6</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+pedit quia voluptates atque nobis, perspiciatis deserunt perferendis, nostrum, voluptatem voluptas dolorem iure voluptatum? Accusantium a dolores dicta?Pariatur voluptates quam ut, cum aliquid eum, officiis laudantium totam suscipit, ducimus odit nobis! Corrupti, doloremque sed optio voluptatibus deserunt quas repellat eius minus quasi, ipsam unde esse sequi deleniti.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## References</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- Source of this page: [roneo.org/markdown](https://roneo.org/markdown)</span>
+<span class=hljs-addition>+- [Markdown Guide - Basic Syntax](https://www.markdownguide.org/basic-syntax)</span>
+<span class=hljs-addition>+- [Markdown Guide - Extended Syntax](https://www.markdownguide.org/extended-syntax)</span>
+<span class=hljs-addition>+- [Daring Fireball: Markdown Syntax Documentation](https://daringfireball.net/projects/markdown/syntax)</span>
+<span class=hljs-addition>+- [Markdown Guide at Gitlab.com](https://about.gitlab.com/handbook/markdown-guide/)</span>
+<span class=hljs-addition>+- [CommonMark Spec](https://spec.commonmark.org/0.29/)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Related projects</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- https://github.com/ericwbailey/markdown-test-file</span>
+<span class=hljs-addition>+- https://scottspence.com/posts/writing-with-markdown</span>
+<span class=hljs-addition>+- https://codingnconcepts.com/markdown/markdown-syntax/</span>
+<span class=hljs-addition>+- https://codeit.suntprogramator.dev/basic-markdown-syntax/</span>
+<span class=hljs-addition>+- https://daringfireball.net/projects/markdown/syntax.text</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## MathJax</span>
+<span class=hljs-addition>+### [(*source*)](https://github.com/atom-community/markdown-preview-plus/blob/master/EXAMPLE.md)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$x$ math at the start of the document</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Nested: $M = \text{while e^2 $e^2$ do $c^2$ end}$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This document is to test $\LaTeX$ rendering with [markdown-preview-plus](https://atom.io/packages/markdown-preview-plus).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Numbered equations**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{equation}</span>
+<span class=hljs-addition>+\int_0^x \sin(x) dx</span>
+<span class=hljs-addition>+\label{eq:test}</span>
+<span class=hljs-addition>+\end{equation}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$\eqref{eq:test}$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Blockquotes**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; 1.  A block quote</span>
+<span class=hljs-addition>+&gt; 2.  With a list inside</span>
+<span class=hljs-addition>+&gt; 3.  With $math$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Math environment Syntax testing**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Inline Math should work with `$`  $\frac{x+y}{y}$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Use `\$\$` on separate lines (no escape):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+a+b</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Use `\$\$` on the same line (no escape):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$E=mc^2$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Some Tex Functions**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$k \times k$, $n \times 2$, $2 \times n$, $\times$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$x \cdot y$, $\cdot$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$\sqrt{x^2+y^2+z^2}$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$\alpha \beta \gamma$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+x\ &amp;= y\\</span>
+<span class=hljs-addition>+mc^2\ &amp;= E</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Escaped Math environments**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In the following examples no math environments should render:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+a $5, a $10 and a \$100 Bill.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+All McScrooge sees</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+and even more:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+\\[x+y\]</span>
+<span class=hljs-addition>+\\(x+y\)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+$x</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```txt</span>
+<span class=hljs-addition>+\$</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+`\$`, `\[ \]`, `$x$`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Testing `\newcommand`**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For all $x$ and $y$ in $\mathbb{R}^k$ it is true that</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\newcommand{sca}[1]{\langle #1 \rangle}</span>
+<span class=hljs-addition>+|\sca{x,y}|^2 \le \sca{x,x} \cdot \sca{y,y},</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&lt;!-- newcommand not in environment--&gt;</span>
+<span class=hljs-addition>+\newcommand{\scalong}[1]{(#1_1,\dots,#1_k)}</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+where $\sca{\cdot,\cdot}$ denotes the inner product $\sca{\scalong{x}, \scalong{x}} = \sum_{i=1}^k x_i y_i$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Testing several math fonts**</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+p(\mathbf{m}) \sim \mathcal{N}(\mathbf{m}) e^{-\sum_{i} \beta_i m_i}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\langle \vec{m} \rangle =</span>
+<span class=hljs-addition>+\frac{1}{Z(\vec{\beta})}\vec{m}(\mu)</span>
+<span class=hljs-addition>+\sum_{\mu\in\mathcal{G}}</span>
+<span class=hljs-addition>+e^{-\vec{\beta}\cdot\vec{m}(\mu)}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Notice below that the `\[`-separated display math doesn&#x27;t have a blank line before and after (i.e. in an actual $\LaTeX$ document it wouldn&#x27;t be placed in a separate paragraph):</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The _characteristic polynomial_ $\chi(\lambda)$ of the</span>
+<span class=hljs-addition>+$3 \times 3$ matrix</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\left( \begin{array}{ccc}</span>
+<span class=hljs-addition>+a &amp; b &amp; c \\</span>
+<span class=hljs-addition>+d &amp; e &amp; f \\</span>
+<span class=hljs-addition>+g &amp; h &amp; i \end{array} \right)</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+is given by the formula</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\chi(\lambda) = \left| \begin{array}{ccc}</span>
+<span class=hljs-addition>+\lambda - a &amp; -b &amp; -c \\</span>
+<span class=hljs-addition>+-d &amp; \lambda - e &amp; -f \\</span>
+<span class=hljs-addition>+-g &amp; -h &amp; \lambda - i \end{array} \right|.</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is a long line: $\chi(\lambda) = a e i-a e \lambda -a f h-a i \lambda +a \lambda ^2-b d i+b d \lambda +b f g+c d h-c e g+c g \lambda -e i \lambda +e \lambda ^2+f h \lambda +i \lambda ^2-\lambda ^3$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+----</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**Does it work in different MD elements?**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+# Math $x^2$ in heading 1</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## Math $x^2$ in heading 2</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+### Math $x^2$ in heading 3</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+#### Math $x^2$ in heading 4</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$x_1, x_2, \dots, x_N$ should not conflict with `_` _italics_?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$(f*g*h)(x)$ should not conflict with `*` *syn***tax**?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$[a+b](c+d)$ should not conflict link [syntax](#)?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+_math $x^2$ in emphasis_</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**math $x^2$ in bold**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+[math $x^2$ in link](http://www.mathjax.org/)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+`math $x^2$ in code`</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+~~math $x^2$ in strikethrough~~</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+**In Tables**</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| Left-Aligned  | Center Aligned  | Right Aligned |</span>
+<span class=hljs-addition>+| :------------ |:---------------:| -----:|</span>
+<span class=hljs-addition>+| $a+b$         | some wordy text | $1600 |</span>
+<span class=hljs-addition>+| $a+b$         | some wordy text | $1600 |</span>
+<span class=hljs-addition>+| $a+b$         | some wordy text | $1600 |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## TikZ</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}</span>
+<span class=hljs-addition>+    [nodes={draw, circle, minimum size=1cm}, node distance={40mm}]</span>
+<span class=hljs-addition>+    \node(d) [draw = red] { $d$ };</span>
+<span class=hljs-addition>+    \node(1) [draw = red, right of=d] { $1$ };</span>
+<span class=hljs-addition>+    \node(2) [draw = red, below of=d] { $2$ };</span>
+<span class=hljs-addition>+    \node(3) [draw = red, right of=2] { $3$ };</span>
+<span class=hljs-addition>+    \node(4) [draw = red, above right of=d] { $4$ };</span>
+<span class=hljs-addition>+    \node(5) [draw = red, above right of=1] { $5$ };</span>
+<span class=hljs-addition>+    \node(6) [draw = red, above right of=2] { $6$ };</span>
+<span class=hljs-addition>+    \node(7) [draw = red, above right of=3] { $7$ };</span>
+<span class=hljs-addition>+    \node(8) [draw = red, above left of=d] { $8$ };</span>
+<span class=hljs-addition>+    \node(9) [draw = red, right of=8] { $9$ };</span>
+<span class=hljs-addition>+    \node(10) [draw = red, below of=8] { $10$ };</span>
+<span class=hljs-addition>+    \node(11) [right of=10] { $11$ };</span>
+<span class=hljs-addition>+    \node(12) [draw = red, above right of=8] { $12$ };</span>
+<span class=hljs-addition>+    \node(13) [above right of=9] { $13$ };</span>
+<span class=hljs-addition>+    \node(14) [draw = red, above right of=10] { $14$ };</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (d) -- (1);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (d) -- (3);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (1) -- (d);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (1) -- (5);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (2) -- (7);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (2) -- (10);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (3) -- (9);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (3) -- (2);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (4) -- (4);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (4) -- (6);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (5) -- (8);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (5) -- (12);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (6) -- (14);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (6) -- (1);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (7) -- (2);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (7) -- (3);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (8) -- (4);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (8) -- (13);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (9) -- (5);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (9) -- (6);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (11) -- (7);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (11) -- (8);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (12) -- (9);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (12) -- (10);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (14) -- (d);</span>
+<span class=hljs-addition>+    \draw[red, -&gt;] (14) -- (1);</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node {x}</span>
+<span class=hljs-addition>+    child{ node {y}</span>
+<span class=hljs-addition>+        child{ node {m} edge from parent node[left, draw=none] {}}</span>
+<span class=hljs-addition>+        child{ node {n} edge from parent node[right, draw=none] {}}</span>
+<span class=hljs-addition>+        edge from parent node[left, draw=none] {}</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    child{ node {z} edge from parent node[right, draw=none] {}};</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;,</span>
+<span class=hljs-addition>+  level 1/.style={sibling distance=30mm},</span>
+<span class=hljs-addition>+  level 2/.style={sibling distance=15mm}]</span>
+<span class=hljs-addition>+  \node{15}</span>
+<span class=hljs-addition>+    child { node{6}</span>
+<span class=hljs-addition>+      child{ node{C:3} edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-addition>+        edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-addition>+      }</span>
+<span class=hljs-addition>+      child{ node {3}</span>
+<span class=hljs-addition>+        child{ node{E:1} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+        child{ node{B:2} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+        edge from parent node[right, draw=none] {1}</span>
+<span class=hljs-addition>+      }</span>
+<span class=hljs-addition>+      edge from parent node[left, draw=none] {0}</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    child { node {9}</span>
+<span class=hljs-addition>+      child { node {D:4} edge from parent node[left, draw=none] {0} }</span>
+<span class=hljs-addition>+      child { node {A:5} edge from parent node[right, draw=none] {1} }</span>
+<span class=hljs-addition>+      edge from parent node[right, draw=none] {1}</span>
+<span class=hljs-addition>+    };</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{tikzpicture}[nodes={draw, circle, minimum size=0.75cm}, -&gt;]</span>
+<span class=hljs-addition>+  \node [] (b) {$c_2$};</span>
+<span class=hljs-addition>+  \node [left of = b, node distance = 2in] (a) {$c_1$};</span>
+<span class=hljs-addition>+  \draw [-&gt;] (a) to [out=30,in=150] node [draw=none, above] {0.5} (b);</span>
+<span class=hljs-addition>+  \draw [-&gt;] (b) to [out=210,in=-30] node [draw=none, below] {3} (a);</span>
+<span class=hljs-addition>+\end{tikzpicture}</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>

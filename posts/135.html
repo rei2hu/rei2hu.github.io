@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>lack of attention to detail</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/134>&lt; bayesian analysis of transistor count</a></div>
+</nav>
+<h1 id=lack-of-attention-to-detail>lack of attention to detail</h1>
+<p>My work has recently been pushing generative AI, and some of my co-workers appear to have been using it. I also have been using it, and my feelings have been mixed. On the other hand, I have strong negative feelings when it comes to some co-workers' use of it.</p>
+<p>Recently, I've been dealing with some really poor pull requests. I mean, the quality is typically poor overall (as in not many people will fully fill out the template and leave the placeholder text in like "tests: fill in test info here"), but now it's gotten even worse. Things I looked at had glaring issues:</p>
+<ol>
+<li><p>Getting the name of things wrong that you got right elsewhere. In this case, there was a variable <code>x = "abc-app"</code> which was in the code, and in one place
+<code>x</code> was used, and in another place <code>app-abc</code> was used. The reason this gets me is because I'm not sure how this kind of issue occurs; how can you make a variable then forget to use it (there were no barriers to usage, this is the same block of code) and then mistype the string itself?</p></li>
+<li><p>The obvious incorrect usage of arguments. Here, the dev got a token
+<code>AUTH_TOKEN = ...</code>, then provided the token as the version argument to a script <code>--version AUTH_TOKEN</code>. Again, this kind of mistake blows my mind because I don't know how it can be made and not caught before being submitted for (final) code review (not like a draft review, which is optional).</p></li>
+<li><p>A wordy description that described a bunch of stuff that was <em>not</em> done as part of the pull request</p>
+<blockquote>
+<h2 id=🚧-summary>🚧 Summary</h2>
+<ul>
+<li>deleted file.json</li>
+<li>cleaned up xyz.rs</li>
+<li>…</li></ul>
+<h2 id=🔧-technical-details>🔧 Technical Details</h2>
+<ul>
+<li>Refactored timers in xyz.rs to handle any number of requests coming in</li>
+<li>…</li></ul>
+</blockquote>
+<p>I can't really replicate the style without copy/pasting it, and I don't want to do that, but what I will say is that was some LLM chatter if I ever read any.</p>
+<p>60,000 line pull request by the way.</p></li>
+<li><p>Calling made up APIs. Typical hallucination slop.</p></li>
+<li><p>Working code that does things the wrong way. In a test, there was some mocking code to override the app configuration so that a specific url would be used. But really you could just set it in the test configuration which is what's used in the test environment.</p></li>
+</ol>
+<p>And that was all in one day. I think a lot of career software engineers are just not actually detail oriented enough for the job. And I hate this - I think I've said it before.</p>
+<p>Anyways, let's look at what I got out of my generative AI usage (Claude Code/Cursor, by the way).</p>
+<p>One issue was where I was writing some new custom serialization logic and, for some reason, it was not applying within a test. I had hit a barrier for a while, and I asked used the AI chat for some help. I described the problem, and it generated test cases for me to confirm that things were not working. I then had to explain the logic because this spanned across several repositories (because of libraries). It kept writing tests and saying my change in the library itself must be wrong because it's not working, but I was very sure that it was. It spent most of its time writing tests and saying I was wrong, but then saying I was right, and it could never figure out the problem. Then problem was that I forgot to use snake case in the test data so serialization was not applying to camel cased properties… Whoops!</p>
+<p>Another time is when I had to do a simple field extraction on a lucene (Elasticsearch syntax) query. It went the regular expression route with several very complex regular expressions, and I pointed out that quotes might make it fall over and it should try something else. Instead it kept trying to patch up the quote issue by introducing <em>even more</em> regular expressions (which I am NOT reviewing nor submitting). The answer is <code>QueryBuilder</code> by the way.</p>
+<p>Another was me trying to stand up some infrastructure with Terraform. It generated all the config, but parts of it were not valid. It wasn't too bad once I went over and fixed it though. That was a good time save.</p>
+<p>Overall, I still have the same negative opinion on LLMs, and I think that the tools output is only as good as its user. Can you get something good? Maybe. "100%" good? Eh, probably not, but the problem is figuring out what that missing part is and how important it is. If it's an unknown unknown, so to speak, then you won't catch it, and it may turn into a big issue later down the line. Like your database being unsecured. Or it could be something simple like some text isn't perfectly aligned. Will I take that risk? No, but I think many other people will. To their work's detriment.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/134>&lt; bayesian analysis of transistor count</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-08-25 - add post 135</summary>
+<pre class=code-block><input id=code-block-094bf4b3a8843cedf173bd33b012fa2e916ca532-1 type=checkbox><label for=code-block-094bf4b3a8843cedf173bd33b012fa2e916ca532-1></label><code><span class=hljs-meta>@@ -0,0 +1,87 @@</span>
+<span class=hljs-addition>+# lack of attention to detail</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My work has recently been pushing generative AI, and some of my co-workers</span>
+<span class=hljs-addition>+appear to have been using it. I also have been using it, and my feelings have</span>
+<span class=hljs-addition>+been mixed. On the other hand, I have strong negative feelings when it comes to</span>
+<span class=hljs-addition>+some co-workers&#x27; use of it.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Recently, I&#x27;ve been dealing with some really poor pull requests. I mean, the</span>
+<span class=hljs-addition>+quality is typically poor overall (as in not many people will fully fill out the</span>
+<span class=hljs-addition>+template and leave the placeholder text in like &quot;tests: fill in test info</span>
+<span class=hljs-addition>+here&quot;), but now it&#x27;s gotten even worse. Things I looked at had glaring issues:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. Getting the name of things wrong that you got right elsewhere. In this case,</span>
+<span class=hljs-addition>+   there was a variable `x = &quot;abc-app&quot;` which was in the code, and in one place</span>
+<span class=hljs-addition>+   `x` was used, and in another place `app-abc` was used. The reason this gets</span>
+<span class=hljs-addition>+   me is because I&#x27;m not sure how this kind of issue occurs; how can you make a</span>
+<span class=hljs-addition>+   variable then forget to use it (there were no barriers to usage, this is the</span>
+<span class=hljs-addition>+   same block of code) and then mistype the string itself?</span>
+<span class=hljs-addition>+2. The obvious incorrect usage of arguments. Here, the dev got a token</span>
+<span class=hljs-addition>+   `AUTH_TOKEN = ...`, then provided the token as the version argument to a</span>
+<span class=hljs-addition>+   script `--version AUTH_TOKEN`. Again, this kind of mistake blows my mind</span>
+<span class=hljs-addition>+   because I don&#x27;t know how it can be made and not caught before being submitted</span>
+<span class=hljs-addition>+   for (final) code review (not like a draft review, which is optional).</span>
+<span class=hljs-addition>+3. A wordy description that described a bunch of stuff that was _not_ done as</span>
+<span class=hljs-addition>+   part of the pull request</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    &gt; ## 🚧 Summary</span>
+<span class=hljs-addition>+    &gt;</span>
+<span class=hljs-addition>+    &gt; - deleted file.json</span>
+<span class=hljs-addition>+    &gt; - cleaned up xyz.rs</span>
+<span class=hljs-addition>+    &gt; - ...</span>
+<span class=hljs-addition>+    &gt;</span>
+<span class=hljs-addition>+    &gt; ## 🔧 Technical Details</span>
+<span class=hljs-addition>+    &gt;</span>
+<span class=hljs-addition>+    &gt; - Refactored timers in xyz.rs to handle any number of requests coming in</span>
+<span class=hljs-addition>+    &gt; - ...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    I can&#x27;t really replicate the style without copy/pasting it, and I don&#x27;t want</span>
+<span class=hljs-addition>+    to do that, but what I will say is that was some LLM chatter if I ever read</span>
+<span class=hljs-addition>+    any.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    60,000 line pull request by the way.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+4. Calling made up APIs. Typical hallucination slop.</span>
+<span class=hljs-addition>+5. Working code that does things the wrong way. In a test, there was some</span>
+<span class=hljs-addition>+   mocking code to override the app configuration so that a specific url would</span>
+<span class=hljs-addition>+   be used. But really you could just set it in the test configuration which is</span>
+<span class=hljs-addition>+   what&#x27;s used in the test environment.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And that was all in one day. I think a lot of career software engineers are just</span>
+<span class=hljs-addition>+not actually detail oriented enough for the job. And I hate this - I think I&#x27;ve</span>
+<span class=hljs-addition>+said it before.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Anyways, let&#x27;s look at what I got out of my generative AI usage (Claude</span>
+<span class=hljs-addition>+Code/Cursor, by the way).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+One issue was where I was writing some new custom serialization logic and, for</span>
+<span class=hljs-addition>+some reason, it was not applying within a test. I had hit a barrier for a while,</span>
+<span class=hljs-addition>+and I asked used the AI chat for some help. I described the problem, and it</span>
+<span class=hljs-addition>+generated test cases for me to confirm that things were not working. I then had</span>
+<span class=hljs-addition>+to explain the logic because this spanned across several repositories (because</span>
+<span class=hljs-addition>+of libraries). It kept writing tests and saying my change in the library itself</span>
+<span class=hljs-addition>+must be wrong because it&#x27;s not working, but I was very sure that it was. It</span>
+<span class=hljs-addition>+spent most of its time writing tests and saying I was wrong, but then saying I</span>
+<span class=hljs-addition>+was right, and it could never figure out the problem. Then problem was that I</span>
+<span class=hljs-addition>+forgot to use snake case in the test data so serialization was not applying to</span>
+<span class=hljs-addition>+camel cased properties... Whoops!</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another time is when I had to do a simple field extraction on a lucene</span>
+<span class=hljs-addition>+(Elasticsearch syntax) query. It went the regular expression route with several</span>
+<span class=hljs-addition>+very complex regular expressions, and I pointed out that quotes might make it</span>
+<span class=hljs-addition>+fall over and it should try something else. Instead it kept trying to patch up</span>
+<span class=hljs-addition>+the quote issue by introducing _even more_ regular expressions (which I am NOT</span>
+<span class=hljs-addition>+reviewing nor submitting). The answer is `QueryBuilder` by the way.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Another was me trying to stand up some infrastructure with Terraform. It</span>
+<span class=hljs-addition>+generated all the config, but parts of it were not valid. It wasn&#x27;t too bad once</span>
+<span class=hljs-addition>+I went over and fixed it though. That was a good time save.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Overall, I still have the same negative opinion on LLMs, and I think that the</span>
+<span class=hljs-addition>+tools output is only as good as its user. Can you get something good? Maybe.</span>
+<span class=hljs-addition>+&quot;100%&quot; good? Eh, probably not, but the problem is figuring out what that missing</span>
+<span class=hljs-addition>+part is and how important it is. If it&#x27;s an unknown unknown, so to speak, then</span>
+<span class=hljs-addition>+you won&#x27;t catch it, and it may turn into a big issue later down the line. Like</span>
+<span class=hljs-addition>+your database being unsecured. Or it could be something simple like some text</span>
+<span class=hljs-addition>+isn&#x27;t perfectly aligned. Will I take that risk? No, but I think many other</span>
+<span class=hljs-addition>+people will. To their work&#x27;s detriment.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
