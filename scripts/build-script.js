@@ -172,6 +172,11 @@ if (all || md || fmd) {
 			"A blog of sorts. Thoughts may be unorganized and writing quality may be poor.",
 		filter: changedFiles,
 	});
+	processThenCopyMd("./md/test", "./test", {
+		desc: "Test file for style check",
+		filter: changedFiles,
+	});
+
 	/*
 	processThenCopyMd("./md/puzzles", "./puzzles", {
 		desc:
