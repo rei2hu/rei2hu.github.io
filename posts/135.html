@@ -62,12 +62,32 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>Another time is when I had to do a simple field extraction on a lucene (Elasticsearch syntax) query. It went the regular expression route with several very complex regular expressions, and I pointed out that quotes might make it fall over and it should try something else. Instead it kept trying to patch up the quote issue by introducing <em>even more</em> regular expressions (which I am NOT reviewing nor submitting). The answer is <code>QueryBuilder</code> by the way.</p>
 <p>Another was me trying to stand up some infrastructure with Terraform. It generated all the config, but parts of it were not valid. It wasn't too bad once I went over and fixed it though. That was a good time save.</p>
 <p>Overall, I still have the same negative opinion on LLMs, and I think that the tools output is only as good as its user. Can you get something good? Maybe. "100%" good? Eh, probably not, but the problem is figuring out what that missing part is and how important it is. If it's an unknown unknown, so to speak, then you won't catch it, and it may turn into a big issue later down the line. Like your database being unsecured. Or it could be something simple like some text isn't perfectly aligned. Will I take that risk? No, but I think many other people will. To their work's detriment.</p>
+<p>On a semi-related note and tangent, I have friends who can't code but do rely on LLMs to complete hobby-level coding related tasks, and I find that very impressive. The problem is that when they run into a problem, the only way they can get out is through more prompts, and that doesn't always work (though I'll usually help if the work isn't too messy, yet). We have a running joke - "just one more prompt" - which I find hilarious.</p>
+<p>I will also note that a lot of defenses for prompting revolve around not prompting "correctly", which is… kind of weird to me. I don't doubt that wording your prompt differently or formatting in some specific way improves results, but the approach seems quite arcane, in my opinion.</p>
 <nav class=posts-nav_bottom>
 <div class=posts-nav_before><a href=/./posts/134>&lt; bayesian analysis of transistor count</a></div>
 </nav>
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-09-03 - update post 135: add an anecdote and other thoughts</summary>
+<pre class=code-block><input id=code-block-14cd9bbf9627a578a4e765d2818dfaf78bcadc1b-1 type=checkbox><label for=code-block-14cd9bbf9627a578a4e765d2818dfaf78bcadc1b-1></label><code>@@ -87 +87,13 @@ isn&#x27;t perfectly aligned. Will I take that risk? No, but I think many other
+ people will. To their work&#x27;s detriment.
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On a semi-related note and tangent, I have friends who can&#x27;t code but do rely on</span>
+<span class=hljs-addition>+LLMs to complete hobby-level coding related tasks, and I find that very</span>
+<span class=hljs-addition>+impressive. The problem is that when they run into a problem, the only way they</span>
+<span class=hljs-addition>+can get out is through more prompts, and that doesn&#x27;t always work (though I&#x27;ll</span>
+<span class=hljs-addition>+usually help if the work isn&#x27;t too messy, yet). We have a running joke - &quot;just</span>
+<span class=hljs-addition>+one more prompt&quot; - which I find hilarious.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I will also note that a lot of defenses for prompting revolve around not</span>
+<span class=hljs-addition>+prompting &quot;correctly&quot;, which is... kind of weird to me. I don&#x27;t doubt that</span>
+<span class=hljs-addition>+wording your prompt differently or formatting in some specific way improves</span>
+<span class=hljs-addition>+results, but the approach seems quite arcane, in my opinion.</span>
+</code></pre>
+</details>
 <details>
 <summary>2025-08-25 - add post 135</summary>
 <pre class=code-block><input id=code-block-094bf4b3a8843cedf173bd33b012fa2e916ca532-1 type=checkbox><label for=code-block-094bf4b3a8843cedf173bd33b012fa2e916ca532-1></label><code><span class=hljs-meta>@@ -0,0 +1,87 @@</span>
