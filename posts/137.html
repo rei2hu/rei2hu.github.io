@@ -43,7 +43,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <li>200 units of $r_1$</li>
 <li>300 units of $r_2$</li>
 </ol>
-<p>This leaves us with the set of equations</p>
+<p>This leaves us with the set of inequalities</p>
 <p>$$ \begin{aligned} x + y &\leq 24 \\ 2x + 3y &\geq 40 \\ 5x + 10y &\leq 200 \\ 20x + 5y &\leq 300 \end{aligned} $$</p>
 <p>$$ x \geq 0, y \geq 0 $$</p>
 <p>Where $x$ and $y$ are the hours spent farming locations $l_x$ and $l_y$. Plotting these inequalities shows the location of solutions to the scenario i.e. the feasible region.</p>
@@ -52,8 +52,8 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>However, before figuring that out, let's go back to the simpler problem where there was only one constraint - the hours per week (and at least 0 hours in each area).</p>
 <p><img alt="feasible region for hours only" src=/blobs/137/one-constraint.png></p>
 <p>Intuitively, we knew that it was best to spent all of our farming time on $l_x$ was the best because it gave a higher gold per hour. By looking at this feasible region, it should make sense that the optimal solution is somewhere on the lines of the inequalities otherwise we would not be utilizing all hours available. Similarly, it will never be in the middle of the line (with one exception) because being there only shifts the answer partways to a maximum or minimum.</p>
-<p>Look at the points (24, 0), (12, 12) and (0, 24). In our case, either $l_x$ or $l_y$ is better, so using (12, 12) does not make any sense when we can improve our values by either moving to fully farming $l_x$ or $l_y$. The one case where it does make sense is if $l_x$ and $l_y$ are equally rewarding, which implies that <em>any</em> point on the line gives an optimal solution; (24, 0), (1, 23), …, (24, 0).</p>
-<p>Now, going back to the original problem, with this new intuition, we now know that the optimal solution should occur at one of the corners. This is known as the
+<p>Look at the points (24, 0), (12, 12) and (0, 24). In our case, either $l_x$ or $l_y$ is better, so using (12, 12) does not make any sense when we can improve our values by either moving to fully farming $l_x$ or $l_y$. The one case where it does make sense is if $l_x$ and $l_y$ are equally rewarding, which implies that <em>any</em> point on the line gives an optimal solution; (24, 0), (1, 23), …, (24, 0). If the implicit $x \geq 0$ and $y \geq 0$ constraints didn't exist, then it could even make sense to go even further to something like (n, 24 - n) where $n$ approaches infinity.</p>
+<p>Now, going back to the original problem, with this new intuition, we now know that the optimal solution should occur at the ends of the constraint lines, barring the one special case. This is known as the
 <a href=https://en.wikipedia.org/wiki/Fundamental_theorem_of_linear_programming>Fundamental theorem of linear programming</a>
 (which I was unaware of was a thing until I decided to write this)</p>
 <blockquote>
@@ -72,6 +72,28 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-11-17 - update post 137: proofread</summary>
+<pre class=code-block><input id=code-block-a7fcc44d5fd90225ee221c5dc87fcd619ccc1584-1 type=checkbox><label for=code-block-a7fcc44d5fd90225ee221c5dc87fcd619ccc1584-1></label><code><span class=hljs-meta>@@ -31,3 +31,3 @@</span> constraints:
+
+<span class=hljs-deletion>-This leaves us with the set of equations</span>
+<span class=hljs-addition>+This leaves us with the set of inequalities</span>
+</code></pre>
+<pre class=code-block><input id=code-block-a7fcc44d5fd90225ee221c5dc87fcd619ccc1584-2 type=checkbox><label for=code-block-a7fcc44d5fd90225ee221c5dc87fcd619ccc1584-2></label><code><span class=hljs-meta>@@ -75,7 +75,9 @@</span> it does make sense is if $l_x$ and $l_y$ are equally rewarding, which implies
+ that _any_ point on the line gives an optimal solution; (24, 0), (1, 23), ...,
+<span class=hljs-deletion>-(24, 0).</span>
+<span class=hljs-addition>+(24, 0). If the implicit $x \geq 0$ and $y \geq 0$ constraints didn&#x27;t exist,</span>
+<span class=hljs-addition>+then it could even make sense to go even further to something like (n, 24 - n)</span>
+<span class=hljs-addition>+where $n$ approaches infinity.</span>
+
+ Now, going back to the original problem, with this new intuition, we now know
+<span class=hljs-deletion>-that the optimal solution should occur at one of the corners. This is known as</span>
+<span class=hljs-deletion>-the</span>
+<span class=hljs-addition>+that the optimal solution should occur at the ends of the constraint lines,</span>
+<span class=hljs-addition>+barring the one special case. This is known as the</span>
+ [Fundamental theorem of linear programming](https://en.wikipedia.org/wiki/Fundamental_theorem_of_linear_programming)
+</code></pre>
+</details>
 <details>
 <summary>2025-11-16 - add post 137</summary>
 <pre class=code-block><input id=code-block-fa028fb79f4303c39b4c2912aee4028a685b1bbc-1 type=checkbox><label for=code-block-fa028fb79f4303c39b4c2912aee4028a685b1bbc-1></label><code><span class=hljs-meta>@@ -0,0 +1,120 @@</span>
