@@ -50,7 +50,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p><img alt="feasible region" src=/blobs/137/feasible.png></p>
 <p>If the colors are not clear, it's the section that contains the point (4, 14). Now we have to determine which point in this area maximizes the equation $23x + 12y$.</p>
 <p>However, before figuring that out, let's go back to the simpler problem where there was only one constraint - the hours per week (and at least 0 hours in each area).</p>
-<p><img alt="feasible region for hours only" src=/blobs/137/one-constraint.png></p>
+<p><img alt="feasible region for hours only" src=/blobs/137/single.png></p>
 <p>Intuitively, we knew that it was best to spent all of our farming time on $l_x$ was the best because it gave a higher gold per hour. By looking at this feasible region, it should make sense that the optimal solution is somewhere on the lines of the inequalities otherwise we would not be utilizing all hours available. Similarly, it will never be in the middle of the line (with one exception) because being there only shifts the answer partways to a maximum or minimum.</p>
 <p>Look at the points (24, 0), (12, 12) and (0, 24). In our case, either $l_x$ or $l_y$ is better, so using (12, 12) does not make any sense when we can improve our values by either moving to fully farming $l_x$ or $l_y$. The one case where it does make sense is if $l_x$ and $l_y$ are equally rewarding, which implies that <em>any</em> point on the line gives an optimal solution; (24, 0), (1, 23), …, (24, 0). If the implicit $x \geq 0$ and $y \geq 0$ constraints didn't exist, then it could even make sense to go even further to something like (n, 24 - n) where $n$ approaches infinity.</p>
 <p>Now, going back to the original problem, with this new intuition, we now know that the optimal solution should occur at the ends of the constraint lines, barring the one special case. This is known as the
@@ -59,7 +59,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <blockquote>
 <p>In mathematical optimization, the fundamental theorem of linear programming states, in a weak formulation, that the maxima and minima of a linear function over a convex polygonal region occur at the region's corners. Further, if an extreme value occurs at two corners, then it must also occur everywhere on the line segment between them.</p>
 </blockquote>
-<p><img alt="feasible region" src=/blobs/137/feasible.png></p>
+<p><img alt="feasible region with corners" src=/blobs/137/points.png></p>
 <p>Since we know that the optimal occurs and a corner, then we can look at our feasible region and test and check each point, to find a solution. What are the points? (0, 20), (8, 16), (12, 12), (14, 4), (0, 13.3).</p>
 <p>When we plug those values into the original equation $23x + 12y$, it turns out that (12, 12) gives the maximum of 420 gold, followed by (8, 16) with 376 gold, and (14, 4) with 370. The minimum is at (0, 13.3) if you accept 13.3 as a valid play time, giving approximately 160 gold while satisfying the weekly objective count.</p>
 <p>We can also plug these values into the original constraints to see which it hit: For (12, 12)</p>
@@ -72,6 +72,19 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <div class=commit-container>
 <div class="commit-list de-emphasized">
 <span>History:</span>
+<details>
+<summary>2025-11-17 - update post 137: update graphics</summary>
+<pre class=code-block><input id=code-block-245a9f1abb473a08f4e0190140ae5bace4615c1f-1 type=checkbox><label for=code-block-245a9f1abb473a08f4e0190140ae5bace4615c1f-1></label><code><span class=hljs-meta>@@ -61,3 +61,3 @@</span> area).
+
+<span class=hljs-deletion>-![feasible region for hours only](/blobs/137/one-constraint.png)</span>
+<span class=hljs-addition>+![feasible region for hours only](/blobs/137/single.png)</span>
+</code></pre>
+<pre class=code-block><input id=code-block-245a9f1abb473a08f4e0190140ae5bace4615c1f-2 type=checkbox><label for=code-block-245a9f1abb473a08f4e0190140ae5bace4615c1f-2></label><code><span class=hljs-meta>@@ -91,3 +91,3 @@</span> barring the one special case. This is known as the
+
+<span class=hljs-deletion>-![feasible region](/blobs/137/feasible.png)</span>
+<span class=hljs-addition>+![feasible region with corners](/blobs/137/points.png)</span>
+</code></pre>
+</details>
 <details>
 <summary>2025-11-17 - update post 137: proofread</summary>
 <pre class=code-block><input id=code-block-a7fcc44d5fd90225ee221c5dc87fcd619ccc1584-1 type=checkbox><label for=code-block-a7fcc44d5fd90225ee221c5dc87fcd619ccc1584-1></label><code><span class=hljs-meta>@@ -31,3 +31,3 @@</span> constraints:
