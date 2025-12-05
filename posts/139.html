@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>points within a circle</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/138>&lt; personal yearly reflection 6</a></div>
+</nav>
+<h1 id=points-within-a-circle>points within a circle</h1>
+<p>While I was browsing through various job offerings, I noticed a comment on one that, I assume, was an attempt to give candidates an edge by sharing a coding interview question ahead of time. It looked straightforward yet interesting, so I ended up thinking about it for a few minutes in bed before sleeping.</p>
+<p>The gist of the question is:</p>
+<p>You're given a set of points <code>(id1, x, y)</code> located at $(x, y)$ and queries
+<code>(id2, x, y, r)</code> representing circles centered on $(x, y)$ with radius $r$. Figure out which points should be returned for each query.</p>
+<p>So I'll skip the "parse text into structured data" that you would probably have to write for this, and skip ambiguities in the problem like how the example weaved points and queries in the input and didn't specify if a query should return all points or just the points that came before it in an input, and go straight to various avenues of approach for the solution.</p>
+<p>The first option is to do things the obvious way - when a query is made, filter through all the points looking for one where $\Delta x^2 + \Delta y^2 \lt r^2$ or something like that.</p>
+<p>But if you have a lot of points, then that doesn't sound good. If the queries are repeated another simple optimization would be to cache the responses. The caching idea lead me to another one which was pre-calculating the solution of different areas and somehow figuring out which subareas make up a circle and combining them for the response. I do not know how to implement that if possible, though I think quad trees might provide guidance.</p>
+<p>Going back to the issue of many points, I started thinking of ways to cut down the candidate list from everything to less than everything. I then thought that by ordering the data it might be possible to stop considering candidates when one is outside the query as the rest would also be too far. For example, on a 1d space using points and line (segments) instead of points and circles, if the points are (an ordered) $-1, 3, 4, 5, 10, 100...$, and our line segment is centered around 4 with length 2 meaning it spans $[2, 6]$, then as we iterate through our ordered list, then once we see that $10$ is outside of $[2, 6]$, we no longer have to keep going. I did not think of how to order the points for this idea to apply to this problem, if possible.</p>
+<p>However, looking at the 1d idea, we can also use it to cut off earlier candidates, since we know it has to be at least 2. In fact, we know the entire solution is everything between $[2, 6]$ so if we grab that range from our ordered points then that's the solution. We can extend this to the 2d space in the problem by doing this for the x and y dimensions - for a query with radius $(x, y, r)$ we can look at ranges $[x - r, x + r]$ and $[y - r, y + r]$ and using the intersection of those members for candidates. Conceptually this is drawing a square that bounds the circle and only picking points within them where things that fall in the corners will be filtered out through the normal process. The ranges can be found efficiently using b trees or range trees.</p>
+<p>I liked this idea, and thought it was reasonable. The one final idea I considered for the ordering points approach was to use polar coordinates for the points, since they already contain the radius though from the origin. I also could not think of any way to apply this.</p>
+<p>Like all interview questions, I'm always left with the question of whether this is the "official" solution or not. Fortunately, this appears to be a common interview question and various solutions are online, including bounding squares, bounding diamonds, and a k-d tree which I was unfamiliar with… oh it's just another version of a tree that partitions space, so maybe it's the proper version of the quad tree solution.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/138>&lt; personal yearly reflection 6</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-12-05 - add post 139</summary>
+<pre class=code-block><input id=code-block-2ecbf277430c4dcd84cc5ba9b37e89ea3647a298-1 type=checkbox><label for=code-block-2ecbf277430c4dcd84cc5ba9b37e89ea3647a298-1></label><code><span class=hljs-meta>@@ -0,0 +1,63 @@</span>
+<span class=hljs-addition>+# points within a circle</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While I was browsing through various job offerings, I noticed a comment on one</span>
+<span class=hljs-addition>+that, I assume, was an attempt to give candidates an edge by sharing a coding</span>
+<span class=hljs-addition>+interview question ahead of time. It looked straightforward yet interesting, so</span>
+<span class=hljs-addition>+I ended up thinking about it for a few minutes in bed before sleeping.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The gist of the question is:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You&#x27;re given a set of points `(id1, x, y)` located at $(x, y)$ and queries</span>
+<span class=hljs-addition>+`(id2, x, y, r)` representing circles centered on $(x, y)$ with radius $r$.</span>
+<span class=hljs-addition>+Figure out which points should be returned for each query.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So I&#x27;ll skip the &quot;parse text into structured data&quot; that you would probably have</span>
+<span class=hljs-addition>+to write for this, and skip ambiguities in the problem like how the example</span>
+<span class=hljs-addition>+weaved points and queries in the input and didn&#x27;t specify if a query should</span>
+<span class=hljs-addition>+return all points or just the points that came before it in an input, and go</span>
+<span class=hljs-addition>+straight to various avenues of approach for the solution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The first option is to do things the obvious way - when a query is made, filter</span>
+<span class=hljs-addition>+through all the points looking for one where $\Delta x^2 + \Delta y^2 \lt r^2$</span>
+<span class=hljs-addition>+or something like that.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But if you have a lot of points, then that doesn&#x27;t sound good. If the queries</span>
+<span class=hljs-addition>+are repeated another simple optimization would be to cache the responses. The</span>
+<span class=hljs-addition>+caching idea lead me to another one which was pre-calculating the solution of</span>
+<span class=hljs-addition>+different areas and somehow figuring out which subareas make up a circle and</span>
+<span class=hljs-addition>+combining them for the response. I do not know how to implement that if</span>
+<span class=hljs-addition>+possible, though I think quad trees might provide guidance.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Going back to the issue of many points, I started thinking of ways to cut down</span>
+<span class=hljs-addition>+the candidate list from everything to less than everything. I then thought that</span>
+<span class=hljs-addition>+by ordering the data it might be possible to stop considering candidates when</span>
+<span class=hljs-addition>+one is outside the query as the rest would also be too far. For example, on a 1d</span>
+<span class=hljs-addition>+space using points and line (segments) instead of points and circles, if the</span>
+<span class=hljs-addition>+points are (an ordered) $-1, 3, 4, 5, 10, 100...$, and our line segment is</span>
+<span class=hljs-addition>+centered around 4 with length 2 meaning it spans $[2, 6]$, then as we iterate</span>
+<span class=hljs-addition>+through our ordered list, then once we see that $10$ is outside of $[2, 6]$, we</span>
+<span class=hljs-addition>+no longer have to keep going. I did not think of how to order the points for</span>
+<span class=hljs-addition>+this idea to apply to this problem, if possible.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+However, looking at the 1d idea, we can also use it to cut off earlier</span>
+<span class=hljs-addition>+candidates, since we know it has to be at least 2. In fact, we know the entire</span>
+<span class=hljs-addition>+solution is everything between $[2, 6]$ so if we grab that range from our</span>
+<span class=hljs-addition>+ordered points then that&#x27;s the solution. We can extend this to the 2d space in</span>
+<span class=hljs-addition>+the problem by doing this for the x and y dimensions - for a query with radius</span>
+<span class=hljs-addition>+$(x, y, r)$ we can look at ranges $[x - r, x + r]$ and $[y - r, y + r]$ and</span>
+<span class=hljs-addition>+using the intersection of those members for candidates. Conceptually this is</span>
+<span class=hljs-addition>+drawing a square that bounds the circle and only picking points within them</span>
+<span class=hljs-addition>+where things that fall in the corners will be filtered out through the normal</span>
+<span class=hljs-addition>+process. The ranges can be found efficiently using b trees or range trees.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I liked this idea, and thought it was reasonable. The one final idea I</span>
+<span class=hljs-addition>+considered for the ordering points approach was to use polar coordinates for the</span>
+<span class=hljs-addition>+points, since they already contain the radius though from the origin. I also</span>
+<span class=hljs-addition>+could not think of any way to apply this.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Like all interview questions, I&#x27;m always left with the question of whether this</span>
+<span class=hljs-addition>+is the &quot;official&quot; solution or not. Fortunately, this appears to be a common</span>
+<span class=hljs-addition>+interview question and various solutions are online, including bounding squares,</span>
+<span class=hljs-addition>+bounding diamonds, and a k-d tree which I was unfamiliar with... oh it&#x27;s just</span>
+<span class=hljs-addition>+another version of a tree that partitions space, so maybe it&#x27;s the proper</span>
+<span class=hljs-addition>+version of the quad tree solution.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
