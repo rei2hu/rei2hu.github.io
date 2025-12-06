@@ -5,8 +5,8 @@ const hljs = require("highlight.js");
 const exec = util.promisify(require("child_process").exec);
 const showdown = require("showdown");
 const { minify } = require("html-minifier");
-const { minifyHtmlOpts } = require("./build-options");
 const { load } = require("tikzjax-server");
+const { minifyHtmlOpts } = require("./build-options");
 
 // formatting commits that i dont want to include
 // (only want to include commits that change actual content)
@@ -199,7 +199,12 @@ async function generateTikzPictures(content) {
 		);
 	}
 
-	return content;
+	// due to font glyph issues, the conversion from dvi to html has at least
+	// one problem where characters are translated from one to another. The know
+	// list is:
+	// , to ; (leaving alone)
+	// - to ¡ (handled, replacing with minus entity instead of hyphen)
+	return content.replaceAll("&#161;", "&#8722;");
 }
 
 module.exports = {
