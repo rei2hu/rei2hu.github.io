@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>unexpected values due to name shadowing</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/139>&lt; points within a circle</a></div>
+</nav>
+<h1 id=unexpected-values-due-to-name-shadowing>unexpected values due to name shadowing</h1>
+<p>Shadowed members can result in unexpected values when using a mix of inheritance and generics, so if you extend something make sure you really want to create a new member instead of using the one from the superclass.</p>
+<p>I was looking at a piece of code recently that was null for some reason. The isolated lines looked something like this:</p>
+<pre class=code-block><input id=code-block-140-1 type=checkbox><label for=code-block-140-1></label><code>System.out.println(obj.field); <span class=hljs-comment>// &quot;value&quot;;</span>
+<span class=hljs-built_in>super</span>.printField();
+<span class=hljs-comment>// public void printField() {</span>
+<span class=hljs-comment>//     System.out.println(obj.field); // null</span>
+<span class=hljs-comment>// }</span>
+</code></pre>
+<p>Isn't that weird? The value is <code>"value"</code> but turns into <code>null</code> after the function call. This reminds me of <code>this</code> binding issues in javascript but this is java. What could the cause be? Shadowing! A full example of this is as follows</p>
+<pre class=code-block><input id=code-block-140-2 type=checkbox><label for=code-block-140-2></label><code><span class=hljs-keyword>class</span> <span class="hljs-title class_">Main</span> {
+    <span class=hljs-keyword>static</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">Obj</span> {
+        <span class=hljs-keyword>public</span> <span class=hljs-type>String</span> <span class=hljs-variable>field</span> <span class=hljs-operator>=</span> <span class=hljs-literal>null</span>;
+    }
+    <span class=hljs-keyword>static</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">SubObj</span> <span class=hljs-keyword>extends</span> <span class="hljs-title class_">Obj</span> {
+        <span class=hljs-keyword>public</span> <span class=hljs-type>String</span> <span class=hljs-variable>field</span> <span class=hljs-operator>=</span> <span class=hljs-literal>null</span>;
+        <span class=hljs-keyword>public</span> <span class="hljs-title function_">SubObj</span><span class=hljs-params>(<span class=hljs-keyword>final</span> String f)</span> { <span class=hljs-built_in>super</span>(); field = f; }
+    }
+    <span class=hljs-keyword>static</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">GenProcessor</span>&lt;T <span class=hljs-keyword>extends</span> <span class="hljs-title class_">Obj</span>&gt; {
+        <span class=hljs-keyword>public</span> <span class=hljs-keyword>final</span> T obj;
+        <span class=hljs-keyword>public</span> <span class="hljs-title function_">GenProcessor</span><span class=hljs-params>(<span class=hljs-keyword>final</span> T o)</span> { obj = o; }
+        <span class=hljs-keyword>public</span> <span class=hljs-keyword>void</span> <span class="hljs-title function_">printField</span><span class=hljs-params>()</span> { System.out.println(obj.field); }
+    }
+    <span class=hljs-keyword>static</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">SpecProcessor</span> <span class=hljs-keyword>extends</span> <span class="hljs-title class_">GenProcessor</span>&lt;SubObj&gt; {
+        <span class=hljs-keyword>public</span> <span class="hljs-title function_">SpecProcessor</span><span class=hljs-params>(<span class=hljs-keyword>final</span> SubObj o)</span> { <span class=hljs-built_in>super</span>(o); }
+    }
+
+    <span class=hljs-keyword>public</span> <span class=hljs-keyword>static</span> <span class=hljs-keyword>void</span> <span class="hljs-title function_">main</span><span class=hljs-params>(String[] args)</span> {
+        <span class=hljs-keyword>final</span> <span class=hljs-type>var</span> <span class=hljs-variable>c</span> <span class=hljs-operator>=</span> <span class=hljs-keyword>new</span> <span class="hljs-title class_">SubObj</span>(<span class=hljs-string>&quot;value&quot;</span>);
+        <span class=hljs-keyword>final</span> <span class=hljs-type>var</span> <span class=hljs-variable>b</span> <span class=hljs-operator>=</span> <span class=hljs-keyword>new</span> <span class="hljs-title class_">SpecProcessor</span>(c);
+        b.printField(); <span class=hljs-comment>// null</span>
+    }
+}
+</code></pre>
+<p>To debug this, I had attempted to add a <code>printField()</code> method to <code>SpecProcessor</code>
+as I as unable to modify the <code>GenProcessor</code> or <code>Obj</code> classes.</p>
+<pre class=code-block><input id=code-block-140-3 type=checkbox><label for=code-block-140-3></label><code>    <span class=hljs-keyword>static</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">SpecProcessor</span> <span class=hljs-keyword>extends</span> <span class="hljs-title class_">GenProcessor</span>&lt;SubObj&gt; {
+        <span class=hljs-keyword>public</span> <span class="hljs-title function_">SpecProcessor</span><span class=hljs-params>(<span class=hljs-keyword>final</span> SubObj o)</span> { <span class=hljs-built_in>super</span>(o); }
+        <span class=hljs-keyword>public</span> <span class=hljs-keyword>void</span> <span class="hljs-title function_">printField</span><span class=hljs-params>()</span> {
+            System.out.println(obj.field); <span class=hljs-comment>// &quot;value&quot;</span>
+            <span class=hljs-built_in>super</span>.printField(); <span class=hljs-comment>// null</span>
+        }
+    }
+</code></pre>
+<p>And this is how I saw what I saw. Pretty weird! In fact, because I couldn't modify some parts of the code directly, I resorted to attaching a remote debugger to the application as it ran inside a Docker container. The debugger showed the following values</p>
+<pre class=code-block><input id=code-block-140-4 type=checkbox><label for=code-block-140-4></label><code>this.obj.field = null;
+this.obj = SubObj{ field = &quot;value&quot; };
+</code></pre>
+<p>That looks weird, right? Though, at the end of the day, once I realized the issue it makes a lot of sense, since the core idea is that we're looking at something like this:</p>
+<pre class=code-block><input id=code-block-140-5 type=checkbox><label for=code-block-140-5></label><code><span class=hljs-keyword>class</span> <span class="hljs-title class_">Main</span> {
+    <span class=hljs-keyword>static</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">Obj</span> {
+        <span class=hljs-keyword>public</span> <span class=hljs-type>String</span> <span class=hljs-variable>field</span> <span class=hljs-operator>=</span> <span class=hljs-literal>null</span>;
+    }
+    <span class=hljs-keyword>static</span> <span class=hljs-keyword>class</span> <span class="hljs-title class_">SubObj</span> <span class=hljs-keyword>extends</span> <span class="hljs-title class_">Obj</span> {
+        <span class=hljs-keyword>public</span> <span class=hljs-type>String</span> <span class=hljs-variable>field</span> <span class=hljs-operator>=</span> <span class=hljs-literal>null</span>;
+        <span class=hljs-keyword>public</span> <span class="hljs-title function_">SubObj</span><span class=hljs-params>(<span class=hljs-keyword>final</span> String f)</span> { <span class=hljs-built_in>super</span>(); field = f; }
+    }
+
+    <span class=hljs-keyword>public</span> <span class=hljs-keyword>static</span> <span class=hljs-keyword>void</span> <span class="hljs-title function_">main</span><span class=hljs-params>(String[] args)</span> {
+        <span class=hljs-keyword>final</span> <span class=hljs-type>var</span> <span class=hljs-variable>c</span> <span class=hljs-operator>=</span> <span class=hljs-keyword>new</span> <span class="hljs-title class_">SubObj</span>(<span class=hljs-string>&quot;value&quot;</span>);
+        System.out.println(c.field); <span class=hljs-comment>// &quot;value&quot;</span>
+        System.out.println(((Obj) c).field); <span class=hljs-comment>// null</span>
+    }
+}
+</code></pre>
+<p>The "fix" was simply to remove <code>field</code> from <code>SubObj</code>. It was mainly difficult to figure out because the original code I was working with was much more complex. Though I think it was pretty interesting to come across something like this.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/139>&lt; points within a circle</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2025-12-08 - add post 140</summary>
+<pre class=code-block><input id=code-block-409501c910c103bac82b170e318327e00c437a03-1 type=checkbox><label for=code-block-409501c910c103bac82b170e318327e00c437a03-1></label><code><span class=hljs-meta>@@ -0,0 +1,96 @@</span>
+<span class=hljs-addition>+# unexpected values due to name shadowing</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Shadowed members can result in unexpected values when using a mix of inheritance</span>
+<span class=hljs-addition>+and generics, so if you extend something make sure you really want to create a</span>
+<span class=hljs-addition>+new member instead of using the one from the superclass.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I was looking at a piece of code recently that was null for some reason. The</span>
+<span class=hljs-addition>+isolated lines looked something like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+System.out.println(obj.field); // &quot;value&quot;;</span>
+<span class=hljs-addition>+super.printField();</span>
+<span class=hljs-addition>+// public void printField() {</span>
+<span class=hljs-addition>+//     System.out.println(obj.field); // null</span>
+<span class=hljs-addition>+// }</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Isn&#x27;t that weird? The value is `&quot;value&quot;` but turns into `null` after the</span>
+<span class=hljs-addition>+function call. This reminds me of `this` binding issues in javascript but this</span>
+<span class=hljs-addition>+is java. What could the cause be? Shadowing! A full example of this is as</span>
+<span class=hljs-addition>+follows</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+class Main {</span>
+<span class=hljs-addition>+    static class Obj {</span>
+<span class=hljs-addition>+        public String field = null;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    static class SubObj extends Obj {</span>
+<span class=hljs-addition>+        public String field = null;</span>
+<span class=hljs-addition>+        public SubObj(final String f) { super(); field = f; }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    static class GenProcessor&lt;T extends Obj&gt; {</span>
+<span class=hljs-addition>+        public final T obj;</span>
+<span class=hljs-addition>+        public GenProcessor(final T o) { obj = o; }</span>
+<span class=hljs-addition>+        public void printField() { System.out.println(obj.field); }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    static class SpecProcessor extends GenProcessor&lt;SubObj&gt; {</span>
+<span class=hljs-addition>+        public SpecProcessor(final SubObj o) { super(o); }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    public static void main(String[] args) {</span>
+<span class=hljs-addition>+        final var c = new SubObj(&quot;value&quot;);</span>
+<span class=hljs-addition>+        final var b = new SpecProcessor(c);</span>
+<span class=hljs-addition>+        b.printField(); // null</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To debug this, I had attempted to add a `printField()` method to `SpecProcessor`</span>
+<span class=hljs-addition>+as I as unable to modify the `GenProcessor` or `Obj` classes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+    static class SpecProcessor extends GenProcessor&lt;SubObj&gt; {</span>
+<span class=hljs-addition>+        public SpecProcessor(final SubObj o) { super(o); }</span>
+<span class=hljs-addition>+        public void printField() {</span>
+<span class=hljs-addition>+            System.out.println(obj.field); // &quot;value&quot;</span>
+<span class=hljs-addition>+            super.printField(); // null</span>
+<span class=hljs-addition>+        }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And this is how I saw what I saw. Pretty weird! In fact, because I couldn&#x27;t</span>
+<span class=hljs-addition>+modify some parts of the code directly, I resorted to attaching a remote</span>
+<span class=hljs-addition>+debugger to the application as it ran inside a Docker container. The debugger</span>
+<span class=hljs-addition>+showed the following values</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```text</span>
+<span class=hljs-addition>+this.obj.field = null;</span>
+<span class=hljs-addition>+this.obj = SubObj{ field = &quot;value&quot; };</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+That looks weird, right? Though, at the end of the day, once I realized the</span>
+<span class=hljs-addition>+issue it makes a lot of sense, since the core idea is that we&#x27;re looking at</span>
+<span class=hljs-addition>+something like this:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+```java</span>
+<span class=hljs-addition>+class Main {</span>
+<span class=hljs-addition>+    static class Obj {</span>
+<span class=hljs-addition>+        public String field = null;</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+    static class SubObj extends Obj {</span>
+<span class=hljs-addition>+        public String field = null;</span>
+<span class=hljs-addition>+        public SubObj(final String f) { super(); field = f; }</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+    public static void main(String[] args) {</span>
+<span class=hljs-addition>+        final var c = new SubObj(&quot;value&quot;);</span>
+<span class=hljs-addition>+        System.out.println(c.field); // &quot;value&quot;</span>
+<span class=hljs-addition>+        System.out.println(((Obj) c).field); // null</span>
+<span class=hljs-addition>+    }</span>
+<span class=hljs-addition>+}</span>
+<span class=hljs-addition>+```</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The &quot;fix&quot; was simply to remove `field` from `SubObj`. It was mainly difficult to</span>
+<span class=hljs-addition>+figure out because the original code I was working with was much more complex.</span>
+<span class=hljs-addition>+Though I think it was pretty interesting to come across something like this.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
