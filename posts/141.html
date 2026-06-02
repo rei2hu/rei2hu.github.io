@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>ai issues are people issues and other things</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/140>&lt; unexpected values due to name shadowing</a></div>
+</nav>
+<h1 id=ai-issues-are-people-issues-and-other-things>ai issues are people issues and other things</h1>
+<h2 id=people-issue>people issue</h2>
+<p>AI is still going strong and has even penetrated my place of work, and I've been pretty pissed at how it's being promoted and used.</p>
+<p>To wind back a bit, there were suggestions to use ai in part of the development process at my current job from above earlier, but our direct managers pushed back and said it was up to us software engineers to choose whether to incorporate it or not.</p>
+<p>Our direct managers were then replaced after a few months, and there was a mandate to start using ai.</p>
+<p>My first problem with this directive was that it came from people far removed from the development process. If we're able deliver features while doing things well like keep regressions low and code quality high, why does it matter how we deliver things? That was a question that was asked.</p>
+<p>The answer is that we were delivering features slowly, and this was true at some levels: a planning issue where product features were not being generated, and a development issue where only a third of the team were competent developers (by my standards, and I know this sounds insensitive but I think it's true).</p>
+<p>Ok, so enter ai for the past 2 quarters.</p>
+<p>How was it rolled out? Our engineering director, who is not involved with the development process put together a plan with the new manager who is also not involved with the development process (aside: I think the new manager has been not very useful). They also got two of the substandard developers to be ai champions. We also had 3 days of ai training which involved watching a consultant agentically implement features in a toy codebase. Riveting. The best part was when some devs didn't have access to ai for over a quarter because no one was keeping track of the rollout.</p>
+<p>And how did usage evolve and affect our workflows over time?</p>
+<p>First, we had a drop in code review quality - larger changesets and more regressions going out. Multiple production outages. One of the good devs did the analysis and brought this up to the engineering director. That analysis was discarded because we're in a "no talking back" environment now. Furthermore, our engineering director cut review requirements from 2 reviewers to 1 on account of the increased code volume (but don't worry, you have ai to help you review!).</p>
+<p>Second, some of us have recently entered the era of full agentic thanks to our ai champions. Some being the champions. They have fully automated coding, pull request, approval, and merging, bypassing the possibility of review by a human until after the fact. This has been used to implement a "pet project" of one of them, which would be cool if it didn't cause a critical bug in our application. I believe part of this was to hit a certain OKR of x% of pull requests were made with ai assistance.</p>
+<p>Has this improved the velocity of us engineers at all? It depends. I personally went to our engineering director and asked to see individuals' numbers, knowing the "gains" would be focused on our two "champions", though they didn't want to show them due to some privacy adjacent concerns - they showed team level metrics which showed no effect for the teams that the champions were not in, and a good sized bump for the champions' teams. I then put together my own numbers by crawling our pull request information and verified my own hypotheses.</p>
+<p>So why do I think ai issues are people issues? I have several thoughts around this, which are based off of general thoughts of the software engineering industry in general:</p>
+<ol>
+<li>software engineering is lucrative</li>
+<li>because it's lucrative, a lot of people with wide skill ranges go for it</li>
+<li>evaluating software engineers when hiring is messed up</li>
+<li>the wide skill range and messed up hiring leads to a mixed group</li>
+<li>opportunity seekers (people who joined because lucrative) are less likely to be as skilled as others</li>
+<li>opportunity seekers are more concerned with climbing the ladder</li>
+<li>climbing the ladder means hitting numbers and looking good to leadership</li>
+<li>being high up in the ladder means you make decisions</li>
+<li>people making decisions are possibly less skilled than the people they lead</li>
+</ol>
+<p>-</p>
+<ol>
+<li>ai does work that appears good but may not necessarily be good</li>
+<li>this means ai output needs to be reviewed properly</li>
+<li>lower skilled devs may not be capable of reviewing output properly</li>
+<li>opportunity seekers do not care about reviewing output as much as long as it furthers their career goals</li>
+</ol>
+<p>And this is how slop is promoted and gets through.</p>
+<h2 id=coding-slop>coding slop</h2>
+<p>Looking back, my <a href=/posts/59>first post on ai</a> was almost 4 years ago. What was my conclusion?</p>
+<blockquote>
+<p>In short, the complex black box types of ai that are gaining popularity for use in today's systems are more suited for subjective tasks where new perspectives are welcome, while its usage for objective tasks should be limited. In both cases, it should be pair with human oversight to avoid issues.</p>
+</blockquote>
+<p>At this point, I would change this a bit. I think back when I wrote this, I considered coding an objective task - if I want to add two numbers I need to write <code>a + b</code>; if the ai generates <code>a - b</code> then there will be big issues unless that problems is caught. I think ai can get a lot of moderately complex logic correct on the first try. Obviously I'd still check it, though.</p>
+<p>I think where ai falls short now is on overall technical architecture and planning, and this is where the human has to step in. You say that this is a "subjective" task that I talked about 4 years ago and maybe you're right; I don't know. You may also say things like: "Erm Claude Opus 4.5 to 4.8 is good at architecture. You're probably using GPT-5.5 or Composer 2.5 which is better for your code logic!" No, in my opinion all models I've tried fall short, and I've tried a lot over the past few years. If I ask ai to change something, it's very likely to make that change by <em>adding</em> code. Not removing or reorganizing. This leads to a codebase with hundreds of hacky patches that looks like it's been through several generations of software engineers. Part of this is a people issue, because the prompter could come up with a better high level plan.</p>
+<p>There are also various coding style issues I have problems with, but that's more subjective. I'll just leave a list without much explanation.</p>
+<ul>
+<li>Excessive checks/safeguards</li>
+<li>Comments that explain what</li>
+<li>Not following conventions</li>
+<li>Repeated helper/utility code</li>
+<li>Excessive testing</li>
+</ul>
+<p>Oh, just add a new skill to your harness and it won't make that problem anymore! Screw off.</p>
+<h2 id=work-slop>work slop</h2>
+<p>You know what looks good but is actually a pain to go through? 10 page prds (product requirements documents) and 10 paragraph pull requests. When I have to read these things, I die a little inside.</p>
+<p>Sometimes the content is good, if a little wordy, but more often then not it's full of useless words. I've seen documents that talk reference things that do not exist, that want things done in a way that is opposite of how things are currently done (no it's not because the new way is revolutionary), and contain references to files located on the persons' personal workstation (for example: "and for the architecture, see /Users/person/x"). And then I have to go to the writer and figure out what these things mean. Again, it's partly a people problem.</p>
+<p>On a somewhat related topic, I find it interesting how people use ai to enhance their ai usage - as far as I know no one is writing skills by hand. Who's to say those skills are actually good or not? And of course there's the use ai to check ai; it's ai all the way down! Is this similar to distributed systems where you're trying to build a reliable system from unreliable parts? No.</p>
+<h2 id=conclusion>conclusion</h2>
+<p>A severe lack of accountability is a driving force behind the existence of ai slop.</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/140>&lt; unexpected values due to name shadowing</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2026-06-01 - add post 141</summary>
+<pre class=code-block><input id=code-block-04abdb11d19c445ebc1bd80240a76a8f95904f4e-1 type=checkbox><label for=code-block-04abdb11d19c445ebc1bd80240a76a8f95904f4e-1></label><code><span class=hljs-meta>@@ -0,0 +1,152 @@</span>
+<span class=hljs-addition>+# ai issues are people issues and other things</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## people issue</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+AI is still going strong and has even penetrated my place of work, and I&#x27;ve been</span>
+<span class=hljs-addition>+pretty pissed at how it&#x27;s being promoted and used.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To wind back a bit, there were suggestions to use ai in part of the development</span>
+<span class=hljs-addition>+process at my current job from above earlier, but our direct managers pushed</span>
+<span class=hljs-addition>+back and said it was up to us software engineers to choose whether to</span>
+<span class=hljs-addition>+incorporate it or not.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Our direct managers were then replaced after a few months, and there was a</span>
+<span class=hljs-addition>+mandate to start using ai.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+My first problem with this directive was that it came from people far removed</span>
+<span class=hljs-addition>+from the development process. If we&#x27;re able deliver features while doing things</span>
+<span class=hljs-addition>+well like keep regressions low and code quality high, why does it matter how we</span>
+<span class=hljs-addition>+deliver things? That was a question that was asked.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+The answer is that we were delivering features slowly, and this was true at some</span>
+<span class=hljs-addition>+levels: a planning issue where product features were not being generated, and a</span>
+<span class=hljs-addition>+development issue where only a third of the team were competent developers (by</span>
+<span class=hljs-addition>+my standards, and I know this sounds insensitive but I think it&#x27;s true).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Ok, so enter ai for the past 2 quarters.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+How was it rolled out? Our engineering director, who is not involved with the</span>
+<span class=hljs-addition>+development process put together a plan with the new manager who is also not</span>
+<span class=hljs-addition>+involved with the development process (aside: I think the new manager has been</span>
+<span class=hljs-addition>+not very useful). They also got two of the substandard developers to be ai</span>
+<span class=hljs-addition>+champions. We also had 3 days of ai training which involved watching a</span>
+<span class=hljs-addition>+consultant agentically implement features in a toy codebase. Riveting. The best</span>
+<span class=hljs-addition>+part was when some devs didn&#x27;t have access to ai for over a quarter because no</span>
+<span class=hljs-addition>+one was keeping track of the rollout.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And how did usage evolve and affect our workflows over time?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+First, we had a drop in code review quality - larger changesets and more</span>
+<span class=hljs-addition>+regressions going out. Multiple production outages. One of the good devs did the</span>
+<span class=hljs-addition>+analysis and brought this up to the engineering director. That analysis was</span>
+<span class=hljs-addition>+discarded because we&#x27;re in a &quot;no talking back&quot; environment now. Furthermore, our</span>
+<span class=hljs-addition>+engineering director cut review requirements from 2 reviewers to 1 on account of</span>
+<span class=hljs-addition>+the increased code volume (but don&#x27;t worry, you have ai to help you review!).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Second, some of us have recently entered the era of full agentic thanks to our</span>
+<span class=hljs-addition>+ai champions. Some being the champions. They have fully automated coding, pull</span>
+<span class=hljs-addition>+request, approval, and merging, bypassing the possibility of review by a human</span>
+<span class=hljs-addition>+until after the fact. This has been used to implement a &quot;pet project&quot; of one of</span>
+<span class=hljs-addition>+them, which would be cool if it didn&#x27;t cause a critical bug in our application.</span>
+<span class=hljs-addition>+I believe part of this was to hit a certain OKR of x% of pull requests were made</span>
+<span class=hljs-addition>+with ai assistance.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Has this improved the velocity of us engineers at all? It depends. I personally</span>
+<span class=hljs-addition>+went to our engineering director and asked to see individuals&#x27; numbers, knowing</span>
+<span class=hljs-addition>+the &quot;gains&quot; would be focused on our two &quot;champions&quot;, though they didn&#x27;t want to</span>
+<span class=hljs-addition>+show them due to some privacy adjacent concerns - they showed team level metrics</span>
+<span class=hljs-addition>+which showed no effect for the teams that the champions were not in, and a good</span>
+<span class=hljs-addition>+sized bump for the champions&#x27; teams. I then put together my own numbers by</span>
+<span class=hljs-addition>+crawling our pull request information and verified my own hypotheses.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So why do I think ai issues are people issues? I have several thoughts around</span>
+<span class=hljs-addition>+this, which are based off of general thoughts of the software engineering</span>
+<span class=hljs-addition>+industry in general:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. software engineering is lucrative</span>
+<span class=hljs-addition>+2. because it&#x27;s lucrative, a lot of people with wide skill ranges go for it</span>
+<span class=hljs-addition>+3. evaluating software engineers when hiring is messed up</span>
+<span class=hljs-addition>+4. the wide skill range and messed up hiring leads to a mixed group</span>
+<span class=hljs-addition>+5. opportunity seekers (people who joined because lucrative) are less likely to</span>
+<span class=hljs-addition>+   be as skilled as others</span>
+<span class=hljs-addition>+6. opportunity seekers are more concerned with climbing the ladder</span>
+<span class=hljs-addition>+7. climbing the ladder means hitting numbers and looking good to leadership</span>
+<span class=hljs-addition>+8. being high up in the ladder means you make decisions</span>
+<span class=hljs-addition>+9. people making decisions are possibly less skilled than the people they lead</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+-</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. ai does work that appears good but may not necessarily be good</span>
+<span class=hljs-addition>+2. this means ai output needs to be reviewed properly</span>
+<span class=hljs-addition>+3. lower skilled devs may not be capable of reviewing output properly</span>
+<span class=hljs-addition>+4. opportunity seekers do not care about reviewing output as much as long as it</span>
+<span class=hljs-addition>+   furthers their career goals</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And this is how slop is promoted and gets through.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## coding slop</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Looking back, my [first post on ai](/posts/59) was almost 4 years ago. What was</span>
+<span class=hljs-addition>+my conclusion?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+&gt; In short, the complex black box types of ai that are gaining popularity for</span>
+<span class=hljs-addition>+&gt; use in today&#x27;s systems are more suited for subjective tasks where new</span>
+<span class=hljs-addition>+&gt; perspectives are welcome, while its usage for objective tasks should be</span>
+<span class=hljs-addition>+&gt; limited. In both cases, it should be pair with human oversight to avoid</span>
+<span class=hljs-addition>+&gt; issues.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+At this point, I would change this a bit. I think back when I wrote this, I</span>
+<span class=hljs-addition>+considered coding an objective task - if I want to add two numbers I need to</span>
+<span class=hljs-addition>+write `a + b`; if the ai generates `a - b` then there will be big issues unless</span>
+<span class=hljs-addition>+that problems is caught. I think ai can get a lot of moderately complex logic</span>
+<span class=hljs-addition>+correct on the first try. Obviously I&#x27;d still check it, though.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I think where ai falls short now is on overall technical architecture and</span>
+<span class=hljs-addition>+planning, and this is where the human has to step in. You say that this is a</span>
+<span class=hljs-addition>+&quot;subjective&quot; task that I talked about 4 years ago and maybe you&#x27;re right; I</span>
+<span class=hljs-addition>+don&#x27;t know. You may also say things like: &quot;Erm Claude Opus 4.5 to 4.8 is good at</span>
+<span class=hljs-addition>+architecture. You&#x27;re probably using GPT-5.5 or Composer 2.5 which is better for</span>
+<span class=hljs-addition>+your code logic!&quot; No, in my opinion all models I&#x27;ve tried fall short, and I&#x27;ve</span>
+<span class=hljs-addition>+tried a lot over the past few years. If I ask ai to change something, it&#x27;s very</span>
+<span class=hljs-addition>+likely to make that change by _adding_ code. Not removing or reorganizing. This</span>
+<span class=hljs-addition>+leads to a codebase with hundreds of hacky patches that looks like it&#x27;s been</span>
+<span class=hljs-addition>+through several generations of software engineers. Part of this is a people</span>
+<span class=hljs-addition>+issue, because the prompter could come up with a better high level plan.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+There are also various coding style issues I have problems with, but that&#x27;s more</span>
+<span class=hljs-addition>+subjective. I&#x27;ll just leave a list without much explanation.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- Excessive checks/safeguards</span>
+<span class=hljs-addition>+- Comments that explain what</span>
+<span class=hljs-addition>+- Not following conventions</span>
+<span class=hljs-addition>+- Repeated helper/utility code</span>
+<span class=hljs-addition>+- Excessive testing</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Oh, just add a new skill to your harness and it won&#x27;t make that problem anymore!</span>
+<span class=hljs-addition>+Screw off.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## work slop</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+You know what looks good but is actually a pain to go through? 10 page prds</span>
+<span class=hljs-addition>+(product requirements documents) and 10 paragraph pull requests. When I have to</span>
+<span class=hljs-addition>+read these things, I die a little inside.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Sometimes the content is good, if a little wordy, but more often then not it&#x27;s</span>
+<span class=hljs-addition>+full of useless words. I&#x27;ve seen documents that talk reference things that do</span>
+<span class=hljs-addition>+not exist, that want things done in a way that is opposite of how things are</span>
+<span class=hljs-addition>+currently done (no it&#x27;s not because the new way is revolutionary), and contain</span>
+<span class=hljs-addition>+references to files located on the persons&#x27; personal workstation (for example:</span>
+<span class=hljs-addition>+&quot;and for the architecture, see /Users/person/x&quot;). And then I have to go to the</span>
+<span class=hljs-addition>+writer and figure out what these things mean. Again, it&#x27;s partly a people</span>
+<span class=hljs-addition>+problem.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+On a somewhat related topic, I find it interesting how people use ai to enhance</span>
+<span class=hljs-addition>+their ai usage - as far as I know no one is writing skills by hand. Who&#x27;s to say</span>
+<span class=hljs-addition>+those skills are actually good or not? And of course there&#x27;s the use ai to check</span>
+<span class=hljs-addition>+ai; it&#x27;s ai all the way down! Is this similar to distributed systems where</span>
+<span class=hljs-addition>+you&#x27;re trying to build a reliable system from unreliable parts? No.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+## conclusion</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+A severe lack of accountability is a driving force behind the existence of ai</span>
+<span class=hljs-addition>+slop.</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
