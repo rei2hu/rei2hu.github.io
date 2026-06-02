@@ -1,6 +1,4 @@
 User-agent: *
-
 Allow: /$
 Allow: /posts/141
-
 Disallow: /
