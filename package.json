@@ -29,7 +29,7 @@
 		"ncp": "^2.0.0",
 		"sharp": "^0.32.6",
 		"showdown": "^2.1.0",
-		"tikzjax-server": "git+https://github.com/rei2hu/tikzjax-server.git"
+		"tikzjax-server": "github:rei2hu/tikzjax-server"
 	},
 	"devDependencies": {
 		"eslint": "^7.4.0",
