@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /$
-Allow: /posts/141
+Allow: /posts/$
+Allow: /posts/141$
 Disallow: /
