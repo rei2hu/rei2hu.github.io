@@ -1,0 +1,492 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=UTF-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<link href=/style/style.css rel=stylesheet>
+<link href=/style/a11y.css rel=stylesheet>
+<link href=/favicon.svg rel=icon type=image/svg+xml>
+<script src=/scripts/image_loader.js></script>
+<script src=/scripts/tex-mml-chtml.js defer></script>
+<script>window.MathJax={tex:{inlineMath:[["$","$"]],displayMath:[["$$","$$"]],processEscapes:!0}}</script>
+<title>simplex method 2</title>
+</head>
+<body>
+<nav class=site-nav id=nav>
+<a href=/ >home</a>
+<a href=/posts>posts</a>
+<div id=lights-container>
+<label title="toggle light/dark mode. only persistent with javascript">
+<input id=lights type=checkbox>
+lights
+<script src=/scripts/lights.js></script>
+</label>
+</div>
+</nav>
+<div class=template-body>
+<noscript class=noscript-warning>
+Javascript is necessary for displaying LaTeX, some demos that run algorithms directly on the page, and small cosmetic features like light/dark mode.
+</noscript>
+<nav class=posts-nav_top>
+<div class=posts-nav_before><a href=/./posts/141>&lt; ai problems are people problems and other things</a></div>
+</nav>
+<h1 id=simplex-method-2>simplex method 2</h1>
+<p>This is a semi-continuation of <a href=/posts/137>simplex method 1</a>.</p>
+<p>Here, I'll attempt to build a chain of reasoning to the simplex method, though it's not a true attempt because I have a small inclination of how it works due to learning about it previously. Also I may make basic math mistakes.</p>
+<p>To recall, we're trying to maximize $23x + 12y$ given the following set of constraints.</p>
+<p>$$ \begin{aligned} x + y &\leq 24 \\ 2x + 3y &\geq 40 \\ 5x + 10y &\leq 200 \\ 20x + 5y &\leq 300 \end{aligned} $$</p>
+<p>$$ x \geq 0, y \geq 0 $$</p>
+<p>And the way we did this was to visually plot the inequalities to determine a feasible region, pick points that correspond corners of that region, and then slot those points into the equation we're trying to maximize. Specifically, the points were (0, 20), (8, 16), (12, 12), (14, 4), (0, 13.3), and it was maximized at (12, 12).</p>
+<p>To handle this in a non-visual way, we need to figure out the following:</p>
+<ol>
+<li>We need to be able to find a point within the feasible region easily.</li>
+<li>Given a point in the region, we need to determine how to "slide" along the constraints that the point is for.</li>
+</ol>
+<p>I'll start with #2. Let's say we already somehow figured out how to pick a point, and the point is (8, 16). If we're trying to maximize $23x + 12y$, then it makes sense to add more $x$s if possible, since that has the highest co-efficient.</p>
+<p>How many $x$s can we add? That depends on the constraints. If we plug our numbers into the original set of constraints, we can find the inequalities that are bounding our point.</p>
+<p>$$ \begin{aligned} (8) + (16) &\leq 24 \\ 2(8) + 3(16) &\geq 40 \\ 5(8) + 10(16) &\leq 200 \\ 20(8) + 5(16) &\leq 300 \end{aligned} $$ $x + y \leq 24$ and $5x + 10y \leq 200$. This means that we will want to "slide" against one of those constraints to find a new corner point - but which one?</p>
+<p>For this, we want to look at the other inequalities and figure out how much room we have to move and if it's going to be valuable. For one, we have \$2(8) + 3(16)</p>
+<ul>
+<li>40 = 24$, and the other we have $300 - 20(8) + 5(16) = 60\$. This is called "slack".</li>
+</ul>
+<p>This is about to get pretty hand-wavy in my opinion (curse of knowledge), but…</p>
+<p>In fact, we should introduce slack variables for all our inequalities, as they represent how far we can go in each direction. In this case $s_2 = 24$, $s_4 = 60$, and $s_1 = s_3 = 0$ because the first and third equations are what we are currently constrained to.</p>
+<p>$$ \begin{aligned} x + y &\leq 24 &\Rightarrow &x + y + s_1 = 24 \\ 2x + 3y &\geq 40 &\Rightarrow &2x + 3y - s_2 = 40 \\ 5x + 10y &\leq 200 &\Rightarrow &5x + 10y + s_3 = 200 \\ 20x + 5y &\leq 300 &\Rightarrow &2x + 3y + s_4 = 300 \end{aligned} $$</p>
+<p>Note that we are not actually substituting the slack variables in. And what we're trying to do is maximize the original function by adding slack to $s_1$ or $s_3$ while consequently reducing it for $s_2$ and $s_4$. To do this, we can rewrite the function in terms of $s_1$ and $s_3$ by solving for $x$ and $y$ using our current constraint equations (the first and third). Just subtract the equations from multiples of each other to cancel out a variable and you end up with</p>
+<p>$$ \begin{aligned} x = 8 - 2s_1 + \frac{s_3}{5} \\ y = 16 + s_1 - \frac{s_3}{5} \end{aligned} $$</p>
+<p>Substituting that into $23x + 12y$ gives</p>
+<p>$$ 376 - 34s_1 + \frac{11}{5}s_3 $$</p>
+<p>This means we can increase the value of this by adding slack to $s_3$, that is, we keep ourself constrained to the first inequality $x + y \leq 24$. But which new constraint do we pick?</p>
+<p>We can ignore $2x + 3y$ because it's a greater than inequality, which allows us to add as many $x$s and $y$s as we want (similar for the simple $\geq 0$ inequalities).</p>
+<p>We're also ignoring $5x + 10y \leq 200$ because we're going away from that constraint.</p>
+<p>This means we need to look at $20x + 5y \leq 300$. This allows us to add four $x$s per $y$. However, we're still going to be constrained to the $x + y \leq 24$ inequality, so we want to find where these inequalities (as equalities) intersect which happens to be (12, 12) which we know to be the solution.</p>
+<p>But now the questions is why is (12, 12) the solution? Let's do the entire thing we just did previously - write the function we're trying to maximize in terms of slack variables, but at (12, 12).</p>
+<p>We're constrained by the first and fourth inequalities now, so we want to have $x$ and $y$ in terms of those.</p>
+<p>$$ \begin{aligned} x = 12 + \frac{1}{3}s_1 - \frac{1}{15}s_4 \\ y = 12 - \frac{4}{3}s_1 + \frac{1}{15}s_4 \end{aligned} $$</p>
+<p>$$ 420 - \frac{25}{3}s_1 - \frac{11}{15}s_4 $$</p>
+<p>Now that both coefficients are negative, we know that adding slack anywhere available will now lower the value. We also see the maximum value is 420 which we figured out last time.</p>
+<p>While we did try this for corner points, this will in fact work for any point within the region.</p>
+<p>So now we know how to move around the points to corner points to the answer, but how do we find an initial point to start at? The short answer is that usually setting all variables to 0 should work, but I happened to write constraints in a way that it doesn't… and requires a more complex method than what I was hoping to write about. The specific thing issue is the $\geq$ comparison here, so let's move on assuming it doesn't exist.</p>
+<p>So we have a rough understanding of how to solve our problem in a non-visual format, I'll now go over what I remember about how to actually do it. I'll share the (objective) function and updated constraints again.</p>
+<p>$$ 23x + 12y $$</p>
+<p>$$ \begin{aligned} x + y &\leq 24 \\ 5x + 10y &\leq 200 \\ 20x + 5y &\leq 300 \end{aligned} $$</p>
+<p>$$ x \geq 0, y \geq 0 $$</p>
+<p>As before, we change the inequalities to equalities with slack variables. This time we also do the same with the objective function where $Z$ is the final value. We shuffle things around so that all coefficients for the slack variables and $Z$ are positive.</p>
+<p>$$ \begin{aligned} x + y + s_1 &= 24 \\ 5x + 10y + s_2 &= 200 \\ 20x + 5y + s_3 &= 300 \\ -23x + -12y + Z &= 0 \end{aligned} $$</p>
+<p>And dump it into a table called a tableau here columns are variable coefficients and rows are equations. This represents the state of the solution at (0, 0)</p>
+<table>
+<thead>
+<tr>
+<th>x</th>
+<th>y</th>
+<th>s1</th>
+<th>s2</th>
+<th>s3</th>
+<th>Z</th>
+<th>C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>24</td>
+</tr>
+<tr>
+<td>5</td>
+<td>10</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>200</td>
+</tr>
+<tr>
+<td>20</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>300</td>
+</tr>
+<tr>
+<td>-23</td>
+<td>-12</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Somewhat like we reasoned previously, if any of the coefficients of the final row are negative (we said positive previously but due to shuffling things around it's negative here), we can improve the value of the objective function by picking the most negative column - $x$.</p>
+<p>Now which constraint do we pick? Technically speaking, this wasn't covered because 3 constraints at a corner points means there's nothing to pick, but we're looking at the ratios here. We want to add $x$s, but can only do $min(Z/x)$ or $min(15, 40, 24) = 15$. So now we're looking at 20 in column $x$ as the "pivot" element.</p>
+<p>Now is the weird part. Since we've picked that spot, we now want to perform transformations on this tableau so that that value is replaced with a 1, and the other values in the column are 0s. Remember that these are just linear equations so you can multiply an entire row and add/subtract them from each other.</p>
+<table>
+<thead>
+<tr>
+<th>x</th>
+<th>y</th>
+<th>s1</th>
+<th>s2</th>
+<th>s3</th>
+<th>Z</th>
+<th>C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>3/4</td>
+<td>1</td>
+<td>0</td>
+<td>-1/20</td>
+<td>0</td>
+<td>9</td>
+</tr>
+<tr>
+<td>0</td>
+<td>35/4</td>
+<td>0</td>
+<td>1</td>
+<td>-1/4</td>
+<td>0</td>
+<td>125</td>
+</tr>
+<tr>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>300</td>
+</tr>
+<tr>
+<td>0</td>
+<td>-25/4</td>
+<td>0</td>
+<td>0</td>
+<td>23/20</td>
+<td>1</td>
+<td>345</td>
+</tr>
+</tbody>
+</table>
+<p>What is this table representing? This represents (15, 0) which was not part of the original problem due to the $\geq$ constraint, but anyways… We look at the last row and see that $y$ has a negative coefficient still, which means we can keep going, picking the 3/4 value to pivot on.</p>
+<table>
+<thead>
+<tr>
+<th>x</th>
+<th>y</th>
+<th>s1</th>
+<th>s2</th>
+<th>s3</th>
+<th>Z</th>
+<th>C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>4/3</td>
+<td>0</td>
+<td>-1/15</td>
+<td>0</td>
+<td>12</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>-35/3</td>
+<td>1</td>
+<td>1/3</td>
+<td>0</td>
+<td>20</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>-1/3</td>
+<td>0</td>
+<td>1/15</td>
+<td>0</td>
+<td>12</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>25/3</td>
+<td>0</td>
+<td>11/15</td>
+<td>1</td>
+<td>420</td>
+</tr>
+</tbody>
+</table>
+<p>Finally we're at a point where none of the coefficients are negative, and we know the solution is 420. If those coefficients look familiar, it's because they're the same as what we calculated originally (though, again, signs are flipped).</p>
+<p>$$ 420 - \frac{25}{3}s_1 - \frac{11}{15}s_4 $$</p>
+<nav class=posts-nav_bottom>
+<div class=posts-nav_before><a href=/./posts/141>&lt; ai problems are people problems and other things</a></div>
+</nav>
+<div class=commit-container>
+<div class="commit-list de-emphasized">
+<span>History:</span>
+<details>
+<summary>2026-07-31 - add post 142</summary>
+<pre class=code-block><input id=code-block-dc7231046f1675af7ca4b5df7cfa7230a65c60a5-1 type=checkbox><label for=code-block-dc7231046f1675af7ca4b5df7cfa7230a65c60a5-1></label><code><span class=hljs-meta>@@ -0,0 +1,238 @@</span>
+<span class=hljs-addition>+# simplex method 2</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is a semi-continuation of [simplex method 1](/posts/137).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Here, I&#x27;ll attempt to build a chain of reasoning to the simplex method, though</span>
+<span class=hljs-addition>+it&#x27;s not a true attempt because I have a small inclination of how it works due</span>
+<span class=hljs-addition>+to learning about it previously. Also I may make basic math mistakes.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To recall, we&#x27;re trying to maximize $23x + 12y$ given the following set of</span>
+<span class=hljs-addition>+constraints.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+    x + y &amp;\leq 24 \\</span>
+<span class=hljs-addition>+    2x + 3y &amp;\geq 40 \\</span>
+<span class=hljs-addition>+    5x + 10y &amp;\leq 200 \\</span>
+<span class=hljs-addition>+    20x + 5y &amp;\leq 300</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+x \geq 0, y \geq 0</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And the way we did this was to visually plot the inequalities to determine a</span>
+<span class=hljs-addition>+feasible region, pick points that correspond corners of that region, and then</span>
+<span class=hljs-addition>+slot those points into the equation we&#x27;re trying to maximize. Specifically, the</span>
+<span class=hljs-addition>+points were (0, 20), (8, 16), (12, 12), (14, 4), (0, 13.3), and it was maximized</span>
+<span class=hljs-addition>+at (12, 12).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+To handle this in a non-visual way, we need to figure out the following:</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+1. We need to be able to find a point within the feasible region easily.</span>
+<span class=hljs-addition>+2. Given a point in the region, we need to determine how to &quot;slide&quot; along the</span>
+<span class=hljs-addition>+   constraints that the point is for.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+I&#x27;ll start with #2. Let&#x27;s say we already somehow figured out how to pick a</span>
+<span class=hljs-addition>+point, and the point is (8, 16). If we&#x27;re trying to maximize $23x + 12y$, then</span>
+<span class=hljs-addition>+it makes sense to add more $x$s if possible, since that has the highest</span>
+<span class=hljs-addition>+co-efficient.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+How many $x$s can we add? That depends on the constraints. If we plug our</span>
+<span class=hljs-addition>+numbers into the original set of constraints, we can find the inequalities that</span>
+<span class=hljs-addition>+are bounding our point.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+    (8) + (16) &amp;\leq 24 \\</span>
+<span class=hljs-addition>+    2(8) + 3(16) &amp;\geq 40 \\</span>
+<span class=hljs-addition>+    5(8) + 10(16) &amp;\leq 200 \\</span>
+<span class=hljs-addition>+    20(8) + 5(16) &amp;\leq 300</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$x + y \leq 24$ and $5x + 10y \leq 200$. This means that we will want to &quot;slide&quot;</span>
+<span class=hljs-addition>+against one of those constraints to find a new corner point - but which one?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+For this, we want to look at the other inequalities and figure out how much room</span>
+<span class=hljs-addition>+we have to move and if it&#x27;s going to be valuable. For one, we have \$2(8) +</span>
+<span class=hljs-addition>+3(16)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+- 40 = 24$, and the other we have $300 - 20(8) + 5(16) = 60\$. This is called</span>
+<span class=hljs-addition>+    &quot;slack&quot;.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This is about to get pretty hand-wavy in my opinion (curse of knowledge), but...</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+In fact, we should introduce slack variables for all our inequalities, as they</span>
+<span class=hljs-addition>+represent how far we can go in each direction. In this case $s_2 = 24$,</span>
+<span class=hljs-addition>+$s_4 =</span>
+<span class=hljs-addition>+60$, and $s_1 = s_3 = 0$ because the first and third equations are what we</span>
+<span class=hljs-addition>+are currently constrained to.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+    x + y &amp;\leq 24 &amp;\Rightarrow   &amp;x + y + s_1 = 24 \\</span>
+<span class=hljs-addition>+    2x + 3y &amp;\geq 40 &amp;\Rightarrow   &amp;2x + 3y - s_2 = 40 \\</span>
+<span class=hljs-addition>+    5x + 10y &amp;\leq 200 &amp;\Rightarrow   &amp;5x + 10y + s_3 = 200 \\</span>
+<span class=hljs-addition>+    20x + 5y &amp;\leq 300 &amp;\Rightarrow   &amp;2x + 3y + s_4 = 300</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Note that we are not actually substituting the slack variables in. And what</span>
+<span class=hljs-addition>+we&#x27;re trying to do is maximize the original function by adding slack to $s_1$ or</span>
+<span class=hljs-addition>+$s_3$ while consequently reducing it for $s_2$ and $s_4$. To do this, we can</span>
+<span class=hljs-addition>+rewrite the function in terms of $s_1$ and $s_3$ by solving for $x$ and $y$</span>
+<span class=hljs-addition>+using our current constraint equations (the first and third). Just subtract the</span>
+<span class=hljs-addition>+equations from multiples of each other to cancel out a variable and you end up</span>
+<span class=hljs-addition>+with</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+    x = 8 - 2s_1 + \frac{s_3}{5} \\</span>
+<span class=hljs-addition>+    y = 16 + s_1 - \frac{s_3}{5}</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Substituting that into $23x + 12y$ gives</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+376 - 34s_1 + \frac{11}{5}s_3</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This means we can increase the value of this by adding slack to $s_3$, that is,</span>
+<span class=hljs-addition>+we keep ourself constrained to the first inequality $x + y \leq 24$. But which</span>
+<span class=hljs-addition>+new constraint do we pick?</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We can ignore $2x + 3y$ because it&#x27;s a greater than inequality, which allows us</span>
+<span class=hljs-addition>+to add as many $x$s and $y$s as we want (similar for the simple $\geq 0$</span>
+<span class=hljs-addition>+inequalities).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We&#x27;re also ignoring $5x + 10y \leq 200$ because we&#x27;re going away from that</span>
+<span class=hljs-addition>+constraint.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+This means we need to look at $20x + 5y \leq 300$. This allows us to add four</span>
+<span class=hljs-addition>+$x$s per $y$. However, we&#x27;re still going to be constrained to the $x + y \leq</span>
+<span class=hljs-addition>+24$</span>
+<span class=hljs-addition>+inequality, so we want to find where these inequalities (as equalities)</span>
+<span class=hljs-addition>+intersect which happens to be (12, 12) which we know to be the solution.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+But now the questions is why is (12, 12) the solution? Let&#x27;s do the entire thing</span>
+<span class=hljs-addition>+we just did previously - write the function we&#x27;re trying to maximize in terms of</span>
+<span class=hljs-addition>+slack variables, but at (12, 12).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+We&#x27;re constrained by the first and fourth inequalities now, so we want to have</span>
+<span class=hljs-addition>+$x$ and $y$ in terms of those.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+    x = 12 + \frac{1}{3}s_1 - \frac{1}{15}s_4 \\</span>
+<span class=hljs-addition>+    y = 12 - \frac{4}{3}s_1 + \frac{1}{15}s_4</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+420 - \frac{25}{3}s_1 - \frac{11}{15}s_4</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now that both coefficients are negative, we know that adding slack anywhere</span>
+<span class=hljs-addition>+available will now lower the value. We also see the maximum value is 420 which</span>
+<span class=hljs-addition>+we figured out last time.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+While we did try this for corner points, this will in fact work for any point</span>
+<span class=hljs-addition>+within the region.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So now we know how to move around the points to corner points to the answer, but</span>
+<span class=hljs-addition>+how do we find an initial point to start at? The short answer is that usually</span>
+<span class=hljs-addition>+setting all variables to 0 should work, but I happened to write constraints in a</span>
+<span class=hljs-addition>+way that it doesn&#x27;t... and requires a more complex method than what I was hoping</span>
+<span class=hljs-addition>+to write about. The specific thing issue is the $\geq$ comparison here, so let&#x27;s</span>
+<span class=hljs-addition>+move on assuming it doesn&#x27;t exist.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+So we have a rough understanding of how to solve our problem in a non-visual</span>
+<span class=hljs-addition>+format, I&#x27;ll now go over what I remember about how to actually do it. I&#x27;ll share</span>
+<span class=hljs-addition>+the (objective) function and updated constraints again.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+23x + 12y</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+    x + y &amp;\leq 24 \\</span>
+<span class=hljs-addition>+    5x + 10y &amp;\leq 200 \\</span>
+<span class=hljs-addition>+    20x + 5y &amp;\leq 300</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+x \geq 0, y \geq 0</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+As before, we change the inequalities to equalities with slack variables. This</span>
+<span class=hljs-addition>+time we also do the same with the objective function where $Z$ is the final</span>
+<span class=hljs-addition>+value. We shuffle things around so that all coefficients for the slack variables</span>
+<span class=hljs-addition>+and $Z$ are positive.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+\begin{aligned}</span>
+<span class=hljs-addition>+    x + y + s_1 &amp;= 24 \\</span>
+<span class=hljs-addition>+    5x + 10y + s_2 &amp;= 200 \\</span>
+<span class=hljs-addition>+    20x + 5y + s_3 &amp;= 300 \\</span>
+<span class=hljs-addition>+    -23x + -12y + Z &amp;= 0</span>
+<span class=hljs-addition>+\end{aligned}</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+And dump it into a table called a tableau here columns are variable coefficients</span>
+<span class=hljs-addition>+and rows are equations. This represents the state of the solution at (0, 0)</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| x   | y   | s1  | s2  | s3  | Z   | C   |</span>
+<span class=hljs-addition>+| --- | --- | --- | --- | --- | --- | --- |</span>
+<span class=hljs-addition>+| 1   | 1   | 1   | 0   | 0   | 0   | 24  |</span>
+<span class=hljs-addition>+| 5   | 10  | 0   | 1   | 0   | 0   | 200 |</span>
+<span class=hljs-addition>+| 20  | 5   | 0   | 0   | 1   | 0   | 300 |</span>
+<span class=hljs-addition>+| -23 | -12 | 0   | 0   | 0   | 1   | 0   |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Somewhat like we reasoned previously, if any of the coefficients of the final</span>
+<span class=hljs-addition>+row are negative (we said positive previously but due to shuffling things around</span>
+<span class=hljs-addition>+it&#x27;s negative here), we can improve the value of the objective function by</span>
+<span class=hljs-addition>+picking the most negative column - $x$.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now which constraint do we pick? Technically speaking, this wasn&#x27;t covered</span>
+<span class=hljs-addition>+because 3 constraints at a corner points means there&#x27;s nothing to pick, but</span>
+<span class=hljs-addition>+we&#x27;re looking at the ratios here. We want to add $x$s, but can only do</span>
+<span class=hljs-addition>+$min(Z/x)$ or $min(15, 40, 24) = 15$. So now we&#x27;re looking at 20 in column $x$</span>
+<span class=hljs-addition>+as the &quot;pivot&quot; element.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Now is the weird part. Since we&#x27;ve picked that spot, we now want to perform</span>
+<span class=hljs-addition>+transformations on this tableau so that that value is replaced with a 1, and the</span>
+<span class=hljs-addition>+other values in the column are 0s. Remember that these are just linear equations</span>
+<span class=hljs-addition>+so you can multiply an entire row and add/subtract them from each other.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| x   | y     | s1  | s2  | s3    | Z   | C   |</span>
+<span class=hljs-addition>+| --- | ----- | --- | --- | ----- | --- | --- |</span>
+<span class=hljs-addition>+| 0   | 3/4   | 1   | 0   | -1/20 | 0   | 9   |</span>
+<span class=hljs-addition>+| 0   | 35/4  | 0   | 1   | -1/4  | 0   | 125 |</span>
+<span class=hljs-addition>+| 1   | 5     | 0   | 0   | 1     | 0   | 300 |</span>
+<span class=hljs-addition>+| 0   | -25/4 | 0   | 0   | 23/20 | 1   | 345 |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+What is this table representing? This represents (15, 0) which was not part of</span>
+<span class=hljs-addition>+the original problem due to the $\geq$ constraint, but anyways... We look at the</span>
+<span class=hljs-addition>+last row and see that $y$ has a negative coefficient still, which means we can</span>
+<span class=hljs-addition>+keep going, picking the 3/4 value to pivot on.</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+| x   | y   | s1    | s2  | s3    | Z   | C   |</span>
+<span class=hljs-addition>+| --- | --- | ----- | --- | ----- | --- | --- |</span>
+<span class=hljs-addition>+| 0   | 1   | 4/3   | 0   | -1/15 | 0   | 12  |</span>
+<span class=hljs-addition>+| 0   | 0   | -35/3 | 1   | 1/3   | 0   | 20  |</span>
+<span class=hljs-addition>+| 1   | 0   | -1/3  | 0   | 1/15  | 0   | 12  |</span>
+<span class=hljs-addition>+| 0   | 0   | 25/3  | 0   | 11/15 | 1   | 420 |</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+Finally we&#x27;re at a point where none of the coefficients are negative, and we</span>
+<span class=hljs-addition>+know the solution is 420. If those coefficients look familiar, it&#x27;s because</span>
+<span class=hljs-addition>+they&#x27;re the same as what we calculated originally (though, again, signs are</span>
+<span class=hljs-addition>+flipped).</span>
+<span class=hljs-addition>+</span>
+<span class=hljs-addition>+$$</span>
+<span class=hljs-addition>+420 - \frac{25}{3}s_1 - \frac{11}{15}s_4</span>
+<span class=hljs-addition>+$$</span>
+</code></pre>
+</details>
+</div>
+</div>
+</div>
+<picture id=very-cute-picture><img onerror='load_backup_image("/scripts/cozy_reimu.bmp"),load_backup_image("/scripts/unamused_reimu.bmp")' srcset=reimu>
+</picture>
+</body>
+</html>
