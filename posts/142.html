@@ -46,10 +46,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <p>I'll start with #2. Let's say we already somehow figured out how to pick a point, and the point is (8, 16). If we're trying to maximize $23x + 12y$, then it makes sense to add more $x$s if possible, since that has the highest co-efficient.</p>
 <p>How many $x$s can we add? That depends on the constraints. If we plug our numbers into the original set of constraints, we can find the inequalities that are bounding our point.</p>
 <p>$$ \begin{aligned} (8) + (16) &\leq 24 \\ 2(8) + 3(16) &\geq 40 \\ 5(8) + 10(16) &\leq 200 \\ 20(8) + 5(16) &\leq 300 \end{aligned} $$ $x + y \leq 24$ and $5x + 10y \leq 200$. This means that we will want to "slide" against one of those constraints to find a new corner point - but which one?</p>
-<p>For this, we want to look at the other inequalities and figure out how much room we have to move and if it's going to be valuable. For one, we have \$2(8) + 3(16)</p>
-<ul>
-<li>40 = 24$, and the other we have $300 - 20(8) + 5(16) = 60\$. This is called "slack".</li>
-</ul>
+<p>For this, we want to look at the other inequalities and figure out how much room we have to move and if it's going to be valuable. For one, we have \$2(8) + 3(16) - 40 = 24$, and the other we have $300 - 20(8) + 5(16) = 60\$. This is called "slack".</p>
 <p>This is about to get pretty hand-wavy in my opinion (curse of knowledge), but…</p>
 <p>In fact, we should introduce slack variables for all our inequalities, as they represent how far we can go in each direction. In this case $s_2 = 24$, $s_4 = 60$, and $s_1 = s_3 = 0$ because the first and third equations are what we are currently constrained to.</p>
 <p>$$ \begin{aligned} x + y &\leq 24 &\Rightarrow &x + y + s_1 = 24 \\ 2x + 3y &\geq 40 &\Rightarrow &2x + 3y - s_2 = 40 \\ 5x + 10y &\leq 200 &\Rightarrow &5x + 10y + s_3 = 200 \\ 20x + 5y &\leq 300 &\Rightarrow &2x + 3y + s_4 = 300 \end{aligned} $$</p>
@@ -242,7 +239,7 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <span>History:</span>
 <details>
 <summary>2026-07-31 - add post 142</summary>
-<pre class=code-block><input id=code-block-dc7231046f1675af7ca4b5df7cfa7230a65c60a5-1 type=checkbox><label for=code-block-dc7231046f1675af7ca4b5df7cfa7230a65c60a5-1></label><code><span class=hljs-meta>@@ -0,0 +1,238 @@</span>
+<pre class=code-block><input id=code-block-343e8e251dbb8ddf5c4a8d42a4ee184378a15e61-1 type=checkbox><label for=code-block-343e8e251dbb8ddf5c4a8d42a4ee184378a15e61-1></label><code><span class=hljs-meta>@@ -0,0 +1,236 @@</span>
 <span class=hljs-addition>+# simplex method 2</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+This is a semi-continuation of [simplex method 1](/posts/137).</span>
@@ -302,10 +299,8 @@ Javascript is necessary for displaying LaTeX, some demos that run algorithms dir
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+For this, we want to look at the other inequalities and figure out how much room</span>
 <span class=hljs-addition>+we have to move and if it&#x27;s going to be valuable. For one, we have \$2(8) +</span>
-<span class=hljs-addition>+3(16)</span>
-<span class=hljs-addition>+</span>
-<span class=hljs-addition>+- 40 = 24$, and the other we have $300 - 20(8) + 5(16) = 60\$. This is called</span>
-<span class=hljs-addition>+    &quot;slack&quot;.</span>
+<span class=hljs-addition>+3(16) - 40 = 24$, and the other we have $300 - 20(8) + 5(16) = 60\$. This is</span>
+<span class=hljs-addition>+called &quot;slack&quot;.</span>
 <span class=hljs-addition>+</span>
 <span class=hljs-addition>+This is about to get pretty hand-wavy in my opinion (curse of knowledge), but...</span>
 <span class=hljs-addition>+</span>
